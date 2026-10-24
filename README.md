@@ -68,7 +68,7 @@ Where a screen shares parts with others, it uses the shared components (`<Sideba
 
 ## Theme
 
-The theme (dark or light) follows the computer's system setting. To force one, run this in the browser console:
+Use the **Light mode / Dark mode** switch at the bottom of the sidebar (also in the collapsed sidebar). The choice is saved. Until you pick one, the app follows the computer's system setting. The same switch exists in the design. You can also set it from the browser console:
 
 ```js
 localStorage.setItem('yf-theme', 'light')

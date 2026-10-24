@@ -1,2 +1,5 @@
 /* Sidebar styles — identical to the design. Injected only while this screen is mounted. */
 body{margin:0}
+/* sidebar keeps to the window height and scrolls on its own (page content can be taller) */
+@media (min-width:761px){.app>.sbw{position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;z-index:15}}
+.fit .app>.sbw{position:relative;height:auto}

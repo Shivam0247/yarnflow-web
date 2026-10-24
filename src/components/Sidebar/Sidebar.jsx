@@ -11,6 +11,14 @@ class Component extends DCLogic {
   constructor(p) { super(p); this.state = { open: null, col: null }; }
   componentDidMount() { const rd = () => { try { const v = window.localStorage.getItem('yf-sb-col'); const c = v === '1'; if (c !== this.state.col) this.setState({ col: c }); } catch (e) {} }; this._rd = rd; rd(); try { window.addEventListener('storage', rd); window.addEventListener('focus', rd); } catch (e) {} }
   componentWillUnmount() { try { window.removeEventListener('storage', this._rd); window.removeEventListener('focus', this._rd); } catch (e) {} }
+  toggleTheme() {
+    const t = (this.props.theme ?? 'dark') === 'light' ? 'dark' : 'light';
+    try { window.localStorage.setItem('yf-theme', t); window.dispatchEvent(new Event('yf-theme')); } catch (e) {}
+    // on the canvas each theme is its own board: jump to the matching dark / light board
+    let f = ''; try { f = window.location.pathname.split('/').pop() || ''; } catch (e) {}
+    const m = /^([A-Za-z]+?)(Light)?\.dc\.html$/.exec(f);
+    if (m) { try { const a = document.createElement('a'); a.href = m[1] + (t === 'light' ? 'Light' : '') + '.dc.html'; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
+  }
   setCol(c, openGroup) { try { window.localStorage.setItem('yf-sb-col', c ? '1' : '0'); } catch (e) {} const st = { col: c }; if (openGroup) st.open = [openGroup]; this.setState(st); }
   renderVals() {
     const active = ({ soe: 'so', soa: 'so', poe: 'po', poa: 'po' })[this.props.active] || (this.props.active ?? 'dash');
@@ -55,7 +63,8 @@ class Component extends DCLogic {
     const cOn = ' background: var(--s3, #2C2C2C); color: var(--t1, #EDEDED);';
     const c = { btn: cb, dash: cb + (active === 'dash' ? cOn : ''), mast: cb + (masterKeys.indexOf(active) >= 0 ? cOn : '') };
     ['sales', 'pur', 'bank', 'jv', 'acc', 'inv', 'rep'].forEach((k) => { c[k] = cb + (owner[active] === k ? cOn : ''); c[k + 'Go'] = () => this.setCol(false, k); });
-    return { g, n, h, c, col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false) };
+    const isLight = (this.props.theme ?? 'dark') === 'light';
+    return { g, n, h, c, col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
   }
 }
 
@@ -160,6 +169,24 @@ class SidebarView extends Component {
               </svg>
             </DcLink>
             <div style={{"flex":"1","minHeight":"20px"}} />
+            <button type="button" onClick={v.toggleTheme} title={v.themeLabel} aria-label="Switch between dark and light mode" style={sx(v.c?.btn)}>
+              {v.isDark ? (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                  </svg>
+                </>
+              ) : null}
+              {v.isLight ? (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                  </svg>
+                </>
+              ) : null}
+            </button>
+            {' '}
             <button type="button" onClick={v.expand} title="Expand menu" aria-label="Expand menu" style={sx(v.c?.btn)}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
                 <path d="M21 19V5" />
@@ -470,6 +497,25 @@ class SidebarView extends Component {
               </span>
             </DcLink>
             <div style={{"flex":"1","minHeight":"20px"}} />
+            <button type="button" onClick={v.toggleTheme} title="Switch between dark and light mode" style={sx(`${v.n?.set ?? ""} width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; font: inherit`)}>
+              {v.isDark ? (
+                <>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true" style={{"flex":"none","color":"var(--t2, #B5B5B5)"}}>
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                  </svg>
+                </>
+              ) : null}
+              {v.isLight ? (
+                <>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{"flex":"none","color":"var(--t2, #B5B5B5)"}}>
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                  </svg>
+                </>
+              ) : null}
+              {v.themeLabel}
+            </button>
+            {' '}
             <DcLink href="#" style={sx(v.n?.set)}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true" style={{"flex":"none","color":"var(--t2, #B5B5B5)"}}>
                 <path d="M20 7h-9" />

@@ -41,6 +41,14 @@ const router = createBrowserRouter([
   }
 ]);
 
+// match the page background to the saved / system theme before first paint
+try {
+  const t = localStorage.getItem('yf-theme') ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.body.style.background = t === 'light' ? '#FFFFFF' : '#141414';
+} catch {
+  /* ignore */
+}
+
 createRoot(document.getElementById('root')!).render(
   <RouterProvider router={router} />
 );

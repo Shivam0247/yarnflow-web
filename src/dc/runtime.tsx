@@ -1,7 +1,7 @@
 /**
  * Tiny runtime shared by every screen.
  *  - DCLogic : base class for screen logic (a plain React class component)
- *  - useTheme: 'dark' | 'light' (follows the OS setting)
+ *  - useTheme: 'dark' | 'light' (sidebar switch, saved; otherwise the OS setting)
  *  - DcLink  : turns design links ("SalesOrderList.dc.html") into app routes
  *  - sx      : turns a CSS string into a React style object
  */
@@ -18,9 +18,11 @@ const mq = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-sch
 const subscribe = (cb: () => void) => {
   mq?.addEventListener('change', cb);
   window.addEventListener('storage', cb);
+  window.addEventListener('yf-theme', cb);
   return () => {
     mq?.removeEventListener('change', cb);
     window.removeEventListener('storage', cb);
+    window.removeEventListener('yf-theme', cb);
   };
 };
 const snapshot = (): 'dark' | 'light' => {
