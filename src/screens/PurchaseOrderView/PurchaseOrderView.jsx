@@ -1,0 +1,33 @@
+/* eslint-disable */
+// PurchaseOrderView — converted 1:1 from the YarnFlow design (PurchaseOrderView.dc.html).
+// Markup, styles, sample data and behaviour are identical to the design.
+import { Fragment } from 'react';
+import { DCLogic, useTheme } from '@/dc/runtime';
+import PurchaseOrderEntry from '@/screens/PurchaseOrderEntry/PurchaseOrderEntry';
+
+import CSS from './PurchaseOrderView.css?raw';
+
+/* ----- screen logic (same as the design) ----- */
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+
+/* ----- view ----- */
+class PurchaseOrderViewView extends Component {
+  render() {
+    const v = this.renderVals() || {};
+    return (
+      <>
+        <style>{CSS}</style>
+      <div style={{"height":"100vh","background":"#141414"}}>
+        <PurchaseOrderEntry mode="view" />
+      </div>
+      </>
+    );
+  }
+}
+
+export default function PurchaseOrderView(props) {
+  const theme = useTheme();
+  return <PurchaseOrderViewView {...props} theme={theme} />;
+}
