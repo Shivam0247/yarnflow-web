@@ -11,6 +11,10 @@ Yarn trading ERP for **Shree Umiya Yarn Pvt Ltd, Surat**: sales, purchase, stock
 
 ## Quick start
 
+**Easiest (Mac):** double-click `Start YarnFlow.command`. Or, on any OS with Node 20+, run `npm install && npm run local`. Either way the app starts its own database, so nothing else needs installing, and it opens at http://localhost:4000.
+
+### With Docker / your own PostgreSQL
+
 You need Node 20+ and Docker (or your own PostgreSQL 16).
 
 ```bash
