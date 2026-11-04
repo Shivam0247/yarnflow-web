@@ -2,7 +2,7 @@
   "name": "yarnflow",
   "private": true,
   "version": "1.0.0",
-  "description": "YarnFlow — yarn trading ERP (sales, purchase, stock, accounts, GST) for Shree Umiya Yarn Pvt Ltd",
+  "description": "YarnFlow \u2014 yarn trading ERP (sales, purchase, stock, accounts, GST) for Shree Umiya Yarn Pvt Ltd",
   "workspaces": [
     "server",
     "web"
@@ -16,7 +16,8 @@
     "db:deploy": "npm run db:deploy -w server",
     "db:seed": "npm run db:seed -w server",
     "db:reset": "npm run db:reset -w server",
-    "typecheck": "npm run typecheck -w server && npm run typecheck -w web"
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
+    "sync-design": "node tools/dc2react.mjs design/project web/src"
   },
   "devDependencies": {
     "concurrently": "^9.2.5"

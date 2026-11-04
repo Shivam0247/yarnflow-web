@@ -51,8 +51,8 @@ describe('receipts & bill-wise settlement', () => {
     const out = await w.api.ok(w.api.get('/reports/outstanding?side=receivable&asOn=2026-10-15'));
     const p = out.parties.find((x: any) => x.partyName === 'Surat Weavers');
     expect(p.total).toBe(bill1.netAmount + bill2.netAmount);
-    expect(p.d61_90).toBe(bill1.netAmount); // 75 days old
-    expect(p.d31_60).toBe(bill2.netAmount); // 44 days old
+    expect(p.buckets[2]).toBe(bill1.netAmount); // 75 days old → 61–90
+    expect(p.buckets[1]).toBe(bill2.netAmount); // 44 days old → 31–60
     expect(p.overdue).toBe(bill1.netAmount + bill2.netAmount); // both past 30 credit days
     const sum = await w.api.ok(w.api.get(`/accounts/${w.customer.id}/summary`));
     expect(sum.outstanding).toBe(p.total);

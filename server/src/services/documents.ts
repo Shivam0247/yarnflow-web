@@ -19,7 +19,7 @@ import { r2, r3, sum } from '../lib/money.js';
 import { calcDocument } from './calc.js';
 import { requireRole, type Ctx } from './context.js';
 import { defaultBook, SYS, sysAccount } from './setup.js';
-import { BILL_TYPES, ORDER_TYPES, TYPES, type TypeDef, type VoucherType } from './types.js';
+import { BILL_SQL, BILL_TYPES, isBill, ORDER_TYPES, TYPES, type TypeDef, type VoucherType } from './types.js';
 
 /** over-delivery allowed against an order / schedule (yarn weights vary) */
 export const TOLERANCE = 0.1;
@@ -82,6 +82,7 @@ export const docSchema = z.object({
   toGodownId: z.coerce.number().int().positive().optional().nullable(),
   bankAccountId: z.coerce.number().int().positive().optional().nullable(),
   collectionPerson: optStr,
+  collectionPersonId: z.coerce.number().int().positive().optional().nullable(),
   sourceId: z.coerce.number().int().positive().optional().nullable(),
   refNo: optStr,
   refDate: optDate,
@@ -399,7 +400,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
         freightAmount: Number(l.freightAmount) || 0,
         insurancePct: Number(l.insurancePct) || 0,
         insuranceAmount: Number(l.insuranceAmount) || 0,
-        gstRate: l.gstRate ?? it?.gstRate ?? 5,
+        gstRate: l.gstRate ?? it?.gstRate ?? (def.posting === 'note' ? 0 : 5),
         amount: Number(l.amount) || 0,
         remark1: l.remark1 ?? null,
         remark2: l.remark2 ?? null,
@@ -448,10 +449,11 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
   // ---- allocations (receipts / payments) & automatic ones (returns)
   let allocations: { billId: number; amount: number }[] = [];
   if (def.type === 'RECEIPT' || def.type === 'PAYMENT') {
-    const kinds = def.type === 'RECEIPT' ? BILL_TYPES.receivable : BILL_TYPES.payable;
+    const side = def.type === 'RECEIPT' ? 'receivable' : 'payable';
+    const kinds = BILL_TYPES[side];
     let req = input.allocations ?? [];
     if (input.autoAdjust && !req.length && party) {
-      const open = await openBills(ctx, party.id, kinds, existingId);
+      const open = await openBills(ctx, party.id, side, existingId);
       let left = totals.netAmount;
       req = [];
       for (const b of open) {
@@ -466,7 +468,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
       const pend = await billPending(db, bills.map((b) => b.id), existingId);
       for (const a of req) {
         const b = bills.find((x) => x.id === a.billId);
-        if (!b || !kinds.includes(b.type as VoucherType)) throw unprocessable(`Bill ${a.billId} cannot be adjusted here`);
+        if (!b || !kinds.includes(b.type as VoucherType) || !isBill(b.type, party?.kind, side)) throw unprocessable(`Bill ${a.billId} cannot be adjusted here`);
         if (party && b.partyId !== party.id) throw unprocessable(`Bill ${b.number} belongs to another party`);
         if (a.amount > (pend.get(b.id) ?? 0) + 0.005) throw unprocessable(`Adjustment on ${b.number} is more than its pending ₹${pend.get(b.id)}`);
       }
@@ -510,6 +512,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     toGodownId: input.toGodownId ?? null,
     bankAccountId: input.bankAccountId ?? null,
     collectionPerson: input.collectionPerson ?? null,
+    collectionPersonId: input.collectionPersonId ?? (def.type === 'RECEIPT' ? party?.collectionPersonId ?? null : null),
     sourceId: input.sourceId ?? (touchedOrders[0] ?? null),
     refNo: input.refNo ?? null,
     refDate: input.refDate ?? null,
@@ -518,7 +521,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     opportunityNo: input.opportunityNo ?? null,
     reason: input.reason ?? null,
     creditDays,
-    dueDate: input.dueDate ?? (def.bill || def.type === 'SALES_ORDER' ? addDays(input.date, creditDays) : null),
+    dueDate: input.dueDate ?? (def.bill || def.posting === 'note' || def.type === 'SALES_ORDER' ? addDays(input.date, creditDays) : null),
     expDeliveryDate: input.expDeliveryDate ?? null,
     processType: input.processType ?? null,
     orderType: input.orderType ?? null,
@@ -554,6 +557,18 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     if (input.ewbNo) Object.assign(header, { ewbNo: input.ewbNo, ewbStatus: 'GENERATED' });
   }
 
+  // a note made against a bill: a credit note to a customer / debit note to a supplier settles it
+  if (def.posting === 'note' && input.sourceId && party) {
+    const [b] = await db.select().from(vouchers).where(and(eq(vouchers.id, input.sourceId), eq(vouchers.companyId, ctx.companyId)));
+    if (!b || b.partyId !== party.id) throw unprocessable('The bill does not belong to this party');
+    const settles = (def.type === 'CREDIT_NOTE' && isBill(b.type, party.kind, 'receivable')) || (def.type === 'DEBIT_NOTE' && isBill(b.type, party.kind, 'payable'));
+    if (settles) {
+      const pend = (await billPending(db, [b.id], existingId)).get(b.id) ?? 0;
+      const a = r2(Math.min(pend, totals.netAmount ?? 0));
+      if (a > 0) allocations = [{ billId: b.id, amount: a }];
+    }
+  }
+
   // automatic allocation of a return against its bill
   if ((def.type === 'SALE_RETURN' || def.type === 'PURCHASE_RETURN') && touchedOrders.length) {
     const billId = touchedOrders[0];
@@ -566,12 +581,13 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
 }
 
 /** open bills of a party, oldest first */
-export async function openBills(ctx: Ctx, partyId: number, kinds: VoucherType[], excludeVoucherId?: number) {
-  const rows = await ctx.db
-    .select({ id: vouchers.id, number: vouchers.number, date: vouchers.date, dueDate: vouchers.dueDate, net: vouchers.netAmount, tds: vouchers.tdsAmount, type: vouchers.type })
-    .from(vouchers)
-    .where(and(eq(vouchers.companyId, ctx.companyId), eq(vouchers.partyId, partyId), inArray(vouchers.type, kinds)))
-    .orderBy(vouchers.date, vouchers.id);
+export async function openBills(ctx: Ctx, partyId: number, side: 'receivable' | 'payable', excludeVoucherId?: number) {
+  const res = await ctx.db.execute(sql`
+    select v.id, v.number, v.date, v.due_date as "dueDate", v.net_amount as net, v.tds_amount as tds, v.type
+    from vouchers v join accounts p on p.id = v.party_id
+    where v.company_id = ${ctx.companyId} and v.party_id = ${partyId} and ${sql.raw(BILL_SQL[side])}
+    order by v.date, v.id`);
+  const rows = res.rows.map((r: Record<string, unknown>) => ({ id: Number(r.id), number: r.number as string, date: r.date as string, dueDate: r.dueDate as string | null, net: Number(r.net), tds: Number(r.tds), type: r.type as string }));
   const pend = await billPending(ctx.db, rows.map((r) => r.id), excludeVoucherId);
   return rows.map((r) => ({ ...r, pending: pend.get(r.id) ?? 0 })).filter((r) => r.pending > 0.005);
 }
@@ -613,6 +629,23 @@ async function post(ctx: Ctx, def: TypeDef, v: typeof vouchers.$inferSelect, lin
       dr(v.partyId!, v.tdsAmount, `TDS on ${v.number}`);
       cr(await S(SYS.TDS_PAYABLE), v.tdsAmount, `TDS on ${v.number}`);
     }
+  } else if (def.posting === 'note') {
+    // DN debits the party, CN credits it; customer side uses output GST, supplier side input GST
+    const party = (await db.select().from(accounts).where(eq(accounts.id, v.partyId!)))[0];
+    const supplierSide = party?.kind === 'SUPPLIER';
+    const sign = def.type === 'DEBIT_NOTE' ? 1 : -1;
+    const fallback = def.type === 'DEBIT_NOTE' ? (supplierSide ? SYS.DISCOUNT_RECEIVED : SYS.INTEREST_RECEIVED) : supplierSide ? SYS.INTEREST_PAID : SYS.DISCOUNT_ALLOWED;
+    const main = book?.postingAccountId ?? (await S(fallback));
+    dr(v.partyId!, sign * v.netAmount, narr);
+    const byAcc = new Map<number, number>();
+    for (const l of lines) byAcc.set(l.accountId ?? main, (byAcc.get(l.accountId ?? main) ?? 0) + l.taxableAmount);
+    for (const [acc, amt] of byAcc) cr(acc, sign * amt, narr);
+    const [c, s, i] = supplierSide ? [SYS.CGST_IN, SYS.SGST_IN, SYS.IGST_IN] : [SYS.CGST_OUT, SYS.SGST_OUT, SYS.IGST_OUT];
+    if (v.cgstAmount) cr(await S(c), sign * v.cgstAmount);
+    if (v.sgstAmount) cr(await S(s), sign * v.sgstAmount);
+    if (v.igstAmount) cr(await S(i), sign * v.igstAmount);
+    if (v.addLess) cr(await S(SYS.OTHER_CHARGES), sign * v.addLess);
+    if (v.roundOff) cr(await S(SYS.ROUND_OFF), sign * v.roundOff);
   } else if (def.posting === 'receipt') {
     dr(v.bankAccountId!, v.amount, narr);
     cr(v.partyId!, v.amount, narr);
@@ -880,10 +913,11 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
     .from(billAllocations)
     .innerJoin(vouchers, eq(vouchers.id, billAllocations.billId))
     .where(eq(billAllocations.voucherId, id));
-  const settledBy = def.bill
+  const settledBy = def.bill || def.posting === 'note'
     ? await db.select({ voucherId: billAllocations.voucherId, amount: billAllocations.amount, number: vouchers.number, date: vouchers.date, type: vouchers.type }).from(billAllocations).innerJoin(vouchers, eq(vouchers.id, billAllocations.voucherId)).where(eq(billAllocations.billId, id))
     : [];
-  const pending = def.bill ? (await billPending(db, [id])).get(id) ?? 0 : null;
+  const isBillDoc = def.posting === 'note' ? isBill(def.type, party?.kind, def.type === 'DEBIT_NOTE' ? 'receivable' : 'payable') : !!def.bill;
+  const pending = isBillDoc ? (await billPending(db, [id])).get(id) ?? 0 : null;
   const sourceDoc = v.sourceId ? (await db.select({ id: vouchers.id, number: vouchers.number, type: vouchers.type, date: vouchers.date }).from(vouchers).where(eq(vouchers.id, v.sourceId)))[0] ?? null : null;
   const approvals = await db.select().from(approvalLogs).where(eq(approvalLogs.voucherId, id)).orderBy(approvalLogs.at);
 
@@ -1032,7 +1066,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     for (const k of nums) if (r[k] !== null && r[k] !== undefined) r[k] = Number(r[k]);
     return r;
   });
-  if (def.bill) {
+  if (def.bill || def.posting === 'note') {
     const pend = await billPending(db, data.map((r) => Number(r.id)));
     data = data.map((r) => ({ ...r, pending: pend.get(Number(r.id)) ?? 0 }));
   }

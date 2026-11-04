@@ -175,6 +175,8 @@ export const accounts = pgTable(
     brokerageType: varchar('brokerage_type', { length: 10 }).notNull().default('PER_KG'), // PER_KG | PERCENT
     transporterId: integer('transporter_id'),
     salesPersonId: integer('sales_person_id'),
+    /** who collects payment from this party (a sales person record) */
+    collectionPersonId: integer('collection_person_id'),
     bankName: varchar('bank_name', { length: 120 }),
     bankAccountNo: varchar('bank_account_no', { length: 40 }),
     ifsc: varchar('ifsc', { length: 15 }),
@@ -347,6 +349,7 @@ export const vouchers = pgTable(
     toGodownId: integer('to_godown_id').references(() => godowns.id),
     bankAccountId: integer('bank_account_id').references(() => accounts.id), // receipts / payments
     collectionPerson: varchar('collection_person', { length: 120 }),
+    collectionPersonId: integer('collection_person_id').references(() => salesPersons.id),
 
     // references
     sourceId: integer('source_id'), // the document this one was made against

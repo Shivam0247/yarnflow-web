@@ -9,6 +9,7 @@ import { addDays, daysBetween, today } from '../lib/dates.js';
 import { notFound } from '../lib/errors.js';
 import { r2, r3, sum } from '../lib/money.js';
 import type { Ctx } from './context.js';
+import { BILL_SQL } from './types.js';
 import { loadFy } from './documents.js';
 
 type Row = Record<string, unknown>;
@@ -154,40 +155,146 @@ export async function balanceSheet(ctx: Ctx, asOn?: string) {
 }
 
 /* ------------------------------------------------------- outstanding / ageing */
-export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts: { asOn?: string; partyId?: number } = {}) {
+export type OutGroup = 'party' | 'group' | 'partyGroup' | 'salesPerson' | 'collectionPerson' | 'broker' | 'city' | 'area' | 'state';
+export interface OutOpts {
+  asOn?: string;
+  partyId?: number;
+  groupBy?: OutGroup;
+  /** ageing measured from the bill date (default) or the due date */
+  basis?: 'bill' | 'due';
+  /** bucket upper limits in days, e.g. [30, 60, 90, 180] → 0-30, 31-60, 61-90, 91-180, 180+ */
+  buckets?: number[];
+  overdueOnly?: boolean;
+  groupId?: number;
+  brokerId?: number;
+  salesPersonId?: number;
+  collectionPersonId?: number;
+  minDays?: number;
+}
+
+/**
+ * Bill-wise outstanding with ageing, summarised by any party attribute.
+ * `net` per party is the ledger balance; `onAccount` is what is not tied to
+ * bills (opening balance, advances, unadjusted receipts / notes).
+ */
+export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts: OutOpts = {}) {
   const asOn = opts.asOn ?? today();
-  const types = side === 'receivable' ? sql`('SALE_BILL','GENERAL_SALE')` : sql`('PURCHASE_BILL','GENERAL_PURCHASE')`;
+  const limits = (opts.buckets?.length ? [...opts.buckets] : [30, 60, 90, 180]).sort((a, b) => a - b);
+  const labels = limits.map((l, i) => `${i === 0 ? 0 : limits[i - 1] + 1}–${l} days`).concat(`${limits.at(-1)}+ days`);
+  const bucketOf = (d: number) => {
+    const k = limits.findIndex((l) => d <= l);
+    return k < 0 ? limits.length : k;
+  };
+  const filters = sql.join([
+    opts.partyId ? sql`and v.party_id = ${opts.partyId}` : sql``,
+    opts.groupId ? sql`and p.group_id = ${opts.groupId}` : sql``,
+    opts.brokerId ? sql`and coalesce(v.broker_id, p.broker_id) = ${opts.brokerId}` : sql``,
+    opts.salesPersonId ? sql`and coalesce(v.sales_person_id, p.sales_person_id) = ${opts.salesPersonId}` : sql``,
+    opts.collectionPersonId ? sql`and p.collection_person_id = ${opts.collectionPersonId}` : sql``
+  ], sql` `);
   const res = await ctx.db.execute(sql`
     select v.id, v.type, v.number, v.date, v.due_date as "dueDate", v.net_amount as net, v.tds_amount as tds, v.party_id as "partyId",
-      p.name as "partyName", p.city, p.mobile, p.credit_limit as "creditLimit", p.credit_days as "creditDays", b.name as "brokerName",
+      v.total_qty as qty, p.name as "partyName", p.city, p.area, p.state, p.mobile, p.credit_limit as "creditLimit", p.credit_days as "creditDays",
+      p.interest_rate as "interestRate", g.id as "groupId", g.name as "groupName", pg.name as "partyGroupName",
+      coalesce(b.name, pb.name) as "brokerName", coalesce(sp.name, psp.name) as "salesPersonName", cp.name as "collectionPersonName",
       v.net_amount - v.tds_amount - coalesce((select sum(a.amount) from bill_allocations a join vouchers av on av.id = a.voucher_id
         where a.bill_id = v.id and av.date <= ${asOn}), 0) as pending
-    from vouchers v join accounts p on p.id = v.party_id left join accounts b on b.id = p.broker_id
-    where v.company_id = ${ctx.companyId} and v.type in ${types} and v.date <= ${asOn}
-      ${opts.partyId ? sql`and v.party_id = ${opts.partyId}` : sql``}
+    from vouchers v join accounts p on p.id = v.party_id join account_groups g on g.id = p.group_id
+      left join accounts pg on pg.id = p.party_group_id
+      left join accounts b on b.id = v.broker_id left join accounts pb on pb.id = p.broker_id
+      left join sales_persons sp on sp.id = v.sales_person_id left join sales_persons psp on psp.id = p.sales_person_id
+      left join sales_persons cp on cp.id = p.collection_person_id
+    where v.company_id = ${ctx.companyId} and ${sql.raw(BILL_SQL[side])} and v.date <= ${asOn} ${filters}
     order by p.name, v.date, v.id`);
-  const bills = res.rows
+  let bills = res.rows
     .map((r: Row) => {
-      const due = (r.dueDate as string) ?? (r.date as string);
-      const age = daysBetween(due, asOn);
-      return { ...r, net: N(r.net), tds: N(r.tds), pending: r2(N(r.pending)), creditLimit: N(r.creditLimit), days: daysBetween(r.date as string, asOn), overdueDays: Math.max(0, age) } as Row & { net: number; tds: number; pending: number; creditLimit: number; days: number; overdueDays: number };
+      const days = daysBetween(r.date as string, asOn);
+      const overdueDays = Math.max(0, daysBetween(((r.dueDate as string) ?? (r.date as string)), asOn));
+      const ageDays = opts.basis === 'due' ? overdueDays : days;
+      return { ...r, qty: N(r.qty), net: N(r.net), tds: N(r.tds), pending: r2(N(r.pending)), creditLimit: N(r.creditLimit), days, overdueDays, ageDays, bucket: bucketOf(ageDays), partyId: Number(r.partyId), partyName: String(r.partyName), interestRate: N(r.interestRate) } as Row & {
+        partyId: number; partyName: string; net: number; pending: number; days: number; overdueDays: number; ageDays: number; bucket: number; creditLimit: number; interestRate: unknown;
+      };
     })
     .filter((b) => b.pending > 0.005);
-  const bucket = (d: number) => (d <= 30 ? 'd0_30' : d <= 60 ? 'd31_60' : d <= 90 ? 'd61_90' : 'd90p');
-  const parties = new Map<number, Row & { total: number; overdue: number; d0_30: number; d31_60: number; d61_90: number; d90p: number; bills: number; maxDays: number }>();
-  for (const b of bills) {
-    const id = Number(b.partyId);
-    const p = parties.get(id) ?? { partyId: id, partyName: b.partyName, city: b.city, mobile: b.mobile, brokerName: b.brokerName, creditLimit: b.creditLimit, creditDays: b.creditDays, total: 0, overdue: 0, d0_30: 0, d31_60: 0, d61_90: 0, d90p: 0, bills: 0, maxDays: 0 };
-    p.total = r2(p.total + b.pending);
-    if (b.overdueDays > 0) p.overdue = r2(p.overdue + b.pending);
-    p[bucket(b.days)] = r2(p[bucket(b.days)] + b.pending);
-    p.bills += 1;
-    p.maxDays = Math.max(p.maxDays, b.days);
-    parties.set(id, p);
+  if (opts.overdueOnly) bills = bills.filter((b) => b.overdueDays > 0);
+  if (opts.minDays) bills = bills.filter((b) => b.ageDays >= opts.minDays!);
+
+  // party ledger balances (as on) → on-account part
+  const partyIds = [...new Set(bills.map((b) => b.partyId))];
+  const extraParties = await ctx.db.execute(sql`
+    select a.id from accounts a join account_groups g on g.id = a.group_id
+    where a.company_id = ${ctx.companyId} and g.show_in_outstanding = true and g.nature = ${side === 'receivable' ? 'ASSET' : 'LIABILITY'}
+      ${opts.partyId ? sql`and a.id = ${opts.partyId}` : sql``} ${opts.groupId ? sql`and a.group_id = ${opts.groupId}` : sql``}`);
+  const sign = side === 'receivable' ? 1 : -1;
+  const balRows = await ctx.db.execute(sql`
+    select a.id, a.name, a.city, a.area, a.state, a.credit_limit as "creditLimit", a.credit_days as "creditDays", g.name as "groupName", pg.name as "partyGroupName",
+      pb.name as "brokerName", psp.name as "salesPersonName", cp.name as "collectionPersonName",
+      (case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end)
+        + coalesce((select sum(debit - credit) from ledger_entries e where e.account_id = a.id and e.date <= ${asOn}), 0) as bal
+    from accounts a join account_groups g on g.id = a.group_id left join accounts pg on pg.id = a.party_group_id
+      left join accounts pb on pb.id = a.broker_id left join sales_persons psp on psp.id = a.sales_person_id left join sales_persons cp on cp.id = a.collection_person_id
+    where a.company_id = ${ctx.companyId} and a.id in ${sql.raw('(' + [0, ...partyIds, ...extraParties.rows.map((r: Row) => Number(r.id))].join(',') + ')')}
+      ${opts.brokerId ? sql`and a.broker_id = ${opts.brokerId}` : sql``} ${opts.salesPersonId ? sql`and a.sales_person_id = ${opts.salesPersonId}` : sql``}
+      ${opts.collectionPersonId ? sql`and a.collection_person_id = ${opts.collectionPersonId}` : sql``}`);
+
+  type P = { partyId: number; partyName: string; city: unknown; area: unknown; state: unknown; groupName: unknown; partyGroupName: unknown; brokerName: unknown; salesPersonName: unknown; collectionPersonName: unknown;
+    creditLimit: number; creditDays: unknown; billsPending: number; overdue: number; onAccount: number; net: number; buckets: number[]; bills: number; maxDays: number; overLimit: boolean };
+  const parties = new Map<number, P>();
+  for (const r of balRows.rows as Row[]) {
+    const net = r2(N(r.bal) * sign);
+    parties.set(Number(r.id), { partyId: Number(r.id), partyName: r.name as string, city: r.city, area: r.area, state: r.state, groupName: r.groupName, partyGroupName: r.partyGroupName ?? r.name, brokerName: r.brokerName, salesPersonName: r.salesPersonName, collectionPersonName: r.collectionPersonName,
+      creditLimit: N(r.creditLimit), creditDays: r.creditDays, billsPending: 0, overdue: 0, onAccount: 0, net, buckets: labels.map(() => 0), bills: 0, maxDays: 0, overLimit: false });
   }
-  const list = [...parties.values()].sort((a, b) => b.total - a.total);
-  const totals = { total: r2(sum(list, (p) => p.total)), overdue: r2(sum(list, (p) => p.overdue)), d0_30: r2(sum(list, (p) => p.d0_30)), d31_60: r2(sum(list, (p) => p.d31_60)), d61_90: r2(sum(list, (p) => p.d61_90)), d90p: r2(sum(list, (p) => p.d90p)) };
-  return { side, asOn, totals, parties: list, bills };
+  for (const b of bills) {
+    const p = parties.get(b.partyId);
+    if (!p) continue;
+    p.billsPending = r2(p.billsPending + b.pending);
+    if (b.overdueDays > 0) p.overdue = r2(p.overdue + b.pending);
+    p.buckets[b.bucket] = r2(p.buckets[b.bucket] + b.pending);
+    p.bills += 1;
+    p.maxDays = Math.max(p.maxDays, b.ageDays);
+  }
+  let list = [...parties.values()].map((p) => ({ ...p, onAccount: r2(p.net - p.billsPending), overLimit: p.creditLimit > 0 && p.net > p.creditLimit }));
+  list = list.filter((p) => Math.abs(p.net) > 0.005 || p.billsPending > 0.005);
+  if (opts.overdueOnly || opts.minDays) list = list.filter((p) => p.billsPending > 0.005);
+  list.sort((a, b) => b.net - a.net);
+
+  const keyOf: Record<OutGroup, (p: P) => unknown> = {
+    party: (p) => p.partyName, group: (p) => p.groupName, partyGroup: (p) => p.partyGroupName, salesPerson: (p) => p.salesPersonName, collectionPerson: (p) => p.collectionPersonName,
+    broker: (p) => p.brokerName, city: (p) => p.city, area: (p) => p.area, state: (p) => p.state
+  };
+  const groupBy = opts.groupBy ?? 'party';
+  const gmap = new Map<string, { key: string; net: number; billsPending: number; overdue: number; onAccount: number; buckets: number[]; parties: typeof list; bills: number }>();
+  for (const p of list) {
+    const key = String(keyOf[groupBy](p) ?? '(not set)');
+    const g = gmap.get(key) ?? { key, net: 0, billsPending: 0, overdue: 0, onAccount: 0, buckets: labels.map(() => 0), parties: [], bills: 0 };
+    g.net = r2(g.net + p.net);
+    g.billsPending = r2(g.billsPending + p.billsPending);
+    g.overdue = r2(g.overdue + p.overdue);
+    g.onAccount = r2(g.onAccount + p.onAccount);
+    g.buckets = g.buckets.map((x, i) => r2(x + p.buckets[i]));
+    g.bills += p.bills;
+    g.parties.push(p);
+    gmap.set(key, g);
+  }
+  const groups = [...gmap.values()].sort((a, b) => b.net - a.net);
+  const totals = {
+    net: r2(sum(list, (p) => p.net)),
+    billsPending: r2(sum(list, (p) => p.billsPending)),
+    overdue: r2(sum(list, (p) => p.overdue)),
+    onAccount: r2(sum(list, (p) => p.onAccount)),
+    buckets: labels.map((_, i) => r2(sum(list, (p) => p.buckets[i]))),
+    parties: list.length,
+    bills: bills.length,
+    // backwards-compatible names used by the dashboard
+    total: r2(sum(list, (p) => p.billsPending)),
+    d0_30: 0, d31_60: 0, d61_90: 0, d90p: 0
+  };
+  for (const b of bills) {
+    const k = b.ageDays <= 30 ? 'd0_30' : b.ageDays <= 60 ? 'd31_60' : b.ageDays <= 90 ? 'd61_90' : 'd90p';
+    totals[k] = r2(totals[k] + b.pending);
+  }
+  return { side, asOn, groupBy, basis: opts.basis ?? 'bill', bucketLabels: labels, totals, groups, parties: list.map((p) => ({ ...p, total: p.billsPending })), bills };
 }
 
 /* ------------------------------------------------------------------- stock */

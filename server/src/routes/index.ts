@@ -15,6 +15,7 @@ import * as docs from '../services/documents.js';
 import * as eway from '../services/eway.js';
 import { MASTERS, createMaster, deleteMaster, getMaster, listMaster, updateMaster } from '../services/masters.js';
 import * as rep from '../services/reports.js';
+import * as an from '../services/analysis.js';
 import { BILL_TYPES, BY_SLUG, TYPES, type VoucherType } from '../services/types.js';
 
 type Q = Record<string, string | undefined>;
@@ -86,7 +87,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/lookups', read(async (ctx) => {
     const c = ctx.companyId;
     const acc = await db
-      .select({ id: accounts.id, name: accounts.name, kind: accounts.kind, city: accounts.city, gstin: accounts.gstin, stateCode: accounts.stateCode, creditDays: accounts.creditDays, creditLimit: accounts.creditLimit, brokerId: accounts.brokerId, transporterId: accounts.transporterId, salesPersonId: accounts.salesPersonId, partyGroupId: accounts.partyGroupId, status: accounts.status, groupId: accounts.groupId })
+      .select({ id: accounts.id, name: accounts.name, kind: accounts.kind, city: accounts.city, gstin: accounts.gstin, stateCode: accounts.stateCode, creditDays: accounts.creditDays, creditLimit: accounts.creditLimit, brokerId: accounts.brokerId, transporterId: accounts.transporterId, salesPersonId: accounts.salesPersonId, collectionPersonId: accounts.collectionPersonId, partyGroupId: accounts.partyGroupId, status: accounts.status, groupId: accounts.groupId })
       .from(accounts)
       .where(and(eq(accounts.companyId, c), ne(accounts.status, 'INACTIVE')))
       .orderBy(asc(accounts.name));
@@ -102,6 +103,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
       items: await db.select().from(items).where(and(eq(items.companyId, c), eq(items.isActive, true))).orderBy(asc(items.name)),
       brands: await db.select().from(brands).where(eq(brands.companyId, c)).orderBy(asc(brands.name)),
       godowns: await db.select().from(godowns).where(and(eq(godowns.companyId, c), eq(godowns.isActive, true))).orderBy(asc(godowns.name)),
+      collectionPersons: await db.select().from(salesPersons).where(and(eq(salesPersons.companyId, c), eq(salesPersons.isActive, true))).orderBy(asc(salesPersons.name)),
       salesPersons: await db.select().from(salesPersons).where(and(eq(salesPersons.companyId, c), eq(salesPersons.isActive, true))).orderBy(asc(salesPersons.name)),
       costCenters: await db.select().from(costCenters).where(eq(costCenters.companyId, c)).orderBy(asc(costCenters.name)),
       books: await db.select().from(books).where(and(eq(books.companyId, c), eq(books.isActive, true))).orderBy(asc(books.name))
@@ -171,7 +173,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   /* ------------------------------------------------------------ accounts */
   app.get('/api/accounts/:id/open-bills', read((ctx, req) => {
     const side = q(req).side === 'payable' ? 'payable' : 'receivable';
-    return docs.openBills(ctx, idParam(req), BILL_TYPES[side], Number(q(req).exclude) || undefined);
+    return docs.openBills(ctx, idParam(req), side, Number(q(req).exclude) || undefined);
   }));
   app.get('/api/accounts/:id/summary', read(async (ctx, req) => {
     const id = idParam(req);
@@ -201,7 +203,26 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/reports/trial-balance', read((ctx, req) => rep.trialBalance(ctx, q(req).asOn)));
   app.get('/api/reports/profit-loss', read((ctx, req) => rep.profitLoss(ctx, q(req).from, q(req).to)));
   app.get('/api/reports/balance-sheet', read((ctx, req) => rep.balanceSheet(ctx, q(req).asOn)));
-  app.get('/api/reports/outstanding', read((ctx, req) => rep.outstanding(ctx, q(req).side === 'payable' ? 'payable' : 'receivable', { asOn: q(req).asOn, partyId: Number(q(req).partyId) || undefined })));
+  /** ?side=receivable|payable&groupBy=party|group|partyGroup|salesPerson|collectionPerson|broker|city|area|state
+   *  &basis=bill|due&buckets=30,60,90,180&overdueOnly=1&minDays=&partyId=&groupId=&brokerId=&salesPersonId=&collectionPersonId=&asOn= */
+  app.get('/api/reports/outstanding', read((ctx, req) => {
+    const x = q(req);
+    const n = (k: string) => Number(x[k]) || undefined;
+    return rep.outstanding(ctx, x.side === 'payable' ? 'payable' : 'receivable', {
+      asOn: x.asOn, partyId: n('partyId'), groupId: n('groupId'), brokerId: n('brokerId'), salesPersonId: n('salesPersonId'), collectionPersonId: n('collectionPersonId'),
+      groupBy: (x.groupBy as never) || 'party', basis: x.basis === 'due' ? 'due' : 'bill', overdueOnly: x.overdueOnly === '1' || x.overdueOnly === 'true', minDays: n('minDays'),
+      buckets: x.buckets ? x.buckets.split(',').map(Number).filter((v) => v > 0) : undefined
+    });
+  }));
+  app.get('/api/reports/sales-analysis', read((ctx, req) => an.salesAnalysis(ctx, q(req))));
+  app.get('/api/reports/pending-orders', read((ctx, req) => an.pendingOrders(ctx, q(req))));
+  app.get('/api/reports/brokerage', read((ctx, req) => an.brokerage(ctx, q(req))));
+  app.get('/api/reports/collections', read((ctx, req) => an.collections(ctx, q(req))));
+  app.get('/api/reports/day-book', read((ctx, req) => an.dayBook(ctx, q(req))));
+  app.get('/api/reports/interest', read((ctx, req) => an.interest(ctx, q(req))));
+  app.post('/api/reports/interest/debit-notes', write((ctx, req) => an.createInterestNotes(ctx, req.body), 201));
+  app.get('/api/reports/group-summary', read((ctx, req) => an.groupSummary(ctx, q(req))));
+  app.get('/api/reports/tds-tcs', read((ctx, req) => an.tdsTcs(ctx, q(req))));
   app.get('/api/reports/stock', read((ctx, req) => rep.stockSummary(ctx, { itemId: Number(q(req).itemId) || undefined, godownId: Number(q(req).godownId) || undefined, asOn: q(req).asOn, q: q(req).q })));
   app.get('/api/reports/stock-ledger/:id', read((ctx, req) => rep.stockLedger(ctx, idParam(req), q(req).from, q(req).to)));
   app.get('/api/reports/gstr1', read(async (ctx, req) => {

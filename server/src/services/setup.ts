@@ -64,7 +64,11 @@ export const SYS = {
   CASH: 'SYS-CASH',
   CAPITAL: 'SYS-CAPITAL',
   BROKERAGE_INCOME: 'SYS-BROKERAGE',
-  FREIGHT_INWARD: 'SYS-FREIGHT-IN'
+  FREIGHT_INWARD: 'SYS-FREIGHT-IN',
+  INTEREST_RECEIVED: 'SYS-INT-REC',
+  INTEREST_PAID: 'SYS-INT-PAID',
+  DISCOUNT_ALLOWED: 'SYS-DISC-ALLOWED',
+  DISCOUNT_RECEIVED: 'SYS-DISC-RECEIVED'
 } as const;
 
 const SYSTEM_ACCOUNTS: { code: string; name: string; group: string; kind: string }[] = [
@@ -89,7 +93,11 @@ const SYSTEM_ACCOUNTS: { code: string; name: string; group: string; kind: string
   { code: SYS.CASH, name: 'Cash', group: 'Cash-in-hand', kind: 'CASH' },
   { code: SYS.CAPITAL, name: 'Capital A/c', group: 'Capital Account', kind: 'CAPITAL' },
   { code: SYS.BROKERAGE_INCOME, name: 'Brokerage Income', group: 'Indirect Incomes', kind: 'INCOME' },
-  { code: SYS.FREIGHT_INWARD, name: 'Freight Inward', group: 'Direct Expenses', kind: 'EXPENSE' }
+  { code: SYS.FREIGHT_INWARD, name: 'Freight Inward', group: 'Direct Expenses', kind: 'EXPENSE' },
+  { code: SYS.INTEREST_RECEIVED, name: 'Interest Received', group: 'Indirect Incomes', kind: 'INCOME' },
+  { code: SYS.INTEREST_PAID, name: 'Interest Paid', group: 'Indirect Expenses', kind: 'EXPENSE' },
+  { code: SYS.DISCOUNT_ALLOWED, name: 'Rate Difference & Discount Allowed', group: 'Indirect Expenses', kind: 'EXPENSE' },
+  { code: SYS.DISCOUNT_RECEIVED, name: 'Rate Difference & Discount Received', group: 'Indirect Incomes', kind: 'INCOME' }
 ];
 
 /** voucher books (series) created for a new company: [type, name, prefix, padding, fySuffix, postingAccountCode, default] */
@@ -188,8 +196,16 @@ export async function sysAccount(db: Tx, companyId: number, code: string) {
   const key = companyId + ':' + code;
   const hit = sysCache.get(key);
   if (hit) return hit;
-  const [row] = await db.select({ id: accounts.id }).from(accounts).where(and(eq(accounts.companyId, companyId), eq(accounts.code, code)));
-  if (!row) throw notFound(`System account ${code}`);
+  let [row] = await db.select({ id: accounts.id }).from(accounts).where(and(eq(accounts.companyId, companyId), eq(accounts.code, code)));
+  if (!row) {
+    // companies created before this ledger existed get it on first use
+    const def = SYSTEM_ACCOUNTS.find((a) => a.code === code);
+    if (!def) throw notFound(`System account ${code}`);
+    const [g] = await db.select({ id: accountGroups.id }).from(accountGroups).where(and(eq(accountGroups.companyId, companyId), eq(accountGroups.name, def.group)));
+    if (!g) throw notFound(`Group ${def.group}`);
+    [row] = await db.insert(accounts).values({ companyId, groupId: g.id, code: def.code, name: def.name, kind: def.kind as never, isSystem: true }).onConflictDoNothing().returning({ id: accounts.id });
+    if (!row) [row] = await db.select({ id: accounts.id }).from(accounts).where(and(eq(accounts.companyId, companyId), eq(accounts.code, code)));
+  }
   sysCache.set(key, row.id);
   return row.id;
 }

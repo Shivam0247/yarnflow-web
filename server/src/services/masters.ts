@@ -83,6 +83,7 @@ export const accountSchema = z.object({
   brokerageType: z.enum(['PER_KG', 'PERCENT']).optional(),
   transporterId: optId,
   salesPersonId: optId,
+  collectionPersonId: optId,
   bankName: optS(120),
   bankAccountNo: optS(40),
   ifsc: z.string().trim().toUpperCase().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, 'IFSC looks wrong (e.g. HDFC0001234)').optional().nullable().or(z.literal('').transform(() => null)),
@@ -168,7 +169,7 @@ interface MasterDef {
 
 export const MASTERS: Record<string, MasterDef> = {
   groups: { slug: 'groups', label: 'Group', table: accountGroups as never, schema: groupSchema, write: SETUP_WRITE, search: ['name'], order: 'sortOrder', refs: { parentId: accountGroups } },
-  accounts: { slug: 'accounts', label: 'Account', table: accounts as never, schema: accountSchema, write: MASTER_WRITE, search: ['name', 'alias', 'code', 'gstin', 'city', 'mobile'], order: 'name', refs: { groupId: accountGroups, partyGroupId: accounts, brokerId: accounts, transporterId: transporters, salesPersonId: salesPersons } },
+  accounts: { slug: 'accounts', label: 'Account', table: accounts as never, schema: accountSchema, write: MASTER_WRITE, search: ['name', 'alias', 'code', 'gstin', 'city', 'mobile'], order: 'name', refs: { groupId: accountGroups, partyGroupId: accounts, brokerId: accounts, transporterId: transporters, salesPersonId: salesPersons, collectionPersonId: salesPersons } },
   items: { slug: 'items', label: 'Yarn item', table: items as never, schema: itemSchema, write: MASTER_WRITE, search: ['name', 'code', 'description', 'denier', 'hsn'], order: 'code', refs: { brandId: brands } },
   brands: { slug: 'brands', label: 'Brand', table: brands as never, schema: brandSchema, write: MASTER_WRITE, search: ['name'], order: 'name', refs: { millAccountId: accounts } },
   transporters: { slug: 'transporters', label: 'Transporter', table: transporters as never, schema: transporterSchema, write: MASTER_WRITE, search: ['name', 'transporterId', 'city', 'routes', 'mobile'], order: 'name', refs: { accountId: accounts } },
@@ -354,7 +355,7 @@ const USAGE: Record<string, string[]> = {
   items: ['select 1 from voucher_lines where item_id = $1', 'select 1 from stock_entries where item_id = $1'],
   transporters: ['select 1 from vouchers where transporter_id = $1', 'select 1 from vehicles where transporter_id = $1'],
   godowns: ['select 1 from stock_entries where godown_id = $1', 'select 1 from vouchers where godown_id = $1 or to_godown_id = $1'],
-  'sales-persons': ['select 1 from vouchers where sales_person_id = $1'],
+  'sales-persons': ['select 1 from vouchers where sales_person_id = $1 or collection_person_id = $1', 'select 1 from accounts where sales_person_id = $1 or collection_person_id = $1'],
   'cost-centers': ['select 1 from vouchers where cost_center_id = $1'],
   books: ['select 1 from vouchers where book_id = $1'],
   brands: ['select 1 from items where brand_id = $1']

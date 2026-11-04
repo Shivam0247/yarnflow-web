@@ -20,6 +20,7 @@ import { accountGroups, accounts, brands, companies, godowns, items, salesPerson
 import type { Ctx } from '../services/context.js';
 import { createDoc, docAction, pendingLines } from '../services/documents.js';
 import { generateEwb } from '../services/eway.js';
+import { createInterestNotes } from '../services/analysis.js';
 import { clearSysCache, createCompany } from '../services/setup.js';
 import { TYPES } from '../services/types.js';
 
@@ -176,7 +177,7 @@ export async function seedDemo(db: Db) {
     cust[name] = await acc({
       name, groupId: st === '24' ? G.surat : G.outstation, kind: 'CUSTOMER', city, area: area ?? null, state: STATE[st][0], stateCode: st, gstin, pan: gstin.slice(2, 12),
       mobile: `98${between(10, 99)}${between(100, 999)} ${between(10000, 99999)}`.slice(0, 11), creditLimit: lim * 100000, creditDays: days, status: status as never,
-      brokerId: rnd() < 0.5 ? pick(brokers).id : null, salesPersonId: pick(sp).id, transporterId: pick(trs.slice(0, 7)).id,
+      brokerId: rnd() < 0.5 ? pick(brokers).id : null, salesPersonId: pick(sp).id, collectionPersonId: pick(sp.slice(0, 3)).id, interestRate: 18, transporterId: pick(trs.slice(0, 7)).id,
       openingBalance: between(0, 3) ? between(20, 300) * 1000 : 0, openingType: 'DR', address1: `${between(1, 400)}, ${area ?? city} Textile Market`
     });
   }
@@ -212,7 +213,7 @@ export async function seedDemo(db: Db) {
   const ctx = (tx: Tx): Ctx => ({ db: tx, userId: admin.id, role: 'ADMIN', companyId: C, fyId });
   const run = <T>(fn: (c: Ctx) => Promise<T>) => db.transaction((tx) => fn(ctx(tx)));
   const create = (slug: keyof typeof SLUG, body: unknown) => run((c) => createDoc(c, TYPES[SLUG[slug]], body)) as Promise<Record<string, unknown> & { id: number; number: string; netAmount: number; lines: { id: number; qty: number }[] }>;
-  const SLUG = { so: 'SALES_ORDER', po: 'PURCHASE_ORDER', ds: 'DISPATCH_SCHEDULE', sb: 'SALE_BILL', pb: 'PURCHASE_BILL', sr: 'SALE_RETURN', pr: 'PURCHASE_RETURN', gs: 'GENERAL_SALE', gp: 'GENERAL_PURCHASE', rc: 'RECEIPT', py: 'PAYMENT', jv: 'JOURNAL', ct: 'CONTRA', os: 'OPENING_STOCK' } as const;
+  const SLUG = { cn: 'CREDIT_NOTE', dn: 'DEBIT_NOTE', so: 'SALES_ORDER', po: 'PURCHASE_ORDER', ds: 'DISPATCH_SCHEDULE', sb: 'SALE_BILL', pb: 'PURCHASE_BILL', sr: 'SALE_RETURN', pr: 'PURCHASE_RETURN', gs: 'GENERAL_SALE', gp: 'GENERAL_PURCHASE', rc: 'RECEIPT', py: 'PAYMENT', jv: 'JOURNAL', ct: 'CONTRA', os: 'OPENING_STOCK' } as const;
 
   // opening stock
   const lots: { item: typeof its[number]; lot: string; grade: string; brand: string; qty: number; rate: number }[] = [];
@@ -312,6 +313,12 @@ export async function seedDemo(db: Db) {
     if (due <= 0) continue;
     await create('py', { date: d(9 + (i % 2), between(5, 28)), partyId: m.id, bankAccountId: hdfc.id, mode: 'RTGS', instrumentNo: `RTGS${between(10000, 99999)}`, amount: Math.round(due * 0.7), autoAdjust: true });
   }
+
+  // credit note (rate difference) against a bill, debit note to a supplier, interest debit notes
+  if (bills[0]) await create('cn', { date: d(10, 20), partyId: bills[0].partyId, sourceId: bills[0].id, reason: 'Rate difference', lines: [{ description: 'Rate difference ₹1.50/kg', qty: 1000, rate: 1.5, gstRate: 5 }] });
+  const pbForDn = (await db.select().from(vouchers).where(and(eq(vouchers.companyId, C), eq(vouchers.type, 'PURCHASE_BILL'))))[0];
+  if (pbForDn) await create('dn', { date: d(10, 22), partyId: pbForDn.partyId, sourceId: pbForDn.id, reason: 'Short weight', lines: [{ description: 'Short weight 12 kg', qty: 12, rate: 150, gstRate: 5 }] });
+  await run((c) => createInterestNotes(c, { asOn: d(10, 31), date: d(10, 31), partyIds: Object.values(cust).slice(0, 4).map((x) => x.id) }));
 
   // a sale return and a purchase return
   const srcBill = bills[2];
