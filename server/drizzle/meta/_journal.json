@@ -22,6 +22,13 @@
       "when": 1793795026424,
       "tag": "0002_agent_order_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793795578760,
+      "tag": "0003_voucher_extra",
+      "breakpoints": true
     }
   ]
 }

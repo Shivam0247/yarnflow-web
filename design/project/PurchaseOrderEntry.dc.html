@@ -562,6 +562,7 @@ class Component extends DCLogic {
     const lines = st.lines.filter((l) => l.itemName || l.qty);
     if (lines.some((l) => !l.itemId)) return this.fail('Pick each item from the list (line ' + (st.lines.findIndex((l) => (l.itemName || l.qty) && !l.itemId) + 1) + ')');
     if (!lines.length) return this.fail('Add at least one item');
+    const nr = lines.findIndex((l) => !(n(l.rate) > 0) || !(n(l.qty) > 0)); if (nr >= 0) return this.fail('Enter quantity and rate on line ' + (nr + 1));
     const same = st.same ?? true;
     return {
       bookId: id(f.bookId), costCenterId: id(f.costCenterId), date: iso(f.date), partyId: id(f.partyId), brokerId: id(f.brokerId), brokerageRate: n(f.brokerageRate) || 0, brokerageType: 'PER_KG', orderMode: f.orderMode,

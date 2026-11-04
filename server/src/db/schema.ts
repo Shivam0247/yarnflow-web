@@ -432,6 +432,8 @@ export const vouchers = pgTable(
     approvedById: integer('approved_by_id').references(() => users.id),
     approvedAt: timestamp('approved_at', { withTimezone: true }),
     approvalNote: text('approval_note'),
+    /** free print fields: driver licence, parcel no., haste, policy no., transport doc, adjustment bill … */
+    extra: jsonb('extra').$type<Record<string, string>>(),
 
     remark: text('remark'),
     narration: text('narration'),

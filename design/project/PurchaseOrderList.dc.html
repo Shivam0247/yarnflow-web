@@ -343,7 +343,30 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"startTab":{"editor":"enum","default":"Pending","options":["Pending","Hold","Clear","Cancelled","All"]},"$preview":{"width":1440,"height":1100}}'>
 class Component extends DCLogic {
   constructor(p) { super(p); this.state = { tab: null, sel: [], focus: 'PUR0080', bill: null, top: 690, bot: 300, over: {} }; }
-  componentDidMount() { try { const h = window.innerHeight; if (h >= 560 && h <= 1600) { const t = h - 60; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); } } catch (e) {} }
+  /* live data (app) — on the design canvas window.YF_API is absent and the sample data below is used */
+  api() { return typeof window !== 'undefined' ? window.YF_API : null; }
+  async load() {
+    const api = this.api(); if (!api || !api.session) return;
+    try {
+      const [reg, stock] = await Promise.all([api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 1000 }), api.get('/reports/stock')]);
+      const stk = {}; stock.rows.forEach((r) => { stk[r.itemName] = (stk[r.itemName] || 0) + r.qty; });
+      this.setState({ live: reg.data, liveStock: stk, err: null });
+      if (this.state.focus && !reg.data.some((r) => r.number.replace(/\/\d{2}-\d{2}$/, '') === this.state.focus)) this.setState({ focus: reg.data[0] ? reg.data[0].number.replace(/\/\d{2}-\d{2}$/, '') : null });
+    } catch (e) { this.setState({ err: api.message(e) }); }
+  }
+  async loadBills(id) {
+    const api = this.api(); if (!api || !id || (this.state.rel || {})[id]) return;
+    try { const rel = await api.get('/vouchers/purchase-orders/' + id + '/related'); this.setState({ rel: { ...(this.state.rel || {}), [id]: rel.filter((b) => b.type === 'PURCHASE_BILL') } }); } catch (e) {}
+  }
+  async act(ids, action, reason) {
+    const api = this.api(); if (!api) return;
+    const errs = [];
+    for (const id of [...new Set(ids)]) { try { await api.post('/vouchers/purchase-orders/' + id + '/actions/' + action, reason ? { reason } : {}); } catch (e) { errs.push(api.message(e)); } }
+    if (errs.length) window.alert(errs.join('\n'));
+    this.setState({ sel: [], selAll: false, excl: [], rel: {} });
+    await this.load();
+  }
+  componentDidMount() { this.load(); try { const h = window.innerHeight; if (h >= 560 && h <= 1600) { const t = h - 60; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); } } catch (e) {} }
 
   go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
   cf(base, COLS) {
@@ -422,7 +445,10 @@ class Component extends DCLogic {
       return out;
     };
     const SC = { Pending: '#3B82F6', Hold: '#F97316', Clear: '#22C55E', Cancelled: '#EF4444' };
-    const D = [
+    const LIVE = this.state.live;
+    const LST = { PENDING_APPROVAL: 'Hold', DRAFT: 'Hold', OPEN: 'Pending', PARTIAL: 'Pending', COMPLETED: 'Clear', CANCELLED: 'Cancelled', REJECTED: 'Cancelled', LOCKED: 'Clear' };
+    const fromLive = (r) => ({ id: r.id, lineId: r.lineId, no: r.number.replace(/\/\d{2}-\d{2}$/, ''), dt: r.date.split('-').reverse().join('-'), cr: r.creditDays, p: r.partyName, ag: r.agentName || r.brokerName || 'Direct', it: r.itemName || '', br: r.brand || '—', lot: r.lotNo || '—', gr: r.grade || '—', rate: r.rate, oq: r.qty, rq: r.doneQty, ref: r.refNo || '—', st: LST[r.status] || 'Pending', why: r.approvalNote || '', bc: r.doneCount });
+    const DEMO = [
       ['PUR2210', '23-10-2026', 45, 'Garden Silk Mills', 'Direct', '75/36 FDY +1 item', 'Garden', 'FD002I4', 'A1', 119, 8400, 0, '—', 'Hold', 'Above ₹ 10 L'],
       ['PUR0123', '23-10-2026', 60, 'Reliance Industries', 'Direct', 'PFY 75/36 SD +1 item', 'Reliance', 'L-2231', 'AA', 131.5, 10800, 0, '—', 'Hold', 'Above ₹ 10 L'],
       ['PUR2208', '22-10-2026', 30, 'Shree Ram Yarn Trading', 'Henil', '50/36 Bright Catonic', 'AYM Syntex', 'FG7C14', '1ST', 158, 3000, 0, '—', 'Hold', 'Rate up ₹ 2.28'],
@@ -441,49 +467,62 @@ class Component extends DCLogic {
       ['PUR0782', '22-06-2026', 1, 'Reliance Industries', 'Direct', '75/36 FDY', 'Reliance', '316C1S', 'A+', 125.5, 25000, 25000, '28152391', 'Clear'],
       ['PUR0796', '23-06-2026', 1, 'J.J. Industries', 'Henil', 'Muskan Gold', 'J.J. Industries', 'MG123', '1ST', 550, 2000, 1771.99, '—', 'Pending']
     ].map((r) => ({ no: r[0], dt: r[1], cr: r[2], p: r[3], ag: r[4], it: r[5], br: r[6], lot: r[7], gr: r[8], rate: r[9], oq: r[10], rq: r[11], ref: r[12], st: this.state.over[r[0]] || r[13], why: r[14] || '' }));
+    const D = LIVE ? LIVE.map(fromLive) : DEMO;
     const splitIt = (s) => { const m = String(s).match(/(\d+(?:\/\d+){1,2}|\b\d{2,3}\b)/); if (!m) return { den: '\u2014', itn: s }; const rest = String(s).replace(m[1], '').replace(/\s+/g, ' ').trim(); return { den: m[1], itn: rest || s }; };
     D.forEach((r) => { const z = splitIt(r.it); r.den = z.den; r.itn = z.itn; });
-    const tabDefs = [['Pending', 'Pending receipt', 139], ['Hold', 'On hold · approval', 9], ['Clear', 'Clear', 842], ['Cancelled', 'Cancelled', 9], ['All', 'All', 999]];
+    const nOrd = (k) => new Set(D.filter((r) => !k || r.st === k).map((r) => r.no)).size;
+    const tabDefs = LIVE ? [['Pending', 'Pending receipt', nOrd('Pending')], ['Hold', 'On hold · approval', nOrd('Hold')], ['Clear', 'Clear', nOrd('Clear')], ['Cancelled', 'Cancelled', nOrd('Cancelled')], ['All', 'All', nOrd(null)]]
+      : [['Pending', 'Pending receipt', 139], ['Hold', 'On hold · approval', 9], ['Clear', 'Clear', 842], ['Cancelled', 'Cancelled', 9], ['All', 'All', 999]];
     const tab = this.state.tab ?? this.props.startTab ?? 'Pending';
     const vis0 = D.filter((r) => tab === 'All' || r.st === tab);
     const COLS = [{ k: 'no', l: 'Order no.' }, { k: 'dt', l: 'Date', date: 1 }, { k: 'p', l: 'Mill / party' }, { k: 'itn', l: 'Item' }, { k: 'den', l: 'Denier' }, { k: 'br', l: 'Brand' }, { k: 'lot', l: 'Lot no.' }, { k: 'gr', l: 'Grade' }, { k: 'rate', l: 'Rate', num: 1, r: 1, fmt: (v) => inr(v, 2) }, { k: 'oq', l: 'Ordered kg', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'rq', l: 'Received', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'pq', l: 'Pending kg', num: 1, r: 1, rt: 1, get: (r) => Math.max(r.oq - r.rq, 0), fmt: (v) => inr(v, 3) }, { k: 'ref', l: 'Mill ref.', rt: 1 }, { k: 'stL', l: 'Status', rt: 1, get: (r) => ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[r.st] || r.st }];
     const cf = this.cf(vis0, COLS); const vis = cf.list;
     const tabTotal0 = (tabDefs.find((t) => t[0] === tab) || [0, 0, 0])[2];
-    const tabTotal = cf.filtered ? vis.length : tabTotal0;
+    const tabTotal = cf.filtered || LIVE ? vis.length : tabTotal0;
     const loaded = this.state.loaded ?? 20;
     const shown = [];
-    while (vis.length && shown.length < Math.min(loaded, tabTotal)) { const r = vis[shown.length % vis.length]; const kk = Math.floor(shown.length / vis.length); const len = r.no.length - 3;
+    if (LIVE) shown.push(...vis.slice(0, loaded));
+    else while (vis.length && shown.length < Math.min(loaded, tabTotal)) { const r = vis[shown.length % vis.length]; const kk = Math.floor(shown.length / vis.length); const len = r.no.length - 3;
       let num = parseInt(r.no.slice(3), 10) - kk * 1009; let no = r.no; if (kk > 0) { do { num = num > 50 ? num - 3 : num + 9973; no = r.no.slice(0, 3) + String(num).padStart(len, '0'); } while (D.some((x) => x.no === no) || shown.some((x) => x.no === no)); }
       shown.push(kk === 0 ? r : { ...r, no }); }
     if (cf.sorter) shown.sort(cf.sorter);
     const SA = !!this.state.selAll; const EX = this.state.excl || [];
     const isSel = (no) => SA ? EX.indexOf(no) < 0 : this.state.sel.indexOf(no) >= 0;
     const sel = SA ? vis.map((r) => r.no).filter((n) => EX.indexOf(n) < 0) : this.state.sel;
-    const setOver = (nos, s) => { const o = { ...this.state.over }; nos.forEach((n) => { o[n] = s; }); this.setState({ over: o, sel: [], selAll: false, excl: [] }); };
+    const setOver = (nos, s) => { if (LIVE) { const LA = { Pending: 'approve', Clear: 'close', Cancelled: 'cancel' }; if (!LA[s]) { window.alert('Use Approve, Clear or Cancel here'); return; } const ids = D.filter((r) => nos.indexOf(r.no) >= 0).map((r) => r.id); const why = s === 'Cancelled' ? window.prompt('Reason?') : null; if (s === 'Cancelled' && !why) return; this.act(ids, LA[s], why || (s === 'Pending' ? 'Approved from register' : undefined)); return; } const o = { ...this.state.over }; nos.forEach((n) => { o[n] = s; }); this.setState({ over: o, sel: [], selAll: false, excl: [] }); };
     const rows = shown.map((r) => {
-      const pq = Math.max(r.oq - r.rq, 0); const pct = r.oq ? Math.round(r.rq / r.oq * 100) : 0; const on = isSel(r.no); const ask = r.st === 'Hold'; const exp = r.no === this.state.focus; const nb = mkBills(r, r.rq, 'GRN-', 6, 8).length;
+      const pq = Math.max(r.oq - r.rq, 0); const pct = r.oq ? Math.round(r.rq / r.oq * 100) : 0; const on = isSel(r.no); const ask = r.st === 'Hold'; const exp = r.no === this.state.focus; const nb = LIVE ? r.bc : mkBills(r, r.rq, 'GRN-', 6, 8).length;
       return { ...r, rate: inr(r.rate, 2), oq: inr(r.oq, 3), rq: inr(r.rq, 3), pq: inr(pq, 3), bw: 'width: ' + pct + '%', sc: '--c: ' + (SC[r.st] || '#8F8F8F'), on, ask, show: !ask,
         rc: on || r.no === this.state.focus ? 'sel' : '',
         tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : this.setState({ sel: on ? sel.filter((s) => s !== r.no) : sel.concat([r.no]) }),
         exp, bn: nb ? nb + (nb > 1 ? ' bills' : ' bill') : 'No bills', cc: exp ? 'cnt on' : 'cnt', chev: '',
-        focus: () => this.setState({ focus: r.no, bill: null }), rowClick: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; this.setState({ focus: r.no, bill: null }); }, open: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; try { window.localStorage.setItem('yf-view-po', JSON.stringify({ t: Date.now(), no: r.no, dt: r.dt, p: r.p, g: r.g || r.ag || '', it: r.it, br: r.br, lot: r.lot, gr: r.gr, rate: r.rate, oq: r.oq, dq: (r.dq ?? r.rq ?? 0), bk: r.bk || r.ref || '', stL: ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[r.st] || r.st })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} this.go('PurchaseOrderView' + sfx + '.dc.html'); }, ok: () => setOver([r.no], 'Pending'), no2: () => setOver([r.no], 'Cancelled') };
+        focus: () => this.setState({ focus: r.no, bill: null }), rowClick: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; this.setState({ focus: r.no, bill: null }); }, open: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; try { window.localStorage.setItem('yf-view-po', JSON.stringify({ t: Date.now(), id: r.id, no: r.no, dt: r.dt, p: r.p, g: r.g || r.ag || '', it: r.it, br: r.br, lot: r.lot, gr: r.gr, rate: r.rate, oq: r.oq, dq: (r.dq ?? r.rq ?? 0), bk: r.bk || r.ref || '', stL: ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[r.st] || r.st })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} this.go('PurchaseOrderView' + sfx + '.dc.html'); }, ok: () => setOver([r.no], 'Pending'), no2: () => setOver([r.no], 'Cancelled') };
     });
     const sum = (arr, k) => arr.reduce((a, r) => a + r[k], 0);
     const tot = { oq: inr(sum(vis, 'oq'), 3), rq: inr(sum(vis, 'rq'), 3), pq: inr(sum(vis, 'oq') - sum(vis, 'rq'), 3) };
     const STK = {'75/36 FDY +1 item': 14200, 'PFY 75/36 SD +1 item': 5200, '50/36 Bright Catonic': 1800, '75/72 Roto Lim': 3800, '75/72 FDY': 9100, '75/36 FDY': 2550, '80/48 BSY': 2100, '20/1 SD Mono Yarn': 260, '1/150/48 BRT Raw White': 980, '150 Limaya': 640, '180SD Creo Tex': 410, '67/72 FDY': 850, '50/12 BRT': 3100, 'Muskan Gold': 410};
     const byIt = {}; vis.forEach((r) => { byIt[r.it] = (byIt[r.it] || 0) + Math.max(r.oq - r.rq, 0); });
-    let stk = 0, short = 0; Object.keys(byIt).forEach((k) => { const st = STK[k] ?? 0; stk += st; short += Math.max(0, byIt[k] - st); });
+    const STKU = LIVE ? (this.state.liveStock || {}) : STK;
+    let stk = 0, short = 0; Object.keys(byIt).forEach((k) => { const st = STKU[k] ?? 0; stk += st; short += Math.max(0, byIt[k] - st); });
     const pv = vis.reduce((a, r) => a + Math.max(r.oq - r.rq, 0) * r.rate, 0); const oqS = sum(vis, 'oq'); const pqS = Math.max(oqS - sum(vis, 'rq'), 0);
-    const F = vis.length ? tabTotal / vis.length : 0; const stkA = stk * Math.min(F, 6); const pqA = pqS * F;
+    const F = LIVE ? (vis.length ? 1 : 0) : vis.length ? tabTotal / vis.length : 0; const stkA = stk * Math.min(F, 6); const pqA = pqS * F;
     const sm = { n: inr(tabTotal, 0), oq: inr(oqS * F, 3), dq: inr(sum(vis, 'rq') * F, 3), pq: inr(pqA, 3), pv: inr(pv * F, 0), stk: inr(stkA, 3), short: inr(Math.max(0, pqA - stkA), 3), after: inr(stkA + pqA, 3), avg: oqS ? inr(vis.reduce((a, r) => a + r.oq * r.rate, 0) / oqS, 2) : '0.00' };
     const fr = shown.concat(D).find((r) => r.no === this.state.focus);
     let f = { no: '', p: '', it: '', lot: '', ds: [], none: false, some: false, pq: '' };
+    if (fr && LIVE) this.loadBills(fr.id);
+    const liveBills = (o) => ((this.state.rel || {})[o.id] || []).map((b, i) => {
+      const due = b.dueDate || b.date; const age = Math.round((Date.now() - new Date(due + 'T00:00:00').getTime()) / 864e5); const paid = b.pending <= 0.5; const dmy = (x) => x.split('-').reverse().join('-');
+      return { key: 'b' + b.id, i, id: b.id, inv: (b.refNo ? b.refNo + ' · ' : '') + b.number.replace(/\/\d{2}-\d{2}$/, ''), dt: dmy(b.date), due: dmy(due), bx: b.pcs, kgN: b.qty, txN: b.lineTaxable, totN: b.net, paid, gd: b.godownName || '—',
+        kg: inr(b.qty, 3), rate: inr(b.rate, 2), tx: '₹ ' + inr(b.lineTaxable, 2), cg: '₹ ' + inr(b.cgst, 2), gst: '₹ ' + inr(b.gst, 2), amt: '₹ ' + inr(b.net, 2), ro: (b.roundOff >= 0 ? '+ ' : '− ') + inr(Math.abs(b.roundOff), 2),
+        pay: paid ? 'Paid' : age > 0 ? 'Overdue ' + age + ' days' : 'Due ' + dmy(due), pc: paid ? 'tag t-green' : age > 0 ? 'tag t-red' : 'tag t-gray',
+        recv: '₹ ' + inr(b.net - b.tds - b.pending, 2), bal: '₹ ' + inr(b.pending, 2), tr: b.transporterName || '—', lr: b.lrNo || '—', veh: b.vehicleNo || '—', ewb: b.ewbNo ? ewbF(b.ewbNo) : '—', mill: b.refNo || '—' };
+    });
     if (fr) {
       const GD = ['Sachin GIDC', 'Pandesara', 'Kadodara'];
-      const bs = mkBills(fr, fr.rq, 'GRN-', 6, 8).map((b) => ({ ...b, inv: 'GRN-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 100) + ' · PB-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 120), gd: GD[b.i % 3] }));
+      const bs = LIVE ? liveBills(fr) : mkBills(fr, fr.rq, 'GRN-', 6, 8).map((b) => (LIVE ? b : { ...b, inv: 'GRN-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 100) + ' · PB-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 120), gd: GD[b.i % 3] }));
       const ds = bs.map((b) => { const open = this.state.bill === b.key; return { ...b, open, rc: open ? 'on' : '', act: open ? 'Hide' : 'View', pick: () => this.setState({ bill: open ? null : b.key }) }; });
-      const val = bs.reduce((a, b) => a + b.totN, 0); const pd2 = bs.filter((b) => b.paid).reduce((a, b) => a + b.totN, 0); const tx = bs.reduce((a, b) => a + b.txN, 0);
-      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, br: fr.br, ag: fr.ag, ref: fr.ref, gstin: gstOf(fr.p), ds, none: ds.length === 0, some: ds.length > 0, n: ds.length,
+      const val = bs.reduce((a, b) => a + b.totN, 0); const pd2 = LIVE ? ((this.state.rel || {})[fr.id] || []).reduce((a, b) => a + (b.net - b.tds - b.pending), 0) : bs.filter((b) => b.paid).reduce((a, b) => a + b.totN, 0); const tx = bs.reduce((a, b) => a + b.txN, 0);
+      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, br: fr.br, ag: fr.ag, ref: fr.ref, gstin: LIVE ? '' : gstOf(fr.p), ds, none: ds.length === 0, some: ds.length > 0, n: ds.length,
         oq: inr(fr.oq, 3), rq: inr(fr.rq, 3), pq: inr(Math.max(fr.oq - fr.rq, 0), 3), val: '₹ ' + inr(val, 2), tx: '₹ ' + inr(tx, 2), gst: '₹ ' + inr(val - tx, 2), recv: '₹ ' + inr(pd2, 2), bal: '₹ ' + inr(val - pd2, 2) };
     }
     const bulk = {};
@@ -514,7 +553,7 @@ class Component extends DCLogic {
       unfocus: () => this.setState({ focus: null }),
       countLabel: vis.length + ' of ' + (td ? td[2] : 0) + ' orders',
       markBack: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} },
-      openFocus: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} if (fr) { try { window.localStorage.setItem('yf-view-po', JSON.stringify({ t: Date.now(), no: fr.no, dt: fr.dt, p: fr.p, g: fr.g || fr.ag || '', it: fr.it, br: fr.br, lot: fr.lot, gr: fr.gr, rate: fr.rate, oq: fr.oq, dq: (fr.dq ?? fr.rq ?? 0), stL: ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[fr.st] || fr.st })); } catch (err) {} } },
+      openFocus: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} if (fr) { try { window.localStorage.setItem('yf-view-po', JSON.stringify({ t: Date.now(), id: fr.id, no: fr.no, dt: fr.dt, p: fr.p, g: fr.g || fr.ag || '', it: fr.it, br: fr.br, lot: fr.lot, gr: fr.gr, rate: fr.rate, oq: fr.oq, dq: (fr.dq ?? fr.rq ?? 0), stL: ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[fr.st] || fr.st })); } catch (err) {} } },
       newHref: 'PurchaseOrderEntry' + sfx + '.dc.html', billHref: 'PurchaseBill' + sfx + '.dc.html', recHref: 'PurchaseOrderView' + sfx + '.dc.html'
     };
   }

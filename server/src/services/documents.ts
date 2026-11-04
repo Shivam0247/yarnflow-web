@@ -91,6 +91,7 @@ export const docSchema = z.object({
   refName: optStr,
   doNo: optStr,
   opportunityNo: optStr,
+  extra: z.record(z.string(), z.string().max(240)).optional().nullable(),
   reason: optStr,
   creditDays: z.coerce.number().int().min(0).optional().nullable(),
   dueDate: optDate,
@@ -523,6 +524,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     refName: input.refName ?? null,
     doNo: input.doNo ?? null,
     opportunityNo: input.opportunityNo ?? null,
+    extra: input.extra ?? null,
     reason: input.reason ?? null,
     creditDays,
     dueDate: input.dueDate ?? (def.bill || def.posting === 'note' || def.type === 'SALES_ORDER' ? addDays(input.date, creditDays) : null),
@@ -907,7 +909,7 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
   const cons = CONSUMERS[def.type];
   const used = cons ? await consumedQty(db, lineIds, cons.types, cons.by) : new Map<number, number>();
   const scheduled = SCHEDULED_BY[def.type] ? await consumedQty(db, lineIds, SCHEDULED_BY[def.type]!, 'source') : new Map<number, number>();
-  const srcIds = lines.map((x) => x.l.sourceLineId).filter(Boolean) as number[];
+  const srcIds = lines.flatMap((x) => [x.l.sourceLineId, x.l.orderLineId]).filter(Boolean) as number[];
   const src = await loadSourceLines(db, ctx.companyId, srcIds);
 
   const names = await nameMap(ctx, [v.partyId, v.deliveryPartyId, v.brokerId, v.millId, v.bankAccountId, v.agentId]);
@@ -946,6 +948,7 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
         itemCode,
         accountName,
         sourceNumber: s?.vNumber ?? null,
+        orderNumber: l.orderLineId ? src.get(l.orderLineId)?.vNumber ?? null : null,
         doneQty: cons ? u : undefined,
         pendingQty: cons ? (l.lineStatus === 'CLOSED' ? 0 : r3(Math.max(0, l.qty - u))) : undefined,
         scheduledQty: SCHEDULED_BY[def.type] ? sc : undefined
@@ -1017,7 +1020,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     const rows = await db.execute(sql`
       select v.id, v.number, v.date, v.status, v.due_date as "dueDate", v.credit_days as "creditDays", v.party_id as "partyId",
              p.name as "partyName", p.city as "partyCity", pg.name as "partyGroupName", b.name as "brokerName", sp.name as "salesPersonName",
-             m.name as "millName", v.net_amount as "netAmount", v.priority, v.exp_delivery_date as "expDeliveryDate",
+             m.name as "millName", ag.name as "agentName", v.ref_no as "refNo", v.ref_name as "refName", v.approval_note as "approvalNote", v.net_amount as "netAmount", v.priority, v.exp_delivery_date as "expDeliveryDate",
              l.id as "lineId", l.line_no as "lineNo", l.item_id as "itemId", i.name as "itemName", i.denier, i.code as "itemCode",
              l.brand, l.lot_no as "lotNo", l.grade, l.unit, l.pcs, l.qty, l.rate, l.amount, l.taxable_amount as "taxableAmount", l.line_status as "lineStatus",
              coalesce((select sum(c.qty) from voucher_lines c join vouchers cv on cv.id = c.voucher_id
@@ -1031,6 +1034,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
       left join accounts pg on pg.id = p.party_group_id
       left join accounts b on b.id = v.broker_id
       left join accounts m on m.id = v.mill_id
+      left join accounts ag on ag.id = v.agent_id
       left join sales_persons sp on sp.id = v.sales_person_id
       where ${where}
       order by v.date desc, v.id desc, l.line_no
@@ -1096,14 +1100,14 @@ export async function related(ctx: Ctx, def: TypeDef, id: number) {
   const res = await ctx.db.execute(sql`
     select c.id, c.type, c.number, c.date, c.due_date as "dueDate", c.status, c.net_amount as net, c.tds_amount as tds,
       c.taxable_amount as taxable, c.cgst_amount + c.sgst_amount + c.igst_amount as gst, c.cgst_amount as cgst, c.round_off as "roundOff",
-      c.vehicle_no as "vehicleNo", c.lr_no as "lrNo", c.ewb_no as "ewbNo", c.ewb_status as "ewbStatus", c.ref_no as "refNo", t.name as "transporterName",
+      c.vehicle_no as "vehicleNo", c.lr_no as "lrNo", c.ewb_no as "ewbNo", c.ewb_status as "ewbStatus", c.ref_no as "refNo", t.name as "transporterName", g.name as "godownName",
       sum(cl.qty) as qty, sum(cl.pcs) as pcs, max(cl.rate) as rate, sum(cl.taxable_amount) as "lineTaxable",
       c.net_amount - c.tds_amount - coalesce((select sum(a.amount) from bill_allocations a where a.bill_id = c.id), 0) as pending
-    from voucher_lines cl join vouchers c on c.id = cl.voucher_id left join transporters t on t.id = c.transporter_id
+    from voucher_lines cl join vouchers c on c.id = cl.voucher_id left join transporters t on t.id = c.transporter_id left join godowns g on g.id = coalesce(c.godown_id, (select gl.godown_id from voucher_lines gl where gl.voucher_id = c.id and gl.godown_id is not null limit 1))
     where c.company_id = ${ctx.companyId} and c.status <> 'CANCELLED'
       and (cl.order_line_id in (select id from voucher_lines where voucher_id = ${id})
         or cl.source_line_id in (select id from voucher_lines where voucher_id = ${id}))
-    group by c.id, t.name order by c.date, c.id`);
+    group by c.id, t.name, g.name order by c.date, c.id`);
   return res.rows.map((r: Record<string, unknown>) => {
     const num = (k: string) => Number(r[k] ?? 0);
     const t = TYPES[r.type as VoucherType];
