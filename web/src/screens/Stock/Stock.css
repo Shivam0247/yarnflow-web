@@ -53,3 +53,8 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 /* gen27: collapsible sidebar */
 .sbw{transition:flex-basis .18s ease,width .18s ease}
 .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:72px 24px;z-index:20}
+.mdl{width:min(880px,100%);background:var(--bg);border:1px solid var(--bd2);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.4);display:flex;flex-direction:column;overflow:hidden}
+.mdh{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--bd)}
+.mdb{padding:14px 18px;display:flex;flex-direction:column;gap:12px;max-height:60vh;overflow:auto}
+.mdf{display:flex;align-items:center;gap:10px;padding:12px 18px;border-top:1px solid var(--bd)}
