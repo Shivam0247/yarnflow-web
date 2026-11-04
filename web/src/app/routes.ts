@@ -2,6 +2,7 @@
 import { lazy } from 'react';
 
 export const ROUTES: Record<string, string> = {
+  "Login": "/login",
   "Main": "/",
   "Approvals": "/approvals",
   "SalesOrderList": "/sales/orders",
@@ -62,6 +63,7 @@ export const PAGES: { path: string; Component: React.LazyExoticComponent<React.C
   { path: ROUTES.GeneralSaleView, Component: lazy(() => import('@/screens/GeneralSaleView/GeneralSaleView')) },
   { path: ROUTES.GroupMaster, Component: lazy(() => import('@/screens/GroupMaster/GroupMaster')) },
   { path: ROUTES.Ledger, Component: lazy(() => import('@/screens/Ledger/Ledger')) },
+  { path: ROUTES.Login, Component: lazy(() => import('@/screens/Login/Login')) },
   { path: ROUTES.Main, Component: lazy(() => import('@/screens/Main/Main')) },
   { path: ROUTES.Masters, Component: lazy(() => import('@/screens/Masters/Masters')) },
   { path: ROUTES.Outstanding, Component: lazy(() => import('@/screens/Outstanding/Outstanding')) },

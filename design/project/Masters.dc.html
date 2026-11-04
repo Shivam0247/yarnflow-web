@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Masters</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.inp:focus{outline:0;border-color:var(--bd2)}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.wrap{padding:20px;display:flex;flex-direction:column;gap:18px}
+.recent{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:8px;background:var(--s1);color:var(--t2);font-size:13px}
+.chip:hover{background:var(--s2);color:var(--t1)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}
+.sec{border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.sh{display:flex;align-items:center;gap:10px;padding:14px 16px}
+.sh h2{margin:0;font-size:15px;font-weight:600;flex:1}
+.ico{width:32px;height:32px;border-radius:9px;background:var(--s2);color:var(--t2);display:grid;place-items:center;flex:none}
+.row{display:flex;align-items:center;gap:10px;padding:0 16px;height:40px;border-top:1px solid var(--bd)}
+.row:hover{background:var(--s1)}
+.row .n{flex:1}
+.row .c{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.row svg{color:var(--t3)}
+.badge{font-size:11px;font-weight:500;padding:0 6px;border-radius:5px;background:var(--s2);color:var(--t2);line-height:18px}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="mast" hint-size="236px,1000px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span>Masters</span><span class="muted" style="font-size: 14px">{{total}} masters</span></div>
+<input class="inp" type="search" placeholder="Find a master… e.g. broker, HSN, lot" aria-label="Find a master" onInput="{{onQ}}" style="width: 300px">
+<button class="btn" type="button">Import from Excel / Tally</button>
+<a class="btn pr" href="{{newParty}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>New party</a>
+</header>
+<div class="wrap">
+<div class="recent"><span class="muted" style="font-size: 13px">Most used</span>
+<a class="chip" href="{{lk.acc}}">Party master <span class="muted">Ctrl M</span></a>
+<a class="chip" href="{{lk.yarn}}">Yarn items <span class="muted">Ctrl I</span></a>
+<a class="chip" href="{{lk.acc}}">Brokers <span class="muted">Ctrl A</span></a>
+<a class="chip" href="{{lk.trn}}">Transporters</a>
+<a class="chip" href="{{lk.stock}}">Lots</a>
+</div>
+<div class="grid">
+<sc-for list="{{secs}}" as="s" hint-placeholder-count="5">
+<section class="sec">
+<div class="sh"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></span><h2>{{s.t}}</h2><span class="muted" style="font-size: 13px">{{s.d}}</span></div>
+<sc-for list="{{s.items}}" as="x" hint-placeholder-count="6">
+<a class="row" href="{{x.h}}"><span class="n">{{x.n}}</span><sc-if value="{{x.k}}" hint-placeholder-val="{{false}}"><span class="badge">{{x.k}}</span></sc-if><span class="c">{{x.c}}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+</sc-for>
+</section>
+</sc-for>
+</div>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}"><div class="muted" style="padding: 40px; text-align: center">No master matches “{{q}}”.</div></sc-if>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="mast" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { q: '' }; }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const sfx = theme === 'light' ? 'Light' : '';
+    const L = (f) => (f ? f + sfx + '.dc.html' : '#');
+    const S = [
+      ['Accounts', 'Parties, brokers, groups', [['Party master', '1,248', 'AccountMaster', 'Ctrl M'], ['Delivery parties', '312', 'AccountMaster'], ['Account groups', '17', 'GroupMaster'], ['Party groups', '24', ''], ['Brokers', '38', 'AccountMaster', 'Ctrl A'], ['Collection persons', '9', ''], ['TDS / TCS', '6', ''], ['Blocked parties', '14', 'AccountMaster'], ['Party opening balances', '—', 'Ledger']]],
+      ['Items & yarn', 'What you buy and sell', [['Yarn items', '186', 'YarnMaster', 'Ctrl I'], ['Item groups', '12', 'YarnMaster'], ['Item main groups', '5', 'YarnMaster'], ['HSN codes', '8', ''], ['Units', '6', ''], ['Designs / shades', '64', ''], ['Godowns', '6', 'Stock']]],
+      ['Inventory', 'Lot and quality tracking', [['Lots', '412', 'Stock'], ['Merge numbers', '38', ''], ['Twist', '4', ''], ['Grades', '5', ''], ['Item opening stock', '—', 'Stock']]],
+      ['Logistics & location', 'Transport and addresses', [['Transporters', '22', 'TransporterMaster'], ['Vehicles', '31', ''], ['Areas', '18', ''], ['Cities', '54', ''], ['States', '36', ''], ['Countries', '3', '']]],
+      ['Company setup', 'Branches, books, series', [['Branches', '2', ''], ['Cost centers', '3', ''], ['Books & voucher series', '14', ''], ['Company godowns', '6', 'Stock'], ['Partner ratio', '3', ''], ['Narrations', '27', '']]]
+    ];
+    const q = this.state.q.trim().toLowerCase();
+    let total = 0;
+    const secs = S.map(([t, d, items]) => {
+      total += items.length;
+      const list = items.filter((i) => !q || i[0].toLowerCase().indexOf(q) >= 0).map((i) => ({ n: i[0], c: i[1], h: L(i[2]), k: i[3] || '' }));
+      return { t, d, items: list };
+    }).filter((s) => s.items.length > 0);
+    return {
+      theme, secs, total, q: this.state.q, empty: secs.length === 0,
+      onQ: (e) => this.setState({ q: e.target.value }),
+      newParty: L('AccountMaster'),
+      lk: { acc: L('AccountMaster'), yarn: L('YarnMaster'), trn: L('TransporterMaster'), stock: L('Stock') }
+    };
+  }
+}
+</script>
+</body>
+</html>

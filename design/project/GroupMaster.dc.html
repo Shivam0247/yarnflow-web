@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Groups</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0;width:100%}
+.inp::placeholder{color:var(--t3)}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap;background:var(--s2);color:var(--t2)}
+.split{display:flex;flex-wrap:wrap;flex:1}
+.lp{flex:1 1 380px;min-width:0;border-right:1px solid var(--bd);padding:14px 10px}
+.rp{flex:999 1 480px;min-width:0;display:flex;flex-direction:column}
+.node{display:flex;align-items:center;gap:8px;width:100%;height:36px;padding-right:10px;border:0;border-radius:8px;background:none;color:var(--t1);cursor:pointer;text-align:left}
+.node:hover{background:var(--s1)}
+.node.on{background:var(--s3)}
+.node .n{margin-left:auto;font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.pane{padding:22px 24px;display:flex;flex-direction:column;gap:18px}
+.ph2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.ph2 h2{margin:0;font-size:20px;font-weight:600}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.fld{display:flex;flex-direction:column;gap:8px;min-width:0}.fld label{color:var(--t3)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.stat b{font-size:20px;line-height:28px;font-weight:600;font-variant-numeric:tabular-nums}
+.opt{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.sw{appearance:none;width:34px;height:20px;border-radius:99px;background:var(--s3);position:relative;cursor:pointer;margin:0;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff}
+.sw:checked{background:#22C55E}.sw:checked::after{left:16px}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="grp" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span class="m">Groups</span><span class="m">/</span><span>Chart of accounts</span></div>
+<button class="btn" type="button">Expand all</button>
+<button class="btn pr" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Create</button>
+</header>
+<div class="split">
+<div class="lp" role="tree" aria-label="Account groups">
+<div style="padding: 0 4px 10px"><input class="inp" type="search" placeholder="Search groups" aria-label="Search groups"></div>
+<sc-for list="{{tree}}" as="g" hint-placeholder-count="16">
+<button class="{{g.cls}}" type="button" role="treeitem" style="{{g.pad}}" onClick="{{g.pick}}">
+<sc-if value="{{g.parent}}" hint-placeholder-val="{{false}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="color: var(--t3)"><path d="m6 9 6 6 6-6"/></svg></sc-if>
+<sc-if value="{{g.leaf}}" hint-placeholder-val="{{true}}"><span style="width: 14px"></span></sc-if>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--t2)"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+<span style="{{g.ws}}">{{g.name}}</span><span class="n">{{g.count}}</span>
+</button>
+</sc-for>
+</div>
+
+<div class="rp">
+<div class="pane" style="border-bottom: 1px solid var(--bd)">
+<div class="ph2"><h2>{{sel.name}}</h2><span class="tag">{{sel.nature}}</span><span class="muted" style="flex: 1">Under {{sel.under}}</span><button class="btn" type="button">Delete</button><button class="btn pr" type="button">Save</button></div>
+<div class="stats">
+<div class="stat"><span class="muted">Accounts</span><b>{{sel.count}}</b></div>
+<div class="stat"><span class="muted">Closing balance</span><b>{{sel.bal}}</b></div>
+<div class="stat"><span class="muted">Sub-groups</span><b>{{sel.subs}}</b></div>
+</div>
+</div>
+<div class="pane">
+<div class="fgrid">
+<div class="fld"><label for="g1">Group name</label><input id="g1" class="inp" type="text" value="{{sel.name}}"></div>
+<div class="fld"><label for="g2">Under</label><select id="g2" class="inp"><option>{{sel.under}}</option></select></div>
+<div class="fld"><label for="g3">Nature</label><select id="g3" class="inp"><option>{{sel.nature}}</option><option>Assets</option><option>Liabilities</option><option>Income</option><option>Expenses</option></select></div>
+</div>
+<div>
+<label class="opt"><input class="sw" type="checkbox" checked><span style="flex: 1">Maintain bill-wise outstanding</span><span class="muted" style="font-size: 13px">Needed for ageing &amp; reminders</span></label>
+<label class="opt"><input class="sw" type="checkbox" checked><span style="flex: 1">Allow credit limit and credit days</span></label>
+<label class="opt"><input class="sw" type="checkbox"><span style="flex: 1">Affects gross profit</span></label>
+<label class="opt" style="border-bottom: 0"><input class="sw" type="checkbox" checked><span style="flex: 1">Show in outstanding reports</span></label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="grp" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { sel: 3 }; }
+  renderVals() {
+    const G = [
+      [0, 'Capital Account', '4', 'Liabilities', 'Primary', '₹ 1.20 Cr Cr', '0', true],
+      [0, 'Current Assets', '', 'Assets', 'Primary', '₹ 1.48 Cr Dr', '4', false],
+      [1, 'Bank Accounts', '9', 'Assets', 'Current Assets', '₹ 24.6 L Dr', '0', true],
+      [1, 'Sundry Debtors', '812', 'Assets', 'Current Assets', '₹ 62.4 L Dr', '2', false],
+      [2, 'Surat Debtors', '546', 'Assets', 'Sundry Debtors', '₹ 41.8 L Dr', '0', true],
+      [2, 'Out-station Debtors', '266', 'Assets', 'Sundry Debtors', '₹ 20.6 L Dr', '0', true],
+      [1, 'Stock-in-hand', '4', 'Assets', 'Current Assets', '₹ 89.3 L Dr', '0', true],
+      [0, 'Current Liabilities', '', 'Liabilities', 'Primary', '₹ 46.2 L Cr', '2', false],
+      [1, 'Sundry Creditors', '124', 'Liabilities', 'Current Liabilities', '₹ 39.4 L Cr', '3', false],
+      [2, 'Yarn Mills', '64', 'Liabilities', 'Sundry Creditors', '₹ 38.9 L Cr', '0', true],
+      [2, 'Brokers', '38', 'Liabilities', 'Sundry Creditors', '₹ 3.8 L Cr', '0', true],
+      [2, 'Transporters', '22', 'Liabilities', 'Sundry Creditors', '₹ 0.9 L Cr', '0', true],
+      [1, 'Duties & Taxes', '12', 'Liabilities', 'Current Liabilities', '₹ 2.7 L Cr', '0', true],
+      [0, 'Sales Accounts', '4', 'Income', 'Primary', '₹ 9.84 Cr Cr', '0', true],
+      [0, 'Purchase Accounts', '4', 'Expenses', 'Primary', '₹ 8.92 Cr Dr', '0', true],
+      [0, 'Direct Expenses', '18', 'Expenses', 'Primary', '₹ 6.1 L Dr', '0', true],
+      [0, 'Indirect Expenses', '41', 'Expenses', 'Primary', '₹ 14.8 L Dr', '0', true]
+    ];
+    const s = this.state.sel;
+    const tree = G.map((g, i) => ({
+      name: g[1], count: g[2], parent: !g[7], leaf: g[7],
+      cls: i === s ? 'node on' : 'node',
+      pad: 'padding-left: ' + (8 + g[0] * 22) + 'px',
+      ws: g[0] === 0 ? 'font-weight: 500' : '',
+      pick: () => this.setState({ sel: i })
+    }));
+    const g = G[s];
+    return { theme: this.props.theme ?? 'dark', tree, sel: { name: g[1], count: g[2] || '—', nature: g[3], under: g[4], bal: g[5], subs: g[6] } };
+  }
+}
+</script>
+</body>
+</html>

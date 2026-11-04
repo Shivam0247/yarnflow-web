@@ -15,6 +15,13 @@
       "when": 1793793943717,
       "tag": "0001_collection_person",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793795026424,
+      "tag": "0002_agent_order_mode",
+      "breakpoints": true
     }
   ]
 }

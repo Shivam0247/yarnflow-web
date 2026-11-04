@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Purchase Bill</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}.bc a.m:hover{color:var(--t1)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)}
+.btn.no{background:rgba(239,68,68,.14);color:#F87171}.light .btn.no{color:#B91C1C}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap;background:var(--s2);color:var(--t2)}
+.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}
+.light .t-red{color:#B91C1C}.light .t-green{color:#15803D}.light .t-orange{color:#C2410C}
+.split{display:flex;flex-wrap:wrap;flex:1}
+.lp{flex:999 1 560px;min-width:0;display:flex;flex-direction:column}
+.rp{flex:1 1 320px;min-width:0;border-left:1px solid var(--bd)}
+.sec{padding:20px 24px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:14px}
+.sh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sh h2{margin:0;font-size:16px;font-weight:600;flex:1}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 14px}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld label{color:var(--t3);font-size:13px}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);width:100%;min-width:0}
+.inp::placeholder{color:var(--t3)}
+.inp:focus{outline:0;border-color:var(--bd2);background:var(--bg)}
+.inp[readonly]{background:transparent;border-color:var(--bd);color:var(--t2)}
+textarea.inp{height:76px;padding:8px 10px;resize:vertical}
+.req{color:#EF4444}
+.strip{display:flex;flex-wrap:wrap;gap:24px;padding:12px 16px;border-radius:10px;background:var(--s1)}
+.strip div{display:flex;flex-direction:column;gap:2px}
+.strip span:first-child{font-size:12px;color:var(--t3)}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:10px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 8px;white-space:nowrap;border-bottom:1px solid var(--bd)}
+td{padding:6px 8px;height:44px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tfoot td{background:var(--s1);font-weight:600;border-bottom:0}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cin{height:30px;border-radius:6px;border:1px solid var(--bd2);background:var(--bg);padding:0 8px;font-size:13px;color:var(--t1);min-width:0;width:100%}
+.cin::placeholder{color:var(--t3)}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.box{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.box h3{margin:0;font-size:14px;font-weight:600}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:14px;font-variant-numeric:tabular-nums}
+.kv span:first-child{color:var(--t3)}
+.actbar{display:flex;align-items:center;gap:8px;padding:12px 24px;border-top:1px solid var(--bd);flex-wrap:wrap;margin-top:auto;background:var(--bg)}
+.hist{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.hrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.stockok{color:#4ADE80}.light .stockok{color:#15803D}
+.fit{height:100vh;overflow:hidden;flex-wrap:nowrap}
+.fit .sbw{flex:0 0 236px;height:100%;overflow-y:auto}
+.fit .main{height:100%;min-height:0}
+.fit .split{flex:1 1 auto;min-height:0;flex-wrap:nowrap}
+.fit .lp{min-height:0;overflow:hidden}
+.fit .rp{flex:0 0 290px;overflow-y:auto}
+.fit .hist{padding:12px 16px;gap:10px}
+.fit .sec{padding:12px 20px;gap:10px;flex:none}
+.fit .sh h2{font-size:15px}
+.fit .fgrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px 10px}
+.fit .fld{gap:3px}
+.fit .fld label{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fit .inp{height:30px;font-size:13px;padding:0 8px}
+.fit .yn{height:30px}.fit .yn button{height:24px}
+.fit .strip{padding:8px 14px;gap:20px;font-size:13px}
+.fit .banner{padding:8px 12px;font-size:13px}
+.fit .sec.items{flex:1 1 auto;min-height:0}
+.fit .sec.items .tw{flex:1 1 auto;min-height:0;overflow:auto}
+.fit .tw thead th{position:sticky;top:0;z-index:1}
+.fit td{height:38px}
+.fit .sec.bottom{height:244px;overflow:auto;border-bottom:0;padding-top:6px;border-top:1px solid var(--bd)}
+.fit .box{padding:10px 12px;gap:5px}
+.fit .box h3{font-size:13px}
+.fit .kv{font-size:13px}
+.fit .bigtotal{font-size:18px}
+.fit .cols3{gap:12px}
+.fit textarea.inp{height:56px;padding:6px 8px}
+.fit .actbar{padding:10px 20px;margin-top:0;flex:none}
+.fit .actsum{font-size:13px;color:var(--t3);display:flex;gap:14px;flex-wrap:wrap}
+.fit .actsum b{color:var(--t1);font-weight:600;font-variant-numeric:tabular-nums}
+@media (max-width:760px){.fit{height:auto!important;overflow:visible;flex-wrap:wrap}.fit .sbw{flex:1 1 100%;height:auto}.fit .main,.fit .split,.fit .lp{height:auto;overflow:visible}.fit .split{flex-wrap:wrap}.fit .sec.bottom{height:auto}}
+.fit .sec.bottom{height:214px}
+.fit .box{gap:2px}
+.fit .kv{line-height:20px}
+.fit .actbar{gap:6px}
+.fit .actbar .btn{height:30px;padding:0 10px;font-size:13px}
+.fit .actbar select.inp{width:104px;flex:none;height:30px}
+.fit .sec.bottom{height:auto;overflow:visible}
+.fit .sec.items{min-height:150px}
+.fit .sec.bottom .box{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px;row-gap:2px;align-content:start}
+.fit .sec.bottom .box>h3,.fit .sec.bottom .box>.fld,.fit .sec.bottom .box>textarea,.fit .sec.bottom .box>.words,.fit .sec.bottom .box>button,.fit .sec.bottom .box>.kv:has(.bigtotal){grid-column:1 / -1}
+.fit .sec.bottom .box .kv{min-width:0}
+.fit .sec.bottom .box .kv span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fit .sec.bottom .cols3{grid-template-columns:minmax(0,1.15fr) minmax(0,1.15fr) minmax(0,.8fr)}
+.fit .sec.bottom .fld{gap:2px}
+.fit .tabsx button{padding:6px 10px}
+.fit .sec.bottom{padding-bottom:10px}
+.fit .sec.bottom .box{display:flex}
+.fit .sec.bottom .cols3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fit .sec.bottom .box .kv span{overflow:visible}
+.fit .lp{overflow-y:auto}
+.fit .sec.items{min-height:168px}
+.nav{display:inline-flex;align-items:center;gap:2px;background:var(--s1);border-radius:8px;padding:2px}
+.nav button{border:0;background:transparent;color:var(--t2);width:28px;height:30px;border-radius:6px;cursor:pointer}
+.nav button:hover{background:var(--s3);color:var(--t1)}
+.nav span{font-size:13px;padding:0 6px;font-variant-numeric:tabular-nums}
+.yn{display:inline-flex;background:var(--s2);border-radius:8px;padding:3px;gap:2px;height:34px;align-items:center}
+.yn button{border:0;background:transparent;color:var(--t3);height:28px;padding:0 12px;border-radius:6px;cursor:pointer;font-size:13px}
+.yn button.on{background:var(--s3);color:var(--t1)}
+.words{font-size:13px;color:var(--t2);font-style:italic}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--t2)}
+.chk input{width:16px;height:16px;accent-color:#8F8F8F;margin:0}
+.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px 14px}
+.bigtotal{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.tabsx{display:flex;gap:2px;border-bottom:1px solid var(--bd)}
+.tabsx button{border:0;background:none;color:var(--t3);padding:8px 10px;border-bottom:2px solid transparent;cursor:pointer;font-size:13px}
+.tabsx button.on{color:var(--t1);border-bottom-color:var(--t1)}
+.hk{font-size:12px;color:var(--t3)}
+.hv{font-weight:600;font-variant-numeric:tabular-nums}
+.hcard{border:1px solid var(--bd);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.hcard .kv{font-size:13px}
+.sec .tw td,.sec .tw th{padding-left:7px;padding-right:7px}
+.app{position:relative}
+.sub{font-size:12px;color:var(--t3)}
+.ovl{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:72px 24px;z-index:20}
+.mdl{width:min(1120px,100%);background:var(--bg);border:1px solid var(--bd2);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.4);display:flex;flex-direction:column;overflow:hidden}
+.mh{display:flex;align-items:flex-start;gap:12px;padding:18px 20px 12px}
+.mh b{font-size:17px;font-weight:600}
+.mf{display:flex;gap:8px;padding:0 20px 14px;flex-wrap:wrap}
+.mf .inp{flex:1 1 160px;max-width:260px}
+.mt{overflow:auto;max-height:520px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.mt table{font-size:14px}
+.mt thead th{position:sticky;top:0;z-index:1}
+.mt td{height:54px;padding:0 10px}
+.mt th{padding:9px 10px}
+.mt tbody tr{cursor:default}
+.mt tbody tr:hover td{background:var(--s1)}
+.mt tbody tr.on td{background:rgba(59,130,246,.16)}
+.light .mt tbody tr.on td{background:#DBEAFE}
+.mt tbody tr.off td{opacity:.45}
+.mb{display:flex;align-items:center;gap:10px;padding:14px 20px;flex-wrap:wrap}
+.cb{width:16px;height:16px;margin:0;accent-color:#3B82F6;vertical-align:middle;cursor:pointer}
+.stepper{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--t3)}
+.stepper .on{color:var(--t1);font-weight:600}
+.stepper i{font-style:normal;display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--s2);font-size:11px}
+.stepper .on i{background:#3B82F6;color:#fff}
+.fit{height:100vh;overflow:hidden;flex-wrap:nowrap}
+.fit .sbw{flex:0 0 236px;height:100%;overflow-y:auto}
+.fit .main{height:100%;min-height:0}
+.fit .split{flex:1 1 auto;min-height:0;flex-wrap:nowrap}
+.fit .lp{min-height:0;overflow:hidden}
+.fit .rp{flex:0 0 290px;overflow-y:auto}
+.fit .hist{padding:12px 16px;gap:10px}
+.fit .sec{padding:12px 20px;gap:10px;flex:none}
+.fit .sh h2{font-size:15px}
+.fit .fgrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px 10px}
+.fit .fld{gap:3px}
+.fit .fld label{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fit .inp{height:30px;font-size:13px;padding:0 8px}
+.fit .yn{height:30px}.fit .yn button{height:24px}
+.fit .strip{padding:8px 14px;gap:20px;font-size:13px}
+.fit .banner{padding:8px 12px;font-size:13px}
+.fit .sec.items{flex:1 1 auto;min-height:0}
+.fit .sec.items .tw{flex:1 1 auto;min-height:0;overflow:auto}
+.fit .tw thead th{position:sticky;top:0;z-index:1}
+.fit td{height:38px}
+.fit .sec.bottom{height:244px;overflow:auto;border-bottom:0;padding-top:6px;border-top:1px solid var(--bd)}
+.fit .box{padding:10px 12px;gap:5px}
+.fit .box h3{font-size:13px}
+.fit .kv{font-size:13px}
+.fit .bigtotal{font-size:18px}
+.fit .cols3{gap:12px}
+.fit textarea.inp{height:56px;padding:6px 8px}
+.fit .actbar{padding:10px 20px;margin-top:0;flex:none}
+.fit .actsum{font-size:13px;color:var(--t3);display:flex;gap:14px;flex-wrap:wrap}
+.fit .actsum b{color:var(--t1);font-weight:600;font-variant-numeric:tabular-nums}
+@media (max-width:760px){.fit{height:auto!important;overflow:visible;flex-wrap:wrap}.fit .sbw{flex:1 1 100%;height:auto}.fit .main,.fit .split,.fit .lp{height:auto;overflow:visible}.fit .split{flex-wrap:wrap}.fit .sec.bottom{height:auto}}
+.fit .sec.bottom{height:214px}
+.fit .box{gap:2px}
+.fit .kv{line-height:20px}
+.fit .actbar{gap:6px}
+.fit .actbar .btn{height:30px;padding:0 10px;font-size:13px}
+.fit .actbar select.inp{width:104px;flex:none;height:30px}
+.fit .sec.bottom{height:auto;overflow:visible}
+.fit .sec.items{min-height:150px}
+.fit .sec.bottom .box{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px;row-gap:2px;align-content:start}
+.fit .sec.bottom .box>h3,.fit .sec.bottom .box>.fld,.fit .sec.bottom .box>textarea,.fit .sec.bottom .box>.words,.fit .sec.bottom .box>button,.fit .sec.bottom .box>.kv:has(.bigtotal){grid-column:1 / -1}
+.fit .sec.bottom .box .kv{min-width:0}
+.fit .sec.bottom .box .kv span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fit .sec.bottom .cols3{grid-template-columns:minmax(0,1.15fr) minmax(0,1.15fr) minmax(0,.8fr)}
+.fit .sec.bottom .fld{gap:2px}
+.fit .tabsx button{padding:6px 10px}
+.fit .sec.bottom{padding-bottom:10px}
+.fit .lp{overflow-y:auto}
+.fit .sec.items{min-height:168px}
+
+.pickf{display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;border:1px dashed var(--bd2);background:var(--s1)}
+.pickf:hover{border-color:#3B82F6}
+.pickf b{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pickf span{font-size:12px;color:#60A5FA;font-weight:500}
+.light .pickf span{color:#1D4ED8}
+.span2{grid-column:span 2}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:36px 16px;text-align:center;color:var(--t3)}
+.cin.w{width:104px}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+.fit .rp{flex-basis:256px}
+.fit:has(.ai-panel) .rp{display:none}
+.fit:has(.ai-panel) .actsum{display:none}
+.fit:has(.ai-panel) .sec.bottom .box{grid-template-columns:minmax(0,1fr)}
+.fit:has(.ai-panel) .sec.bottom .kv span[style*="font-size: 20px"]{font-size:17px!important}
+.fit:has(.ai-panel) .bigtotal{font-size:16px}
+.fit .sec.bottom .box .kv>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fit:has(.ai-panel) .pr{grid-template-columns:92px minmax(0,1fr);padding-left:12px}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen19: breadcrumb parent is a clear link back */
+.bc a.m{cursor:pointer;text-decoration:none;border-radius:6px;padding:3px 6px;margin:0 -2px 0 -6px;transition:background .12s,color .12s}
+.bc a.m:hover{color:var(--t1);background:var(--s2);text-decoration:underline;text-underline-offset:3px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}} fit" style="{{fitStyle}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="pb" hint-size="236px,1000px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><a class="m" href="{{listHref}}">{{regLabel}}</a><span class="m">/</span><span>{{billNo}}</span><span class="{{billTagC}}">{{billTag}}</span></div>
+<a class="btn" href="{{listHref}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>Show record</a>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>Pending GRN</button>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>Upload</button>
+<div class="nav" role="group" aria-label="Previous or next bill"><button type="button" aria-label="Previous bill">‹</button><span>PUR21329/26-27</span><button type="button" aria-label="Next bill">›</button></div>
+<button class="btn" type="button" onClick="{{toggleHist}}" aria-pressed="{{hist}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>History</button>
+<button class="btn pr" type="button" onClick="{{openPick}}">+ New bill</button>
+</header>
+<div class="split">
+<div class="lp">
+<section class="sec">
+<div class="sh"><h2>Bill details</h2><span class="tag">{{ordTag}}</span><span class="tag t-orange">TDS 0.1%</span></div>
+<div class="fgrid">
+<div class="fld"><label for="p1">Book</label><select id="p1" class="inp"><option>Yarn purchase A/c new</option><option>Yarn purchase A/c · import</option><option>General purchase A/c</option></select></div>
+<div class="fld"><label for="p2">Entry no.</label><input id="p2" class="inp" type="text" value="{{billNo}}" readonly></div>
+<div class="fld"><label for="p3">Received date</label><input id="p3" class="inp" type="text" value="{{billDt}}"></div>
+<div class="fld"><label>TCS applicable?</label><div class="yn" role="group" aria-label="TCS applicable?"><button type="button" class="{{tcsN}}" onClick="{{setTcsN}}">No</button><button type="button" class="{{tcsY}}" onClick="{{setTcsY}}">Yes</button></div></div>
+<div class="fld span2"><label>Against order <span class="req">*</span></label><button class="inp pickf" type="button" onClick="{{openPick}}"><b>{{ordLabel}}</b><span>Change</span></button></div>
+<div class="fld"><label for="p5">Party · from order</label><input id="p5" class="inp" type="text" value="{{party}}" readonly></div>
+<div class="fld"><label for="p6">Delivery to</label><input id="p6" class="inp" type="text" value="{{pt.del}}" readonly></div>
+<div class="fld"><label for="p7">Supplier inv. no. <span class="req">*</span></label><input id="p7" class="inp" type="text" value="13610"></div>
+<div class="fld"><label for="p8">Supplier inv. date</label><input id="p8" class="inp" type="text" value="21-10-2026"></div>
+<div class="fld"><label for="p9">Agent</label><input id="p9" class="inp" type="text" value="{{pt.agent}}" readonly></div>
+<div class="fld"><label for="p10">Salesperson</label><input id="p10" class="inp" type="text" value="{{pt.sp}}" readonly></div>
+<div class="fld"><label for="p11">Credit days</label><input id="p11" class="inp" type="text" value="{{pt.cr}}" readonly></div>
+<div class="fld"><label for="p12">Due date</label><input id="p12" class="inp" type="text" value="{{pt.due}}" readonly></div>
+<div class="fld"><label for="p13">D.O. no.</label><input id="p13" class="inp" type="text" value=""></div>
+</div>
+<div class="strip">
+<div><span>GSTIN</span><span>{{pt.gstin}}</span></div>
+<div><span>PAN</span><span>{{pt.pan}}</span></div>
+<div><span>Payable to party</span><span>{{pt.out}}</span></div>
+<div><span>Order pending after this bill</span><span>{{sum.pend}}</span></div>
+<div><span>GSTR-2B</span><span><span class="tag t-green">Invoice matched</span></span></div>
+</div>
+</section>
+
+<section class="sec items">
+<div class="sh"><h2>Items</h2><button class="btn sm gh" type="button" onClick="{{toggleCols}}">{{colsLabel}}</button><button class="btn sm" type="button" onClick="{{openPick}}">Change order</button><button class="btn sm" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>Pending GRN</button></div>
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}"><div class="tw"><table>
+<thead><tr><th>#</th><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><th>Item code</th></sc-if><th>Item</th><th>Brand</th><th>Grade</th><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><th>HSN</th><th>Unit</th><th>L.R. no.</th><th>Remark</th><th>Challan no.</th><th>Challan date</th></sc-if><th>Lot no.</th><th class="r">Cartons</th><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><th class="r">Cops</th></sc-if><th class="r">Weight kg</th><th class="r">Rate</th><th class="r">Basic amt</th><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><th class="r">Disc %</th><th class="r">Disc ₹</th><th class="r">Freight %</th><th class="r">Freight ₹</th><th class="r">Insurance %</th><th class="r">Insurance ₹</th><th class="r">Taxable</th><th class="r">CGST + SGST</th></sc-if><th class="r">Amount</th></tr></thead>
+<tbody><sc-for list="{{items}}" as="it" hint-placeholder-count="1"><tr><td>{{it.n}}</td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td class="t2">{{it.code}}</td></sc-if><td>{{it.it}}</td><td class="t2">{{it.br}}</td><td class="t2">{{it.gr}}</td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td class="t2">{{it.hsn}}</td><td class="t2">{{it.unit}}</td><td class="t2">{{it.lr}}</td><td class="t2">{{it.rem}}</td><td class="t2">{{it.ch}}</td><td class="t2">{{it.chd}}</td></sc-if><td class="t2">{{it.lot}}</td><td class="r">{{it.ctn}}</td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td class="r">{{it.cops}}</td></sc-if><td class="r"><input class="cin r w" type="text" value="{{it.q}}" onChange="{{it.setQ}}" aria-label="Weight kg to bill"></td><td class="r">{{it.rate}}</td><td class="r">{{it.basic}}</td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td class="r">{{it.dp}}</td><td class="r">{{it.dr}}</td><td class="r">{{it.fp}}</td><td class="r">{{it.fr}}</td><td class="r">{{it.ip}}</td><td class="r">{{it.ir}}</td><td class="r">{{it.tx}}</td><td class="r">{{it.gst}}</td></sc-if><td class="r">{{it.amt}}</td></tr></sc-for></tbody>
+<tfoot><tr><td></td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td></td></sc-if><td>Total</td><td></td><td></td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td></td><td></td><td></td><td></td><td></td><td></td></sc-if><td></td><td class="r">{{tot.ctn}}</td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td class="r">{{tot.cops}}</td></sc-if><td class="r">{{tot.wt}}</td><td></td><td class="r">{{tot.basic}}</td><sc-if value="{{more}}" hint-placeholder-val="{{false}}"><td></td><td class="r">{{tot.dr}}</td><td></td><td class="r">{{tot.fr}}</td><td></td><td class="r">{{tot.ir}}</td><td class="r">{{tot.tx}}</td><td class="r">{{tot.gst}}</td></sc-if><td class="r">{{tot.amt}}</td></tr></tfoot>
+</table></div></sc-if>
+<sc-if value="{{noItems}}" hint-placeholder-val="{{false}}"><div class="tw"><div class="empty"><b style="color: var(--t1); font-weight: 600">No order selected yet</b><span>Pick the order you are billing — party, items, rate and taxes fill in automatically.</span><button class="btn pr" type="button" onClick="{{openPick}}">Select order</button></div></div></sc-if>
+</section>
+
+<section class="sec bottom">
+<div class="tabsx" role="tablist" aria-label="Summary and other details"><button type="button" role="tab" class="{{tabCls.sum}}" onClick="{{setTab.sum}}">Summary</button><button type="button" role="tab" class="{{tabCls.tr}}" onClick="{{setTab.tr}}">Transport</button><button type="button" role="tab" class="{{tabCls.ei}}" onClick="{{setTab.ei}}">E-invoice, e-way &amp; import</button><button type="button" role="tab" class="{{tabCls.ref}}" onClick="{{setTab.ref}}">References</button></div>
+<sc-if value="{{isSum}}" hint-placeholder-val="{{true}}"><div class="cols3">
+<div class="box"><h3>Tax summary</h3>
+<div class="kv"><span>Taxable amount</span><span>{{sum.basic}}</span></div>
+<div class="kv"><span>CGST 2.5%</span><span>{{sum.half}}</span></div>
+<div class="kv"><span>SGST 2.5%</span><span>{{sum.half}}</span></div>
+<div class="kv"><span>IGST</span><span>₹ 0.00</span></div>
+<div class="kv"><span>TCS</span><span>₹ 0.00</span></div>
+<div class="kv"><span>TDS basic</span><span>{{sum.basic}}</span></div>
+<div class="kv"><span>TDS 0.1%</span><span>{{sum.tds}}</span></div>
+<div class="kv"><span>Average rate</span><span>{{sum.avg}}</span></div>
+<button class="btn sm" type="button" style="align-self: flex-start">TDS details</button>
+</div>
+<div class="box"><h3>Amount</h3>
+<div class="kv"><span>Quantity</span><span>{{sum.qty}}</span></div>
+<div class="kv"><span>Gross amount</span><span>{{sum.basic}}</span></div>
+<div class="kv"><span>Net GST</span><span>{{sum.gst}}</span></div>
+<div class="kv"><span>Grand total</span><span>{{sum.gross}}</span></div>
+<div class="fld"><label for="pa1">Add / less amount (+/−)</label><input id="pa1" class="inp" type="text" value="0.00"></div>
+<div class="kv"><span>Round off</span><span>{{sum.ro}}</span></div>
+<div class="kv" style="padding-top: 8px; border-top: 1px dashed var(--bd2)"><span style="color: var(--t1); font-weight: 600">Net amount</span><span class="bigtotal">{{sum.net}}</span></div>
+<span class="words">{{sum.words}}</span>
+<div class="kv"><span>Payable after TDS</span><span>{{sum.pay}}</span></div>
+</div>
+<div class="box"><h3>Payment &amp; remark</h3>
+<div class="fld"><label for="pq1">Collection person</label><select id="pq1" class="inp"><option>Prakash</option><option>Self</option></select></div>
+<div class="fld"><label for="pq2">Currency</label><select id="pq2" class="inp"><option>INR</option><option>USD</option></select></div>
+<textarea class="inp" aria-label="Remark" placeholder="Remark"></textarea>
+</div>
+</div></sc-if>
+<sc-if value="{{isTr}}" hint-placeholder-val="{{true}}"><div class="ogrid"><div class="fld"><label for="q1">Transporter</label><select id="q1" class="inp"><option>Navkar Roadlines</option><option>Jay Ambe Roadlines</option></select></div><div class="fld"><label for="q2">L.R. no.</label><input id="q2" class="inp" type="text"></div><div class="fld"><label for="q3">L.R. date</label><input id="q3" class="inp" type="text"></div><div class="fld"><label for="q4">Vehicle no.</label><input id="q4" class="inp" type="text" value="GJ-19-Z-0040"></div><div class="fld"><label for="q5">Driver name</label><input id="q5" class="inp" type="text"></div><div class="fld"><label for="q6">Driver license</label><input id="q6" class="inp" type="text"></div><div class="fld"><label for="q7">No. of parcels</label><input id="q7" class="inp" type="text"></div><div class="fld"><label for="q8">Godown</label><input id="q8" class="inp" type="text" value="Sachin GIDC"></div><div class="fld"><label for="q9">Transporter expense</label><input id="q9" class="inp" type="text" value="0.00"></div></div></sc-if>
+<sc-if value="{{isEi}}" hint-placeholder-val="{{false}}"><div class="ogrid"><div class="fld"><label for="w1">E-way bill no.</label><input id="w1" class="inp" type="text"></div><div class="fld"><label for="w2">IRN</label><input id="w2" class="inp" type="text"></div><div class="fld"><label for="w3">Ack no.</label><input id="w3" class="inp" type="text"></div><div class="fld"><label for="w4">Ack date</label><input id="w4" class="inp" type="text"></div><div class="fld"><label for="w5">B.E. date</label><input id="w5" class="inp" type="text"></div><div class="fld"><label for="w6">Port</label><input id="w6" class="inp" type="text"></div></div></sc-if>
+<sc-if value="{{isRef}}" hint-placeholder-val="{{false}}"><div class="ogrid"><div class="fld"><label for="z3">Ref. inv. no.</label><input id="z3" class="inp" type="text"></div><div class="fld"><label for="z4">Ref. inv. date</label><input id="z4" class="inp" type="text"></div><div class="fld"><label for="z5">Adj. bill no.</label><input id="z5" class="inp" type="text"></div><div class="fld"><label for="z6">Adj. bill date</label><input id="z6" class="inp" type="text"></div><div class="fld"><label for="z7">Debit note no.</label><input id="z7" class="inp" type="text"></div><div class="fld"><label for="z8">Debit note date</label><input id="z8" class="inp" type="text"></div><div class="fld"><label for="z9">DCPI no.</label><input id="z9" class="inp" type="text"></div></div></sc-if>
+</section>
+<div class="actbar">
+<span class="actsum"><span>Qty <b>{{tot.wt}} kg</b></span><span>Net <b>{{sum.net}}</b></span></span>
+<select class="inp" aria-label="More actions"><option>More…</option><option>Party details</option><option>Adjustment details</option></select>
+<button class="btn no" type="button">Delete</button>
+<div style="flex: 1"></div>
+<span class="muted" style="font-size: 13px">{{updNote}}</span><a class="btn gh" href="{{backHref}}">{{closeLabel}}</a>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>Save &amp; print</button>
+<button class="btn pr" type="button" onClick="{{doUpdate}}">{{saveLabel}}</button>
+</div>
+</div>
+<sc-if value="{{hist}}" hint-placeholder-val="{{true}}">
+<aside class="rp" aria-label="Supplier history">
+<div style="display: flex; align-items: center; gap: 8px; padding: 0 20px; min-height: 56px; border-bottom: 1px solid var(--bd)"><b style="font-weight: 600; flex: 1">Supplier history</b><button class="btn sm gh" type="button" onClick="{{toggleHist}}" aria-label="Close history">✕</button></div>
+<div class="hist">
+<div class="muted" style="font-size: 13px">{{party}}</div>
+<div class="hcard"><span class="hk">Total purchase · FY 26-27</span><div class="kv"><span>Bills</span><span>{{pt.bills}}</span></div><div class="kv"><span>Value</span><span>{{pt.total}}</span></div></div>
+<div class="hcard"><span class="hk">This bill</span><div class="kv"><span>Bill amount</span><span>{{sum.net}}</span></div><div class="kv"><span>TDS</span><span>{{sum.tds}}</span></div><div class="kv"><span>Payable</span><span>{{sum.pay}}</span></div><span class="tag t-orange" style="align-self: flex-start">Due {{pt.due}}</span></div>
+<div class="hcard"><span class="hk">Billing against</span><div class="kv"><span>Order no.</span><span>{{sum.first}}</span></div><div class="kv"><span>Date</span><span>{{sum.firstDt}}</span></div><div class="kv"><span>Item</span><span>{{sum.firstIt}}</span></div><div class="kv"><span>Rate</span><span>{{sum.firstRate}}</span></div><div class="kv"><span>Pending after bill</span><span>{{sum.pend}}</span></div></div>
+</div>
+</aside>
+</sc-if>
+</div>
+</div>
+<sc-if value="{{pick}}" hint-placeholder-val="{{false}}">
+<div class="ovl">
+<div class="mdl" role="dialog" aria-modal="true" aria-label="New purchase bill · select purchase order">
+<div class="mh"><div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><b>New purchase bill · select purchase order</b><div class="stepper"><span class="on"><i>1</i> Select purchase order</span><span>→</span><span><i>2</i> Check items &amp; save bill</span></div></div><button class="btn sm gh" type="button" onClick="{{cancelPick}}" aria-label="Close">✕</button></div>
+<div class="mf"><input class="inp" type="search" placeholder="Search order no., party or item" aria-label="Search orders"><select class="inp" aria-label="Party"><option>All parties</option></select><select class="inp" aria-label="Item"><option>All items</option></select><span class="muted" style="align-self: center; font-size: 13px">Only approved orders with pending receipt are shown</span></div>
+<div class="mt"><table>
+<thead><tr><th style="width: 40px"></th><th>Order</th><th>Mill / party</th><th>Item</th><th class="r">Rate</th><th class="r">Ordered kg</th><th class="r">Received</th><th class="r">Pending kg</th><th class="r">Bill qty kg</th></tr></thead>
+<tbody>
+<sc-for list="{{po}}" as="o" hint-placeholder-count="7">
+<tr class="{{o.rc}}"><td><input class="cb" type="checkbox" checked="{{o.on}}" onChange="{{o.tog}}" aria-label="Select order {{o.no}}"></td><td><div style="font-weight: 500">{{o.no}}</div><div class="sub">{{o.dt}} · {{o.age}}</div></td><td><div>{{o.p}}</div><div class="sub">{{o.g}}</div></td><td><div>{{o.it}}</div><div class="sub">{{o.br}} · {{o.lot}}</div></td><td class="r">{{o.rate}}</td><td class="r">{{o.oq}}</td><td class="r t2">{{o.dq}}</td><td class="r" style="font-weight: 600">{{o.pq}}</td><td class="r"><input class="cin r" type="text" value="{{o.bq}}" onChange="{{o.setQ}}" aria-label="Quantity to bill" style="width: 110px"></td></tr>
+</sc-for>
+</tbody></table></div>
+<div class="mb"><span style="flex: 1">{{selText}}</span><button class="btn gh" type="button" onClick="{{cancelPick}}">Cancel</button><button class="btn pr" type="button" onClick="{{applyPick}}" disabled="{{noDraft}}">Continue to bill →</button></div>
+</div>
+</div>
+</sc-if>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="pb" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"startPicker":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { z: 1, more: false, hist: true, tcs: false, tab: 'sum', pick: null, sel: p.startPicker ? [] : ["PUR2214"], qty: p.startPicker ? {} : {"PUR2214": "206.830"}, draft: null, dqty: null }; }
+  componentDidMount() {
+    if (!this.props.startPicker) { const rd = () => { try { const raw = window.localStorage.getItem('yf-open-pb'); if (raw && raw !== this._raw) { this._raw = raw; this.setState({ brec: JSON.parse(raw), upd: false }); } } catch (e) {} }; this._rd = rd; rd(); this._iv = setInterval(rd, 700); try { window.addEventListener('storage', rd); window.addEventListener('focus', rd); } catch (e) {} }
+    try { const b = JSON.parse(window.localStorage.getItem('yf-back') || 'null'); if (b && b.href) this.setState({ back: b }); } catch (e) {}
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const sfx = theme === 'light' ? 'Light' : '';
+    const tab = this.state.tab;
+    const inr = (n, d) => { const neg = n < 0; const s = Math.abs(Number(n)).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (neg ? '− ' : '') + rest + l3 + (f ? '.' + f : ''); };
+    const words = (n) => { const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']; const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+      const two = (x) => x < 20 ? a[x] : b[Math.floor(x / 10)] + (x % 10 ? ' ' + a[x % 10] : ''); const three = (x) => x >= 100 ? a[Math.floor(x / 100)] + ' Hundred' + (x % 100 ? ' ' + two(x % 100) : '') : two(x);
+      let s = ''; const cr = Math.floor(n / 1e7); n %= 1e7; const l = Math.floor(n / 1e5); n %= 1e5; const t = Math.floor(n / 1000); n %= 1000;
+      if (cr) s += three(cr) + ' Crore '; if (l) s += two(l) + ' Lakh '; if (t) s += two(t) + ' Thousand '; if (n) s += three(n); return 'Rupees ' + (s.trim() || 'Zero') + ' Only'; };
+    const num = (s) => parseFloat(String(s).replace(/,/g, '')) || 0;
+    const PO = [{"no": "PUR2214", "dt": "18-10-2026", "p": "Bandhan Filaments", "g": "Agent · Henil", "it": "50/48 CREP", "br": "RK Fashion", "lot": "N500", "rate": 252.44, "oq": 1000, "dq": 0, "age": "5 days", "gr": "1ST", "iid": "70", "hsn": "54024700", "ch": "13610"}, {"no": "PUR2216", "dt": "20-10-2026", "p": "Bandhan Filaments", "g": "Agent · Henil", "it": "75/72 Roto", "br": "RK Fashion", "lot": "N512", "rate": 141.5, "oq": 1500, "dq": 0, "age": "3 days", "gr": "1ST", "iid": "74", "hsn": "54024700", "ch": "13618"}, {"no": "PUR2923", "dt": "13-12-2025", "p": "Daya Tex Industries", "g": "Agent · Direct", "it": "75/72 Roto Lim", "br": "Daya", "lot": "014850", "rate": 105, "oq": 11000, "dq": 8113.77, "age": "314 days", "gr": "1ST", "iid": "52", "hsn": "54024700", "ch": "DT/4410"}, {"no": "PUR0080", "dt": "08-04-2026", "p": "Reliance Industries", "g": "Agent · Direct", "it": "75/72 FDY", "br": "Reliance", "lot": "336C1M", "rate": 122.5, "oq": 31000, "dq": 28332.69, "age": "198 days", "gr": "A+", "iid": "12", "hsn": "54024700", "ch": "RIL/89120"}, {"no": "PUR0570", "dt": "28-05-2026", "p": "Shree Ram Yarn Trading", "g": "Agent · Direct", "it": "50/36 Bright Catonic", "br": "AYM Syntex", "lot": "FG7C13", "rate": 155.72, "oq": 10000, "dq": 4999.2, "age": "148 days", "gr": "1ST", "iid": "33", "hsn": "54024700", "ch": "SRY/771"}, {"no": "PUR0573", "dt": "29-05-2026", "p": "Radiant Polyester", "g": "Agent · Direct", "it": "80/48 BSY", "br": "Radiant", "lot": "R80/48", "rate": 155, "oq": 31000, "dq": 21326.55, "age": "147 days", "gr": "1ST", "iid": "41", "hsn": "54024700", "ch": "RP/2290"}, {"no": "PUR0639", "dt": "08-06-2026", "p": "GTX Private Limited", "g": "Agent · Direct", "it": "150 Limaya", "br": "GTPL", "lot": "LMY222", "rate": 149, "oq": 5000, "dq": 3948.162, "age": "137 days", "gr": "1ST", "iid": "58", "hsn": "54024700", "ch": "GTX/118"}];
+    const PT = {"Bandhan Filaments": {"g": "Bandhan Filaments", "agent": "Henil Vatsal Shah", "sp": "Manoj Bhai", "cr": 5, "gstin": "24AAKFB2290Q1Z6", "pan": "AAKFB2290Q", "out": "₹ 1,62,480", "total": "₹ 10,44,566", "bills": "21", "del": "Our godown · Sachin GIDC"}, "Daya Tex Industries": {"g": "Daya Tex Industries", "agent": "Direct", "sp": "Avi M", "cr": 30, "gstin": "24AAFFD6612H1Z0", "pan": "AAFFD6612H", "out": "₹ 4,12,300", "total": "₹ 9,86,400", "bills": "12", "del": "Our godown · Pandesara"}, "Reliance Industries": {"g": "Reliance Industries", "agent": "Direct", "sp": "Avi M", "cr": 60, "gstin": "26AAACR4471L1Z8", "pan": "AAACR4471L", "out": "₹ 38,40,000", "total": "₹ 3,12,40,000", "bills": "96", "del": "Our godown · Sachin GIDC"}, "Shree Ram Yarn Trading": {"g": "Shree Ram Yarn Trading", "agent": "Direct", "sp": "Avi M", "cr": 30, "gstin": "24AAPFS2208J1Z5", "pan": "AAPFS2208J", "out": "₹ 7,78,500", "total": "₹ 15,57,000", "bills": "9", "del": "Our godown · Kadodara"}, "Radiant Polyester": {"g": "Radiant Polyester", "agent": "Direct", "sp": "Avi M", "cr": 45, "gstin": "24AABCR8890E1Z3", "pan": "AABCR8890E", "out": "₹ 14,99,000", "total": "₹ 33,05,000", "bills": "24", "del": "Our godown · Sachin GIDC"}, "GTX Private Limited": {"g": "GTX Private Limited", "agent": "Direct", "sp": "Avi M", "cr": 30, "gstin": "24AADCG3317B1Z6", "pan": "AADCG3317B", "out": "₹ 1,56,700", "total": "₹ 5,88,200", "bills": "7", "del": "Our godown · Pandesara"}};
+    const find = (no) => PO.find((r) => r.no === no);
+    const pick = this.state.pick ?? (this.props.startPicker ?? false);
+    const sel = this.state.sel; const qty = this.state.qty;
+    const draft = this.state.draft ?? sel; const dqty = this.state.dqty ?? qty;
+    const dRows = PO.filter((r) => draft.indexOf(r.no) >= 0);
+    const dParty = dRows.length ? dRows[0].p : null;
+    const po = PO.map((r) => { const on = draft.indexOf(r.no) >= 0; const other = dParty && r.p !== dParty; const pend = r.oq - r.dq;
+      return { no: r.no, dt: r.dt, p: r.p, g: r.g, it: r.it, br: r.br, lot: r.lot, age: r.age, rate: inr(r.rate, 2), oq: inr(r.oq, 3), dq: inr(r.dq, 3), pq: inr(pend, 3),
+        bq: dqty[r.no] ?? inr(pend, 3), on, rc: on ? 'on' : (other ? 'off' : ''),
+        setQ: (e) => this.setState({ draft, dqty: { ...dqty, [r.no]: e.target.value } }),
+        tog: () => this.setState({ draft: on ? draft.filter((x) => x !== r.no) : (other ? [r.no] : draft.concat([r.no])), dqty }) }; });
+    const dQty = dRows.reduce((a, r) => a + num(dqty[r.no] ?? (r.oq - r.dq)), 0);
+    const rows = sel.map(find).filter(Boolean);
+    const party = rows.length ? rows[0].p : null; const pt = party ? PT[party] : null;
+    let T = { q: 0, ctn: 0, cops: 0, basic: 0 };
+    const items = rows.map((r, i) => { const q = num(qty[r.no] ?? (r.oq - r.dq)); const basic = q * r.rate; const g = basic * 0.05; const ctn = q > 0 ? Math.max(1, Math.round(q / 25.85)) : 0;
+      T.q += q; T.ctn += ctn; T.cops += ctn * 0; T.basic += basic;
+      return { n: i + 1, iid: r.iid, code: r.iid, it: r.it, pid: r.pid || '—', br: r.br, pinv: r.pinv || '—', hsn: r.hsn, gr: r.gr, unit: 'Kg', rem: '—', lr: '—', ch: r.ch, chd: '23-10-2026', lot: r.lot,
+        ctn, cops: ctn * 0, q: qty[r.no] ?? inr(r.oq - r.dq, 3), rate: inr(r.rate, 2), basic: inr(basic, 2), dp: '0', dr: '0.00', fp: '0', fr: '0.00', ins: '0', ip: '0', ir: '0.00', tx: inr(basic, 2), gst: inr(g, 2), amt: inr(basic + g, 2),
+        setQ: (e) => this.setState({ qty: { ...qty, [r.no]: e.target.value } }) }; });
+    const gst = T.basic * 0.05; const gross = T.basic + gst; const net = Math.round(gross); const tds = Math.round(T.basic * 0.001);
+    const pendAfter = rows.reduce((a, r) => a + (r.oq - r.dq) - num(qty[r.no] ?? (r.oq - r.dq)), 0);
+    const addDays = (s, n) => { const [d, m, y] = s.split('-').map(Number); const t = new Date(Date.UTC(y, m - 1, d) + n * 864e5); const z = (x) => String(x).padStart(2, '0'); return z(t.getUTCDate()) + '-' + z(t.getUTCMonth() + 1) + '-' + t.getUTCFullYear(); };
+    const ordLabel = rows.length === 0 ? 'Select order…' : rows.length === 1 ? rows[0].no + '/26-27 · ' + rows[0].it : rows.length + ' orders · ' + rows.map((r) => r.no).join(', ');
+    const P0 = pt || { g: '—', del: '—', agent: '—', sp: '—', cr: 0, gstin: '—', pan: '—', out: '—', total: '—', bills: '—' };
+    const BK = this.state.back;
+    const BR = this.state.brec || null;
+    const billV = { billNo: BR ? BR.no : 'PUR21329/26-27', billDt: BR ? BR.dt : '21-10-2026', regLabel: BR ? 'Purchase bill register' : 'Purchase bills', billTag: BR ? 'Saved' : '', billTagC: BR ? 'tag' : '',
+      closeLabel: BR ? 'Close' : 'Cancel', saveLabel: BR ? (this.state.upd ? '✓ Updated' : 'Update bill') : 'Save bill', updNote: BR ? (this.state.upd ? 'Changes saved to ' + BR.no : 'Editing ' + BR.no) : '', doUpdate: () => { if (BR) this.setState({ upd: true }); } };
+    return { ...billV, backHref: BK ? BK.href : 'PurchaseBillList' + sfx + '.dc.html', backLabel: BK ? BK.label : 'Purchase bill register',
+      fitStyle: 'height: 100vh',
+      theme, more: this.state.more, hist: this.state.hist, pick, po,
+      colsLabel: this.state.more ? 'Fewer columns' : 'All columns',
+      toggleCols: () => this.setState({ more: !this.state.more }),
+      toggleHist: () => this.setState({ hist: !this.state.hist }),
+      tcsY: this.state.tcs ? 'on' : '', tcsN: this.state.tcs ? '' : 'on',
+      setTcsY: () => this.setState({ tcs: true }), setTcsN: () => this.setState({ tcs: false }),
+      tabCls: { sum: tab === 'sum' ? 'on' : '', tr: tab === 'tr' ? 'on' : '', ei: tab === 'ei' ? 'on' : '', ref: tab === 'ref' ? 'on' : '' },
+      setTab: { sum: () => this.setState({ tab: 'sum' }), tr: () => this.setState({ tab: 'tr' }), ei: () => this.setState({ tab: 'ei' }), ref: () => this.setState({ tab: 'ref' }) },
+      isSum: tab === 'sum', isTr: tab === 'tr', isEi: tab === 'ei', isRef: tab === 'ref',
+      openPick: () => this.setState({ pick: true, draft: sel.slice(), dqty: { ...qty } }),
+      cancelPick: () => this.setState({ pick: false, draft: null, dqty: null }),
+      applyPick: () => { const q = {}; draft.forEach((no) => { const r = find(no); q[no] = dqty[no] ?? inr(r.oq - r.dq, 3); }); this.setState({ pick: false, sel: draft.slice(), qty: q, draft: null, dqty: null }); },
+      noDraft: dRows.length === 0,
+      selText: dRows.length ? dRows.length + (dRows.length > 1 ? ' orders' : ' order') + ' selected · ' + dParty + ' · ' + inr(dQty, 3) + ' kg to bill' : 'Tick one or more orders of the same mill',
+      items, hasItems: rows.length > 0, noItems: rows.length === 0, ordLabel, ordTag: rows.length ? 'Against ' + rows.map((r) => r.no).join(', ') : 'No order selected',
+      party: party || '—', pt: { ...P0, cr: String(P0.cr), due: pt ? addDays('21-10-2026', P0.cr) : '—' },
+      tot: { ctn: String(T.ctn), cops: String(T.cops), wt: inr(T.q, 3), basic: inr(T.basic, 2), dr: '0.00', fr: '0.00', ir: '0.00', tx: inr(T.basic, 2), gst: inr(gst, 2), amt: inr(gross, 2) },
+      sum: { qty: inr(T.q, 3) + ' kg · ' + T.ctn + ' cartons', basic: '₹ ' + inr(T.basic, 2), half: '₹ ' + inr(gst / 2, 2), gst: '₹ ' + inr(gst, 2), gross: '₹ ' + inr(gross, 2), ro: '₹ ' + inr(net - gross, 2), net: '₹ ' + inr(net, 2),
+        words: words(net), avg: T.q ? inr(gross / T.q, 2) : '0.00', bavg: T.q ? inr(T.basic / T.q, 2) : '0.00', tds: '− ₹ ' + inr(tds, 2), pay: '₹ ' + inr(net - tds, 2), pend: inr(Math.max(pendAfter, 0), 3) + ' kg',
+        first: rows.length ? rows[0].no + '/26-27' : '—', firstDt: rows.length ? rows[0].dt : '—', firstIt: rows.length ? rows[0].it : '—', firstRate: rows.length ? inr(rows[0].rate, 2) : '—' },
+      listHref: 'PurchaseBillList' + sfx + '.dc.html'
+    };
+  }
+}
+</script>
+</body>
+</html>

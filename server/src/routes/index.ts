@@ -87,17 +87,27 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/lookups', read(async (ctx) => {
     const c = ctx.companyId;
     const acc = await db
-      .select({ id: accounts.id, name: accounts.name, kind: accounts.kind, city: accounts.city, gstin: accounts.gstin, stateCode: accounts.stateCode, creditDays: accounts.creditDays, creditLimit: accounts.creditLimit, brokerId: accounts.brokerId, transporterId: accounts.transporterId, salesPersonId: accounts.salesPersonId, collectionPersonId: accounts.collectionPersonId, partyGroupId: accounts.partyGroupId, status: accounts.status, groupId: accounts.groupId })
+      .select({ id: accounts.id, name: accounts.name, kind: accounts.kind, city: accounts.city, area: accounts.area, address1: accounts.address1, mobile: accounts.mobile, contactPerson: accounts.contactPerson, gstin: accounts.gstin, stateCode: accounts.stateCode, creditDays: accounts.creditDays, creditLimit: accounts.creditLimit, brokerId: accounts.brokerId, brokerageRate: accounts.brokerageRate, brokerageType: accounts.brokerageType, transporterId: accounts.transporterId, salesPersonId: accounts.salesPersonId, collectionPersonId: accounts.collectionPersonId, partyGroupId: accounts.partyGroupId, status: accounts.status, groupId: accounts.groupId, tdsApplicable: accounts.tdsApplicable, tdsRate: accounts.tdsRate, tcsApplicable: accounts.tcsApplicable })
       .from(accounts)
       .where(and(eq(accounts.companyId, c), ne(accounts.status, 'INACTIVE')))
       .orderBy(asc(accounts.name));
-    const by = (...k: string[]) => acc.filter((a) => k.includes(a.kind));
+    // closing balance (Dr +) for every account in one query
+    const bal = await db.execute<{ id: number; b: string }>(sql`
+      select a.id, (case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end)
+        + coalesce((select sum(debit - credit) from ledger_entries e where e.account_id = a.id), 0) as b
+      from accounts a where a.company_id = ${c}`);
+    const bm = new Map(bal.rows.map((r) => [Number(r.id), Number(r.b)]));
+    const names = new Map(acc.map((a) => [a.id, a.name]));
+    const company = (await db.execute(sql`select state_code as "stateCode" from companies where id = ${c}`)).rows[0];
+    const accR = acc.map((a) => ({ ...a, balance: Math.round((bm.get(a.id) ?? 0) * 100) / 100, partyGroupName: a.partyGroupId ? names.get(a.partyGroupId) ?? null : null }));
+    const by = (...k: string[]) => accR.filter((a) => k.includes(a.kind));
     return {
       customers: by('CUSTOMER'),
       suppliers: by('SUPPLIER'),
       brokers: by('BROKER'),
       banks: by('BANK', 'CASH'),
-      ledgers: acc,
+      ledgers: accR,
+      companyStateCode: company?.stateCode ?? '24',
       transporters: await db.select().from(transporters).where(and(eq(transporters.companyId, c), ne(transporters.status, 'INACTIVE'))).orderBy(asc(transporters.name)),
       vehicles: await db.select().from(vehicles).where(eq(vehicles.companyId, c)).orderBy(asc(vehicles.number)),
       items: await db.select().from(items).where(and(eq(items.companyId, c), eq(items.isActive, true))).orderBy(asc(items.name)),
@@ -120,6 +130,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
     return docs.pendingLines(ctx, typeOf(req).type, forType, Number(q(req).partyId) || undefined);
   }));
   app.get('/api/vouchers/:slug/:id', read((ctx, req) => docs.getDoc(ctx, typeOf(req), idParam(req))));
+  app.get('/api/vouchers/:slug/:id/related', read((ctx, req) => docs.related(ctx, typeOf(req), idParam(req))));
   app.post('/api/vouchers/:slug', write((ctx, req) => docs.createDoc(ctx, typeOf(req), req.body), 201));
   app.put('/api/vouchers/:slug/:id', write((ctx, req) => docs.updateDoc(ctx, typeOf(req), idParam(req), req.body)));
   app.delete('/api/vouchers/:slug/:id', write((ctx, req) => docs.deleteDoc(ctx, typeOf(req), idParam(req))));

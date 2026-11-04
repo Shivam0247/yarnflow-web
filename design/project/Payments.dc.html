@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Receipt RC-26-27-0471</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-gray{background:var(--s2);color:var(--t2)}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}
+.light .t-red{color:#B91C1C}.light .t-orange{color:#C2410C}.light .t-green{color:#15803D}
+.seg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:6px;color:var(--t3);cursor:pointer}
+.seg button.on{background:var(--s3);color:var(--t1)}
+.split{display:flex;flex-wrap:wrap;flex:1}
+.lp{flex:999 1 520px;min-width:0;display:flex;flex-direction:column}
+.rp{flex:1 1 360px;min-width:0;border-left:1px solid var(--bd)}
+.rid{padding:0 20px;font-size:17px;font-weight:600;border-bottom:1px solid var(--bd);min-height:56px;display:flex;align-items:center}
+.rhead{display:flex;gap:16px;align-items:center;padding:20px;border-bottom:1px solid var(--bd)}
+.big{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:500;background:var(--s2);color:var(--t2);flex:none}
+.sec{border-bottom:1px solid var(--bd);padding:4px 0 10px}
+.sech{display:flex;align-items:center;gap:8px;padding:12px 20px 6px;font-weight:600;font-size:15px}
+.sech span{flex:1}
+.kv{display:flex;align-items:center;gap:12px;padding:0 20px;min-height:38px}
+.kv .k{width:128px;flex:none;color:var(--t3);white-space:nowrap}
+.kv .v{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+.pane{padding:22px 24px;display:flex;flex-direction:column;gap:18px;flex:1}
+.ph2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ph2 h2{margin:0;font-size:19px;font-weight:600;flex:1}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.fld{display:flex;flex-direction:column;gap:8px;min-width:0}.fld label{color:var(--t3)}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);width:100%}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:50px;border-bottom:1px solid var(--bd);white-space:nowrap}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cb{width:16px;height:16px;margin:0;accent-color:#8F8F8F;vertical-align:middle}
+.cin{height:32px;border-radius:7px;border:1px solid var(--bd2);background:var(--bg);padding:0 8px;font-size:14px;width:120px;text-align:right;color:var(--t1)}
+.sum{display:flex;flex-wrap:wrap;gap:24px;padding:14px 16px;border-radius:12px;background:var(--s1)}
+.sum div{display:flex;flex-direction:column;gap:2px}
+.sum b{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="pay" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span class="m">Payments &amp; Receipts</span><span class="m">/</span><span>{{docNo}}</span></div>
+<div class="seg" role="group" aria-label="Entry type"><button type="button" class="{{rc}}" onClick="{{setR}}">Receipt</button><button type="button" class="{{py}}" onClick="{{setP}}">Payment</button><button type="button">Contra</button><button type="button">Journal</button></div>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Send voucher</button>
+<button class="btn pr" type="button">Save {{kindLower}}</button>
+</header>
+<div class="split">
+<div class="lp">
+<div class="pane">
+<div class="ph2"><h2>{{kind}} details</h2></div>
+<div class="fgrid">
+<div class="fld"><label for="p1">{{partyLabel}} <span style="color: #EF4444">*</span></label><select id="p1" class="inp"><option>{{partyName}}</option></select></div>
+<div class="fld"><label for="p2">Amount <span style="color: #EF4444">*</span></label><input id="p2" class="inp" type="text" value="₹ 2,00,000.00"></div>
+<div class="fld"><label for="p3">Date</label><input id="p3" class="inp" type="text" value="23-10-2026"></div>
+<div class="fld"><label for="p4">Mode</label><select id="p4" class="inp"><option>NEFT / RTGS</option><option>Cheque</option><option>UPI</option><option>Cash</option></select></div>
+<div class="fld"><label for="p5">Bank account</label><select id="p5" class="inp"><option>HDFC Bank · Current ••4412</option><option>SBI · Current ••0918</option></select></div>
+<div class="fld"><label for="p6">UTR / cheque no.</label><input id="p6" class="inp" type="text" value="HDFCR52026102318821"></div>
+</div>
+
+<div class="ph2" style="margin-top: 6px"><h2 style="font-size: 16px">Adjust against bills</h2><button class="btn" type="button">Auto-adjust oldest first</button></div>
+<div style="overflow-x: auto"><table>
+<thead><tr><th style="width: 36px"><input class="cb" type="checkbox" aria-label="Select all bills" checked></th><th>Bill</th><th>Date</th><th>Due</th><th class="r">Bill amount</th><th class="r">Pending</th><th class="r">Adjust now</th></tr></thead>
+<tbody>
+<tr><td><input class="cb" type="checkbox" aria-label="SI-0598" checked></td><td>{{p}}-0598</td><td class="t2">05-08-2026</td><td><span class="tag t-red">79 days</span></td><td class="r">1,48,250.00</td><td class="r">1,48,250.00</td><td class="r"><input class="cin" type="text" value="1,48,250.00" aria-label="Adjust on 0598"></td></tr>
+<tr><td><input class="cb" type="checkbox" aria-label="SI-0640" checked></td><td>{{p}}-0640</td><td class="t2">22-08-2026</td><td><span class="tag t-red">62 days</span></td><td class="r">1,62,000.00</td><td class="r">1,62,000.00</td><td class="r"><input class="cin" type="text" value="51,750.00" aria-label="Adjust on 0640"></td></tr>
+<tr><td><input class="cb" type="checkbox" aria-label="SI-0721"></td><td>{{p}}-0721</td><td class="t2">18-09-2026</td><td><span class="tag t-orange">35 days</span></td><td class="r">1,33,875.00</td><td class="r">31,400.00</td><td class="r"><input class="cin" type="text" placeholder="0.00" aria-label="Adjust on 0721"></td></tr>
+<tr><td><input class="cb" type="checkbox" aria-label="SI-0790"></td><td>{{p}}-0790</td><td class="t2">10-10-2026</td><td><span class="tag t-gray">13 days</span></td><td class="r">1,40,700.00</td><td class="r">1,40,700.00</td><td class="r"><input class="cin" type="text" placeholder="0.00" aria-label="Adjust on 0790"></td></tr>
+</tbody></table></div>
+<div class="sum">
+<div><span class="muted">Amount</span><b>₹ 2,00,000.00</b></div>
+<div><span class="muted">Adjusted</span><b>₹ 2,00,000.00</b></div>
+<div><span class="muted">On account</span><b>₹ 0.00</b></div>
+<div><span class="muted">Balance after this</span><b>₹ 2,82,350.00</b></div>
+</div>
+</div>
+</div>
+
+<aside class="rp">
+<div class="rid">{{docNo}}</div>
+<div class="rhead"><span class="big">{{initial}}</span><div><div style="font-size: 20px; line-height: 28px; font-weight: 500">{{partyName}}</div><div class="muted" style="font-size: 13px">{{partySub}}</div></div></div>
+<div class="sec">
+<div class="sech"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Account</span><a href="Ledger.dc.html" class="muted" style="font-size: 13px; font-weight: 400">Open ledger →</a></div>
+<div class="kv"><span class="k">Outstanding</span><span class="v">₹ 4,82,350.00 {{drcr}}</span></div>
+<div class="kv"><span class="k">Overdue</span><span class="v"><span class="tag t-red">₹ 3,10,250.00</span></span></div>
+<div class="kv"><span class="k">Credit days</span><span class="v">45 days</span></div>
+<div class="kv"><span class="k">Avg. pay delay</span><span class="v">+21 days</span></div>
+</div>
+<div class="sec" style="border-bottom: 0">
+<div class="sech"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Recent {{kindLower}}s</span></div>
+<div class="kv"><span class="k">06-10-2026</span><span class="v">₹ 1,50,000 · Cheque</span></div>
+<div class="kv"><span class="k">12-09-2026</span><span class="v">₹ 2,00,000 · NEFT</span></div>
+<div class="kv"><span class="k">18-08-2026</span><span class="v">₹ 1,75,500 · RTGS</span></div>
+<div style="padding: 14px 20px 0"><span class="tag t-green">WhatsApp receipt goes out automatically on save</span></div>
+</div>
+</aside>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="pay" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { kind: 'r' }; }
+  renderVals() {
+    const r = this.state.kind === 'r';
+    return {
+      theme: this.props.theme ?? 'dark',
+      rc: r ? 'on' : '', py: r ? '' : 'on',
+      setR: () => this.setState({ kind: 'r' }), setP: () => this.setState({ kind: 'p' }),
+      kind: r ? 'Receipt' : 'Payment', kindLower: r ? 'receipt' : 'payment',
+      docNo: r ? 'RC-26-27-0471' : 'PY-26-27-0092',
+      partyLabel: r ? 'Received from' : 'Paid to',
+      partyName: r ? 'Krishna Textiles' : 'Reliance Industries',
+      partySub: r ? 'Sundry Debtors · Ring Road, Surat' : 'Sundry Creditors · Yarn mill, Silvassa',
+      initial: r ? 'K' : 'R', p: r ? 'SI' : 'PB', drcr: r ? 'Dr' : 'Cr'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Purchase Order Register</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.light .btn.no{color:#B91C1C}
+.ib{width:32px;height:32px;border-radius:8px;border:0;display:inline-grid;place-items:center;cursor:pointer;background:var(--s2);color:var(--t2)}
+.ib.ok:hover{background:#16A34A;color:#fff}.ib.no:hover{background:rgba(239,68,68,.2);color:#F87171}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:8px;padding:12px 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--t1)}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2)}
+.fbar{display:flex;align-items:center;gap:8px;padding:12px 20px;flex-wrap:wrap}
+.fbar .inp{flex:1 1 120px;max-width:170px}
+.bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 20px 10px;padding:8px 10px 8px 14px;border-radius:10px;background:var(--s2);border:1px solid var(--bd2)}
+.tw{overflow-x:auto;padding:0 20px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:52px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr:hover td{background:var(--s1)}
+tr.sel td{background:var(--s2)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cb{width:16px;height:16px;margin:0;accent-color:#8F8F8F;vertical-align:middle;cursor:pointer}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.sub{font-size:12px;color:var(--t3)}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-orange{color:#C2410C}.light .t-green{color:#15803D}.light .t-red{color:#B91C1C}
+.link{border:0;background:none;padding:0;cursor:pointer;color:var(--t1);font-weight:500;text-decoration:underline;text-decoration-color:var(--bd2);text-underline-offset:3px}
+.bar{display:inline-block;width:56px;height:5px;border-radius:3px;background:var(--s3);overflow:hidden;vertical-align:middle;margin-left:8px}.bar i{display:block;height:5px;border-radius:3px;background:#F97316}
+.foot{display:flex;align-items:center;gap:20px;padding:12px 20px;border-top:1px solid var(--bd);flex-wrap:wrap;margin-top:8px}
+.foot b{font-weight:600;font-variant-numeric:tabular-nums}
+.drawer{margin:0 20px 20px;border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.dh{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--s1);flex-wrap:wrap}
+.xr>td{height:auto;padding:2px 0 16px;background:var(--bg)!important;white-space:normal}
+.xp{margin-left:36px;border:1px solid var(--bd2);border-radius:12px;overflow:hidden}
+.xh{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s1);flex-wrap:wrap}
+.xh b{font-weight:600}
+.xs{display:flex;gap:32px;padding:12px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.xs div{display:flex;flex-direction:column;gap:2px}.xs b{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+.xs .k{font-size:12px;color:var(--t3)}
+.bt td{height:44px;white-space:nowrap}
+.bt thead th{background:transparent;border-bottom:1px solid var(--bd);border-radius:0!important;font-size:13px}
+.bt tr.on>td{background:var(--s2)}
+.bt tfoot td{font-weight:600;height:44px;border-bottom:0}
+.bd>td{height:auto;padding:10px 14px 16px;background:var(--s1)!important;white-space:normal}
+.bill{border:1px solid var(--bd2);border-radius:10px;background:var(--bg);overflow:hidden}
+.bh{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bh b{font-weight:600;font-size:15px}
+.bgr{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 24px;padding:14px}
+.bgr .k{font-size:12px;color:var(--t3);margin-bottom:2px}
+.bl{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:0 14px 14px}
+.bl .it{flex:1 1 560px;min-width:0;overflow-x:auto}
+.bl .it td{height:44px}
+.tt{flex:0 1 300px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;font-variant-numeric:tabular-nums}
+.tt .g{font-weight:600;font-size:16px;padding-top:8px;border-top:1px solid var(--bd)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-orange{color:#C2410C}.light .t-green{color:#15803D}.light .t-red{color:#B91C1C}
+.cnt{border:0;background:var(--s2);color:var(--t2);height:28px;padding:0 10px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap}
+.cnt:hover,.cnt.on{background:var(--s3);color:var(--t1)}
+.split{display:flex;flex-direction:column}
+.scr{overflow:auto;flex:none}
+.dock{flex:none;display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+.grip{flex:none;height:10px;display:grid;place-items:center;cursor:ns-resize;touch-action:none;background:var(--s1);border-top:1px solid var(--bd2);border-bottom:1px solid var(--bd)}
+.grip span{width:48px;height:4px;border-radius:2px;background:var(--bd2)}
+.grip:hover span{background:var(--t3)}
+.dock .xh{background:var(--bg);padding:8px 16px}
+.dbody{flex:1 1 auto;min-height:0;overflow:auto;border-top:1px solid var(--bd)}
+.dbody .xs{padding:10px 16px;gap:28px}
+.dbody .bt td:first-child,.dbody .bt th:first-child{padding-left:16px}
+.dseg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.dseg button{border:0;background:transparent;padding:3px 10px;border-radius:6px;color:var(--t3);cursor:pointer;font-size:12px}
+.dseg button.on{background:var(--s3);color:var(--t1)}
+.scr .tw tbody tr:nth-child(even)>td{background:rgba(255,255,255,.055)}
+.light .scr .tw tbody tr:nth-child(even)>td{background:#F3F4F6}
+.scr .tw tbody tr:hover>td{background:var(--s2)}
+.scr .tw tbody tr.sel>td,.scr .tw tbody tr.sel:hover>td{background:rgba(59,130,246,.32);border-bottom-color:rgba(59,130,246,.45)}
+.light .scr .tw tbody tr.sel>td,.light .scr .tw tbody tr.sel:hover>td{background:#DBEAFE;border-bottom-color:#BFDBFE}
+.scr .tw tbody tr.sel>td:first-child{box-shadow:inset 3px 0 0 #3B82F6}
+.scr .tw td,.scr .tw th{padding-left:7px;padding-right:7px}
+.scr .tw .bar{display:block;width:72px;margin:5px 0 0 auto}
+.scr{overflow-x:hidden}
+.scr .tw tbody td:nth-child(3) div,.scr .tw tbody td:nth-child(4) div{max-width:168px;overflow:hidden;text-overflow:ellipsis}
+.scr .tw{overflow:visible}
+.scr .tw tfoot td{position:sticky;bottom:0;z-index:2;background:var(--s2);font-weight:600;height:44px;border-top:1px solid var(--bd2);border-bottom:0;font-variant-numeric:tabular-nums}
+.sumbar{flex:none;display:flex;align-items:center;gap:6px;padding:8px 20px;border-top:1px solid var(--bd);background:var(--bg);overflow-x:auto}
+.sumbar .st{display:flex;flex-direction:column;gap:1px;padding:4px 14px 4px 0;margin-right:8px;border-right:1px solid var(--bd);white-space:nowrap}
+.sumbar .st:last-of-type{border-right:0}
+.sumbar .st span{font-size:12px;color:var(--t3)}
+.sumbar .st b{font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+.sumbar .warn{color:#F87171}.light .sumbar .warn{color:#B91C1C}
+.sumbar .okc{color:#4ADE80}.light .sumbar .okc{color:#15803D}
+.scr .tw tbody tr.more>td{height:52px;text-align:center;color:var(--t3);font-size:13px;background:transparent}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bd2);border-top-color:#3B82F6;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen11: column sort + filter */
+.cft thead th{position:sticky;top:0;z-index:5}
+.cft thead th.fh{padding:0}
+.fb{display:flex;align-items:center;gap:5px;width:100%;height:38px;padding:0 10px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;white-space:nowrap;text-align:left;border-radius:6px}
+th.r .fb{justify-content:flex-end}
+.fb:hover{color:var(--t1);background:var(--s2)}
+.fb .fi{opacity:.0;flex:none;transition:opacity .12s}
+.fb:hover .fi,.fb.on .fi,.fb.op .fi{opacity:1}
+.fb.on{color:#3B82F6}.fb.on .fi{color:#3B82F6}
+.fb .si{font-size:12px;color:#3B82F6;font-weight:600}
+.fpbk{position:fixed;inset:0;z-index:30;cursor:default}
+.fp{position:absolute;top:calc(100% + 2px);left:0;z-index:31;width:264px;background:var(--pop,var(--bg));border:1px solid var(--bd2);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.35);padding:6px;display:flex;flex-direction:column;gap:2px;text-align:left;font-weight:400;font-size:13px;color:var(--t1);cursor:default;white-space:normal}
+.light .fp{box-shadow:0 14px 36px rgba(0,0,0,.12)}
+.fp.rt{left:auto;right:0}
+.fpi{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border:0;border-radius:6px;background:transparent;color:var(--t1);font:inherit;font-size:13px;cursor:pointer;text-align:left;width:100%}
+.fpi:hover{background:var(--s2)}
+.fpi.on{color:#3B82F6;font-weight:500}
+.fpi svg{flex:none;color:var(--t3)}.fpi.on svg{color:#3B82F6}
+.fpsep{height:1px;background:var(--bd);margin:4px 2px}
+.fpt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:2px 8px}
+.fps{height:32px;border:1px solid var(--bd2);border-radius:7px;background:var(--s1);padding:0 9px;font:inherit;font-size:13px;color:var(--t1);margin:2px 0 4px;outline:0;width:100%}
+.fps:focus{border-color:#3B82F6}
+.fpl{max-height:216px;overflow-y:auto;display:flex;flex-direction:column}
+.fpo{display:flex;align-items:center;gap:9px;min-height:30px;padding:0 8px;border-radius:6px;font-size:13px;cursor:pointer}
+.fpo:hover{background:var(--s2)}
+.fpo input{width:15px;height:15px;margin:0;accent-color:#3B82F6;flex:none;cursor:pointer}
+.fpo .v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpo .n{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.fpo.all{font-weight:500}
+.fpe{padding:10px 8px;color:var(--t3);font-size:12.5px}
+.fpf{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 2px 0;border-top:1px solid var(--bd);margin-top:4px}
+.fchips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 20px 10px;font-size:13px}
+.fchips .lbl{color:var(--t3)}
+.fchip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 3px 0 10px;border-radius:7px;background:rgba(59,130,246,.14);color:var(--t1);font-size:12.5px;white-space:nowrap}
+.fchip b{font-weight:600}
+.fchip button{width:20px;height:20px;border:0;border-radius:5px;background:transparent;color:var(--t2);cursor:pointer;display:grid;place-items:center;padding:0}
+.fchip button:hover{background:rgba(59,130,246,.28);color:var(--t1)}
+.fclr{border:0;background:transparent;color:#3B82F6;font:inherit;font-size:12.5px;cursor:pointer;padding:0 6px}
+.cft td.it{font-weight:500}
+.cft .den{font-variant-numeric:tabular-nums}
+
+/* gen12: order register scrolls both ways, totals pinned to bottom */
+.scr{display:flex;flex-direction:column;overflow:hidden!important}
+.scr>*{flex:none}
+.scr>.tw,.scr>sc-if>.tw{flex:1 1 auto;min-height:0;overflow:auto!important}
+.scr .tw{flex:1 1 auto;min-height:0;overflow:auto!important;padding:0 20px}
+.scr .tw>table.cft{min-height:100%;width:max-content;min-width:100%}
+.cft tbody tr.fillr>td{height:auto!important;padding:0!important;border:0!important;background:transparent!important}
+.cft tfoot td{position:sticky;bottom:0;z-index:4}
+
+.cft tbody tr:not(.more):not(.fillr){cursor:pointer;user-select:none}
+
+/* gen16: compact registers, more rows per screen */
+.cft{font-size:13.5px;line-height:18px}
+.cft tbody tr:not(.fillr):not(.more)>td{height:36px!important;padding-top:3px!important;padding-bottom:3px!important}
+.cft tbody td .sub{font-size:11.5px;line-height:14px;margin-top:0}
+.cft tbody td .link{font-size:13.5px}
+.cft thead th.fh .fb{height:34px;font-size:13px}
+.cft thead th{font-size:13px}
+.cft tfoot td{height:38px!important}
+.cft td .bar{display:inline-block!important;vertical-align:middle;width:44px!important;margin:0 0 0 8px!important}
+.cft .tag{height:20px;font-size:11.5px;padding:0 7px}
+.cft .cb,.cft .cbx{width:15px;height:15px}
+.cft .ib{width:26px;height:26px}
+.tabs .tab{padding-top:9px;padding-bottom:9px}
+.fbar{padding-top:8px!important;padding-bottom:8px!important}
+.fbar .inp{height:32px}
+.fchips{padding-top:2px;padding-bottom:8px}
+.cft tbody tr.more>td{height:40px!important}
+.cft tbody td:last-child .sub{display:inline;margin-left:6px}
+.cft tbody td:last-child{white-space:nowrap}
+
+/* gen16b: compact bills dock under the order register */
+.dock .xh{padding:5px 16px;gap:8px;font-size:13.5px}
+.dock .xh .btn.sm{height:28px}
+.dock .xs{gap:6px 26px;padding:6px 16px;flex-wrap:wrap}
+.dock .xs div{flex-direction:row;align-items:baseline;gap:6px}
+.dock .xs .k{font-size:12px}
+.dock .xs b{font-size:13.5px}
+.dock .bt{font-size:13.5px}
+.dock .bt thead th{height:30px;padding-top:4px;padding-bottom:4px;font-size:12.5px;position:sticky;top:0;background:var(--bg);z-index:2}
+.dock .bt tbody tr:not(.bd)>td{height:32px!important;padding-top:2px;padding-bottom:2px}
+.dock .bt tfoot td{height:34px;position:sticky;bottom:0;background:var(--s2);z-index:2}
+.dock .bt .tag{height:20px;font-size:11.5px;padding:0 7px}
+.dock .bt .btn.sm{height:26px;padding:0 8px;font-size:12.5px}
+.dock .bill{font-size:13.5px}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+
+/* gen28: bills table under the order matches the order table above (rounded header, same sizes, zebra rows) */
+.dock .xh{padding:6px 20px}
+.dock .xs{padding:6px 20px 8px;border-bottom:0}
+.dock .dbody>div:has(>table.bt){overflow:visible!important;padding:0 20px 10px}
+.dock .bt{font-size:13.5px;line-height:18px;width:100%}
+.dock .bt thead th{position:sticky;top:0;z-index:2;background:var(--s1)!important;border-bottom:0!important;color:var(--t3);font-weight:400;font-size:13px;height:34px;padding:7px}
+.dock .bt thead th:first-child{border-radius:8px 0 0 8px!important;padding-left:10px}
+.dock .bt thead th:last-child{border-radius:0 8px 8px 0!important}
+.dock .bt td{padding-left:7px;padding-right:7px}
+.dock .bt tbody td:first-child{padding-left:10px}
+.dock .bt tbody tr:not(.bd)>td{height:36px!important;padding-top:3px;padding-bottom:3px;border-bottom:1px solid var(--bd)}
+.dock .bt tbody tr:not(.bd):nth-child(even)>td{background:rgba(255,255,255,.055)}
+.light .dock .bt tbody tr:not(.bd):nth-child(even)>td{background:#F3F4F6}
+.dock .bt tbody tr:not(.bd):hover>td{background:var(--s2)}
+.dock .bt tbody tr.on>td,.dock .bt tbody tr.on:hover>td{background:rgba(59,130,246,.32)}
+.light .dock .bt tbody tr.on>td,.light .dock .bt tbody tr.on:hover>td{background:#DBEAFE}
+.dock .bt tbody tr.on>td:first-child{box-shadow:inset 3px 0 0 #3B82F6}
+.dock .bt tfoot td{background:var(--s2);border-top:1px solid var(--bd2);height:38px}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="{{sideKey}}" hint-size="236px,1000px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span class="m">Purchase Orders</span><span class="m">/</span><span>Register</span></div>
+<button class="btn" type="button">Mill-wise pending</button>
+<button class="btn" type="button">Stock check</button>
+<button class="btn" type="button">Excel</button>
+<a class="btn pr" href="{{newHref}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>New order</a>
+</header>
+<div class="split"><div class="scr" style="{{topH}}">
+<div class="tabs" role="tablist" aria-label="Status">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="6"><button class="{{t.cls}}" type="button" role="tab" onClick="{{t.pick}}"><span class="dot" style="{{t.c}}">{{t.l}}</span><span class="n">{{t.n}}</span></button></sc-for>
+</div>
+<div class="fbar">
+<input class="inp" type="text" value="01-04-2026" aria-label="From date" style="max-width: 120px"><span class="muted">to</span><input class="inp" type="text" value="31-03-2027" aria-label="To date" style="max-width: 120px">
+<div style="flex: 1"></div>
+</div>
+<sc-if value="{{hasSel}}" hint-placeholder-val="{{false}}">
+<div class="bulk" role="toolbar" aria-label="Bulk actions"><b style="font-weight: 600">{{selCount}} selected</b><span class="muted" style="flex: 1">{{selQty}} kg pending</span>
+<sc-if value="{{isAppr}}" hint-placeholder-val="{{false}}"><button class="btn sm ok" type="button" onClick="{{bulk.Pending}}">Approve → Pending</button></sc-if>
+<button class="btn sm" type="button" onClick="{{bulk.Hold}}">Hold</button>
+<button class="btn sm" type="button" onClick="{{bulk.Clear}}">Close</button>
+<button class="btn sm" type="button" onClick="{{bulk.Pending}}">Reopen</button>
+<button class="btn sm no" type="button" onClick="{{bulk.Cancelled}}">Cancel</button>
+<button class="btn sm gh" type="button" onClick="{{clearSel}}">Clear</button>
+</div>
+</sc-if>
+<sc-if value="{{cf.hasChips}}" hint-placeholder-val="{{false}}"><div class="fchips" role="status"><span class="lbl">Showing</span><sc-for list="{{cf.chips}}" as="c" hint-placeholder-count="2"><span class="fchip">{{c.l}}: <b>{{c.v}}</b><button type="button" onClick="{{c.x}}" aria-label="Remove filter"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span></sc-for><button class="fclr" type="button" onClick="{{cf.clearAll}}">Clear all</button></div></sc-if>
+<div class="tw" onScroll="{{onScroll}}"><table class="cft">
+<thead><tr><th style="width: 36px"><input class="cb" type="checkbox" aria-label="Select all" checked="{{allOn}}" onChange="{{toggleAll}}"></th><sc-for list="{{cf.heads}}" as="h" hint-placeholder-count="12"><th class="{{h.thc}}"><button class="{{h.btn}}" type="button" onClick="{{h.toggle}}" aria-haspopup="dialog" aria-expanded="{{h.open}}" title="Sort and filter">{{h.l}}<span class="si">{{h.ic}}</span><svg class="fi" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button><sc-if value="{{h.open}}" hint-placeholder-val="{{false}}"><div class="fpbk" onClick="{{h.close}}"></div><div class="{{h.popCls}}" role="dialog" aria-label="Sort and filter"><button class="{{h.ascC}}" type="button" onClick="{{h.asc}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>{{h.ascL}}</button><button class="{{h.descC}}" type="button" onClick="{{h.desc}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>{{h.descL}}</button><div class="fpsep"></div><div class="fpt">Filter {{h.l}}</div><input class="fps" type="search" value="{{h.q}}" onChange="{{h.setQ}}" placeholder="Search values" aria-label="Search values" autoFocus="{{ true }}"><label class="fpo all"><input type="checkbox" checked="{{h.allCk}}" onChange="{{h.selAll}}"><span class="v">Select all</span><span class="n">{{h.nOpts}}</span></label><div class="fpl"><sc-for list="{{h.opts}}" as="o" hint-placeholder-count="6"><label class="fpo"><input type="checkbox" checked="{{o.ck}}" onChange="{{o.tog}}"><span class="v">{{o.v}}</span><span class="n">{{o.n}}</span></label></sc-for><sc-if value="{{h.noOpts}}" hint-placeholder-val="{{false}}"><div class="fpe">No matching values</div></sc-if></div><div class="fpf"><button class="btn sm gh" type="button" onClick="{{h.clear}}">Clear filter</button><button class="btn sm pr" type="button" onClick="{{h.close}}">Done</button></div></div></sc-if></th></sc-for><sc-if value="{{showBills}}" hint-placeholder-val="{{true}}"><th class="r">Bills</th></sc-if></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="12">
+<tr class="{{x.rc}}" onClick="{{x.rowClick}}" onDoubleClick="{{x.open}}" title="Click to select · double-click to open"><td><input class="cb" type="checkbox" aria-label="Select order" checked="{{x.on}}" onChange="{{x.tog}}"></td>
+<td><button class="link" type="button" onClick="{{x.focus}}">{{x.no}}</button></td><td class="t2">{{x.dt}}</td>
+<td><div>{{x.p}}</div><div class="sub">Agent · {{x.ag}}</div></td><td class="it">{{x.itn}}</td><td class="den">{{x.den}}</td><td class="t2">{{x.br}}</td><td class="t2">{{x.lot}}</td><td>{{x.gr}}</td>
+<td class="r">{{x.rate}}</td><td class="r">{{x.oq}}</td><td class="r t2">{{x.rq}}</td>
+<td class="r" style="font-weight: 500">{{x.pq}}<span class="bar" aria-hidden="true"><i style="{{x.bw}}"></i></span></td>
+<td class="t2">{{x.ref}}</td><td><sc-if value="{{x.ask}}" hint-placeholder-val="{{false}}"><span style="display: inline-flex; align-items: center; gap: 6px"><span class="tag t-orange">On hold</span><button class="ib ok" type="button" aria-label="Approve" onClick="{{x.ok}}" title="Approve → Pending receipt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button><button class="ib no" type="button" aria-label="Reject" onClick="{{x.no2}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span></sc-if><sc-if value="{{x.show}}" hint-placeholder-val="{{true}}"><span class="dot" style="{{x.sc}}">{{x.st}}</span></sc-if></td>
+<sc-if value="{{showBills}}" hint-placeholder-val="{{true}}"><td class="r"><button class="{{x.cc}}" type="button" onClick="{{x.focus}}" aria-label="Show bills of this order">{{x.bn}} {{x.chev}}</button></td></sc-if></tr>
+</sc-for>
+<sc-if value="{{moreLeft}}" hint-placeholder-val="{{false}}"><tr class="more"><td colspan="16"><span class="spin" aria-hidden="true"></span>Loading more orders as you scroll · {{loadedLabel}}</td></tr></sc-if>
+<sc-if value="{{allLoaded}}" hint-placeholder-val="{{false}}"><tr class="more"><td colspan="16">All {{sm.n}} orders shown</td></tr></sc-if>
+<tr class="fillr" aria-hidden="true"><td colspan="16"></td></tr>
+</tbody>
+<tfoot><tr><td></td><td>{{sm.n}} orders</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="r">{{sm.avg}}</td><td class="r">{{sm.oq}}</td><td class="r">{{sm.dq}}</td><td class="r">{{sm.pq}}</td><td></td><td></td><sc-if value="{{showBills}}" hint-placeholder-val="{{true}}"><td></td></sc-if></tr></tfoot></table></div>
+
+</div>
+<sc-if value="{{hasFocus}}" hint-placeholder-val="{{true}}">
+<section class="dock" style="{{botH}}" aria-label="Bills of selected order">
+<div class="grip" onPointerDown="{{startDrag}}" role="separator" aria-orientation="horizontal" aria-label="Drag to resize bills panel" title="Drag to make bigger or smaller"><span></span></div>
+<div class="xh"><b>Purchase bills against order {{f.no}}</b><span class="muted">{{f.p}} · {{f.it}} · Lot {{f.lot}}</span><div style="flex: 1"></div><a class="btn sm" href="{{billHref}}" onClick="{{markBack}}">Receive goods / bill</a><a class="btn sm" href="{{recHref}}" onClick="{{openFocus}}">Open order</a></div>
+<div class="dbody">
+<div class="xs"><div><span class="k">Ordered</span><b>{{f.oq}} kg</b></div><div><span class="k">Received · {{f.n}} bills</span><b>{{f.rq}} kg</b></div><div><span class="k">Pending</span><b>{{f.pq}} kg</b></div><div><span class="k">Billed value</span><b>{{f.val}}</b></div><div><span class="k">Paid to mill</span><b>{{f.recv}}</b></div><div><span class="k">Balance payable</span><b>{{f.bal}}</b></div></div>
+<div style="overflow-x: auto"><table class="bt">
+<thead><tr><th>GRN · bill no.</th><th>Mill invoice</th><th>Date</th><th class="r">Boxes</th><th class="r">Net kg</th><th class="r">Taxable</th><th class="r">GST 5%</th><th class="r">Bill amount</th><th>Godown</th><th>Payment</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{f.ds}}" as="d" hint-placeholder-count="9">
+<tr class="{{d.rc}}"><td><button class="link" type="button" onClick="{{d.pick}}">{{d.inv}}</button></td><td class="t2">{{d.mill}}</td><td class="t2">{{d.dt}}</td><td class="r">{{d.bx}}</td><td class="r">{{d.kg}}</td><td class="r">{{d.tx}}</td><td class="r t2">{{d.gst}}</td><td class="r" style="font-weight: 500">{{d.amt}}</td><td class="t2">{{d.gd}}</td><td><span class="{{d.pc}}">{{d.pay}}</span></td><td class="r"><button class="btn sm gh" type="button" onClick="{{d.pick}}">{{d.act}}</button></td></tr>
+<sc-if value="{{d.open}}" hint-placeholder-val="{{false}}">
+<tr class="bd"><td colspan="16"><div class="bill">
+<div class="bh"><b>Purchase bill {{d.inv}}</b><span class="{{d.pc}}">{{d.pay}}</span><span class="muted">Received {{d.dt}} · Due {{d.due}}</span><div style="flex: 1"></div><button class="btn sm" type="button">Print GRN</button><button class="btn sm" type="button">Make payment</button><a class="btn sm" href="{{billHref}}" onClick="{{markBack}}">Open full bill</a><button class="btn sm gh" type="button" onClick="{{d.pick}}" aria-label="Close bill">✕</button></div>
+<div class="bgr">
+<div><div class="k">Supplier / mill</div><div style="font-weight: 500">{{f.p}}</div><div class="sub">GSTIN {{f.gstin}} · Mill invoice {{d.mill}}</div></div>
+<div><div class="k">Against order</div><div>{{f.no}} · {{f.odt}}</div><div class="sub">Mill ref. {{f.ref}} · Agent {{f.ag}}</div></div>
+<div><div class="k">Received at</div><div>{{d.gd}} godown</div><div class="sub">{{d.tr}} · LR {{d.lr}} · {{d.veh}}</div></div>
+<div><div class="k">E-way bill</div><div>{{d.ewb}}</div><div class="sub">ITC eligible · GSTR-2B matched</div></div>
+</div>
+<div class="bl"><div class="it"><table>
+<thead><tr><th>Item</th><th>Lot</th><th>Grade</th><th class="r">Boxes</th><th class="r">Net kg</th><th class="r">Rate</th><th class="r">Taxable</th></tr></thead>
+<tbody><tr><td><div>{{f.it}}</div><div class="sub">HSN 5402 · {{f.br}}</div></td><td class="t2">{{f.lot}}</td><td class="t2">{{f.gr}}</td><td class="r">{{d.bx}}</td><td class="r">{{d.kg}}</td><td class="r">{{d.rate}}</td><td class="r">{{d.tx}}</td></tr></tbody>
+</table></div>
+<div class="tt"><span class="muted">Taxable value</span><span>{{d.tx}}</span><span class="muted">CGST 2.5%</span><span>{{d.cg}}</span><span class="muted">SGST 2.5%</span><span>{{d.cg}}</span><span class="muted">Round off</span><span>{{d.ro}}</span><span class="g">Bill total</span><span class="g">{{d.amt}}</span><span class="muted">Paid</span><span>{{d.recv}}</span><span class="muted">Balance</span><span style="font-weight: 600">{{d.bal}}</span></div>
+</div>
+</div></td></tr>
+</sc-if>
+</sc-for>
+<sc-if value="{{f.none}}" hint-placeholder-val="{{false}}"><tr><td colspan="11" class="muted" style="text-align: center">No goods received yet · {{f.pq}} kg pending from mill</td></tr></sc-if>
+</tbody>
+<sc-if value="{{f.some}}" hint-placeholder-val="{{true}}"><tfoot><tr><td>{{f.n}} bills</td><td></td><td></td><td></td><td class="r">{{f.rq}}</td><td class="r">{{f.tx}}</td><td class="r">{{f.gst}}</td><td class="r">{{f.val}}</td><td></td><td></td><td></td></tr></tfoot></sc-if>
+</table></div>
+</div>
+</section>
+</sc-if>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="{{sideKey}}" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"startTab":{"editor":"enum","default":"Pending","options":["Pending","Hold","Clear","Cancelled","All"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: null, sel: [], focus: 'PUR0080', bill: null, top: 690, bot: 300, over: {} }; }
+  componentDidMount() { try { const h = window.innerHeight; if (h >= 560 && h <= 1600) { const t = h - 60; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); } } catch (e) {} }
+
+  go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
+  cf(base, COLS) {
+    const st = this.state; const flt = st.flt || {}; const sk = st.sk || null; const sd = st.sd || 1; const pop = st.pop || null; const pq = String(st.pq || '').toLowerCase();
+    const val = (r, c) => { const v = c.get ? c.get(r) : r[c.k]; return v == null || v === '' ? '—' : v; };
+    const dk = (s) => { const m = String(s).match(/^(\d{2})-(\d{2})-(\d{4})$/); return m ? Number(m[3] + m[2] + m[1]) : 0; };
+    const cmp = (c) => (a, b) => { const x = val(a, c), y = val(b, c); const r = c.num ? (Number(x) || 0) - (Number(y) || 0) : c.date ? dk(x) - dk(y) : String(x).localeCompare(String(y), 'en', { numeric: true, sensitivity: 'base' }); return r * sd; };
+    const pass = (r, skip) => COLS.every((c) => c.k === skip || !flt[c.k] || flt[c.k].indexOf(String(val(r, c))) >= 0);
+    const list = base.filter((r) => pass(r));
+    const sc = sk ? COLS.find((x) => x.k === sk) : null;
+    const sorter = sc ? cmp(sc) : null;
+    if (sorter) list.sort(sorter);
+    const set = (patch) => this.setState(Object.assign({ loaded: 20 }, patch));
+    const fmtV = (c, v) => (c.fmt && v !== '—' ? c.fmt(v) : v);
+    const heads = COLS.map((c) => {
+      const on = !!flt[c.k]; const open = pop === c.k; const sorted = sk === c.k;
+      let opts = []; let all = [];
+      if (open) {
+        const cnt = {}; base.filter((r) => pass(r, c.k)).forEach((r) => { const v = String(val(r, c)); cnt[v] = (cnt[v] || 0) + 1; });
+        all = Object.keys(cnt).sort((a, b) => c.num ? (Number(a) || 0) - (Number(b) || 0) : c.date ? dk(a) - dk(b) : a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+        opts = all.filter((v) => !pq || String(fmtV(c, v)).toLowerCase().indexOf(pq) >= 0).map((v) => {
+          const ck = !on || flt[c.k].indexOf(v) >= 0;
+          return { v: fmtV(c, v), n: cnt[v], ck, tog: () => { let cur = on ? flt[c.k].slice() : all.slice(); const i = cur.indexOf(v); if (i >= 0) cur.splice(i, 1); else cur.push(v); const nf = Object.assign({}, flt); if (cur.length === all.length) delete nf[c.k]; else nf[c.k] = cur; set({ flt: nf }); } };
+        });
+      }
+      const allCk = !on || (all.length > 0 && all.every((v) => flt[c.k].indexOf(v) >= 0));
+      return {
+        l: c.l, open, thc: 'fh' + (c.r ? ' r' : ''), btn: 'fb' + (on || sorted ? ' on' : '') + (open ? ' op' : ''),
+        ic: sorted ? (sd > 0 ? '↑' : '↓') : '',
+        toggle: () => this.setState({ pop: open ? null : c.k, pq: '' }), close: () => this.setState({ pop: null, pq: '' }),
+        popCls: 'fp' + (c.rt ? ' rt' : ''),
+        ascL: c.num ? 'Smallest to largest' : c.date ? 'Oldest to newest' : 'Sort A to Z', descL: c.num ? 'Largest to smallest' : c.date ? 'Newest to oldest' : 'Sort Z to A',
+        ascC: sorted && sd > 0 ? 'fpi on' : 'fpi', descC: sorted && sd < 0 ? 'fpi on' : 'fpi',
+        asc: () => set({ sk: c.k, sd: 1, pop: null }), desc: () => set({ sk: c.k, sd: -1, pop: null }),
+        q: st.pq || '', setQ: (e) => this.setState({ pq: e.target.value }),
+        opts, nOpts: String(all.length), noOpts: open && opts.length === 0, allCk,
+        selAll: () => { const nf = Object.assign({}, flt); if (allCk) nf[c.k] = []; else delete nf[c.k]; set({ flt: nf }); },
+        clear: () => { const nf = Object.assign({}, flt); delete nf[c.k]; set({ flt: nf, pop: null }); }
+      };
+    });
+    const chips = COLS.filter((c) => flt[c.k]).map((c) => { const vs = flt[c.k].map((v) => fmtV(c, v)); return { l: c.l, v: vs.length === 0 ? 'none' : vs.slice(0, 2).join(', ') + (vs.length > 2 ? ' +' + (vs.length - 2) : ''), x: () => { const nf = Object.assign({}, flt); delete nf[c.k]; set({ flt: nf }); } }; });
+    if (sc) chips.push({ l: 'Sorted by ' + sc.l, v: sd > 0 ? (sc.num ? 'smallest first' : sc.date ? 'oldest first' : 'A to Z') : (sc.num ? 'largest first' : sc.date ? 'newest first' : 'Z to A'), x: () => set({ sk: null, sd: 1 }) });
+    const active = Object.keys(flt).length > 0 || !!sc;
+    return { list, sorter, heads, chips, hasChips: chips.length > 0, active, filtered: Object.keys(flt).length > 0, clearAll: () => set({ flt: {}, sk: null, sd: 1, pop: null }) };
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const sfx = theme === 'light' ? 'Light' : '';
+    const inr = (n, d) => { const s = Number(n).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return rest + l3 + (f ? '.' + f : ''); };
+    const pd = (s) => { const [d, m, y] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+    const fd = (t) => { const z = (n) => String(n).padStart(2, '0'); return z(t.getUTCDate()) + '-' + z(t.getUTCMonth() + 1) + '-' + t.getUTCFullYear(); };
+    const addD = (t, n) => new Date(t.getTime() + n * 864e5);
+    const TODAY = pd('23-10-2026');
+    const hsh = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 99991, 7);
+    const gstOf = (s) => { const h = hsh(s); return '24AA' + 'BCDFGHJKLM'[h % 10] + 'FS' + String(1000 + h % 9000) + 'K1Z' + (h % 9 + 1); };
+    const TR = [['Navkar Roadlines', 'NR'], ['Jay Ambe Roadlines', 'JAR'], ['Shree Maruti Cargo', 'SMC'], ['VRL Logistics', 'VRL']];
+    const ewbF = (n) => String(n).replace(/(\d{4})(?=\d)/g, '$1 ');
+    const mkBills = (r, q, pre, step, lag) => {
+      const out = []; if (q <= 0) return out;
+      const chunk = r.oq <= 12000 ? 1000 : Math.ceil(r.oq / 10 / 500) * 500;
+      const n = Math.ceil(q / chunk - 1e-9); const seq = parseInt(r.no.slice(3), 10); const od = pd(r.dt);
+      let left = q;
+      for (let i = 0; i < n; i++) {
+        const kg = Math.round(Math.min(chunk, left) * 1000) / 1000; left = Math.round((left - kg) * 1000) / 1000;
+        const dt = addD(od, lag + i * step); const due = addD(dt, r.cr || 1);
+        const tx = kg * r.rate; const g = tx * 0.025; const tot = Math.round(tx + 2 * g); const ro = tot - (tx + 2 * g);
+        const age = Math.round((TODAY - due) / 864e5); const paid = age > 20 && i < n - 2;
+        const t = TR[(seq + i) % 4];
+        out.push({ key: r.no + '#' + i, i, inv: pre + (seq % 5000 + 2000 + i * 37), dt: fd(dt), due: fd(due), bx: Math.max(1, Math.round(kg / 62)), kgN: kg, txN: tx, totN: tot, paid,
+          kg: inr(kg, 3), rate: inr(r.rate, 2), tx: '₹ ' + inr(tx, 2), cg: '₹ ' + inr(g, 2), gst: '₹ ' + inr(2 * g, 2), amt: '₹ ' + inr(tot, 2), ro: (ro >= 0 ? '+ ' : '− ') + inr(Math.abs(ro), 2),
+          pay: paid ? 'Paid' : age > 0 ? 'Overdue ' + age + ' days' : 'Due ' + fd(due), pc: paid ? 'tag t-green' : age > 0 ? 'tag t-red' : 'tag t-gray',
+          recv: paid ? '₹ ' + inr(tot, 2) : '₹ 0.00', bal: paid ? '₹ 0.00' : '₹ ' + inr(tot, 2),
+          tr: t[0], lr: t[1] + '-' + (41000 + seq % 900 + i * 13), veh: 'GJ-05-' + ['BX', 'AV', 'CT', 'UU'][i % 4] + '-' + (4100 + (seq * 7 + i * 53) % 5800),
+          ewb: ewbF(481000000000 + seq * 1000 + i * 17), mill: 'MI/' + (seq % 900 + 100) + '/' + (i + 1) });
+      }
+      return out;
+    };
+    const SC = { Pending: '#3B82F6', Hold: '#F97316', Clear: '#22C55E', Cancelled: '#EF4444' };
+    const D = [
+      ['PUR2210', '23-10-2026', 45, 'Garden Silk Mills', 'Direct', '75/36 FDY +1 item', 'Garden', 'FD002I4', 'A1', 119, 8400, 0, '—', 'Hold', 'Above ₹ 10 L'],
+      ['PUR0123', '23-10-2026', 60, 'Reliance Industries', 'Direct', 'PFY 75/36 SD +1 item', 'Reliance', 'L-2231', 'AA', 131.5, 10800, 0, '—', 'Hold', 'Above ₹ 10 L'],
+      ['PUR2208', '22-10-2026', 30, 'Shree Ram Yarn Trading', 'Henil', '50/36 Bright Catonic', 'AYM Syntex', 'FG7C14', '1ST', 158, 3000, 0, '—', 'Hold', 'Rate up ₹ 2.28'],
+      ['PUR2923', '13-12-2025', 1, 'Daya Tex Industries', 'Direct', '75/72 Roto Lim', 'Daya', '014850', '1ST', 105, 11000, 8113.77, '—', 'Pending'],
+      ['PUR0080', '08-04-2026', 1, 'Reliance Industries', 'Direct', '75/72 FDY', 'Reliance', '336C1M', 'A+', 122.5, 31000, 28332.69, '28136714', 'Pending'],
+      ['PUR0473', '16-05-2026', 1, 'Reliance Industries', 'Direct', '75/36 FDY', 'Reliance', '316C1S', 'A+', 120.5, 25000, 23650.755, '28147520', 'Pending'],
+      ['PUR0570', '28-05-2026', 1, 'Shree Ram Yarn Trading', 'Direct', '50/36 Bright Catonic', 'AYM Syntex', 'FG7C13', '1ST', 155.72, 10000, 4999.2, '—', 'Pending'],
+      ['PUR0573', '29-05-2026', 0, 'Radiant Polyester', 'Direct', '80/48 BSY', 'Radiant', 'R80/48', '1ST', 155, 31000, 21326.55, '—', 'Pending'],
+      ['PUR0576', '29-05-2026', 1, 'BRB Industries', 'Direct', '20/1 SD Mono Yarn', 'Durga', 'B123', 'F1', 171.39, 2404, 508.27, '—', 'Pending'],
+      ['PUR0602', '02-06-2026', 1, 'Sanathan Textiles', 'Direct', '1/150/48 BRT Raw White', 'Sanathan', '323F159', '—', 144, 7000, 1208.73, '4000109467', 'Pending'],
+      ['PUR0639', '08-06-2026', 1, 'GTX Private Limited', 'Direct', '150 Limaya', 'GTPL', 'LMY222', '1ST', 149, 5000, 3948.162, '—', 'Pending'],
+      ['PUR0640', '08-06-2026', 1, 'GTX Private Limited', 'Direct', '180SD Creo Tex', 'GTPL', 'AG5000', '1ST', 170, 5000, 3695.704, '—', 'Pending'],
+      ['PUR0724', '13-06-2026', 1, 'Garden Silk Mills', 'Direct', '67/72 FDY', 'Garden', 'FD002I4', '1ST', 119, 850, 0, '—', 'Hold', 'New PO'],
+      ['PUR0747', '17-06-2026', 1, 'Radiant Polyester', 'Direct', '80/48 BSY', 'Radiant', 'R80/48', '1ST', 170, 2500, 1499.62, '—', 'Pending'],
+      ['PUR2207', '18-06-2026', 1, 'Shree Durga Syntex', 'Direct', '50/12 BRT', 'Durga', 'SIBS1008', '1ST', 178, 10196, 0, '—', 'Pending'],
+      ['PUR0782', '22-06-2026', 1, 'Reliance Industries', 'Direct', '75/36 FDY', 'Reliance', '316C1S', 'A+', 125.5, 25000, 25000, '28152391', 'Clear'],
+      ['PUR0796', '23-06-2026', 1, 'J.J. Industries', 'Henil', 'Muskan Gold', 'J.J. Industries', 'MG123', '1ST', 550, 2000, 1771.99, '—', 'Pending']
+    ].map((r) => ({ no: r[0], dt: r[1], cr: r[2], p: r[3], ag: r[4], it: r[5], br: r[6], lot: r[7], gr: r[8], rate: r[9], oq: r[10], rq: r[11], ref: r[12], st: this.state.over[r[0]] || r[13], why: r[14] || '' }));
+    const splitIt = (s) => { const m = String(s).match(/(\d+(?:\/\d+){1,2}|\b\d{2,3}\b)/); if (!m) return { den: '\u2014', itn: s }; const rest = String(s).replace(m[1], '').replace(/\s+/g, ' ').trim(); return { den: m[1], itn: rest || s }; };
+    D.forEach((r) => { const z = splitIt(r.it); r.den = z.den; r.itn = z.itn; });
+    const tabDefs = [['Pending', 'Pending receipt', 139], ['Hold', 'On hold · approval', 9], ['Clear', 'Clear', 842], ['Cancelled', 'Cancelled', 9], ['All', 'All', 999]];
+    const tab = this.state.tab ?? this.props.startTab ?? 'Pending';
+    const vis0 = D.filter((r) => tab === 'All' || r.st === tab);
+    const COLS = [{ k: 'no', l: 'Order no.' }, { k: 'dt', l: 'Date', date: 1 }, { k: 'p', l: 'Mill / party' }, { k: 'itn', l: 'Item' }, { k: 'den', l: 'Denier' }, { k: 'br', l: 'Brand' }, { k: 'lot', l: 'Lot no.' }, { k: 'gr', l: 'Grade' }, { k: 'rate', l: 'Rate', num: 1, r: 1, fmt: (v) => inr(v, 2) }, { k: 'oq', l: 'Ordered kg', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'rq', l: 'Received', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'pq', l: 'Pending kg', num: 1, r: 1, rt: 1, get: (r) => Math.max(r.oq - r.rq, 0), fmt: (v) => inr(v, 3) }, { k: 'ref', l: 'Mill ref.', rt: 1 }, { k: 'stL', l: 'Status', rt: 1, get: (r) => ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[r.st] || r.st }];
+    const cf = this.cf(vis0, COLS); const vis = cf.list;
+    const tabTotal0 = (tabDefs.find((t) => t[0] === tab) || [0, 0, 0])[2];
+    const tabTotal = cf.filtered ? vis.length : tabTotal0;
+    const loaded = this.state.loaded ?? 20;
+    const shown = [];
+    while (vis.length && shown.length < Math.min(loaded, tabTotal)) { const r = vis[shown.length % vis.length]; const kk = Math.floor(shown.length / vis.length); const len = r.no.length - 3;
+      let num = parseInt(r.no.slice(3), 10) - kk * 1009; let no = r.no; if (kk > 0) { do { num = num > 50 ? num - 3 : num + 9973; no = r.no.slice(0, 3) + String(num).padStart(len, '0'); } while (D.some((x) => x.no === no) || shown.some((x) => x.no === no)); }
+      shown.push(kk === 0 ? r : { ...r, no }); }
+    if (cf.sorter) shown.sort(cf.sorter);
+    const SA = !!this.state.selAll; const EX = this.state.excl || [];
+    const isSel = (no) => SA ? EX.indexOf(no) < 0 : this.state.sel.indexOf(no) >= 0;
+    const sel = SA ? vis.map((r) => r.no).filter((n) => EX.indexOf(n) < 0) : this.state.sel;
+    const setOver = (nos, s) => { const o = { ...this.state.over }; nos.forEach((n) => { o[n] = s; }); this.setState({ over: o, sel: [], selAll: false, excl: [] }); };
+    const rows = shown.map((r) => {
+      const pq = Math.max(r.oq - r.rq, 0); const pct = r.oq ? Math.round(r.rq / r.oq * 100) : 0; const on = isSel(r.no); const ask = r.st === 'Hold'; const exp = r.no === this.state.focus; const nb = mkBills(r, r.rq, 'GRN-', 6, 8).length;
+      return { ...r, rate: inr(r.rate, 2), oq: inr(r.oq, 3), rq: inr(r.rq, 3), pq: inr(pq, 3), bw: 'width: ' + pct + '%', sc: '--c: ' + (SC[r.st] || '#8F8F8F'), on, ask, show: !ask,
+        rc: on || r.no === this.state.focus ? 'sel' : '',
+        tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : this.setState({ sel: on ? sel.filter((s) => s !== r.no) : sel.concat([r.no]) }),
+        exp, bn: nb ? nb + (nb > 1 ? ' bills' : ' bill') : 'No bills', cc: exp ? 'cnt on' : 'cnt', chev: '',
+        focus: () => this.setState({ focus: r.no, bill: null }), rowClick: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; this.setState({ focus: r.no, bill: null }); }, open: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; try { window.localStorage.setItem('yf-view-po', JSON.stringify({ t: Date.now(), no: r.no, dt: r.dt, p: r.p, g: r.g || r.ag || '', it: r.it, br: r.br, lot: r.lot, gr: r.gr, rate: r.rate, oq: r.oq, dq: (r.dq ?? r.rq ?? 0), bk: r.bk || r.ref || '', stL: ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[r.st] || r.st })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} this.go('PurchaseOrderView' + sfx + '.dc.html'); }, ok: () => setOver([r.no], 'Pending'), no2: () => setOver([r.no], 'Cancelled') };
+    });
+    const sum = (arr, k) => arr.reduce((a, r) => a + r[k], 0);
+    const tot = { oq: inr(sum(vis, 'oq'), 3), rq: inr(sum(vis, 'rq'), 3), pq: inr(sum(vis, 'oq') - sum(vis, 'rq'), 3) };
+    const STK = {'75/36 FDY +1 item': 14200, 'PFY 75/36 SD +1 item': 5200, '50/36 Bright Catonic': 1800, '75/72 Roto Lim': 3800, '75/72 FDY': 9100, '75/36 FDY': 2550, '80/48 BSY': 2100, '20/1 SD Mono Yarn': 260, '1/150/48 BRT Raw White': 980, '150 Limaya': 640, '180SD Creo Tex': 410, '67/72 FDY': 850, '50/12 BRT': 3100, 'Muskan Gold': 410};
+    const byIt = {}; vis.forEach((r) => { byIt[r.it] = (byIt[r.it] || 0) + Math.max(r.oq - r.rq, 0); });
+    let stk = 0, short = 0; Object.keys(byIt).forEach((k) => { const st = STK[k] ?? 0; stk += st; short += Math.max(0, byIt[k] - st); });
+    const pv = vis.reduce((a, r) => a + Math.max(r.oq - r.rq, 0) * r.rate, 0); const oqS = sum(vis, 'oq'); const pqS = Math.max(oqS - sum(vis, 'rq'), 0);
+    const F = vis.length ? tabTotal / vis.length : 0; const stkA = stk * Math.min(F, 6); const pqA = pqS * F;
+    const sm = { n: inr(tabTotal, 0), oq: inr(oqS * F, 3), dq: inr(sum(vis, 'rq') * F, 3), pq: inr(pqA, 3), pv: inr(pv * F, 0), stk: inr(stkA, 3), short: inr(Math.max(0, pqA - stkA), 3), after: inr(stkA + pqA, 3), avg: oqS ? inr(vis.reduce((a, r) => a + r.oq * r.rate, 0) / oqS, 2) : '0.00' };
+    const fr = shown.concat(D).find((r) => r.no === this.state.focus);
+    let f = { no: '', p: '', it: '', lot: '', ds: [], none: false, some: false, pq: '' };
+    if (fr) {
+      const GD = ['Sachin GIDC', 'Pandesara', 'Kadodara'];
+      const bs = mkBills(fr, fr.rq, 'GRN-', 6, 8).map((b) => ({ ...b, inv: 'GRN-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 100) + ' · PB-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 120), gd: GD[b.i % 3] }));
+      const ds = bs.map((b) => { const open = this.state.bill === b.key; return { ...b, open, rc: open ? 'on' : '', act: open ? 'Hide' : 'View', pick: () => this.setState({ bill: open ? null : b.key }) }; });
+      const val = bs.reduce((a, b) => a + b.totN, 0); const pd2 = bs.filter((b) => b.paid).reduce((a, b) => a + b.totN, 0); const tx = bs.reduce((a, b) => a + b.txN, 0);
+      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, br: fr.br, ag: fr.ag, ref: fr.ref, gstin: gstOf(fr.p), ds, none: ds.length === 0, some: ds.length > 0, n: ds.length,
+        oq: inr(fr.oq, 3), rq: inr(fr.rq, 3), pq: inr(Math.max(fr.oq - fr.rq, 0), 3), val: '₹ ' + inr(val, 2), tx: '₹ ' + inr(tx, 2), gst: '₹ ' + inr(val - tx, 2), recv: '₹ ' + inr(pd2, 2), bal: '₹ ' + inr(val - pd2, 2) };
+    }
+    const bulk = {};
+    ['Pending', 'Hold', 'Clear', 'Cancelled'].forEach((s) => { bulk[s] = () => setOver(sel, s); });
+    const selRows = shown.filter((r) => sel.indexOf(r.no) >= 0);
+    const allOn = SA ? EX.length === 0 : (shown.length > 0 && shown.every((r) => sel.indexOf(r.no) >= 0));
+    const td = tabDefs.find((t) => t[0] === tab);
+    return {
+      moreLeft: shown.length < tabTotal, allLoaded: tabTotal > 0 && shown.length >= tabTotal, loadedLabel: shown.length + ' of ' + inr(tabTotal, 0) + ' loaded',
+      onScroll: (e) => { const el = e.currentTarget || e.target; if (!el || this._ld || shown.length >= tabTotal) return; if (el.scrollTop + el.clientHeight >= el.scrollHeight - 140) { this._ld = true; setTimeout(() => { this._ld = false; this.setState({ loaded: (this.state.loaded ?? 20) + 20 }); }, 400); } },
+      cf, sm, theme, rows, tot, f, bulk, allOn,
+      tabs: tabDefs.map(([k, l, n]) => ({ l, n: inr(n, 0), c: '--c: ' + (SC[k] || '#8F8F8F'), cls: k === tab ? 'tab on' : 'tab', pick: () => this.setState({ tab: k, sel: [], selAll: false, excl: [], loaded: 20 }) })),
+      sideKey: 'po',
+      isAppr: tab === 'Hold', lastCol: tab === 'Hold' ? 'Approve / reject' : 'Status',
+      hasSel: SA ? tabTotal - EX.length > 0 : sel.length > 0, selCount: SA ? inr(tabTotal - EX.length, 0) + ' (all)' : sel.length, selQty: SA ? inr(pqA, 3) : inr(selRows.reduce((a, r) => a + Math.max(r.oq - r.rq, 0), 0), 3),
+      clearSel: () => this.setState({ sel: [], selAll: false, excl: [] }), toggleAll: () => this.setState(allOn || SA ? { selAll: false, excl: [], sel: [] } : { selAll: true, excl: [], sel: [] }),
+      showBills: tab !== 'Hold',
+      topH: 'height: ' + (tab === 'Hold' ? this.state.top + this.state.bot + 10 : this.state.top) + 'px', botH: 'height: ' + this.state.bot + 'px',
+      sz: (() => { const r = this.state.bot / (this.state.top + this.state.bot); return { s: r < 0.2 ? 'on' : '', m: r >= 0.2 && r <= 0.45 ? 'on' : '', l: r > 0.45 ? 'on' : '' }; })(),
+      setS: () => { const t = this.state.top + this.state.bot; this.setState({ top: t - 150, bot: 150 }); },
+      setM: () => { const t = this.state.top + this.state.bot; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); },
+      setL: () => { const t = this.state.top + this.state.bot; const top = Math.round(t * 0.3); this.setState({ top, bot: t - top }); },
+      startDrag: (e) => { if (e && e.preventDefault) e.preventDefault(); const y0 = e.clientY; const t0 = this.state.top; const tot = this.state.top + this.state.bot;
+        const mv = (ev) => { const top = Math.round(Math.max(120, Math.min(tot - 100, t0 + (ev.clientY - y0)))); this.setState({ top, bot: tot - top }); };
+        const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
+        window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); },
+      hasFocus: !!fr && tab !== 'Hold',
+      unfocus: () => this.setState({ focus: null }),
+      countLabel: vis.length + ' of ' + (td ? td[2] : 0) + ' orders',
+      markBack: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} },
+      openFocus: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} if (fr) { try { window.localStorage.setItem('yf-view-po', JSON.stringify({ t: Date.now(), no: fr.no, dt: fr.dt, p: fr.p, g: fr.g || fr.ag || '', it: fr.it, br: fr.br, lot: fr.lot, gr: fr.gr, rate: fr.rate, oq: fr.oq, dq: (fr.dq ?? fr.rq ?? 0), stL: ({ Pending: 'Pending receipt', Hold: 'On hold', Clear: 'Clear', Cancelled: 'Cancelled' })[fr.st] || fr.st })); } catch (err) {} } },
+      newHref: 'PurchaseOrderEntry' + sfx + '.dc.html', billHref: 'PurchaseBill' + sfx + '.dc.html', recHref: 'PurchaseOrderView' + sfx + '.dc.html'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -11,7 +11,30 @@ import CSS from './SalesOrderList.css?raw';
 /* ----- screen logic (same as the design) ----- */
 class Component extends DCLogic {
   constructor(p) { super(p); this.state = { tab: 'Pending', view: 'order', sel: [], focus: 'SAL02722', bill: null, top: 690, bot: 300, over: {} }; }
-  componentDidMount() { try { const h = window.innerHeight; if (h >= 560 && h <= 1600) { const t = h - 60; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); } } catch (e) {} }
+  /* live data (app) — on the design canvas window.YF_API is absent and the sample data below is used */
+  api() { return typeof window !== 'undefined' ? window.YF_API : null; }
+  async load() {
+    const api = this.api(); if (!api || !api.session) return;
+    try {
+      const [reg, stock] = await Promise.all([api.get('/vouchers/sales-orders', { view: 'lines', pageSize: 1000 }), api.get('/reports/stock')]);
+      const stk = {}; stock.rows.forEach((r) => { stk[r.itemName] = (stk[r.itemName] || 0) + r.qty; });
+      this.setState({ live: reg.data, liveStock: stk, err: null });
+      if (this.state.focus && !reg.data.some((r) => r.number === this.state.focus)) this.setState({ focus: reg.data[0] ? reg.data[0].number : null });
+    } catch (e) { this.setState({ err: api.message(e) }); }
+  }
+  async loadBills(id) {
+    const api = this.api(); if (!api || !id || (this.state.rel || {})[id]) return;
+    try { const rel = await api.get('/vouchers/sales-orders/' + id + '/related'); this.setState({ rel: { ...(this.state.rel || {}), [id]: rel.filter((b) => b.type === 'SALE_BILL') } }); } catch (e) {}
+  }
+  async act(ids, action, reason) {
+    const api = this.api(); if (!api) return;
+    const errs = [];
+    for (const id of [...new Set(ids)]) { try { await api.post('/vouchers/sales-orders/' + id + '/actions/' + action, reason ? { reason } : {}); } catch (e) { errs.push(api.message(e)); } }
+    if (errs.length) window.alert(errs.join('\n'));
+    this.setState({ sel: [], selAll: false, excl: [], rel: {} });
+    await this.load();
+  }
+  componentDidMount() { this.load(); try { const h = window.innerHeight; if (h >= 560 && h <= 1600) { const t = h - 60; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); } } catch (e) {} }
 
   go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
   cf(base, COLS) {
@@ -91,7 +114,11 @@ class Component extends DCLogic {
     };
     const SC = { Pending: '#3B82F6', Hold: '#F97316', Clear: '#22C55E', Cancelled: '#EF4444', Locked: '#A855F7' };
     const SN = { Pending: 'Pending dispatch', Hold: 'On hold · approval', Clear: 'Closed', Cancelled: 'Cancelled', Locked: 'Locked' };
-    const D = [
+    const LIVE = this.state.live;
+    const LST = { PENDING_APPROVAL: 'Hold', OPEN: 'Pending', PARTIAL: 'Pending', COMPLETED: 'Clear', CANCELLED: 'Cancelled', REJECTED: 'Cancelled', LOCKED: 'Locked', DRAFT: 'Hold' };
+    const fromLive = (r) => ({ id: r.id, lineId: r.lineId, no: r.number.replace(/\/\d{2}-\d{2}$/, ''), dt: r.date.split('-').reverse().join('-'), cr: r.creditDays, p: r.partyName, g: r.partyGroupName || r.partyName,
+      it: r.itemName || '', br: r.brand || '—', lot: r.lotNo || '—', gr: r.grade || '—', rate: r.rate, oq: r.qty, dq: r.doneQty, bk: r.brokerName || 'Direct', st: LST[r.status] || 'Pending', bc: r.doneCount });
+    const DEMO = [
       ['SAL11834', '23-10-2026', 45, 'Krishna Textiles', 'Krishna Textiles', '75/36 FDY', 'Reliance', 'L-2231', 'A+', 136, 2400, 0, 'Direct', 'Hold'],
       ['SAL11829', '22-10-2026', 30, 'Navrang Prints', 'Navrang Prints', 'DTY 80/36 SIM', 'Filatex', 'D-552', 'A', 128, 1500, 0, 'Kiran', 'Hold'],
       ['SAL02722', '21-05-2026', 4, 'Bhagwati Filaments', 'Bhagwati Filaments', '50/24 SD CAT', 'Reliance', '356C9S', 'A+', 179.6, 10050, 9335.8, 'Avi M', 'Pending'],
@@ -115,18 +142,22 @@ class Component extends DCLogic {
       ['SAL06932', '27-07-2026', 15, 'Geeta Fab', 'Ved Textiles', '110 Vichitra', 'Wellknown', '57460', 'PQ', 152, 3050, 2595.73, 'Direct', 'Pending'],
       ['SAL06939', '27-07-2026', 10, 'Omkar Synthetics', 'Omkar Filaments', '50/36 Bright', 'Sanathan', 'D723A2', '1ST', 176.25, 2050, 0, 'Direct', 'Cancelled']
     ].map((r) => { const base = r[13] === 'Pending' && r[11] >= r[10] ? 'Clear' : r[13]; return { no: r[0], dt: r[1], cr: r[2], p: r[3], g: r[4], it: r[5], br: r[6], lot: r[7], gr: r[8], rate: r[9], oq: r[10], dq: r[11], bk: r[12], st: this.state.over[r[0]] || base }; });
+    const D = LIVE ? LIVE.map(fromLive) : DEMO;
     const splitIt = (s) => { const m = String(s).match(/(\d+(?:\/\d+){1,2}|\b\d{2,3}\b)/); if (!m) return { den: '\u2014', itn: s }; const rest = String(s).replace(m[1], '').replace(/\s+/g, ' ').trim(); return { den: m[1], itn: rest || s }; };
     D.forEach((r) => { const z = splitIt(r.it); r.den = z.den; r.itn = z.itn; });
-    const tabDefs = [['Pending', 'Pending dispatch', 356], ['Hold', 'On hold · approval', 11], ['Clear', 'Closed', 1208], ['Cancelled', 'Cancelled', 12], ['Locked', 'Locked', 3], ['All', 'All', 1590]];
+    const nOrd = (st) => new Set(D.filter((r) => !st || r.st === st).map((r) => r.no)).size;
+    const tabDefs = LIVE ? [['Pending', 'Pending dispatch', nOrd('Pending')], ['Hold', 'On hold · approval', nOrd('Hold')], ['Clear', 'Closed', nOrd('Clear')], ['Cancelled', 'Cancelled', nOrd('Cancelled')], ['Locked', 'Locked', nOrd('Locked')], ['All', 'All', nOrd(null)]]
+      : [['Pending', 'Pending dispatch', 356], ['Hold', 'On hold · approval', 11], ['Clear', 'Closed', 1208], ['Cancelled', 'Cancelled', 12], ['Locked', 'Locked', 3], ['All', 'All', 1590]];
     const tab = this.state.tab;
     const vis0 = D.filter((r) => tab === 'All' || r.st === tab);
     const COLS = [{ k: 'no', l: 'Order no.' }, { k: 'dt', l: 'Date', date: 1 }, { k: 'p', l: 'Party' }, { k: 'itn', l: 'Item' }, { k: 'den', l: 'Denier' }, { k: 'br', l: 'Brand' }, { k: 'lot', l: 'Lot no.' }, { k: 'gr', l: 'Grade' }, { k: 'rate', l: 'Rate', num: 1, r: 1, fmt: (v) => inr(v, 2) }, { k: 'oq', l: 'Ordered kg', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'dq', l: 'Dispatched', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'pq', l: 'Pending kg', num: 1, r: 1, rt: 1, get: (r) => Math.max(r.oq - r.dq, 0), fmt: (v) => inr(v, 3) }, { k: 'bk', l: 'Broker', rt: 1 }, { k: 'stL', l: 'Status', rt: 1, get: (r) => SN[r.st] || r.st }];
     const cf = this.cf(vis0, COLS); const vis = cf.list;
     const tabTotal0 = (tabDefs.find((t) => t[0] === tab) || [0, 0, 0])[2];
-    const tabTotal = cf.filtered ? vis.length : tabTotal0;
+    const tabTotal = cf.filtered || LIVE ? vis.length : tabTotal0;
     const loaded = this.state.loaded ?? 20;
     const shown = [];
-    while (vis.length && shown.length < Math.min(loaded, tabTotal)) { const r = vis[shown.length % vis.length]; const kk = Math.floor(shown.length / vis.length); const len = r.no.length - 3;
+    if (LIVE) shown.push(...vis.slice(0, loaded));
+    else while (vis.length && shown.length < Math.min(loaded, tabTotal)) { const r = vis[shown.length % vis.length]; const kk = Math.floor(shown.length / vis.length); const len = r.no.length - 3;
       let num = parseInt(r.no.slice(3), 10) - kk * 1009; let no = r.no; if (kk > 0) { do { num = num > 50 ? num - 3 : num + 9973; no = r.no.slice(0, 3) + String(num).padStart(len, '0'); } while (D.some((x) => x.no === no) || shown.some((x) => x.no === no)); }
       shown.push(kk === 0 ? r : { ...r, no }); }
     if (cf.sorter) shown.sort(cf.sorter);
@@ -135,19 +166,21 @@ class Component extends DCLogic {
     const sel = SA ? vis.map((r) => r.no).filter((n) => EX.indexOf(n) < 0) : this.state.sel;
     const setSel = (s) => this.setState({ sel: s });
     const rows = shown.map((r) => {
-      const pq = Math.max(r.oq - r.dq, 0); const pct = r.oq ? Math.round(r.dq / r.oq * 100) : 0; const on = isSel(r.no); const exp = r.no === this.state.focus; const nb = mkBills(r, r.dq, 'SI-', 4, 3).length;
+      const pq = Math.max(r.oq - r.dq, 0); const pct = r.oq ? Math.round(r.dq / r.oq * 100) : 0; const on = isSel(r.no); const exp = r.no === this.state.focus; const nb = LIVE ? r.bc : mkBills(r, r.dq, 'SI-', 4, 3).length;
       return { ...r, st: SN[r.st] || r.st, rate: inr(r.rate, 2), oq: inr(r.oq, 3), dq: inr(r.dq, 3), pq: inr(pq, 3), bw: 'width: ' + pct + '%', sc: '--c: ' + (SC[r.st] || '#8F8F8F'), on, rc: on || r.no === this.state.focus ? 'sel' : '',
         exp, bn: nb ? nb + (nb > 1 ? ' bills' : ' bill') : 'No bills', cc: exp ? 'cnt on' : 'cnt', chev: '',
-        ask: r.st === 'Hold', show: r.st !== 'Hold', ok: () => this.setState({ over: { ...this.state.over, [r.no]: 'Pending' } }), no2: () => this.setState({ over: { ...this.state.over, [r.no]: 'Cancelled' } }),
-        tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : setSel(on ? sel.filter((s) => s !== r.no) : sel.concat([r.no])), focus: () => this.setState({ focus: r.no, bill: null }), rowClick: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; this.setState({ focus: r.no, bill: null }); }, open: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; try { window.localStorage.setItem('yf-view-so', JSON.stringify({ t: Date.now(), no: r.no, dt: r.dt, p: r.p, g: r.g || r.ag || '', it: r.it, br: r.br, lot: r.lot, gr: r.gr, rate: r.rate, oq: r.oq, dq: (r.dq ?? r.rq ?? 0), bk: r.bk || r.ref || '', stL: SN[r.st] || r.st })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} this.go('SalesOrderView' + sfx + '.dc.html'); } };
+        ask: r.st === 'Hold', show: r.st !== 'Hold', ok: () => (LIVE ? this.act([r.id], 'approve', 'Approved from register') : this.setState({ over: { ...this.state.over, [r.no]: 'Pending' } })),
+        no2: () => { if (!LIVE) return this.setState({ over: { ...this.state.over, [r.no]: 'Cancelled' } }); const why = window.prompt('Reason for rejecting ' + r.no + '?'); if (why) this.act([r.id], 'reject', why); },
+        tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : setSel(on ? sel.filter((s) => s !== r.no) : sel.concat([r.no])), focus: () => this.setState({ focus: r.no, bill: null }), rowClick: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; this.setState({ focus: r.no, bill: null }); }, open: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; try { window.localStorage.setItem('yf-view-so', JSON.stringify({ t: Date.now(), id: r.id, no: r.no, dt: r.dt, p: r.p, g: r.g || r.ag || '', it: r.it, br: r.br, lot: r.lot, gr: r.gr, rate: r.rate, oq: r.oq, dq: (r.dq ?? r.rq ?? 0), bk: r.bk || r.ref || '', stL: SN[r.st] || r.st })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} this.go('SalesOrderView' + sfx + '.dc.html'); } };
     });
     const sum = (arr, k) => arr.reduce((a, r) => a + r[k], 0);
     const tot = { oq: inr(sum(vis, 'oq'), 3), dq: inr(sum(vis, 'dq'), 3), pq: inr(sum(vis, 'oq') - sum(vis, 'dq'), 3) };
     const STK = {'50/24 SD CAT': 1850.5, '100/36 TEX': 0, '108/36 TEX': 40, '75/144 SIM': 900, '50/48 FDY': 2400.25, '50/12 BRT': 3100, 'Muskan Bright': 620, 'Muskan Gold': 410, '110 Vichitra': 1200.4, '50/48 FDY NLBS': 4212.6, '75/36 FDY': 2550, '75/72 Roto': 3800, 'DTY 80/36 SIM': 900, '75/36 Crimp': 300, '75/72 Roto SIM': 0, '50/48 Crep': 0, '50/36 Bright': 520};
     const byIt = {}; vis.forEach((r) => { byIt[r.it] = (byIt[r.it] || 0) + Math.max(r.oq - r.dq, 0); });
-    let stk = 0, short = 0; Object.keys(byIt).forEach((k) => { const st = STK[k] ?? 0; stk += st; short += Math.max(0, byIt[k] - st); });
+    const STKU = LIVE ? (this.state.liveStock || {}) : STK;
+    let stk = 0, short = 0; Object.keys(byIt).forEach((k) => { const st = STKU[k] ?? 0; stk += st; short += Math.max(0, byIt[k] - st); });
     const pv = vis.reduce((a, r) => a + Math.max(r.oq - r.dq, 0) * r.rate, 0); const oqS = sum(vis, 'oq'); const pqS = Math.max(oqS - sum(vis, 'dq'), 0);
-    const F = vis.length ? tabTotal / vis.length : 0; const stkA = stk * Math.min(F, 6); const pqA = pqS * F;
+    const F = LIVE ? (vis.length ? 1 : 0) : vis.length ? tabTotal / vis.length : 0; const stkA = stk * Math.min(F, 6); const pqA = pqS * F;
     const sm = { n: inr(tabTotal, 0), oq: inr(oqS * F, 3), dq: inr(sum(vis, 'dq') * F, 3), pq: inr(pqA, 3), pv: inr(pv * F, 0), stk: inr(stkA, 3), short: inr(Math.max(0, pqA - stkA), 3), after: inr(stkA + pqA, 3), avg: oqS ? inr(vis.reduce((a, r) => a + r.oq * r.rate, 0) / oqS, 2) : '0.00' };
     const view = this.state.view;
     const key = view === 'broker' ? 'bk' : 'g';
@@ -156,15 +189,25 @@ class Component extends DCLogic {
     const groups = Object.keys(gm).sort((a, b) => (gm[b].oq - gm[b].dq) - (gm[a].oq - gm[a].dq)).map((k) => { const v = gm[k]; const pct = v.oq ? Math.round(v.dq / v.oq * 100) : 0; return { k, n: v.n, oq: inr(v.oq, 3), dq: inr(v.dq, 3), pq: inr(v.oq - v.dq, 3), bw: 'width: ' + pct + '%', pc: pct + '% dispatched', open: () => this.setState({ view: 'order' }) }; });
     const fr = shown.concat(D).find((r) => r.no === this.state.focus);
     let f = null;
+    if (fr && LIVE) this.loadBills(fr.id);
+    const liveBills = (o) => ((this.state.rel || {})[o.id] || []).map((b, i) => {
+      const due = b.dueDate || b.date; const age = Math.round((Date.now() - new Date(due + 'T00:00:00').getTime()) / 864e5); const paid = b.pending <= 0.5;
+      const half = b.cgst; return { key: 'b' + b.id, i, id: b.id, inv: b.number.replace(/\/\d{2}-\d{2}$/, ''), dt: b.date.split('-').reverse().join('-'), due: due.split('-').reverse().join('-'), bx: b.pcs, kgN: b.qty, txN: b.lineTaxable, totN: b.net, paid,
+        kg: inr(b.qty, 3), rate: inr(b.rate, 2), tx: '₹ ' + inr(b.lineTaxable, 2), cg: '₹ ' + inr(half, 2), gst: '₹ ' + inr(b.gst, 2), amt: '₹ ' + inr(b.net, 2), ro: (b.roundOff >= 0 ? '+ ' : '− ') + inr(Math.abs(b.roundOff), 2),
+        pay: paid ? 'Paid' : age > 0 ? 'Overdue ' + age + ' days' : 'Due ' + due.split('-').reverse().join('-'), pc: paid ? 'tag t-green' : age > 0 ? 'tag t-red' : 'tag t-gray',
+        recv: '₹ ' + inr(b.net - b.tds - b.pending, 2), bal: '₹ ' + inr(b.pending, 2), tr: b.transporterName || '—', lr: b.lrNo || '—', veh: b.vehicleNo || '—', ewb: b.ewbNo ? ewbF(b.ewbNo) : 'Not generated', mill: b.refNo || '—' };
+    });
     if (fr) {
-      const bs = mkBills(fr, fr.dq, 'SI-', 4, 3);
+      const bs = LIVE ? liveBills(fr) : mkBills(fr, fr.dq, 'SI-', 4, 3);
       const ds = bs.map((b) => { const open = this.state.bill === b.key; return { ...b, open, rc: open ? 'on' : '', act: open ? 'Hide' : 'View', pick: () => this.setState({ bill: open ? null : b.key }) }; });
-      const val = bs.reduce((a, b) => a + b.totN, 0); const rc = bs.filter((b) => b.paid).reduce((a, b) => a + b.totN, 0); const tx = bs.reduce((a, b) => a + b.txN, 0);
-      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, bk: fr.bk, gstin: gstOf(fr.p), ds, none: ds.length === 0, some: ds.length > 0, n: ds.length,
+      const val = bs.reduce((a, b) => a + b.totN, 0); const rc = LIVE ? ((this.state.rel || {})[fr.id] || []).reduce((a, b) => a + (b.net - b.tds - b.pending), 0) : bs.filter((b) => b.paid).reduce((a, b) => a + b.totN, 0); const tx = bs.reduce((a, b) => a + b.txN, 0);
+      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, bk: fr.bk, gstin: LIVE ? '' : gstOf(fr.p), ds, none: ds.length === 0, some: ds.length > 0, n: ds.length,
         oq: inr(fr.oq, 3), dq: inr(fr.dq, 3), pq: inr(Math.max(fr.oq - fr.dq, 0), 3), val: '₹ ' + inr(val, 2), tx: '₹ ' + inr(tx, 2), gst: '₹ ' + inr(val - tx, 2), recv: '₹ ' + inr(rc, 2), bal: '₹ ' + inr(val - rc, 2) };
     }
     const bulk = {};
-    ['Approve', 'Hold', 'Clear', 'Pending', 'Locked', 'Cancelled'].forEach((s) => { bulk[s] = () => { const o = { ...this.state.over }; sel.forEach((n) => { o[n] = s === 'Approve' ? 'Pending' : s; }); this.setState({ over: o, sel: [], selAll: false, excl: [] }); }; });
+    const LACT = { Approve: 'approve', Clear: 'close', Pending: 'reopen', Locked: 'lock', Cancelled: 'cancel' };
+    ['Approve', 'Hold', 'Clear', 'Pending', 'Locked', 'Cancelled'].forEach((s) => { bulk[s] = () => {
+      if (LIVE) { const ids = D.filter((r) => sel.indexOf(r.no) >= 0).map((r) => r.id); if (!LACT[s]) { window.alert('Use Lock to put orders on hold'); return; } this.act(ids, LACT[s], s === 'Approve' ? 'Bulk approval' : undefined); return; } const o = { ...this.state.over }; sel.forEach((n) => { o[n] = s === 'Approve' ? 'Pending' : s; }); this.setState({ over: o, sel: [], selAll: false, excl: [] }); }; });
     const selRows = shown.filter((r) => sel.indexOf(r.no) >= 0);
     const allOn = SA ? EX.length === 0 : (shown.length > 0 && shown.every((r) => sel.indexOf(r.no) >= 0));
     return {
@@ -192,8 +235,8 @@ class Component extends DCLogic {
       hasFocus: !!fr && tab !== 'Hold',
       unfocus: () => this.setState({ focus: null }),
       countLabel: vis.length + ' of ' + (tabDefs.find((t) => t[0] === tab) || [0, 0, 0])[2] + ' orders',
-      markBack: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} },
-      openFocus: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} if (fr) { try { window.localStorage.setItem('yf-view-so', JSON.stringify({ t: Date.now(), no: fr.no, dt: fr.dt, p: fr.p, g: fr.g || fr.ag || '', it: fr.it, br: fr.br, lot: fr.lot, gr: fr.gr, rate: fr.rate, oq: fr.oq, dq: (fr.dq ?? fr.rq ?? 0), stL: SN[fr.st] || fr.st })); } catch (err) {} } },
+      markBack: () => { try { if (fr) window.localStorage.setItem('yf-new-from', JSON.stringify({ type: 'so', id: fr.id, no: fr.no })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} },
+      openFocus: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} if (fr) { try { window.localStorage.setItem('yf-view-so', JSON.stringify({ t: Date.now(), id: fr.id, no: fr.no, dt: fr.dt, p: fr.p, g: fr.g || fr.ag || '', it: fr.it, br: fr.br, lot: fr.lot, gr: fr.gr, rate: fr.rate, oq: fr.oq, dq: (fr.dq ?? fr.rq ?? 0), stL: SN[fr.st] || fr.st })); } catch (err) {} } },
       newHref: 'SalesOrderEntry' + sfx + '.dc.html', dispHref: 'Dispatch' + sfx + '.dc.html', recHref: 'SalesOrderView' + sfx + '.dc.html'
     };
   }

@@ -340,6 +340,10 @@ export const vouchers = pgTable(
     partyId: integer('party_id').references(() => accounts.id),
     deliveryPartyId: integer('delivery_party_id').references(() => accounts.id),
     brokerId: integer('broker_id').references(() => accounts.id),
+    /** agent / supplier's agent (purchase side), agent on bills */
+    agentId: integer('agent_id').references(() => accounts.id),
+    /** how the order was placed: phone / email / mill portal / visit */
+    orderMode: varchar('order_mode', { length: 30 }),
     brokerageRate: numeric('brokerage_rate', { precision: 10, scale: 3, mode: 'number' }).notNull().default(0),
     brokerageType: varchar('brokerage_type', { length: 10 }).notNull().default('PER_KG'),
     millId: integer('mill_id').references(() => accounts.id), // supplier (mill) on sales orders

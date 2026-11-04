@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Dashboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}.bc a.m:hover{color:var(--t1)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.ic{width:34px;padding:0;justify-content:center}
+.btn.sm{height:28px;padding:0 10px;font-size:13px}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.box{border:1px solid var(--bd);border-radius:12px;background:var(--bg)}
+.bh{display:flex;align-items:center;gap:10px;padding:14px 16px 0}
+.bh h2{margin:0;font-size:15px;font-weight:600;flex:1}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.c-gray{--c:#8F8F8F}.c-blue{--c:#3B82F6}.c-orange{--c:#F97316}.c-green{--c:#22C55E}.c-red{--c:#EF4444}.c-violet{--c:#A855F7}.c-yellow{--c:#EAB308}.c-teal{--c:#14B8A6}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-blue{background:rgba(59,130,246,.15);color:#60A5FA}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-green{color:#15803D}.light .t-orange{color:#C2410C}.light .t-red,.light .btn.no{color:#B91C1C}.light .t-blue{color:#1D4ED8}
+.lg{width:26px;height:26px;border-radius:7px;display:inline-grid;place-items:center;font-size:12px;font-weight:600;flex:none;background:var(--s2);color:var(--t2)}
+.av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:600;flex:none;color:#fff}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:8px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:44px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--s1)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.kpi{padding:16px;display:flex;flex-direction:column;gap:6px}
+.kpi .v{font-size:24px;line-height:32px;font-weight:600;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.bars{display:flex;align-items:flex-end;gap:3px}
+.bars i{display:block;width:12px;border-radius:3px 3px 0 0}
+.stage{display:grid;grid-template-columns:130px 1fr 44px;gap:10px;align-items:center;font-size:14px}
+.stage .tr{height:8px;border-radius:4px;background:var(--s2);overflow:hidden}.stage .tr i{display:block;height:8px;border-radius:4px}
+.act{display:flex;gap:12px;font-size:14px;padding:10px 16px;align-items:flex-start}
+.act .ico{color:var(--t3);flex:none;margin-top:2px}
+.up{color:#4ADE80}.light .up{color:#15803D}.dn{color:#F87171}.light .dn{color:#B91C1C}.wa{color:#FB923C}.light .wa{color:#C2410C}
+kbd{font:500 11px Inter,sans-serif;color:var(--t3);border:1px solid var(--bd2);border-radius:5px;padding:0 5px;white-space:nowrap}
+.fbar2{display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:4px 10px;border-radius:6px;color:var(--t3);cursor:pointer;font-size:13px}
+.seg button.on{background:var(--s3);color:var(--t1)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.tile{padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-height:96px}
+.tile:hover{border-color:var(--bd2);background:var(--s1)}
+.tl{display:flex;align-items:center;gap:8px;justify-content:space-between;font-size:13px;color:var(--t2)}
+.tv{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+.ts{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.cmenu{position:absolute;right:20px;top:52px;z-index:20;width:min(880px,calc(100vw - 40px));background:var(--s1);border:1px solid var(--bd2);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.45);padding:12px}
+.light .cmenu{background:#FFFFFF;box-shadow:0 24px 60px rgba(0,0,0,.14)}
+.cmh{display:flex;align-items:center;gap:12px;padding:4px 4px 12px;border-bottom:1px solid var(--bd)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:4px 12px;padding-top:10px}
+.ccol{display:flex;flex-direction:column;gap:2px}
+.cct{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:6px 8px}
+.cit{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:7px;font-size:13px}
+.cit:hover{background:var(--s3)}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="dash" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr" style="position: relative">
+<div class="bc"><span>Dashboard</span></div>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Export</button>
+<button class="btn pr" type="button" onClick="{{toggleMenu}}" aria-expanded="{{menu}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Create<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+<sc-if value="{{menu}}" hint-placeholder-val="{{false}}">
+<div class="cmenu" role="menu" aria-label="Create new">
+<div class="cmh"><input class="inp" type="search" placeholder="What do you want to create?" aria-label="Search create menu" style="flex: 1"><span class="muted" style="font-size: 12px">Old shortcuts still work</span></div>
+<div class="cgrid">
+<sc-for list="{{cm}}" as="c" hint-placeholder-count="5"><div class="ccol"><div class="cct">{{c.t}}</div><sc-for list="{{c.items}}" as="x" hint-placeholder-count="4"><a class="cit" href="{{x.h}}" role="menuitem"><span style="flex: 1">{{x.l}}</span><kbd>{{x.k}}</kbd></a></sc-for></div></sc-for>
+</div>
+</div>
+</sc-if>
+</header>
+
+<div class="fbar2">
+<select class="inp" aria-label="Company / branch"><option>Shree Umiya Yarn Pvt Ltd · Surat</option><option>Branch · Bhiwandi</option></select>
+<select class="inp" aria-label="Cost center"><option>Trading division · Shivam</option><option>All cost centers</option></select>
+<span style="display: inline-flex; align-items: center; gap: 6px"><input class="inp" type="text" value="23-10-2026" aria-label="From date" style="width: 118px"><span class="muted">to</span><input class="inp" type="text" value="23-10-2026" aria-label="To date" style="width: 118px"></span>
+<div class="seg" role="group" aria-label="Quick period"><button type="button" class="on">Today</button><button type="button">Week</button><button type="button">Month</button><button type="button">FY</button></div>
+<div style="flex: 1"></div>
+<span style="display: inline-flex; align-items: center; gap: 10px; font-size: 13px"><span class="muted">Today's target</span><span style="width: 120px; height: 6px; border-radius: 3px; background: var(--s2); overflow: hidden; display: inline-block"><i style="display: block; width: 100%; height: 6px; background: #22C55E"></i></span><b style="font-weight: 600">₹ 1.19 Cr</b><span class="muted">of ₹ 1.00 L target</span></span>
+</div>
+
+<div style="padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<section>
+<div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px"><h2 style="margin: 0; font-size: 15px; font-weight: 600">Today at a glance</h2><span class="muted" style="font-size: 13px">Click any tile to open its register</span></div>
+<div class="tiles">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="15">
+<a class="box tile" href="{{t.h}}"><span class="tl"><span class="dot" style="{{t.c}}">{{t.l}}</span><span class="{{t.dcls}}">{{t.d}}</span></span><span class="tv">{{t.v}}</span><span class="ts">{{t.s}}</span></a>
+</sc-for>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section class="box" style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column">
+<div class="bh"><h2>Sales vs purchase</h2><span class="dot c-blue t2" style="font-size: 13px">Sales ₹ 622 L</span><span class="dot c-orange t2" style="font-size: 13px">Purchase ₹ 460 L</span></div>
+<div style="display: flex; gap: 10px; padding: 18px 16px 14px" role="img" aria-label="Weekly sales rose from 38 to 64 lakh and purchase from 30 to 45 lakh between weeks 32 and 43">
+<div style="display: flex; flex-direction: column; justify-content: space-between; height: 186px; margin-top: -6px; font-size: 12px; text-align: right; width: 22px" class="muted"><span>72</span><span>54</span><span>36</span><span>18</span><span>0</span></div>
+<div style="flex: 1; min-width: 0">
+<div style="height: 180px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--bd2); background: repeating-linear-gradient(to top, var(--bd) 0 1px, transparent 1px 45px); padding: 0 4px">
+<div class="bars"><i style="height: 95px; background: #3B82F6"></i><i style="height: 75px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 105px; background: #3B82F6"></i><i style="height: 83px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 88px; background: #3B82F6"></i><i style="height: 73px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 120px; background: #3B82F6"></i><i style="height: 90px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 130px; background: #3B82F6"></i><i style="height: 100px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 115px; background: #3B82F6"></i><i style="height: 88px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 138px; background: #3B82F6"></i><i style="height: 103px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 123px; background: #3B82F6"></i><i style="height: 95px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 145px; background: #3B82F6"></i><i style="height: 110px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 153px; background: #3B82F6"></i><i style="height: 118px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 135px; background: #3B82F6"></i><i style="height: 105px; background: #F97316"></i></div>
+<div class="bars"><i style="height: 160px; background: #3B82F6"></i><i style="height: 113px; background: #F97316"></i></div>
+</div>
+<div style="display: flex; justify-content: space-between; padding: 6px 4px 0; font-size: 12px" class="muted"><span>W32</span><span>W33</span><span>W34</span><span>W35</span><span>W36</span><span>W37</span><span>W38</span><span>W39</span><span>W40</span><span>W41</span><span>W42</span><span style="color: var(--t1)">W43</span></div>
+</div>
+</div>
+</section>
+
+<section class="box" style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding-bottom: 16px">
+<div class="bh"><h2>Order pipeline</h2><span class="muted" style="font-size: 13px">Oct · 86 orders</span></div>
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 4px 16px 0">
+<div class="stage"><span class="dot c-orange">On hold · approval</span><span class="tr"><i style="width: 22%; background: #F97316"></i></span><span class="r">11</span></div>
+<div class="stage"><span class="dot c-blue">Pending dispatch</span><span class="tr"><i style="width: 52%; background: #3B82F6"></i></span><span class="r">26</span></div>
+<div class="stage"><span class="dot c-violet">Dispatched</span><span class="tr"><i style="width: 36%; background: #A855F7"></i></span><span class="r">18</span></div>
+<div class="stage"><span class="dot c-teal">Invoiced</span><span class="tr"><i style="width: 34%; background: #14B8A6"></i></span><span class="r">17</span></div>
+<div class="stage"><span class="dot c-green">Closed · fully dispatched</span><span class="tr"><i style="width: 28%; background: #22C55E"></i></span><span class="r">14</span></div>
+</div>
+<div style="margin: 4px 16px 0; padding-top: 14px; border-top: 1px solid var(--bd); display: flex; gap: 16px; font-size: 13px"><span class="muted">Avg order</span><b style="font-weight: 600">₹ 2.14 L</b><span class="muted">Avg days to pay</span><b style="font-weight: 600">41</b></div>
+</section>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section id="ai" class="box" style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column">
+<div class="bh"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C084FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg><h2>AI insights</h2><span class="muted" style="font-size: 12px">4 min ago</span></div>
+<div class="act" style="padding-top: 14px"><span class="dot c-red" aria-hidden="true"></span><div><div>Krishna Textiles is 18 days past terms with ₹ 2.14 L overdue.</div><a href="Outstanding.dc.html" class="t2" style="font-size: 13px; text-decoration: underline">Send WhatsApp reminder</a></div></div>
+<div class="act"><span class="dot c-green" aria-hidden="true"></span><div><div>Viscose 120D sales up 32%. Stock covers 9 days only.</div><a href="PurchaseOrder.dc.html" class="t2" style="font-size: 13px; text-decoration: underline">Draft a mill order</a></div></div>
+<div class="act"><span class="dot c-violet" aria-hidden="true"></span><div><div>FDY 75/36 mill rate rose ₹ 3.50/kg; 6 open quotes use the old rate.</div><a href="SalesOrderList.dc.html" class="t2" style="font-size: 13px; text-decoration: underline">Review orders</a></div></div>
+<label style="display: flex; align-items: center; gap: 8px; margin: auto 16px 16px; padding: 4px 4px 4px 12px; border-radius: 10px; background: var(--s2)"><input type="text" aria-label="Ask YarnFlow AI" placeholder="Ask: outstanding of Surat parties above 60 days" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 13px; height: 32px"><button class="btn pr ic" type="button" aria-label="Ask" style="width: 32px; height: 32px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button></label>
+</section>
+</div>
+
+<section class="box">
+<div class="bh" style="padding-bottom: 12px"><h2>Recent activity</h2><a class="btn sm" href="SalesOrderList.dc.html">View all</a></div>
+<div class="act" style="padding-top: 0"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><span style="flex: 1"><b style="font-weight: 500">Dhaval K.</b> <span class="muted">dispatched</span> <b style="font-weight: 500">SO-0415</b> <span class="muted">to Om Sai Weaving · LR NR-44817</span></span><span class="muted">12 min ago</span></div>
+<div class="act"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg><span style="flex: 1"><b style="font-weight: 500">Meera Patel</b> <span class="muted">recorded receipt of</span> <b style="font-weight: 500">₹ 1,50,000</b> <span class="muted">from Krishna Textiles</span></span><span class="muted">1 hour ago</span></div>
+<div class="act" style="padding-bottom: 16px"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span style="flex: 1"><b style="font-weight: 500">Avi Patel</b> <span class="muted">approved</span> <b style="font-weight: 500">PO-0121</b> <span class="muted">· Sanathan Textiles · ₹ 8.4 L</span></span><span class="muted">3 hours ago</span></div>
+</section>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="dash" start-open="{{ true }}" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"showMenu":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { menu: null }; }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const sfx = theme === 'light' ? 'Light' : '';
+    const L = (f) => f + sfx + '.dc.html';
+    const menu = this.state.menu ?? (this.props.showMenu ?? false);
+    const C = { b: '--c: #3B82F6', o: '--c: #F97316', g: '--c: #22C55E', r: '--c: #EF4444', v: '--c: #A855F7', t: '--c: #14B8A6', y: '--c: #EAB308', n: '--c: #8F8F8F' };
+    const T = (l, v, s, c, h, d, dcls) => ({ l, v, s, c: C[c], h: L(h), d: d || '', dcls: dcls || 'muted' });
+    const tiles = [
+      T('Sales', '₹ 1,18,68,981', '75,371.708 kg · 1,961 pcs', 'b', 'SalesOrderList', '▲ 12%', 'up'),
+      T('Purchase', '₹ 45,29,712', '29,368.780 kg · 806 pcs', 'o', 'PurchaseBill'),
+      T('Sales return', '₹ 7,06,309', '4,565.367 kg · 140 pcs', 'r', 'Dispatch'),
+      T('Purchase return', '₹ 0', '0.000 kg · 0 pcs', 'n', 'PurchaseBill'),
+      T('Receipts', '₹ 54,25,755', 'Bank + cash', 'g', 'Payments'),
+      T('Payments', '₹ 1,99,31,067', 'Bank + cash', 'v', 'Payments'),
+      T('Sales outstanding', '₹ 78,98,66,505', 'Bill-wise receivable', 'b', 'Outstanding'),
+      T('General sale O/S', '₹ 4,93,31,205', 'Non-yarn sales', 't', 'Outstanding'),
+      T('Purchase outstanding', '₹ 15,23,50,686', 'Payable to mills', 'o', 'Outstanding'),
+      T('General purchase O/S', '₹ 3,08,78,078', 'Expenses & services', 'y', 'Outstanding'),
+      T('Debit note O/S', '₹ 1,22,96,026', 'Interest & claims', 'r', 'Outstanding'),
+      T('Sales orders', '40,500 kg', 'Pending to dispatch', 'b', 'SalesOrderList'),
+      T('Purchase orders', '0 kg', 'Pending to receive', 'o', 'PurchaseOrderList'),
+      T('E-invoice', '1,72,657 used', 'IRN generated this FY', 't', 'Reports'),
+      T('WhatsApp', 'Running', '0 in queue · 1,33,716 sent', 'g', 'Approvals', '● Live', 'up')
+    ];
+    const cm = [
+      { t: 'Sales', items: [{ l: 'Sales order', k: 'Ctrl F4', h: L('SalesOrderEntry') }, { l: 'Sale bill', k: 'F8', h: L('Dispatch') }, { l: 'Sale return', k: 'Ctrl ⇧ F8', h: L('Dispatch') }, { l: 'General sale', k: '⇧ F8', h: L('Dispatch') }, { l: 'Dispatch schedule', k: 'Ctrl F8', h: L('SalesOrderList') }] },
+      { t: 'Purchase', items: [{ l: 'Purchase order', k: 'Ctrl F5', h: L('PurchaseOrderEntry') }, { l: 'Purchase bill', k: 'F9', h: L('PurchaseBill') }, { l: 'Purchase return', k: 'Ctrl ⇧ F9', h: L('PurchaseBill') }, { l: 'General purchase', k: '⇧ F9', h: L('PurchaseBill') }] },
+      { t: 'Bank & cash', items: [{ l: 'Bank receipt', k: 'F6', h: L('Payments') }, { l: 'Bank payment', k: 'F7', h: L('Payments') }, { l: 'Cash receipt', k: '⇧ F6', h: L('Payments') }, { l: 'Cash payment', k: '⇧ F7', h: L('Payments') }] },
+      { t: 'Journal', items: [{ l: 'Debit note', k: 'Ctrl D', h: L('Payments') }, { l: 'Credit note', k: 'Ctrl E', h: L('Payments') }, { l: 'Journal voucher', k: 'Ctrl J', h: L('Payments') }] },
+      { t: 'Masters', items: [{ l: 'Party', k: 'Ctrl M', h: L('AccountMaster') }, { l: 'Broker', k: 'Ctrl A', h: L('AccountMaster') }, { l: 'Yarn item', k: 'Ctrl I', h: L('YarnMaster') }, { l: 'All masters', k: '→', h: L('Masters') }] }
+    ];
+    return { theme, tiles, cm, menu, toggleMenu: () => this.setState({ menu: !menu }) };
+  }
+}
+</script>
+</body>
+</html>

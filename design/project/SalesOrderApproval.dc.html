@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Sales Order Approval</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}.bc a.m:hover{color:var(--t1)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.light .btn.no{color:#B91C1C}
+.ib{width:32px;height:32px;border-radius:8px;border:0;display:inline-grid;place-items:center;cursor:pointer;background:var(--s2);color:var(--t2)}
+.ib.ok:hover{background:#16A34A;color:#fff}.ib.no:hover{background:rgba(239,68,68,.2);color:#F87171}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.sub{font-size:12px;color:var(--t3)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-blue{background:rgba(59,130,246,.15);color:#60A5FA}.t-violet{background:rgba(168,85,247,.15);color:#C084FC}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-red{color:#B91C1C}.light .t-orange{color:#C2410C}.light .t-blue{color:#1D4ED8}.light .t-violet{color:#7E22CE}.light .t-green{color:#15803D}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;padding:16px 20px 0}
+.cardx{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.cardx b{font-size:20px;line-height:28px;font-weight:600;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:14px 20px}
+.chip{height:30px;padding:0 12px;border-radius:8px;border:0;background:var(--s1);color:var(--t3);cursor:pointer;font-size:13px}
+.chip.on{background:var(--s3);color:var(--t1)}
+.bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 20px 10px;padding:8px 10px 8px 14px;border-radius:10px;background:var(--s2);border:1px solid var(--bd2)}
+.tw{overflow-x:auto;padding:0 20px 20px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:8px 10px;height:62px;border-bottom:1px solid var(--bd);white-space:nowrap;vertical-align:middle}
+tbody tr:hover td{background:var(--s1)}
+tr.done td{opacity:.55}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cb{width:16px;height:16px;margin:0;accent-color:#8F8F8F;vertical-align:middle;cursor:pointer}
+.flags{display:flex;gap:4px;flex-wrap:wrap;max-width:260px;white-space:normal}
+.warn{color:#FB923C}.light .warn{color:#C2410C}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t2)}
+.flow b{font-weight:600;color:var(--t1)}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen19: breadcrumb parent is a clear link back */
+.bc a.m{cursor:pointer;text-decoration:none;border-radius:6px;padding:3px 6px;margin:0 -2px 0 -6px;transition:background .12s,color .12s}
+.bc a.m:hover{color:var(--t1);background:var(--s2);text-decoration:underline;text-underline-offset:3px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="soa" hint-size="236px,1000px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><a class="m" href="{{regHref}}">Sales Orders</a><span class="m">/</span><span>Approval</span><span class="tag t-orange">On hold</span></div>
+<select class="btn" aria-label="Approver" style="padding-right: 8px"><option>Approver · Avi Patel</option></select>
+<button class="btn" type="button">Approval rules</button>
+<a class="btn" href="{{regHref}}">Show record</a>
+</header>
+<div class="flow"><span class="dot" style="--c: #F97316">Every new order is saved <b>On hold</b></span><span class="muted">→</span><span>you check party, rate &amp; stock</span><span class="muted">→</span><span><b>Approve</b> moves it to</span><span class="dot" style="--c: #3B82F6"><b>Pending dispatch</b></span><span class="muted">→</span><span>closes itself when fully dispatched</span></div>
+<div class="cards">
+<div class="cardx"><span class="muted">On hold · waiting for you</span><b>{{left}}</b></div>
+<div class="cardx"><span class="muted">Order value</span><b>₹ 34.6 L</b></div>
+<div class="cardx"><span class="muted">Oldest waiting</span><b>{{oldest}}</b></div>
+<div class="cardx"><span class="muted">Approved today</span><b>{{doneCount}}</b></div>
+</div>
+<div class="chips" role="group" aria-label="Filter by salesperson">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="5"><button class="{{c.cls}}" type="button" onClick="{{c.pick}}">{{c.l}}</button></sc-for>
+</div>
+<sc-if value="{{hasSel}}" hint-placeholder-val="{{false}}">
+<div class="bulk" role="toolbar" aria-label="Bulk actions"><b style="font-weight: 600; flex: 1">{{selCount}} orders selected</b>
+<button class="btn sm ok" type="button" onClick="{{bulkOk}}">Approve → Pending</button><button class="btn sm" type="button" onClick="{{bulkHold}}">Keep on hold</button><button class="btn sm no" type="button" onClick="{{bulkNo}}">Reject</button><button class="btn sm gh" type="button" onClick="{{clearSel}}">Clear</button></div>
+</sc-if>
+<div class="tw"><table>
+<thead><tr><th style="width: 36px"><input class="cb" type="checkbox" aria-label="Select all" checked="{{allOn}}" onChange="{{toggleAll}}"></th><th>Order</th><th>Party</th><th>Item</th><th class="r">Qty kg</th><th class="r">Rate</th><th class="r">Amount</th><th>Party O/S · limit</th><th>Status</th><th>Salesperson</th><th class="r">Decision</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="7">
+<tr class="{{x.rc}}"><td><input class="cb" type="checkbox" aria-label="Select order" checked="{{x.on}}" onChange="{{x.tog}}"></td>
+<td><div style="font-weight: 500">{{x.no}}</div><div class="sub">{{x.dt}}</div></td>
+<td><div>{{x.p}}</div><div class="sub">{{x.g}}</div></td>
+<td><div>{{x.it}}</div><div class="sub">Lot {{x.lot}}</div></td>
+<td class="r">{{x.qty}}</td>
+<td class="r">{{x.rate}}</td>
+<td class="r">{{x.amt}}</td>
+<td><div>{{x.os}}</div><div class="sub">limit {{x.lim}}</div></td>
+<td><div><span class="tag t-orange">On hold</span></div><div class="sub">{{x.wait}}</div></td>
+<td class="t2">{{x.sp}}</td>
+<td class="r"><sc-if value="{{x.open}}" hint-placeholder-val="{{true}}"><span style="display: inline-flex; gap: 6px"><button class="ib ok" type="button" aria-label="Approve" onClick="{{x.ok}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button><button class="ib" type="button" aria-label="Keep on hold" onClick="{{x.hold}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 15V9"/><path d="M14 15V9"/><circle cx="12" cy="12" r="10"/></svg></button><button class="ib no" type="button" aria-label="Reject" onClick="{{x.no2}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span></sc-if><sc-if value="{{x.closed}}" hint-placeholder-val="{{false}}"><span class="{{x.dc}}">{{x.dl}}</span></sc-if></td></tr>
+</sc-for>
+</tbody></table></div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="soa" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { dec: {}, sel: [], chip: 'all' }; }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const sfx = theme === 'light' ? 'Light' : '';
+    const inr = (n, d) => { const s = Number(n).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return rest + l3 + (f ? '.' + f : ''); };
+    const D = [
+      ['SAL11834', '23-10-2026', 'Krishna Textiles', 'Krishna Textiles', '75/36 FDY', 'L-2231', 2400, 136.0, 136.0, '₹ 4.82 L', '₹ 6.00 L', '2 h', 'Rajesh Shah'],
+      ['SAL06373', '20-07-2026', 'OM Fabrics', 'Poonam Silk Corporation', '75/72 Roto', '0001', 5050, 138.5, 141.0, '₹ 3.20 L', '₹ 5.00 L', '3 months', 'Avi M'],
+      ['SAL11831', '23-10-2026', 'Jigita Fab LLP', 'Jigita Fab LLP', 'Muskan Gold', 'MG123', 1050, 575.0, 580.0, '₹ 2.10 L', '₹ 8.00 L', '40 min', 'Avi M'],
+      ['SAL11829', '22-10-2026', 'Navrang Prints', 'Navrang Prints', 'DTY 80/36 SIM', 'D-552', 1500, 128.0, 126.0, '₹ 0', '—', '1 day', 'Kiran Joshi'],
+      ['SAL11826', '22-10-2026', 'Laxmi Creation', 'Laxmi Creation', 'Nylon 6 FDY 40/34', 'N-904', 860, 268.0, 272.0, '₹ 5.47 L', '₹ 5.00 L', '1 day', 'Rajesh Shah'],
+      ['SAL11822', '21-10-2026', 'Sujal Synthetics', 'Sujal Synthetics', '75/72 FDY Micro', 'FD-7572', 4000, 142.5, 140.0, '₹ 1.40 L', '₹ 10.00 L', '2 days', 'Avi M'],
+      ['SAL11818', '21-10-2026', 'Bansam Fabrics', 'Bansam Fabrics', '50/48 FDY', '338C1M', 6000, 140.0, 138.0, '₹ 18.60 L', '₹ 20.00 L', '2 days', 'Ramji']
+    ];
+    const chip = this.state.chip;
+    const dec = this.state.dec;
+    const sel = this.state.sel;
+    const decide = (nos, v) => { const d = { ...this.state.dec }; nos.forEach((n) => { d[n] = v; }); this.setState({ dec: d, sel: [] }); };
+    const vis = D.filter((r) => chip === 'all' || r[12] === chip);
+    const DL = { ok: ['Approved · now Pending dispatch', 'tag t-green'], hold: ['Kept on hold · asked salesperson', 'tag t-gray'], no: ['Rejected · Cancelled', 'tag t-red'] };
+    const rows = vis.map((r) => {
+      const no = r[0]; const d = dec[no]; const on = sel.indexOf(no) >= 0;
+      return { no, dt: r[1], p: r[2], g: r[3], it: r[4], lot: r[5], qty: inr(r[6], 3), rate: inr(r[7], 2), amt: '₹ ' + inr(r[6] * r[7], 0), os: r[9], lim: r[10], sp: r[12],
+        wait: 'waiting ' + r[11], on, rc: d ? 'done' : '', open: !d, closed: !!d, dl: d ? DL[d][0] : '', dc: d ? DL[d][1] : '',
+        tog: () => this.setState({ sel: on ? sel.filter((s) => s !== no) : sel.concat([no]) }),
+        ok: () => decide([no], 'ok'), hold: () => decide([no], 'hold'), no2: () => decide([no], 'no') };
+    });
+    const chips = [['all', 'All salespersons'], ['Rajesh Shah', 'Rajesh Shah'], ['Avi M', 'Avi M'], ['Kiran Joshi', 'Kiran Joshi'], ['Ramji', 'Ramji']].map(([k, l]) => ({ l, cls: k === chip ? 'chip on' : 'chip', pick: () => this.setState({ chip: k }) }));
+    const openVis = vis.filter((r) => !dec[r[0]]).map((r) => r[0]);
+    const allOn = openVis.length > 0 && openVis.every((n) => sel.indexOf(n) >= 0);
+    return {
+      theme, rows, chips, oldest: '3 months', hasSel: sel.length > 0, selCount: sel.length, allOn,
+      left: D.filter((r) => !dec[r[0]]).length, doneCount: 11 + Object.keys(dec).filter((k) => dec[k] === 'ok').length,
+      toggleAll: () => this.setState({ sel: allOn ? [] : openVis }),
+      bulkOk: () => decide(sel, 'ok'), bulkHold: () => decide(sel, 'hold'), bulkNo: () => decide(sel, 'no'), clearSel: () => this.setState({ sel: [] }),
+      regHref: 'SalesOrderList' + sfx + '.dc.html'
+    };
+  }
+}
+</script>
+</body>
+</html>

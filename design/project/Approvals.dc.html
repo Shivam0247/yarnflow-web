@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Approvals</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+textarea.inp{height:84px;padding:8px 10px;width:100%;resize:vertical}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-blue{background:rgba(59,130,246,.15);color:#60A5FA}.t-violet{background:rgba(168,85,247,.15);color:#C084FC}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-red,.light .btn.no{color:#B91C1C}.light .t-orange{color:#C2410C}.light .t-blue{color:#1D4ED8}.light .t-violet{color:#7E22CE}
+.av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:600;flex:none;color:#fff}
+.split{display:flex;flex-wrap:wrap;flex:1}
+.lp{flex:1 1 420px;min-width:0;border-right:1px solid var(--bd);display:flex;flex-direction:column}
+.rp{flex:999 1 480px;min-width:0;display:flex;flex-direction:column}
+.tabs{display:flex;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;min-height:52px}
+.tab{display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2)}
+.item{display:flex;gap:12px;padding:14px 20px;border:0;border-bottom:1px solid var(--bd);background:none;text-align:left;width:100%;cursor:pointer;color:var(--t1)}
+.item:hover{background:var(--s1)}
+.item.on{background:var(--s2)}
+.ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--s2);color:var(--t2)}
+.kv{display:flex;align-items:center;gap:12px;min-height:38px}
+.kv .k{width:140px;flex:none;color:var(--t3)}
+.kv .v{flex:1;min-width:0;font-variant-numeric:tabular-nums}
+.box{border:1px solid var(--bd);border-radius:12px;padding:16px}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="appr" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span>Approvals</span><span class="tag t-orange">{{count}} pending</span></div>
+<input class="inp" type="search" placeholder="Search document or party" aria-label="Search approvals" style="width: 240px">
+<button class="btn" type="button">Approval rules</button>
+</header>
+<div class="split">
+<div class="lp">
+<div class="tabs" role="tablist">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="4"><button class="{{f.cls}}" type="button" role="tab" onClick="{{f.pick}}">{{f.label}} <span class="n">{{f.n}}</span></button></sc-for>
+</div>
+<sc-for list="{{rows}}" as="it" hint-placeholder-count="7">
+<button class="{{it.cls}}" type="button" onClick="{{it.pick}}">
+<span class="ico">{{it.short}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span style="display: flex; gap: 8px; align-items: baseline"><b style="font-weight: 500; flex: 1">{{it.no}} · {{it.party}}</b><span class="muted" style="font-size: 12px">{{it.age}}</span></span>
+<span style="display: flex; gap: 8px; align-items: center; justify-content: space-between"><span class="{{it.tagCls}}">{{it.reason}}</span><span style="font-variant-numeric: tabular-nums">{{it.amount}}</span></span>
+</span>
+</button>
+</sc-for>
+</div>
+
+<div class="rp">
+<div style="display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--bd); flex-wrap: wrap">
+<div style="flex: 1; min-width: 220px"><div class="muted" style="font-size: 13px">{{sel.type}}</div><div style="font-size: 20px; line-height: 28px; font-weight: 600">{{sel.no}} · {{sel.party}}</div></div>
+<a class="btn" href="{{sel.href}}">Open document</a>
+</div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 18px">
+<div class="box" style="display: flex; gap: 12px; align-items: flex-start; border-color: rgba(249,115,22,.35); background: rgba(249,115,22,.06)">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FB923C" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+<div><div style="font-weight: 500">Why this needs approval</div><div class="t2">{{sel.why}}</div></div>
+</div>
+<div>
+<div class="kv"><span class="k">Amount</span><span class="v" style="font-size: 18px; font-weight: 600">{{sel.amount}}</span></div>
+<div class="kv"><span class="k">Raised by</span><span class="v" style="display: flex; align-items: center; gap: 8px"><span class="av" style="background: #2563EB">{{sel.init}}</span>{{sel.by}}</span></div>
+<div class="kv"><span class="k">{{sel.k1}}</span><span class="v">{{sel.v1}}</span></div>
+<div class="kv"><span class="k">{{sel.k2}}</span><span class="v">{{sel.v2}}</span></div>
+<div class="kv"><span class="k">{{sel.k3}}</span><span class="v">{{sel.v3}}</span></div>
+</div>
+<div class="box" style="display: flex; flex-direction: column; gap: 6px"><div class="muted" style="font-size: 13px">Lines</div><div>{{sel.lines}}</div></div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<label for="rmk" class="muted">Remark</label>
+<textarea id="rmk" class="inp" placeholder="Add a note for {{sel.by}} (optional)"></textarea>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="btn ok" type="button" onClick="{{approve}}">Approve</button><button class="btn no" type="button" onClick="{{approve}}">Reject</button><button class="btn" type="button">Send back for changes</button><div style="flex: 1"></div><span class="muted" style="align-self: center; font-size: 13px">{{done}}</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="appr" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { sel: 0, filter: 'all', handled: [] }; }
+  renderVals() {
+    const data = [
+      { g: 'sales', short: 'SO', type: 'Sales order', no: 'SO-0419', party: 'Krishna Textiles', reason: 'Credit limit +₹ 4.66 L', tone: 't-red', amount: '₹ 5,83,658', by: 'Rajesh Shah', init: 'RS', age: '1h', href: 'SalesOrder.dc.html', why: 'Outstanding ₹ 4.82 L plus this order crosses the ₹ 6.00 L credit limit. ₹ 2.14 L is already 18 days overdue.', k1: 'Payment terms', v1: '45 days credit', k2: 'Last payment', v2: '₹ 1,50,000 on 06 Oct', k3: 'Deliver by', v3: '28 Oct 2026', lines: 'PFY 75/36 SD 2,400 kg · Viscose 120D 600 kg · Nylon 40/34 384 kg' },
+      { g: 'purchase', short: 'PO', type: 'Purchase order', no: 'PO-0123', party: 'Reliance Industries', reason: 'Above ₹ 10 L limit', tone: 't-orange', amount: '₹ 14,23,170', by: 'Meera Patel', init: 'MP', age: '2h', href: 'PurchaseOrder.dc.html', why: 'Purchase orders above ₹ 10,00,000 need owner approval.', k1: 'Mill', v1: 'Reliance · Silvassa', k2: 'Credit days', v2: '60 days', k3: 'Expected', v3: '02 Nov 2026', lines: 'PFY 75/36 SD 6,000 kg @ ₹ 131.50 · PFY 150/48 BR 4,800 kg @ ₹ 118.00 · IGST 5%' },
+      { g: 'sales', short: 'SO', type: 'Sales order', no: 'SO-0416', party: 'Laxmi Creation', reason: 'Rate below floor', tone: 't-orange', amount: '₹ 2,30,480', by: 'Rajesh Shah', init: 'RS', age: '5h', href: 'SalesOrder.dc.html', why: 'Nylon 40/34 offered at ₹ 268/kg; floor price is ₹ 272/kg.', k1: 'Margin', v1: '3.1% (target 6%)', k2: 'Party since', v2: '2021', k3: 'Deliver by', v3: '27 Oct 2026', lines: 'Nylon 6 FDY 40/34 SD 860 kg @ ₹ 268.00' },
+      { g: 'purchase', short: 'PB', type: 'Purchase bill', no: 'PB-0287', party: 'Century Rayon', reason: 'Rate differs from PO', tone: 't-orange', amount: '₹ 4,46,250', by: 'Dhaval K.', init: 'DK', age: '6h', href: 'PurchaseBill.dc.html', why: 'Bill rate ₹ 212.50/kg vs PO rate ₹ 212.00/kg — ₹ 1,050 extra on 2,100 kg.', k1: 'Against PO', v1: 'PO-0118', k2: 'GRN', v2: 'GRN-0291 · 2,100 kg', k3: 'Due on', v3: '21 Dec 2026', lines: 'Viscose Filament 120D/30F BR 2,100 kg @ ₹ 212.50' },
+      { g: 'sales', short: 'SO', type: 'Sales order', no: 'SO-0405', party: 'Navrang Prints', reason: 'New party', tone: 't-blue', amount: '₹ 1,92,000', by: 'Kiran Joshi', init: 'KJ', age: '1d', href: 'SalesOrder.dc.html', why: 'First order from this party; no credit history yet.', k1: 'GSTIN', v1: 'Verified · Active', k2: 'Reference', v2: 'Mahesh Shah (broker)', k3: 'Terms asked', v3: '30 days credit', lines: 'DTY 80/36 SIM 1,500 kg @ ₹ 128.00' },
+      { g: 'accounts', short: 'PY', type: 'Payment', no: 'PAY-0091', party: 'Sanathan Textiles', reason: 'Advance to mill', tone: 't-violet', amount: '₹ 3,00,000', by: 'Meera Patel', init: 'MP', age: '1d', href: 'Payments.dc.html', why: 'Advance payments without a bill need owner approval.', k1: 'Bank', v1: 'HDFC · RTGS', k2: 'Against', v2: 'PO-0121', k3: 'Pay on', v3: '24 Oct 2026', lines: 'Advance against PO-0121 · FDY 75/72 SD 2,400 kg' },
+      { g: 'accounts', short: 'CN', type: 'Credit note', no: 'CN-0035', party: 'Om Sai Weaving', reason: 'Rate claim', tone: 't-gray', amount: '₹ 6,120', by: 'Neha Desai', init: 'ND', age: '2d', href: 'Ledger.dc.html', why: 'Party claims ₹ 1.70/kg rate difference on SI-0688.', k1: 'Invoice', v1: 'SI-0688', k2: 'Quantity', v2: '3,600 kg', k3: 'Reason', v3: 'Rate difference', lines: 'Rate difference ₹ 1.70 × 3,600 kg' }
+    ];
+    const f = this.state.filter;
+    const counts = { all: data.length, sales: 0, purchase: 0, accounts: 0 };
+    data.forEach((d) => { counts[d.g] += 1; });
+    const filters = [['all', 'All'], ['sales', 'Sales'], ['purchase', 'Purchase'], ['accounts', 'Accounts']].map(([k, label]) => ({ label, n: counts[k], cls: k === f ? 'tab on' : 'tab', pick: () => this.setState({ filter: k }) }));
+    const rows = data.map((d, i) => ({ ...d, i })).filter((d) => f === 'all' || d.g === f).map((d) => ({ ...d, tagCls: 'tag ' + d.tone, cls: d.i === this.state.sel ? 'item on' : 'item', pick: () => this.setState({ sel: d.i }) }));
+    const sel = data[this.state.sel];
+    const isDone = this.state.handled.indexOf(this.state.sel) >= 0;
+    return {
+      theme: this.props.theme ?? 'dark', count: data.length - this.state.handled.length, filters, rows, sel,
+      done: isDone ? 'Decision recorded · ' + sel.by + ' notified on WhatsApp' : '',
+      approve: () => this.setState({ handled: this.state.handled.concat([this.state.sel]) })
+    };
+  }
+}
+</script>
+</body>
+</html>

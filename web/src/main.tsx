@@ -1,6 +1,7 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useSyncExternalStore } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
+import { YF_API } from '@/dc/api';
 import { PAGES } from '@/app/routes';
 import { resolveHref } from '@/dc/runtime';
 
@@ -8,6 +9,8 @@ import { resolveHref } from '@/dc/runtime';
 function Root() {
   const { pathname } = useLocation();
   const nav = useNavigate();
+  const session = useSyncExternalStore(YF_API.subscribe, () => YF_API.session);
+  useEffect(() => YF_API.setNavigator((to) => nav(to)), [nav]);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -24,6 +27,9 @@ function Root() {
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
   }, [nav]);
+  // signed-out users only see the sign-in screen
+  if (!session && pathname !== '/login') return <Navigate to="/login" replace />;
+  if (session && pathname === '/login') return <Navigate to="/" replace />;
   return (
     <Suspense fallback={null}>
       <Outlet />
@@ -49,6 +55,4 @@ try {
   /* ignore */
 }
 
-createRoot(document.getElementById('root')!).render(
-  <RouterProvider router={router} />
-);
+createRoot(document.getElementById('root')!).render(<RouterProvider router={router} />);

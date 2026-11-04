@@ -64,7 +64,32 @@ class Component extends DCLogic {
     const c = { btn: cb, dash: cb + (active === 'dash' ? cOn : ''), mast: cb + (masterKeys.indexOf(active) >= 0 ? cOn : '') };
     ['sales', 'pur', 'bank', 'jv', 'acc', 'inv', 'rep'].forEach((k) => { c[k] = cb + (owner[active] === k ? cOn : ''); c[k + 'Go'] = () => this.setCol(false, k); });
     const isLight = (this.props.theme ?? 'dark') === 'light';
-    return { g, n, h, c, col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
+    // company / FY / user — live from the session in the app, sample data on the design canvas
+    const api = typeof window !== 'undefined' ? window.YF_API : null;
+    const ses = api && api.session ? api.session : null;
+    const user = ses ? api.user : { name: 'Avi Patel', email: 'admin@yarnflow.in', role: 'ADMIN', companies: [{ id: 1, name: 'Shree Umiya Yarn', city: 'Surat', financialYears: [{ id: 1, label: '26-27' }, { id: 2, label: '25-26' }] }, { id: 2, name: 'Umiya Trading Co.', city: 'Surat', financialYears: [{ id: 3, label: '26-27' }] }] };
+    const cid = ses ? ses.companyId : (this.state.cid ?? 1);
+    const fid = ses ? ses.fyId : (this.state.fid ?? 1);
+    const comp = user.companies.find((x) => x.id === cid) || user.companies[0] || { name: '—', financialYears: [] };
+    const fyOf = comp.financialYears.find((f) => f.id === fid) || comp.financialYears[0] || { label: '' };
+    const item = 'display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: var(--t1, #EDEDED); font: inherit; cursor: pointer; text-align: left;';
+    const chip = 'height: 26px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--bd2, #383838); background: transparent; color: var(--t2, #B5B5B5); font: inherit; font-size: 12px; cursor: pointer;';
+    const chipOn = ' background: var(--ib, #F5F5F5); color: var(--it, #171717); border-color: transparent; font-weight: 500;';
+    const reload = () => { try { window.location.assign('/'); } catch (e) {} };
+    const org = {
+      open: !!this.state.orgOpen,
+      toggle: () => this.setState({ orgOpen: !this.state.orgOpen }),
+      name: comp.name,
+      sub: user.name.split(' ')[0] + ' ' + (user.name.split(' ')[1] || '') .trim() + ' · FY ' + fyOf.label,
+      user: user.name, email: user.email, role: String(user.role).charAt(0) + String(user.role).slice(1).toLowerCase(),
+      ini: user.name.split(' ').map((w) => w.charAt(0)).join('').slice(0, 2).toUpperCase(),
+      companies: user.companies.map((x) => ({ name: x.name, city: x.city || '', on: x.id === comp.id, s: item + (x.id === comp.id ? ' background: var(--s3, #2E2E2E); font-weight: 500;' : ''),
+        pick: () => { if (api && ses) { api.switchCompany(x.id); reload(); } else this.setState({ cid: x.id, fid: x.financialYears[0].id, orgOpen: false }); } })),
+      fys: comp.financialYears.map((f) => ({ label: 'FY ' + f.label, s: chip + (f.id === fyOf.id ? chipOn : ''),
+        pick: () => { if (api && ses) { api.switchCompany(comp.id, f.id); reload(); } else this.setState({ fid: f.id, orgOpen: false }); } })),
+      signOut: () => { if (api && ses) api.logout(); else this.setState({ orgOpen: false }); }
+    };
+    return { org, g, n, h, c, col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
   }
 }
 
@@ -201,7 +226,7 @@ class SidebarView extends Component {
       {v.exp ? (
         <>
           <nav aria-label="Main" style={{"width":"100%","minHeight":"100%","boxSizing":"border-box","background":"var(--sb, #1B1B1B)","color":"var(--t1, #EDEDED)","padding":"10px 10px 12px","display":"flex","flexDirection":"column","gap":"2px","fontFamily":"Inter, system-ui, sans-serif","fontSize":"14px","lineHeight":"20px"}}>
-            <button type="button" style={{"display":"flex","alignItems":"center","gap":"10px","width":"100%","padding":"6px","borderRadius":"10px","background":"transparent","border":"0","cursor":"pointer","textAlign":"left","font":"inherit","color":"inherit","marginBottom":"6px"}}>
+            <button type="button" onClick={v.org?.toggle} aria-expanded={v.org?.open} title="Switch company or financial year" style={{"display":"flex","alignItems":"center","gap":"10px","width":"100%","padding":"6px","borderRadius":"10px","background":"transparent","border":"0","cursor":"pointer","textAlign":"left","font":"inherit","color":"inherit","marginBottom":"6px"}}>
               <span style={{"width":"36px","height":"36px","borderRadius":"9px","background":"linear-gradient(135deg, #F59E0B, #EA580C)","display":"grid","placeItems":"center","flex":"none"}}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="9" />
@@ -212,11 +237,11 @@ class SidebarView extends Component {
               </span>
               {' '}
               <span style={{"flex":"1","minWidth":"0"}}>
-                <span style={{"display":"block","fontSize":"15px","fontWeight":"600"}}>
-                  Shree Umiya Yarn
+                <span style={{"display":"block","fontSize":"15px","fontWeight":"600","whiteSpace":"nowrap","overflow":"hidden","textOverflow":"ellipsis"}}>
+                  {v.org?.name}
                 </span>
                 <span style={{"display":"block","fontSize":"12px","color":"var(--t2, #B5B5B5)"}}>
-                  Avi Patel · FY 26-27
+                  {v.org?.sub}
                 </span>
               </span>
               {' '}
@@ -225,6 +250,72 @@ class SidebarView extends Component {
                 <path d="m7 9 5-5 5 5" />
               </svg>
             </button>
+            {' '}
+            {v.org?.open ? (
+              <>
+                <div role="menu" style={{"margin":"0 0 8px","padding":"6px","borderRadius":"10px","border":"1px solid var(--bd2, #383838)","background":"var(--s1, #1E1E1E)","boxShadow":"0 12px 30px rgba(0,0,0,.25)","fontSize":"13px"}}>
+                  <div style={{"padding":"6px 8px 4px","fontSize":"11px","fontWeight":"600","letterSpacing":".06em","color":"var(--t3, #8F8F8F)"}}>
+                    COMPANY
+                  </div>
+                  {(v.org?.companies || []).map((co, $index) => (
+                    <Fragment key={$index}>
+                      <button type="button" role="menuitemradio" aria-checked={co?.on} onClick={co?.pick} style={sx(co?.s)}>
+                        <span style={{"flex":"1","minWidth":"0","overflow":"hidden","textOverflow":"ellipsis","whiteSpace":"nowrap"}}>
+                          {co?.name}
+                        </span>
+                        <span style={{"fontSize":"11px","color":"var(--t3, #8F8F8F)"}}>
+                          {co?.city}
+                        </span>
+                        {co?.on ? (
+                          <>
+                            <span style={{"color":"#3B82F6"}}>
+                              ✓
+                            </span>
+                          </>
+                        ) : null}
+                      </button>
+                    </Fragment>
+                  ))}
+                  <div style={{"padding":"10px 8px 4px","fontSize":"11px","fontWeight":"600","letterSpacing":".06em","color":"var(--t3, #8F8F8F)"}}>
+                    FINANCIAL YEAR
+                  </div>
+                  <div style={{"display":"flex","flexWrap":"wrap","gap":"4px","padding":"0 4px 4px"}}>
+                    {(v.org?.fys || []).map((f, $index) => (
+                      <Fragment key={$index}>
+                        <button type="button" onClick={f?.pick} style={sx(f?.s)}>
+                          {f?.label}
+                        </button>
+                      </Fragment>
+                    ))}
+                  </div>
+                  <div style={{"height":"1px","background":"var(--bd, #262626)","margin":"6px 0"}} />
+                  <div style={{"display":"flex","alignItems":"center","gap":"8px","padding":"6px 8px"}}>
+                    <span style={{"width":"26px","height":"26px","borderRadius":"50%","background":"var(--s3, #2E2E2E)","display":"grid","placeItems":"center","fontSize":"12px","fontWeight":"600","flex":"none"}}>
+                      {v.org?.ini}
+                    </span>
+                    <span style={{"flex":"1","minWidth":"0"}}>
+                      <span style={{"display":"block","fontWeight":"500"}}>
+                        {v.org?.user}
+                      </span>
+                      <span style={{"display":"block","fontSize":"11.5px","color":"var(--t3, #8F8F8F)"}}>
+                        {v.org?.email}
+                      </span>
+                    </span>
+                    <span style={{"fontSize":"11px","padding":"1px 7px","borderRadius":"6px","background":"var(--s2, #262626)","color":"var(--t2, #B5B5B5)"}}>
+                      {v.org?.role}
+                    </span>
+                  </div>
+                  <button type="button" onClick={v.org?.signOut} style={{"display":"flex","alignItems":"center","gap":"8px","width":"100%","height":"32px","padding":"0 8px","border":"0","borderRadius":"7px","background":"transparent","color":"#F87171","font":"inherit","cursor":"pointer","textAlign":"left"}}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <path d="m16 17 5-5-5-5" />
+                      <path d="M21 12H9" />
+                    </svg>
+                    Sign out
+                  </button>
+                </div>
+              </>
+            ) : null}
             {' '}
             <label style={{"display":"flex","alignItems":"center","gap":"8px","height":"34px","padding":"0 10px","borderRadius":"8px","background":"var(--s2, #262626)","color":"var(--t3, #8F8F8F)","marginBottom":"8px"}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">

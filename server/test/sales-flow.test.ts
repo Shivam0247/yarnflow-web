@@ -129,6 +129,17 @@ describe('dispatch schedule → sale bill', () => {
     expect(o.lines[0].pendingQty).toBe(800.5);
   });
 
+  it('lists bills made against an order and a schedule', async () => {
+    const rel = await w.api.ok(w.api.get(`/vouchers/sales-orders/${so.id}/related`));
+    expect(rel.map((r: any) => r.type)).toEqual(['DISPATCH_SCHEDULE', 'SALE_BILL']);
+    const billRow = rel.find((r: any) => r.type === 'SALE_BILL');
+    expect(billRow.qty).toBe(1199.5);
+    expect(billRow.pending).toBe(226706);
+    expect(billRow.lrNo).toBe('NR-41022');
+    const fromDs = await w.api.ok(w.api.get(`/vouchers/dispatch-schedules/${ds.id}/related`));
+    expect(fromDs.map((r: any) => r.id)).toEqual([sb.id]);
+  });
+
   it('shows the order register line-wise with dispatched and pending', async () => {
     const reg = await w.api.ok(w.api.get('/vouchers/sales-orders?view=lines'));
     const row = reg.data.find((r: any) => r.id === so.id);

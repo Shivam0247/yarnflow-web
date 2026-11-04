@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Sale Bills</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;--pop:#1E1E1E;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;--pop:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.light .btn.no{color:#B91C1C}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.inp:focus{outline:0;border-color:var(--bd2)}
+.tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:8px;padding:12px 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--t1)}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2);font-variant-numeric:tabular-nums}
+.fbar{display:flex;align-items:center;gap:8px;padding:12px 20px;flex-wrap:wrap}
+.fbar .inp{flex:1 1 120px;max-width:170px}
+.seg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:4px 10px;border-radius:6px;color:var(--t3);cursor:pointer;font-size:13px;white-space:nowrap}
+.seg button.on{background:var(--s3);color:var(--t1)}
+.bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 20px 10px;padding:8px 10px 8px 14px;border-radius:10px;background:var(--s2);border:1px solid var(--bd2)}
+.tw{overflow-x:auto;padding:0 20px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:50px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr:hover td{background:var(--s1)}
+tr.sel td{background:var(--s2)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cb{width:16px;height:16px;margin:0;accent-color:#8F8F8F;vertical-align:middle;cursor:pointer}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.sub{font-size:12px;color:var(--t3)}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.link{border:0;background:none;padding:0;cursor:pointer;color:var(--t1);font-weight:500;text-decoration:underline;text-decoration-color:var(--bd2);text-underline-offset:3px}
+.bar{display:inline-block;width:56px;height:5px;border-radius:3px;background:var(--s3);overflow:hidden;vertical-align:middle;margin-left:8px}.bar i{display:block;height:5px;border-radius:3px;background:#3B82F6}
+.foot{display:flex;align-items:center;gap:20px;padding:12px 20px;border-top:1px solid var(--bd);flex-wrap:wrap;margin-top:8px}
+.foot b{font-weight:600;font-variant-numeric:tabular-nums}
+.drawer{margin:0 20px 20px;border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.dh{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--s1);flex-wrap:wrap}
+.dh b{font-weight:600}
+.grp td{height:56px}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t2)}
+.flow b{font-weight:600;color:var(--t1)}
+.flow .arr{color:var(--t3)}
+.xr>td{height:auto;padding:2px 0 16px;background:var(--bg)!important;white-space:normal}
+.xp{margin-left:36px;border:1px solid var(--bd2);border-radius:12px;overflow:hidden}
+.xh{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s1);flex-wrap:wrap}
+.xh b{font-weight:600}
+.xs{display:flex;gap:32px;padding:12px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.xs div{display:flex;flex-direction:column;gap:2px}.xs b{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+.xs .k{font-size:12px;color:var(--t3)}
+.bt td{height:44px;white-space:nowrap}
+.bt thead th{background:transparent;border-bottom:1px solid var(--bd);border-radius:0!important;font-size:13px}
+.bt tr.on>td{background:var(--s2)}
+.bt tfoot td{font-weight:600;height:44px;border-bottom:0}
+.bd>td{height:auto;padding:10px 14px 16px;background:var(--s1)!important;white-space:normal}
+.bill{border:1px solid var(--bd2);border-radius:10px;background:var(--bg);overflow:hidden}
+.bh{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bh b{font-weight:600;font-size:15px}
+.bgr{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 24px;padding:14px}
+.bgr .k{font-size:12px;color:var(--t3);margin-bottom:2px}
+.bl{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:0 14px 14px}
+.bl .it{flex:1 1 560px;min-width:0;overflow-x:auto}
+.bl .it td{height:44px}
+.tt{flex:0 1 300px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;font-variant-numeric:tabular-nums}
+.tt .g{font-weight:600;font-size:16px;padding-top:8px;border-top:1px solid var(--bd)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-orange{color:#C2410C}.light .t-green{color:#15803D}.light .t-red{color:#B91C1C}
+.ib{width:30px;height:30px;border-radius:8px;border:0;display:inline-grid;place-items:center;cursor:pointer;background:var(--s2);color:var(--t2)}
+.ib.ok{background:rgba(22,163,74,.16);color:#4ADE80}.ib.ok:hover{background:#16A34A;color:#fff}.ib.no:hover{background:rgba(239,68,68,.22);color:#F87171}
+.light .ib.ok{color:#15803D}
+.cnt{border:0;background:var(--s2);color:var(--t2);height:28px;padding:0 10px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap}
+.cnt:hover,.cnt.on{background:var(--s3);color:var(--t1)}
+.split{display:flex;flex-direction:column}
+.scr{overflow:auto;flex:none}
+.dock{flex:none;display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+.grip{flex:none;height:10px;display:grid;place-items:center;cursor:ns-resize;touch-action:none;background:var(--s1);border-top:1px solid var(--bd2);border-bottom:1px solid var(--bd)}
+.grip span{width:48px;height:4px;border-radius:2px;background:var(--bd2)}
+.grip:hover span{background:var(--t3)}
+.dock .xh{background:var(--bg);padding:8px 16px}
+.dbody{flex:1 1 auto;min-height:0;overflow:auto;border-top:1px solid var(--bd)}
+.dbody .xs{padding:10px 16px;gap:28px}
+.dbody .bt td:first-child,.dbody .bt th:first-child{padding-left:16px}
+.dseg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.dseg button{border:0;background:transparent;padding:3px 10px;border-radius:6px;color:var(--t3);cursor:pointer;font-size:12px}
+.dseg button.on{background:var(--s3);color:var(--t1)}
+.scr .tw tbody tr:nth-child(even)>td{background:rgba(255,255,255,.055)}
+.light .scr .tw tbody tr:nth-child(even)>td{background:#F3F4F6}
+.scr .tw tbody tr:hover>td{background:var(--s2)}
+.scr .tw tbody tr.sel>td,.scr .tw tbody tr.sel:hover>td{background:rgba(59,130,246,.32);border-bottom-color:rgba(59,130,246,.45)}
+.light .scr .tw tbody tr.sel>td,.light .scr .tw tbody tr.sel:hover>td{background:#DBEAFE;border-bottom-color:#BFDBFE}
+.scr .tw tbody tr.sel>td:first-child{box-shadow:inset 3px 0 0 #3B82F6}
+.scr .tw td,.scr .tw th{padding-left:7px;padding-right:7px}
+.scr .tw .bar{display:block;width:72px;margin:5px 0 0 auto}
+.scr{overflow-x:hidden}
+.scr .tw tbody td:nth-child(3) div,.scr .tw tbody td:nth-child(4) div{max-width:168px;overflow:hidden;text-overflow:ellipsis}
+.scr .tw{overflow:visible}
+.scr .tw tfoot td{position:sticky;bottom:0;z-index:2;background:var(--s2);font-weight:600;height:44px;border-top:1px solid var(--bd2);border-bottom:0;font-variant-numeric:tabular-nums}
+.sumbar{flex:none;display:flex;align-items:center;gap:6px;padding:8px 20px;border-top:1px solid var(--bd);background:var(--bg);overflow-x:auto}
+.sumbar .st{display:flex;flex-direction:column;gap:1px;padding:4px 14px 4px 0;margin-right:8px;border-right:1px solid var(--bd);white-space:nowrap}
+.sumbar .st:last-of-type{border-right:0}
+.sumbar .st span{font-size:12px;color:var(--t3)}
+.sumbar .st b{font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+.sumbar .warn{color:#F87171}.light .sumbar .warn{color:#B91C1C}
+.sumbar .okc{color:#4ADE80}.light .sumbar .okc{color:#15803D}
+.scr .tw tbody tr.more>td{height:52px;text-align:center;color:var(--t3);font-size:13px;background:transparent}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bd2);border-top-color:#3B82F6;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-gray{background:var(--s2);color:var(--t2)}.t-blue{background:rgba(59,130,246,.15);color:#60A5FA}
+.light .t-orange{color:#C2410C}.light .t-green{color:#15803D}.light .t-red{color:#B91C1C}.light .t-blue{color:#1D4ED8}
+.reg{overflow-x:auto;padding:0 20px}
+.reg td,.reg th{padding-left:7px;padding-right:7px}
+.reg tbody tr:nth-child(even)>td{background:rgba(255,255,255,.055)}
+.light .reg tbody tr:nth-child(even)>td{background:#F3F4F6}
+.reg tbody tr:hover>td{background:var(--s2)}
+.reg td{height:54px}
+.reg tbody td:nth-child(3) div{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.reg tbody td:nth-child(3) div+div,.reg tbody td:nth-child(4) div{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.cbx{width:16px;height:16px;margin:0;accent-color:#3B82F6;vertical-align:middle;cursor:pointer}
+.reg tbody tr.sel>td{background:rgba(59,130,246,.18)!important}
+.light .reg tbody tr.sel>td{background:#DBEAFE!important}
+.lnk{border:0;background:none;padding:0;margin-left:6px;color:#60A5FA;font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.light .lnk{color:#1D4ED8}
+.okbar{display:flex;align-items:center;gap:10px;margin:0 20px 10px;padding:9px 14px;border-radius:10px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35);font-size:13px}
+.okbar button{margin-left:auto;border:0;background:none;color:var(--t3);cursor:pointer}
+.reg td:last-child .sub{white-space:nowrap}
+.foot{position:sticky;bottom:0;background:var(--bg);z-index:3;margin-top:0}
+.reg tbody tr.more>td{height:52px;text-align:center;color:var(--t3);font-size:13px;background:transparent}
+.spin{{display:inline-block;width:14px;height:14px;border:2px solid var(--bd2);border-top-color:#3B82F6;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px}}
+@keyframes spin{{to{{transform:rotate(360deg)}}}}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen11: column sort + filter */
+.cft thead th{position:sticky;top:0;z-index:5}
+.cft thead th.fh{padding:0}
+.fb{display:flex;align-items:center;gap:5px;width:100%;height:38px;padding:0 10px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;white-space:nowrap;text-align:left;border-radius:6px}
+th.r .fb{justify-content:flex-end}
+.fb:hover{color:var(--t1);background:var(--s2)}
+.fb .fi{opacity:.0;flex:none;transition:opacity .12s}
+.fb:hover .fi,.fb.on .fi,.fb.op .fi{opacity:1}
+.fb.on{color:#3B82F6}.fb.on .fi{color:#3B82F6}
+.fb .si{font-size:12px;color:#3B82F6;font-weight:600}
+.fpbk{position:fixed;inset:0;z-index:30;cursor:default}
+.fp{position:absolute;top:calc(100% + 2px);left:0;z-index:31;width:264px;background:var(--pop,var(--bg));border:1px solid var(--bd2);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.35);padding:6px;display:flex;flex-direction:column;gap:2px;text-align:left;font-weight:400;font-size:13px;color:var(--t1);cursor:default;white-space:normal}
+.light .fp{box-shadow:0 14px 36px rgba(0,0,0,.12)}
+.fp.rt{left:auto;right:0}
+.fpi{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border:0;border-radius:6px;background:transparent;color:var(--t1);font:inherit;font-size:13px;cursor:pointer;text-align:left;width:100%}
+.fpi:hover{background:var(--s2)}
+.fpi.on{color:#3B82F6;font-weight:500}
+.fpi svg{flex:none;color:var(--t3)}.fpi.on svg{color:#3B82F6}
+.fpsep{height:1px;background:var(--bd);margin:4px 2px}
+.fpt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:2px 8px}
+.fps{height:32px;border:1px solid var(--bd2);border-radius:7px;background:var(--s1);padding:0 9px;font:inherit;font-size:13px;color:var(--t1);margin:2px 0 4px;outline:0;width:100%}
+.fps:focus{border-color:#3B82F6}
+.fpl{max-height:216px;overflow-y:auto;display:flex;flex-direction:column}
+.fpo{display:flex;align-items:center;gap:9px;min-height:30px;padding:0 8px;border-radius:6px;font-size:13px;cursor:pointer}
+.fpo:hover{background:var(--s2)}
+.fpo input{width:15px;height:15px;margin:0;accent-color:#3B82F6;flex:none;cursor:pointer}
+.fpo .v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpo .n{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.fpo.all{font-weight:500}
+.fpe{padding:10px 8px;color:var(--t3);font-size:12.5px}
+.fpf{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 2px 0;border-top:1px solid var(--bd);margin-top:4px}
+.fchips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 20px 10px;font-size:13px}
+.fchips .lbl{color:var(--t3)}
+.fchip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 3px 0 10px;border-radius:7px;background:rgba(59,130,246,.14);color:var(--t1);font-size:12.5px;white-space:nowrap}
+.fchip b{font-weight:600}
+.fchip button{width:20px;height:20px;border:0;border-radius:5px;background:transparent;color:var(--t2);cursor:pointer;display:grid;place-items:center;padding:0}
+.fchip button:hover{background:rgba(59,130,246,.28);color:var(--t1)}
+.fclr{border:0;background:transparent;color:#3B82F6;font:inherit;font-size:12.5px;cursor:pointer;padding:0 6px}
+.cft td.it{font-weight:500}
+.cft .den{font-variant-numeric:tabular-nums}
+
+/* gen12: bill register scrolls inside its own box, summary pinned to bottom */
+.app.blx{height:100vh;min-height:0;flex-wrap:nowrap;overflow:hidden}
+.blx .main{height:100vh!important;min-height:0;overflow:hidden}
+.blx .main>*{flex:none}
+.blx .main>.reg{flex:1 1 auto;min-height:0;overflow:auto;margin:0 20px;padding:0;border:1px solid var(--bd);border-radius:10px}
+.blx .reg>table.cft{width:max-content;min-width:100%}
+.blx .foot{position:static;margin-top:0}
+@media (max-width:760px){.app.blx{height:auto;overflow:visible;flex-wrap:wrap}.blx .main{height:auto}.blx .main>.reg{max-height:70vh}}
+
+.blx .reg>table.cft{min-height:100%}
+.blx .reg tfoot td{position:sticky;bottom:0;z-index:4;background:var(--s2);font-weight:600;height:44px;border-top:1px solid var(--bd2);border-bottom:0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.blx .main>.reg{margin-bottom:12px}
+.cft tbody tr.fillr>td{height:auto!important;padding:0!important;border:0!important;background:transparent!important}
+
+.cft tbody tr:not(.more):not(.fillr){cursor:pointer;user-select:none}
+
+/* gen16: compact registers, more rows per screen */
+.cft{font-size:13.5px;line-height:18px}
+.cft tbody tr:not(.fillr):not(.more)>td{height:36px!important;padding-top:3px!important;padding-bottom:3px!important}
+.cft tbody td .sub{font-size:11.5px;line-height:14px;margin-top:0}
+.cft tbody td .link{font-size:13.5px}
+.cft thead th.fh .fb{height:34px;font-size:13px}
+.cft thead th{font-size:13px}
+.cft tfoot td{height:38px!important}
+.cft td .bar{display:inline-block!important;vertical-align:middle;width:44px!important;margin:0 0 0 8px!important}
+.cft .tag{height:20px;font-size:11.5px;padding:0 7px}
+.cft .cb,.cft .cbx{width:15px;height:15px}
+.cft .ib{width:26px;height:26px}
+.tabs .tab{padding-top:9px;padding-bottom:9px}
+.fbar{padding-top:8px!important;padding-bottom:8px!important}
+.fbar .inp{height:32px}
+.fchips{padding-top:2px;padding-bottom:8px}
+.cft tbody tr.more>td{height:40px!important}
+.cft tbody td:last-child .sub{display:inline;margin-left:6px}
+.cft tbody td:last-child{white-space:nowrap}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}} blx">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="disp" hint-size="236px,1000px"></dc-import></div>
+<div class="main" style="height: auto">
+<header class="hdr">
+<div class="bc"><span class="m">Sale bills</span><span class="m">/</span><span>Register</span></div>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>Print</button>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Excel</button>
+<a class="btn" href="EwayBills{{sfxE}}.dc.html">E-way bills <span class="tag t-orange" style="margin-left: 2px">4 pending</span></a>
+<a class="btn pr" href="{{newHref}}">+ New bill</a>
+</header>
+<div class="tabs" role="tablist" aria-label="Payment status">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><button class="{{t.cls}}" type="button" role="tab" onClick="{{t.pick}}"><span class="dot" style="{{t.c}}">{{t.l}}</span><span class="n">{{t.n}}</span></button></sc-for>
+</div>
+<div class="fbar">
+<input class="inp" type="text" value="01-04-2026" aria-label="From date" style="max-width: 120px"><span class="muted">to</span><input class="inp" type="text" value="31-03-2027" aria-label="To date" style="max-width: 120px">
+<div style="flex: 1"></div>
+</div>
+<sc-if value="{{hasSel}}" hint-placeholder-val="{{false}}"><div class="bulk" role="toolbar" aria-label="Bulk actions"><b style="font-weight: 600">{{selCount}} selected</b><span class="muted" style="flex: 1">{{selNote}}</span><button class="btn sm pr" type="button" onClick="{{genSel}}">Generate e-way bills · Part A</button><button class="btn sm gh" type="button" onClick="{{clearSel}}">Clear</button></div></sc-if>
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}"><div class="okbar" role="status"><span>✓</span><span>{{toast}}</span><button type="button" onClick="{{hideToast}}" aria-label="Dismiss">✕</button></div></sc-if>
+<sc-if value="{{cf.hasChips}}" hint-placeholder-val="{{false}}"><div class="fchips" role="status"><span class="lbl">Showing</span><sc-for list="{{cf.chips}}" as="c" hint-placeholder-count="2"><span class="fchip">{{c.l}}: <b>{{c.v}}</b><button type="button" onClick="{{c.x}}" aria-label="Remove filter"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span></sc-for><button class="fclr" type="button" onClick="{{cf.clearAll}}">Clear all</button></div></sc-if>
+<div class="reg" onScroll="{{onScroll}}"><table class="cft">
+<thead><tr><th style="width: 32px"><input class="cbx" type="checkbox" aria-label="Select all loaded bills" checked="{{allOn}}" onChange="{{toggleAll}}"></th><sc-for list="{{cf.heads}}" as="h" hint-placeholder-count="12"><th class="{{h.thc}}"><button class="{{h.btn}}" type="button" onClick="{{h.toggle}}" aria-haspopup="dialog" aria-expanded="{{h.open}}" title="Sort and filter">{{h.l}}<span class="si">{{h.ic}}</span><svg class="fi" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button><sc-if value="{{h.open}}" hint-placeholder-val="{{false}}"><div class="fpbk" onClick="{{h.close}}"></div><div class="{{h.popCls}}" role="dialog" aria-label="Sort and filter"><button class="{{h.ascC}}" type="button" onClick="{{h.asc}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>{{h.ascL}}</button><button class="{{h.descC}}" type="button" onClick="{{h.desc}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>{{h.descL}}</button><div class="fpsep"></div><div class="fpt">Filter {{h.l}}</div><input class="fps" type="search" value="{{h.q}}" onChange="{{h.setQ}}" placeholder="Search values" aria-label="Search values" autoFocus="{{ true }}"><label class="fpo all"><input type="checkbox" checked="{{h.allCk}}" onChange="{{h.selAll}}"><span class="v">Select all</span><span class="n">{{h.nOpts}}</span></label><div class="fpl"><sc-for list="{{h.opts}}" as="o" hint-placeholder-count="6"><label class="fpo"><input type="checkbox" checked="{{o.ck}}" onChange="{{o.tog}}"><span class="v">{{o.v}}</span><span class="n">{{o.n}}</span></label></sc-for><sc-if value="{{h.noOpts}}" hint-placeholder-val="{{false}}"><div class="fpe">No matching values</div></sc-if></div><div class="fpf"><button class="btn sm gh" type="button" onClick="{{h.clear}}">Clear filter</button><button class="btn sm pr" type="button" onClick="{{h.close}}">Done</button></div></div></sc-if></th></sc-for></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="12">
+<tr class="{{x.rc}}" onClick="{{x.rowClick}}" onDoubleClick="{{x.open}}" title="Click to select · double-click to open"><td><input class="cbx" type="checkbox" aria-label="Select bill" checked="{{x.on}}" onChange="{{x.tog}}"></td><td><a class="link" href="{{billHref}}">{{x.no}}</a></td><td class="t2">{{x.dt}}</td><td class="t2">{{x.ord}}</td>
+<td><div>{{x.p}}</div></td><td class="it">{{x.itn}}</td><td class="den">{{x.den}}</td><td class="t2">{{x.br}}</td><td class="t2">{{x.lot}}</td><td>{{x.gr}}</td>
+<td class="r">{{x.q}}</td><td class="r" style="font-weight: 500">{{x.amt}}</td><td class="r t2">{{x.rcv}}</td><td class="r" style="font-weight: 500">{{x.bal}}</td>
+<td><span class="{{x.pc}}">{{x.pay}}</span></td><td><sc-if value="{{x.hasE}}" hint-placeholder-val="{{true}}"><span class="{{x.ewbTag}}">EWB {{x.ewbNo}}</span><div class="sub">{{x.partB}}</div></sc-if><sc-if value="{{x.needE}}" hint-placeholder-val="{{false}}"><span class="tag t-orange">EWB pending</span><button class="lnk" type="button" onClick="{{x.genOne}}">Generate</button></sc-if><sc-if value="{{x.canE}}" hint-placeholder-val="{{false}}"><span class="tag t-gray">Cancelled</span></sc-if></td></tr>
+</sc-for>
+<sc-if value="{{moreLeft}}" hint-placeholder-val="{{false}}"><tr class="more"><td colspan="15"><span class="spin" aria-hidden="true"></span>Loading more bills as you scroll · {{loadedLabel}}</td></tr></sc-if>
+<sc-if value="{{allLoaded}}" hint-placeholder-val="{{false}}"><tr class="more"><td colspan="15">All {{tot.n}} bills shown</td></tr></sc-if>
+<tr class="fillr" aria-hidden="true"><td colspan="15"></td></tr>
+</tbody><tfoot><tr><td></td><td>{{tot.n}} bills</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="r">{{tot.q}}</td><td class="r">{{tot.amt}}</td><td class="r">{{tot.rc}}</td><td class="r">{{tot.bal}}</td><td></td><td></td></tr></tfoot></table></div>
+
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="disp" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'All', loaded: 20, sel: [], gen: {}, toast: '' }; }
+  componentDidMount() { this._sc = () => { try { const left = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight); if (left < 160 && !this._ld && this._more) { this._ld = true; setTimeout(() => { this._ld = false; this.setState({ loaded: this.state.loaded + 20 }); }, 400); } } catch (e) {} }; try { window.addEventListener('scroll', this._sc); } catch (e) {} }
+  componentWillUnmount() { try { window.removeEventListener('scroll', this._sc); } catch (e) {} }
+
+  go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
+  cf(base, COLS) {
+    const st = this.state; const flt = st.flt || {}; const sk = st.sk || null; const sd = st.sd || 1; const pop = st.pop || null; const pq = String(st.pq || '').toLowerCase();
+    const val = (r, c) => { const v = c.get ? c.get(r) : r[c.k]; return v == null || v === '' ? '—' : v; };
+    const dk = (s) => { const m = String(s).match(/^(\d{2})-(\d{2})-(\d{4})$/); return m ? Number(m[3] + m[2] + m[1]) : 0; };
+    const cmp = (c) => (a, b) => { const x = val(a, c), y = val(b, c); const r = c.num ? (Number(x) || 0) - (Number(y) || 0) : c.date ? dk(x) - dk(y) : String(x).localeCompare(String(y), 'en', { numeric: true, sensitivity: 'base' }); return r * sd; };
+    const pass = (r, skip) => COLS.every((c) => c.k === skip || !flt[c.k] || flt[c.k].indexOf(String(val(r, c))) >= 0);
+    const list = base.filter((r) => pass(r));
+    const sc = sk ? COLS.find((x) => x.k === sk) : null;
+    const sorter = sc ? cmp(sc) : null;
+    if (sorter) list.sort(sorter);
+    const set = (patch) => this.setState(Object.assign({ loaded: 20 }, patch));
+    const fmtV = (c, v) => (c.fmt && v !== '—' ? c.fmt(v) : v);
+    const heads = COLS.map((c) => {
+      const on = !!flt[c.k]; const open = pop === c.k; const sorted = sk === c.k;
+      let opts = []; let all = [];
+      if (open) {
+        const cnt = {}; base.filter((r) => pass(r, c.k)).forEach((r) => { const v = String(val(r, c)); cnt[v] = (cnt[v] || 0) + 1; });
+        all = Object.keys(cnt).sort((a, b) => c.num ? (Number(a) || 0) - (Number(b) || 0) : c.date ? dk(a) - dk(b) : a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+        opts = all.filter((v) => !pq || String(fmtV(c, v)).toLowerCase().indexOf(pq) >= 0).map((v) => {
+          const ck = !on || flt[c.k].indexOf(v) >= 0;
+          return { v: fmtV(c, v), n: cnt[v], ck, tog: () => { let cur = on ? flt[c.k].slice() : all.slice(); const i = cur.indexOf(v); if (i >= 0) cur.splice(i, 1); else cur.push(v); const nf = Object.assign({}, flt); if (cur.length === all.length) delete nf[c.k]; else nf[c.k] = cur; set({ flt: nf }); } };
+        });
+      }
+      const allCk = !on || (all.length > 0 && all.every((v) => flt[c.k].indexOf(v) >= 0));
+      return {
+        l: c.l, open, thc: 'fh' + (c.r ? ' r' : ''), btn: 'fb' + (on || sorted ? ' on' : '') + (open ? ' op' : ''),
+        ic: sorted ? (sd > 0 ? '↑' : '↓') : '',
+        toggle: () => this.setState({ pop: open ? null : c.k, pq: '' }), close: () => this.setState({ pop: null, pq: '' }),
+        popCls: 'fp' + (c.rt ? ' rt' : ''),
+        ascL: c.num ? 'Smallest to largest' : c.date ? 'Oldest to newest' : 'Sort A to Z', descL: c.num ? 'Largest to smallest' : c.date ? 'Newest to oldest' : 'Sort Z to A',
+        ascC: sorted && sd > 0 ? 'fpi on' : 'fpi', descC: sorted && sd < 0 ? 'fpi on' : 'fpi',
+        asc: () => set({ sk: c.k, sd: 1, pop: null }), desc: () => set({ sk: c.k, sd: -1, pop: null }),
+        q: st.pq || '', setQ: (e) => this.setState({ pq: e.target.value }),
+        opts, nOpts: String(all.length), noOpts: open && opts.length === 0, allCk,
+        selAll: () => { const nf = Object.assign({}, flt); if (allCk) nf[c.k] = []; else delete nf[c.k]; set({ flt: nf }); },
+        clear: () => { const nf = Object.assign({}, flt); delete nf[c.k]; set({ flt: nf, pop: null }); }
+      };
+    });
+    const chips = COLS.filter((c) => flt[c.k]).map((c) => { const vs = flt[c.k].map((v) => fmtV(c, v)); return { l: c.l, v: vs.length === 0 ? 'none' : vs.slice(0, 2).join(', ') + (vs.length > 2 ? ' +' + (vs.length - 2) : ''), x: () => { const nf = Object.assign({}, flt); delete nf[c.k]; set({ flt: nf }); } }; });
+    if (sc) chips.push({ l: 'Sorted by ' + sc.l, v: sd > 0 ? (sc.num ? 'smallest first' : sc.date ? 'oldest first' : 'A to Z') : (sc.num ? 'largest first' : sc.date ? 'newest first' : 'Z to A'), x: () => set({ sk: null, sd: 1 }) });
+    const active = Object.keys(flt).length > 0 || !!sc;
+    return { list, sorter, heads, chips, hasChips: chips.length > 0, active, filtered: Object.keys(flt).length > 0, clearAll: () => set({ flt: {}, sk: null, sd: 1, pop: null }) };
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const sfx = theme === 'light' ? 'Light' : '';
+    const inr = (n, d) => { const s = Number(n).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return rest + l3 + (f ? '.' + f : ''); };
+    const D = [{"veh": "GJ-05-BX-4120", "ewb": "3210 8812 4401", "ewbValid": "24-10-2026", "no": "GU22854/26-27", "dt": "23-10-2026", "inv": "", "p": "Rannade Textile", "g": "Rannade Textile", "ord": "SAL11842", "it": "50/48 FDY NLBS", "br": "Wellknown", "lot": "R0484", "q": 619.43, "tx": 94308.22, "amt": 99024, "rc": 0, "od": 0, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": null, "ewb": null, "ewbValid": "", "no": "GU22853/26-27", "dt": "23-10-2026", "inv": "", "p": "Rannade Textile", "g": "Rannade Textile", "ord": "SAL11836", "it": "50/48 FDY NLBS", "br": "Wellknown", "lot": "R0484", "q": 846.6, "tx": 128894.85, "amt": 135340, "rc": 0, "od": 0, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": null, "ewb": null, "ewbValid": "", "no": "GU22851/26-27", "dt": "22-10-2026", "inv": "", "p": "Bhagwati Filaments", "g": "Bhagwati Filaments", "ord": "SAL02722", "it": "50/24 SD CAT", "br": "Reliance", "lot": "356C9S", "q": 1000, "tx": 179600.0, "amt": 188580, "rc": 0, "od": 0, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": null, "ewb": null, "ewbValid": "", "no": "GU22848/26-27", "dt": "22-10-2026", "inv": "", "p": "Shree Rudraksha Poly", "g": "Shree Rudraksha Poly", "ord": "SAL04614", "it": "50/12 BRT", "br": "Durga", "lot": "SIBS1008", "q": 1520.4, "tx": 281486.86, "amt": 295561, "rc": 100000, "od": 0, "e": "IRN pending", "ec": "tag t-orange", "cancel": false}, {"veh": "GJ-05-AV-7731", "ewb": "3210 8809 1177", "ewbValid": "22-10-2026", "no": "GU22845/26-27", "dt": "21-10-2026", "inv": "", "p": "Bansam Fabrics", "g": "Bansam Fabrics", "ord": "SAL03514", "it": "50/48 FDY", "br": "Reliance", "lot": "338C1M", "q": 3500, "tx": 490000, "amt": 514500, "rc": 514500, "od": 0, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": null, "ewb": null, "ewbValid": "", "no": "GU22840/26-27", "dt": "20-10-2026", "inv": "", "p": "Jigita Fab LLP", "g": "Jigita Fab LLP", "ord": "SAL04425", "it": "Muskan Gold", "br": "J.J. Industries", "lot": "MG123", "q": 220.5, "tx": 127890.0, "amt": 134284, "rc": 0, "od": 0, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": "GJ-19-T-2290", "ewb": "3210 8790 5521", "ewbValid": "19-10-2026", "no": "GU22833/26-27", "dt": "18-10-2026", "inv": "", "p": "Ganpati Silk Mill", "g": "Kanvi Corporation", "ord": "SAL05058", "it": "50/24 SD CAT", "br": "Reliance", "lot": "356C9S", "q": 1100, "tx": 166100, "amt": 174405, "rc": 0, "od": 4, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": "GJ-05-CT-1184", "ewb": "3210 8781 0094", "ewbValid": "17-10-2026", "no": "GU22827/26-27", "dt": "16-10-2026", "inv": "", "p": "Sujal Synthetics", "g": "Sujal Synthetics", "ord": "SAL05802", "it": "50/48 FDY", "br": "Reliance", "lot": "338C1M", "q": 980.2, "tx": 130082.34, "amt": 136586, "rc": 136586, "od": 0, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": "MH-04-KL-5521", "ewb": "3210 8770 6638", "ewbValid": "15-10-2026", "no": "GU22819/26-27", "dt": "14-10-2026", "inv": "", "p": "Veer Enterprise", "g": "Binaka Textiles", "ord": "SAL05863", "it": "50/24 SD CAT", "br": "Reliance", "lot": "FX85", "q": 400, "tx": 60400, "amt": 63420, "rc": 0, "od": 8, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": "GJ-05-UU-9902", "ewb": "3210 8761 2205", "ewbValid": "13-10-2026", "no": "GU22811/26-27", "dt": "12-10-2026", "inv": "", "p": "Geeta Fab", "g": "Ved Textiles", "ord": "SAL06932", "it": "110 Vichitra", "br": "Wellknown", "lot": "57460", "q": 650.3, "tx": 98845.6, "amt": 103788, "rc": 103788, "od": 0, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": null, "ewb": "3210 8750 9912", "ewbValid": "11-10-2026", "no": "GU22802/26-27", "dt": "10-10-2026", "inv": "", "p": "Shree Rudraksha Poly", "g": "Shree Rudraksha Poly", "ord": "SAL05773", "it": "50/48 FDY NLBS", "br": "Garden", "lot": "FD002I4", "q": 2400, "tx": 321888.0, "amt": 337982, "rc": 150000, "od": 9, "e": "IRN · EWB", "ec": "tag t-green", "cancel": false}, {"veh": null, "ewb": null, "ewbValid": "", "no": "GU22790/26-27", "dt": "08-10-2026", "inv": "", "p": "Omkar Synthetics", "g": "Omkar Filaments", "ord": "SAL06939", "it": "50/36 Bright", "br": "Sanathan", "lot": "D723A2", "q": 300, "tx": 52875.0, "amt": 55519, "rc": 0, "od": 0, "e": "IRN cancelled", "ec": "tag t-gray", "cancel": true}];
+    const splitIt = (s) => { const m = String(s).match(/(\d+(?:\/\d+){1,2}|\b\d{2,3}\b)/); if (!m) return { den: '\u2014', itn: s }; const rest = String(s).replace(m[1], '').replace(/\s+/g, ' ').trim(); return { den: m[1], itn: rest || s }; };
+    const GRS = ['A+', 'A', '1ST', 'PQ', 'A1', 'F1']; D.forEach((r) => { const z = splitIt(r.it); r.den = z.den; r.itn = z.itn; r.gr = GRS[[...String(r.lot)].reduce((a, ch) => a + ch.charCodeAt(0), 0) % GRS.length]; });
+    const PC = { Paid: 'tag t-green', Unpaid: 'tag t-gray', Overdue: 'tag t-red', Part: 'tag t-orange', Cancelled: 'tag t-gray' };
+    const tab = this.state.tab;
+    const st = (r) => r.cancel ? 'Cancelled' : r.rc >= r.amt ? 'Paid' : r.od > 0 ? 'Overdue' : 'Unpaid';
+    const gen = this.state.gen;
+    const needE = (r) => !r.cancel && !r.ewb && !gen[r.no];
+    const vis0 = D.filter((r) => tab === 'All' || (tab === 'Ewb' ? needE(r) : st(r) === tab));
+    const T0 = [["All", "All", 1426], ["Ewb", "E-way bill pending", 4], ["Unpaid", "Unpaid", 214], ["Overdue", "Overdue", 38], ["Paid", "Paid", 1162], ["Cancelled", "Cancelled", 12]];
+    const COLS = [{ k: 'no', l: 'Bill no.' }, { k: 'dt', l: 'Date', date: 1 }, { k: 'ord', l: 'Order' }, { k: 'p', l: 'Party' }, { k: 'itn', l: 'Item' }, { k: 'den', l: 'Denier' }, { k: 'br', l: 'Brand' }, { k: 'lot', l: 'Lot no.' }, { k: 'gr', l: 'Grade' }, { k: 'q', l: 'Qty kg', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'amt', l: 'Bill amount ₹', num: 1, r: 1, fmt: (v) => inr(v, 2) }, { k: 'rc', l: 'Received ₹', num: 1, r: 1, rt: 1, fmt: (v) => inr(v, 2) }, { k: 'bal', l: 'Balance ₹', num: 1, r: 1, rt: 1, get: (r) => r.cancel ? 0 : r.amt - r.rc, fmt: (v) => inr(v, 2) }, { k: 'payS', l: 'Payment', rt: 1, get: (r) => { const s = st(r); return s === 'Unpaid' && r.rc > 0 ? 'Part paid' : s; } }, { k: 'ewbS', l: 'E-way bill', rt: 1, get: (r) => r.cancel ? 'Cancelled' : (gen[r.no] || r.ewb) ? ((r.veh && !gen[r.no]) ? 'Generated · Part B done' : 'Generated · Part B pending') : 'Pending' }];
+    const cf = this.cf(vis0, COLS); const vis = cf.list;
+    const tabTotal0 = (T0.find((t) => t[0] === tab) || [0, 0, 0])[2];
+    const tabTotal = cf.filtered ? vis.length : tabTotal0;
+    const shown = [];
+    while (vis.length && shown.length < Math.min(this.state.loaded, tabTotal)) { const r = vis[shown.length % vis.length]; const kk = Math.floor(shown.length / vis.length);
+      shown.push(kk === 0 ? r : { ...r, ewb: r.cancel ? null : '3210 ' + String(8600 - kk * 41 - shown.length).padStart(4, '0') + ' ' + String(1000 + (shown.length * 389) % 9000), veh: r.veh || null, ewbValid: r.ewbValid || r.dt, no: r.no.replace(/(\d+)(\/)/, (m, a, b) => String(parseInt(a, 10) - kk * 97).padStart(a.length, '0') + b) }); }
+    if (cf.sorter) shown.sort(cf.sorter);
+    this._more = shown.length < tabTotal;
+    const SA = !!this.state.selAll; const EX = this.state.excl || [];
+    const isSel = (no) => SA ? EX.indexOf(no) < 0 : this.state.sel.indexOf(no) >= 0;
+    const rows = shown.map((r) => { const s = st(r); const bal = r.cancel ? 0 : r.amt - r.rc;
+      const ew = gen[r.no] || r.ewb; const on = isSel(r.no);
+      const genOne = () => { const g = { ...this.state.gen }; g[r.no] = '3210 ' + String(8800 + Object.keys(g).length).padStart(4, '0') + ' ' + String(4400 + r.no.length * 13 + Object.keys(g).length * 7); this.setState({ gen: g, toast: 'E-way bill ' + g[r.no] + ' generated for ' + r.no + ' · Part A filed, waiting for transporter to fill Part B' }); };
+      return { on, rc: on || this.state.focus === r.no ? 'sel' : '', rowClick: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; this.setState({ focus: r.no }); }, open: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SaleBillList' + sfx + '.dc.html', label: 'Sale bill register' })); } catch (err) {} try { window.localStorage.setItem('yf-open-sb', JSON.stringify({ t: Date.now(), no: r.no, dt: r.dt, p: r.p, ord: r.ord, inv: r.inv || '' })); } catch (err) {} this.go('Dispatch' + sfx + '.dc.html'); }, tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : this.setState({ sel: on ? this.state.sel.filter((x) => x !== r.no) : this.state.sel.concat([r.no]) }),
+        hasE: !!ew && !r.cancel, ewbTag: (r.veh && !gen[r.no]) ? 'tag t-green' : 'tag t-blue', partB: (r.veh && !gen[r.no]) ? 'Part B · ' + r.veh : 'Part B pending · transporter', needE: needE(r), canE: !!r.cancel, ewbNo: ew || '', ewbValid: r.ewbValid || '24-10-2026', genOne,
+        no: r.no, dt: r.dt, inv: r.inv || '', itn: r.itn, den: r.den, gr: r.gr, p: r.p, g: r.inv ? 'Inv ' + r.inv : r.g, ord: r.ord, it: r.it, br: r.br, lot: r.lot, q: inr(r.q, 3), tx: inr(r.tx, 2), amt: inr(r.amt, 2), rcv: inr(r.rc, 2), bal: inr(bal, 2),
+        pay: s === 'Overdue' ? 'Overdue ' + r.od + ' d' : (s === 'Unpaid' && r.rc > 0 ? 'Part paid' : s), pc: s === 'Unpaid' && r.rc > 0 ? PC.Part : PC[s], e: r.e, ec: r.ec }; });
+    const sum = (k) => vis.reduce((a, r) => a + (r.cancel && k !== 'q' ? 0 : r[k]), 0);
+    const T = [["All", "All", 1426], ["Ewb", "E-way bill pending", 4], ["Unpaid", "Unpaid", 214], ["Overdue", "Overdue", 38], ["Paid", "Paid", 1162], ["Cancelled", "Cancelled", 12]];
+    const selRows = SA ? vis.filter((r) => EX.indexOf(r.no) < 0) : shown.filter((r) => this.state.sel.indexOf(r.no) >= 0); const selNeed = selRows.filter(needE);
+    const allOn = SA ? EX.length === 0 : (shown.length > 0 && shown.every((r) => this.state.sel.indexOf(r.no) >= 0));
+    const TC = { Ewb: '#F97316', All: '#8F8F8F', Unpaid: '#3B82F6', Overdue: '#EF4444', Paid: '#22C55E', Cancelled: '#A855F7' };
+    return {
+      onScroll: (e) => { const el = e.currentTarget || e.target; if (!el || this._ld || !this._more) return; if (el.scrollTop + el.clientHeight >= el.scrollHeight - 160) { this._ld = true; setTimeout(() => { this._ld = false; this.setState({ loaded: this.state.loaded + 20 }); }, 400); } },
+      cf, sfxE: sfx, theme, rows, allOn, hasSel: SA ? tabTotal - EX.length > 0 : selRows.length > 0, selCount: SA ? inr(tabTotal - EX.length, 0) + ' (all)' : selRows.length,
+      selNote: selNeed.length ? selNeed.length + ' without e-way bill · Part A goes to the portal now, the transporter fills Part B' : 'All selected bills already have e-way bills',
+      toggleAll: () => this.setState(allOn || SA ? { selAll: false, excl: [], sel: [] } : { selAll: true, excl: [], sel: [] }), clearSel: () => this.setState({ sel: [], selAll: false, excl: [] }),
+      genSel: () => { const g = { ...this.state.gen }; selNeed.forEach((r, i) => { g[r.no] = '3210 ' + String(8800 + Object.keys(g).length).padStart(4, '0') + ' ' + String(4410 + i * 17); }); this.setState({ gen: g, sel: [], selAll: false, excl: [], toast: selNeed.length + ' e-way bills generated · Part A filed, transporter assigned · Part B will show here once the transporter fills it' }); },
+      hasToast: !!this.state.toast, toast: this.state.toast, hideToast: () => this.setState({ toast: '' }),
+      tabs: T.map(([k, l, n]) => ({ l, n: inr(n, 0), c: '--c: ' + TC[k], cls: k === tab ? 'tab on' : 'tab', pick: () => this.setState({ tab: k, loaded: 20, sel: [], selAll: false, excl: [] }) })),
+      tot: (() => { const F = vis.length ? tabTotal / vis.length : 0; return { n: inr(tabTotal, 0), q: inr(sum('q') * F, 3), amt: inr(sum('amt') * F, 2), rc: inr(sum('rc') * F, 2), bal: inr((sum('amt') - sum('rc')) * F, 2) }; })(),
+      moreLeft: shown.length < tabTotal, allLoaded: tabTotal > 0 && shown.length >= tabTotal, loadedLabel: shown.length + ' of ' + inr(tabTotal, 0) + ' loaded',
+      countLabel: vis.length + ' of ' + (T.find((t) => t[0] === tab) || [0, 0, 0])[2] + ' bills',
+      billHref: 'Dispatch' + sfx + '.dc.html', newHref: 'SaleBillSelect' + sfx + '.dc.html'
+    };
+  }
+}
+</script>
+</body>
+</html>

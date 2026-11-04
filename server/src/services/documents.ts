@@ -73,6 +73,8 @@ export const docSchema = z.object({
   partyId: z.coerce.number().int().positive().optional().nullable(),
   deliveryPartyId: z.coerce.number().int().positive().optional().nullable(),
   brokerId: z.coerce.number().int().positive().optional().nullable(),
+  agentId: z.coerce.number().int().positive().optional().nullable(),
+  orderMode: optStr,
   brokerageRate: optNum,
   brokerageType: z.enum(['PER_KG', 'PERCENT']).optional(),
   millId: z.coerce.number().int().positive().optional().nullable(),
@@ -320,7 +322,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     if (def.party === 'customer' && !['CUSTOMER', 'BROKER', 'OTHER'].includes(party.kind)) throw unprocessable(`${party.name} is not a customer account`);
     if (def.party === 'supplier' && !['SUPPLIER', 'BROKER', 'OTHER'].includes(party.kind)) throw unprocessable(`${party.name} is not a supplier / mill account`);
   }
-  for (const [k, label] of [['deliveryPartyId', 'Delivery party'], ['brokerId', 'Broker'], ['millId', 'Supplier (mill)'], ['bankAccountId', 'Bank account']] as const) {
+  for (const [k, label] of [['deliveryPartyId', 'Delivery party'], ['brokerId', 'Broker'], ['agentId', 'Agent'], ['millId', 'Supplier (mill)'], ['bankAccountId', 'Bank account']] as const) {
     await getAccount(ctx, input[k], label);
   }
 
@@ -503,6 +505,8 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     partyId: party?.id ?? null,
     deliveryPartyId: input.deliveryPartyId ?? null,
     brokerId: input.brokerId ?? party?.brokerId ?? null,
+    agentId: input.agentId ?? null,
+    orderMode: input.orderMode ?? null,
     brokerageRate: input.brokerageRate ?? party?.brokerageRate ?? 0,
     brokerageType: input.brokerageType ?? party?.brokerageType ?? 'PER_KG',
     millId: input.millId ?? null,
@@ -906,7 +910,7 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
   const srcIds = lines.map((x) => x.l.sourceLineId).filter(Boolean) as number[];
   const src = await loadSourceLines(db, ctx.companyId, srcIds);
 
-  const names = await nameMap(ctx, [v.partyId, v.deliveryPartyId, v.brokerId, v.millId, v.bankAccountId]);
+  const names = await nameMap(ctx, [v.partyId, v.deliveryPartyId, v.brokerId, v.millId, v.bankAccountId, v.agentId]);
   const party = v.partyId ? (await db.select().from(accounts).where(eq(accounts.id, v.partyId)))[0] : null;
   const allocations = await db
     .select({ billId: billAllocations.billId, amount: billAllocations.amount, number: vouchers.number, date: vouchers.date, net: vouchers.netAmount })
@@ -929,6 +933,7 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
     deliveryPartyName: names.get(v.deliveryPartyId ?? 0) ?? null,
     brokerName: names.get(v.brokerId ?? 0) ?? null,
     millName: names.get(v.millId ?? 0) ?? null,
+    agentName: names.get(v.agentId ?? 0) ?? null,
     bankAccountName: names.get(v.bankAccountId ?? 0) ?? null,
     source: sourceDoc,
     lines: lines.map(({ l, itemName, itemCode, accountName }) => {
@@ -1080,6 +1085,30 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     counts: byStatus,
     ewbCounts: byEwb
   };
+}
+
+/**
+ * Bills / schedules made against a document (order → its sale bills, schedule → its bills, bill → returns),
+ * with the quantity taken from it and the payment position of each bill.
+ */
+export async function related(ctx: Ctx, def: TypeDef, id: number) {
+  await mustGet(ctx, def, id);
+  const res = await ctx.db.execute(sql`
+    select c.id, c.type, c.number, c.date, c.due_date as "dueDate", c.status, c.net_amount as net, c.tds_amount as tds,
+      c.taxable_amount as taxable, c.cgst_amount + c.sgst_amount + c.igst_amount as gst, c.cgst_amount as cgst, c.round_off as "roundOff",
+      c.vehicle_no as "vehicleNo", c.lr_no as "lrNo", c.ewb_no as "ewbNo", c.ewb_status as "ewbStatus", c.ref_no as "refNo", t.name as "transporterName",
+      sum(cl.qty) as qty, sum(cl.pcs) as pcs, max(cl.rate) as rate, sum(cl.taxable_amount) as "lineTaxable",
+      c.net_amount - c.tds_amount - coalesce((select sum(a.amount) from bill_allocations a where a.bill_id = c.id), 0) as pending
+    from voucher_lines cl join vouchers c on c.id = cl.voucher_id left join transporters t on t.id = c.transporter_id
+    where c.company_id = ${ctx.companyId} and c.status <> 'CANCELLED'
+      and (cl.order_line_id in (select id from voucher_lines where voucher_id = ${id})
+        or cl.source_line_id in (select id from voucher_lines where voucher_id = ${id}))
+    group by c.id, t.name order by c.date, c.id`);
+  return res.rows.map((r: Record<string, unknown>) => {
+    const num = (k: string) => Number(r[k] ?? 0);
+    const t = TYPES[r.type as VoucherType];
+    return { ...r, slug: t.slug, typeLabel: t.label, net: num('net'), tds: num('tds'), taxable: num('taxable'), gst: num('gst'), cgst: num('cgst'), roundOff: num('roundOff'), qty: r3(num('qty')), pcs: num('pcs'), rate: num('rate'), lineTaxable: num('lineTaxable'), pending: t.bill ? r2(num('pending')) : null };
+  });
 }
 
 export interface PendingLine {

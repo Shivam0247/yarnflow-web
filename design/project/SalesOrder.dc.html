@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · SO-26-27-0419</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}.bc a.m:hover{color:var(--t1)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.ic{width:34px;padding:0;justify-content:center}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.inp:focus{outline:0;border-color:var(--bd2)}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.c-gray{--c:#8F8F8F}.c-blue{--c:#3B82F6}.c-orange{--c:#F97316}.c-green{--c:#22C55E}.c-red{--c:#EF4444}.c-violet{--c:#A855F7}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-green{color:#15803D}.light .t-orange{color:#C2410C}.light .t-red,.light .btn.no{color:#B91C1C}
+.av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:600;flex:none;color:#fff}
+.split{display:flex;flex-wrap:wrap;flex:1}
+.lp{flex:999 1 520px;min-width:0;display:flex;flex-direction:column}
+.rp{flex:1 1 360px;min-width:0;border-left:1px solid var(--bd)}
+.tabs{display:flex;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;min-height:56px}
+.tab{display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--t1)}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2)}
+.rid{padding:0 20px;font-size:17px;font-weight:600;border-bottom:1px solid var(--bd);min-height:56px;display:flex;align-items:center}
+.rhead{display:flex;gap:16px;align-items:center;padding:20px;border-bottom:1px solid var(--bd)}
+.big{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:500;background:var(--s2);color:var(--t2);flex:none}
+.ibs{display:flex;gap:8px;margin-top:8px}
+.ib{width:32px;height:32px;border-radius:8px;background:var(--s2);border:0;display:grid;place-items:center;color:var(--t2);cursor:pointer}
+.ib.del{color:#F87171;background:rgba(239,68,68,.14)}
+.sec{border-bottom:1px solid var(--bd);padding:4px 0 10px}
+.sech{display:flex;align-items:center;gap:8px;padding:12px 20px 6px;font-weight:600;font-size:15px}
+.sech span{flex:1}
+.kv{display:flex;align-items:center;gap:12px;padding:0 20px;min-height:38px}
+.kv .k{width:128px;flex:none;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kv .v{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:6px 8px;margin-left:-8px;border-radius:7px;font-variant-numeric:tabular-nums}
+.kv .v:hover{background:var(--s2)}
+.pane{padding:22px 24px;display:flex;flex-direction:column;gap:16px;flex:1}
+.ph2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ph2 h2{margin:0;font-size:19px;font-weight:600;flex:1}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:52px;border-bottom:1px solid var(--bd);white-space:nowrap}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cin{height:32px;border-radius:7px;border:1px solid var(--bd2);background:var(--bg);padding:0 8px;font-size:14px;width:100%;color:var(--t1)}
+.cin::placeholder{color:var(--t3)}
+.ai{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.act{display:flex;gap:14px;align-items:flex-start}
+.act .ico{width:28px;height:28px;border-radius:50%;background:var(--s2);display:grid;place-items:center;color:var(--t2);flex:none}
+.step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--bd)}
+.botbar{display:flex;gap:24px;padding:14px 24px;border-top:1px solid var(--bd);color:var(--t2)}
+.botbar button{display:flex;gap:8px;align-items:center;background:none;border:0;color:var(--t2);cursor:pointer;padding:0}
+textarea.inp{height:80px;padding:8px 10px;resize:vertical;width:100%}
+kbd{font:500 11px Inter,sans-serif;color:var(--t3);border:1px solid var(--bd2);border-radius:5px;padding:0 5px}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen19: breadcrumb parent is a clear link back */
+.bc a.m{cursor:pointer;text-decoration:none;border-radius:6px;padding:3px 6px;margin:0 -2px 0 -6px;transition:background .12s,color .12s}
+.bc a.m:hover{color:var(--t1);background:var(--s2);text-decoration:underline;text-underline-offset:3px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="so" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><a class="m" href="SalesOrderList.dc.html">Sales Orders</a><span class="m">/</span><span>SO-26-27-0419</span></div>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>AI check</button>
+<button class="btn" type="button"><span class="av" style="background: #2563EB; width: 22px; height: 22px">RS</span>Rajesh Shah</button>
+<button class="btn" type="button"><span class="dot c-orange">On hold · approval</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+<button class="btn pr" type="button" onClick="{{goAppr}}">Approve → Pending</button>
+</header>
+
+<div class="split">
+<div class="lp">
+<div class="tabs" role="tablist">
+<button class="{{tc.items}}" type="button" role="tab" onClick="{{go.items}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.5 6.5c4.5.5 9 4.5 10.5 12"/><path d="M9.5 3.3c3.5 2 6.6 6 7.6 11.6"/></svg>Items <span class="n">3</span></button>
+<button class="{{tc.activity}}" type="button" role="tab" onClick="{{go.activity}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Activity</button>
+<button class="{{tc.approvals}}" type="button" role="tab" onClick="{{go.approvals}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Approvals <span class="n">1</span></button>
+<button class="{{tc.dispatch}}" type="button" role="tab" onClick="{{go.dispatch}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Dispatches</button>
+<button class="{{tc.notes}}" type="button" role="tab" onClick="{{go.notes}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>Notes <span class="n">1</span></button>
+<button class="tab" type="button" role="tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attachments <span class="n">2</span></button>
+</div>
+
+<sc-if value="{{show.items}}" hint-placeholder-val="{{true}}">
+<div class="pane">
+<div class="ph2"><h2>Yarn items</h2><button class="btn sm" type="button">Copy from quotation</button><button class="btn sm pr" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add line</button></div>
+<div style="overflow-x: auto"><table>
+<thead><tr><th>#</th><th>Yarn quality</th><th>Shade / Lot</th><th class="r">Boxes</th><th class="r">Net kg</th><th class="r">Rate ₹/kg</th><th class="r">Disc %</th><th class="r">Amount ₹</th></tr></thead>
+<tbody>
+<tr><td class="muted">1</td><td><div>Polyester FDY 75/36 SD</div><div class="muted" style="font-size: 12px">HSN 5402 · AA grade</div></td><td class="t2">Raw white · L-2231</td><td class="r">40</td><td class="r">2,400.00</td><td class="r">136.00</td><td class="r">0.5</td><td class="r">3,24,768.00</td></tr>
+<tr><td class="muted">2</td><td><div>Viscose Filament 120D/30F BR</div><div class="muted" style="font-size: 12px">HSN 5403 · A grade</div></td><td class="t2">Dyed navy · V-118</td><td class="r">12</td><td class="r">600.00</td><td class="r">212.50</td><td class="r">—</td><td class="r">1,27,500.00</td></tr>
+<tr><td class="muted">3</td><td><div>Nylon 6 FDY 40/34 SD</div><div class="muted" style="font-size: 12px">HSN 5402 · A grade</div></td><td class="t2">Raw white · N-904</td><td class="r">8</td><td class="r">384.00</td><td class="r">268.00</td><td class="r">1.0</td><td class="r">1,01,882.88</td></tr>
+<tr><td class="muted">4</td><td><input class="cin" type="text" aria-label="Yarn quality" placeholder="Search yarn  (F2)" style="min-width: 220px"></td><td><input class="cin" type="text" aria-label="Shade or lot" placeholder="Lot"></td><td><input class="cin" type="text" aria-label="Boxes" placeholder="0" style="text-align: right; width: 64px"></td><td><input class="cin" type="text" aria-label="Net kg" placeholder="0.00" style="text-align: right; width: 88px"></td><td><input class="cin" type="text" aria-label="Rate" placeholder="0.00" style="text-align: right; width: 88px"></td><td><input class="cin" type="text" aria-label="Discount" placeholder="0" style="text-align: right; width: 56px"></td><td class="r muted">—</td></tr>
+</tbody></table></div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 13px"><span class="muted" style="flex: 1 1 260px"><kbd>Enter</kbd> add line · <kbd>F2</kbd> search yarn · <kbd>Ctrl D</kbd> duplicate</span><span>60 boxes · 816 cones · <b style="font-weight: 600">3,384.00 kg</b></span></div>
+
+<div class="ai">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C084FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>AI order check</div>
+<span class="dot c-green t2">Stock available for all 3 lines in Sachin GIDC godown.</span>
+<span class="dot c-red t2">Credit limit exceeded by ₹ 4.66 L — keep in mind before approving.</span>
+<span class="dot c-violet t2">Party paid ₹ 137.50/kg avg for FDY 75/36 on last 5 orders; this line is ₹ 1.50 lower.</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{show.activity}}" hint-placeholder-val="{{false}}">
+<div class="pane">
+<div class="ph2"><h2>Activity</h2><button class="btn sm" type="button">+ New</button></div>
+<div class="act"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span><span style="flex: 1; padding-top: 4px"><b style="font-weight: 500">Rajesh Shah</b> <span class="muted">created this order from quotation QT-0388</span></span><span class="muted" style="padding-top: 4px">2 hours ago</span></div>
+<div class="act"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg></span><span style="flex: 1; padding-top: 4px"><b style="font-weight: 500">YarnFlow AI</b> <span class="muted">flagged credit limit and rate below party average</span></span><span class="muted" style="padding-top: 4px">2 hours ago</span></div>
+<div class="act"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/></svg></span><span style="flex: 1; padding-top: 4px"><b style="font-weight: 500">Rajesh Shah</b> <span class="muted">submitted for approval to</span> <b style="font-weight: 500">Avi Patel</b></span><span class="muted" style="padding-top: 4px">1 hour ago</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{show.approvals}}" hint-placeholder-val="{{false}}">
+<div class="pane">
+<div class="ph2"><h2>Approval flow</h2><span class="dot c-orange">On hold · waiting on Avi Patel</span></div>
+<div class="t2" style="font-size: 13px">On hold → approve → Pending dispatch → closes automatically once fully dispatched.</div>
+<div class="step"><span class="av" style="background: #2563EB; width: 28px; height: 28px">RS</span><div style="flex: 1"><div><b style="font-weight: 500">Submitted</b> <span class="muted">by Rajesh Shah · Salesperson</span></div><div class="muted" style="font-size: 13px">“Regular party, payment coming Monday.”</div></div><span class="tag t-green">Done</span></div>
+<div class="step"><span class="av" style="background: #7C3AED; width: 28px; height: 28px">AI</span><div style="flex: 1"><div><b style="font-weight: 500">Credit check</b> <span class="muted">· automatic</span></div><div class="muted" style="font-size: 13px">Outstanding ₹ 4.82 L + this order ₹ 5.84 L exceeds ₹ 6.00 L limit by ₹ 4.66 L</div></div><span class="tag t-red">Failed</span></div>
+<div class="step" style="border-bottom: 0"><span class="av" style="background: #B45309; width: 28px; height: 28px">AP</span><div style="flex: 1; display: flex; flex-direction: column; gap: 10px"><div><b style="font-weight: 500">Owner approval</b> <span class="muted">· Avi Patel</span></div><textarea class="inp" aria-label="Approval remark" placeholder="Add a remark (optional)"></textarea><div style="display: flex; gap: 8px"><button class="btn ok" type="button">Approve → Pending</button><button class="btn" type="button">Keep on hold</button><button class="btn no" type="button">Reject</button></div></div><span class="tag t-orange">Pending</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{show.dispatch}}" hint-placeholder-val="{{false}}">
+<div class="pane" style="align-items: center; justify-content: center; text-align: center; gap: 10px; min-height: 360px">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" style="color: var(--t3)"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+<div style="font-weight: 500">No dispatches yet</div><div class="muted">Dispatch can start once the order is approved.</div>
+<a class="btn" href="Dispatch.dc.html">Create dispatch</a>
+</div>
+</sc-if>
+
+<sc-if value="{{show.notes}}" hint-placeholder-val="{{false}}">
+<div class="pane">
+<div class="ph2"><h2>Notes</h2><button class="btn sm pr" type="button">+ New Note</button></div>
+<div style="width: 260px; border: 1px solid var(--bd); border-radius: 12px; padding: 16px; background: var(--s1); display: flex; flex-direction: column; gap: 8px"><b style="font-weight: 600">Packing</b><span class="t2" style="font-size: 13px">Pack in 5-ply cartons. Deliver before 11 AM — party godown closes afternoons.</span><span class="muted" style="font-size: 12px; display: flex; gap: 8px; align-items: center"><span class="av" style="background: #2563EB; width: 18px; height: 18px; font-size: 9px">RS</span>Rajesh S. · today</span></div>
+</div>
+</sc-if>
+
+<div class="botbar"><button type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>WhatsApp party</button><button type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button><button type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>Print PI</button></div>
+</div>
+
+<aside class="rp">
+<div class="rid">SO-26-27-0419</div>
+<div class="rhead"><span class="big">K</span><div><div style="font-size: 20px; line-height: 28px; font-weight: 500">Krishna Textiles</div><div class="ibs">
+<button class="ib" type="button" aria-label="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
+<button class="ib" type="button" aria-label="Email"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 5L2 7"/></svg></button>
+<a class="ib" href="Ledger.dc.html" aria-label="Open ledger"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></a>
+<button class="ib" type="button" aria-label="Attach file"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+<button class="ib del" type="button" aria-label="Cancel order"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+</div></div></div>
+
+<div class="sec">
+<div class="sech"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Order details</span><button class="ib" type="button" aria-label="Edit details" style="width: 28px; height: 28px; background: transparent"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></button></div>
+<div class="kv"><span class="k">Order date</span><span class="v">23-10-2026</span></div>
+<div class="kv"><span class="k">Deliver by</span><span class="v">28-10-2026</span></div>
+<div class="kv"><span class="k">Broker</span><span class="v">Mahesh Shah · 1%</span></div>
+<div class="kv"><span class="k">Payment terms</span><span class="v">45 days credit</span></div>
+<div class="kv"><span class="k">Transporter</span><span class="v">Navkar Roadlines</span></div>
+<div class="kv"><span class="k">Godown</span><span class="v">Sachin GIDC</span></div>
+<div class="kv"><span class="k">Party PO</span><span class="v">KT/PO/7781</span></div>
+</div>
+<div class="sec">
+<div class="sech"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Party credit</span></div>
+<div class="kv"><span class="k">GSTIN</span><span class="v">24AABCK1234F1Z5</span></div>
+<div class="kv"><span class="k">Outstanding</span><span class="v">₹ 4,82,350</span></div>
+<div class="kv"><span class="k">Overdue</span><span class="v"><span class="tag t-red">₹ 2,14,000 · 18 days</span></span></div>
+<div class="kv"><span class="k">Credit limit</span><span class="v">₹ 6,00,000 <span class="muted">· 80% used</span></span></div>
+</div>
+<div class="sec" style="border-bottom: 0">
+<div class="sech"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Totals</span><span class="tag t-gray" style="flex: none">CGST + SGST</span></div>
+<div class="kv"><span class="k">Taxable value</span><span class="v">₹ 5,54,150.88</span></div>
+<div class="kv"><span class="k">CGST 2.5%</span><span class="v">₹ 13,853.77</span></div>
+<div class="kv"><span class="k">SGST 2.5%</span><span class="v">₹ 13,853.77</span></div>
+<div class="kv"><span class="k">Freight</span><span class="v">₹ 1,800.00</span></div>
+<div class="kv"><span class="k">Round off</span><span class="v">− ₹ 0.42</span></div>
+<div class="kv"><span class="k" style="color: var(--t1); font-weight: 600">Grand total</span><span class="v" style="font-size: 18px; font-weight: 600">₹ 5,83,658.00</span></div>
+</div>
+</aside>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="so" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"startTab":{"editor":"enum","default":"items","options":["items","activity","approvals","dispatch","notes"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: null }; }
+  renderVals() {
+    const tab = this.state.tab ?? this.props.startTab ?? 'items';
+    const keys = ['items', 'activity', 'approvals', 'dispatch', 'notes'];
+    const tc = {}, go = {}, show = {};
+    keys.forEach((k) => { tc[k] = k === tab ? 'tab on' : 'tab'; show[k] = k === tab; go[k] = () => this.setState({ tab: k }); });
+    return { theme: this.props.theme ?? 'dark', tc, go, show, goAppr: () => this.setState({ tab: 'approvals' }) };
+  }
+}
+</script>
+</body>
+</html>

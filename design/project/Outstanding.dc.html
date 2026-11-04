@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Outstanding</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.sm{height:28px;padding:0 10px;font-size:13px}
+.btn.ic{width:34px;padding:0;justify-content:center}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.fbar{display:flex;align-items:center;gap:8px;padding:14px 20px;flex-wrap:wrap}
+.fbar .inp{flex:1 1 130px;max-width:180px}
+.seg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:6px;color:var(--t3);cursor:pointer}
+.seg button.on{background:var(--s3);color:var(--t1)}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.lg{width:26px;height:26px;border-radius:7px;display:inline-grid;place-items:center;font-size:12px;font-weight:600;flex:none;background:var(--s2);color:var(--t2)}
+.cell{display:flex;align-items:center;gap:10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:16px 20px 0}
+.cardx{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.cardx b{font-size:20px;line-height:28px;font-weight:600;font-variant-numeric:tabular-nums}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.tw{overflow-x:auto;padding:0 20px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:48px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr:hover td{background:var(--s1)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cb{width:16px;height:16px;margin:0;accent-color:#8F8F8F;vertical-align:middle}
+.hot{color:#F87171}.light .hot{color:#B91C1C}
+.foot{display:flex;align-items:center;gap:10px;padding:14px 20px;margin-top:auto;flex-wrap:wrap}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="out" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span>Outstanding</span></div>
+<div class="seg" role="group" aria-label="Receivable or payable"><button type="button" class="{{rc}}" onClick="{{setR}}">Receivable</button><button type="button" class="{{py}}" onClick="{{setP}}">Payable</button></div>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Export</button>
+<button class="btn pr" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>{{bulk}}</button>
+</header>
+
+<div class="cards">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="5"><div class="cardx"><span class="dot" style="{{c.st}}"><span class="muted">{{c.l}}</span></span><b>{{c.v}}</b></div></sc-for>
+</div>
+
+<div class="fbar">
+<input class="inp" type="text" placeholder="Party" aria-label="Party">
+<select class="inp" aria-label="City"><option>City</option><option>Surat</option><option>Bhiwandi</option><option>Ichalkaranji</option></select>
+<select class="inp" aria-label="Broker"><option>Broker</option><option>Mahesh Shah</option></select>
+<select class="inp" aria-label="Age"><option>Any age</option><option>Above 60 days</option><option>Above 90 days</option></select>
+<div style="flex: 1"></div>
+<button class="btn" type="button">Filter</button><button class="btn" type="button">Sort</button><button class="btn" type="button">Columns</button>
+</div>
+
+<div class="tw"><table>
+<thead><tr><th style="width: 36px"><input class="cb" type="checkbox" aria-label="Select all"></th><th>Party</th><th>City</th><th class="r">Total</th><th class="r">0–30</th><th class="r">31–60</th><th class="r">61–90</th><th class="r">90+</th><th>Last {{verb}}</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="8">
+<tr><td><input class="cb" type="checkbox" aria-label="Select party"></td><td><a class="cell" href="Ledger.dc.html"><span class="lg">{{x.i}}</span>{{x.n}}</a></td><td class="t2">{{x.c}}</td><td class="r" style="font-weight: 500">{{x.t}}</td><td class="r t2">{{x.a}}</td><td class="r t2">{{x.b}}</td><td class="r"><span class="{{x.dc}}">{{x.d}}</span></td><td class="r"><span class="{{x.ec}}">{{x.e}}</span></td><td class="muted">{{x.lp}}</td><td class="r"><button class="btn sm" type="button">{{action}}</button></td></tr>
+</sc-for>
+</tbody></table></div>
+<div class="foot"><span class="muted">{{footer}}</span><div style="flex: 1"></div><button class="btn" type="button">Load More</button></div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="out" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { mode: 'r' }; }
+  renderVals() {
+    const r = this.state.mode === 'r';
+    const mk = (i, n, c, t, a, b, d, e, lp) => ({ i, n, c, t, a, b, d, e, lp, dc: d !== '—' ? 'hot' : 'muted', ec: e !== '—' ? 'hot' : 'muted' });
+    const recv = [
+      mk('K', 'Krishna Textiles', 'Surat', '4,82,350', '1,40,700', '31,400', '3,10,250', '—', '06 Oct'),
+      mk('S', 'Shiv Shakti Fabrics', 'Sachin GIDC', '7,84,200', '4,10,000', '2,44,375', '1,29,825', '—', '15 Oct'),
+      mk('O', 'Om Sai Weaving', 'Pandesara', '6,12,560', '3,98,160', '2,14,400', '—', '—', '18 Oct'),
+      mk('L', 'Laxmi Creation', 'Bhiwandi', '5,46,900', '—', '2,10,000', '1,86,900', '1,50,000', '22 Aug'),
+      mk('N', 'Navrang Prints', 'Ichalkaranji', '4,02,800', '2,04,800', '1,98,000', '—', '—', '09 Oct'),
+      mk('R', 'Radhe Textiles', 'Kadodara', '3,15,000', '3,15,000', '—', '—', '—', '20 Oct'),
+      mk('A', 'Ambika Silk Mills', 'Surat', '2,08,400', '—', '—', '—', '2,08,400', '30 Jun'),
+      mk('J', 'Jay Bhavani Fab', 'Kamrej', '3,26,400', '3,26,400', '—', '—', '—', '12 Oct')
+    ];
+    const pay = [
+      mk('R', 'Reliance Industries', 'Silvassa', '9,75,623', '7,98,132', '1,77,491', '—', '—', '02 Oct'),
+      mk('S', 'Sanathan Textiles', 'Silvassa', '8,40,000', '8,40,000', '—', '—', '—', '24 Sep'),
+      mk('I', 'Indorama Synthetics', 'Butibori', '6,20,500', '3,20,500', '3,00,000', '—', '—', '29 Sep'),
+      mk('C', 'Century Rayon', 'Kalyan', '4,46,250', '4,46,250', '—', '—', '—', '11 Oct'),
+      mk('F', 'Filatex India', 'Dahej', '3,12,000', '—', '3,12,000', '—', '—', '04 Sep'),
+      mk('J', 'JCT Fibres', 'Phagwara', '2,10,400', '2,10,400', '—', '—', '—', '16 Oct')
+    ];
+    const st = (c) => '--c: ' + c;
+    const cards = r
+      ? [{ l: 'Total receivable', v: '₹ 62.4 L', st: st('#3B82F6') }, { l: '0–30 days', v: '₹ 29.8 L', st: st('#8F8F8F') }, { l: '31–60 days', v: '₹ 17.8 L', st: st('#F97316') }, { l: '61–90 days', v: '₹ 9.7 L', st: st('#EF4444') }, { l: '90+ days', v: '₹ 5.1 L', st: st('#B91C1C') }]
+      : [{ l: 'Total payable', v: '₹ 38.9 L', st: st('#3B82F6') }, { l: 'Due this week', v: '₹ 9.7 L', st: st('#F97316') }, { l: 'Not yet due', v: '₹ 26.1 L', st: st('#8F8F8F') }, { l: 'Overdue', v: '₹ 3.1 L', st: st('#EF4444') }, { l: 'Advances paid', v: '₹ 3.0 L', st: st('#A855F7') }];
+    return {
+      theme: this.props.theme ?? 'dark', rc: r ? 'on' : '', py: r ? '' : 'on',
+      setR: () => this.setState({ mode: 'r' }), setP: () => this.setState({ mode: 'p' }),
+      rows: r ? recv : pay, cards,
+      verb: r ? 'receipt' : 'payment', action: r ? 'Remind' : 'Pay',
+      bulk: r ? 'Send reminders' : 'Plan payments',
+      footer: r ? '8 of 38 parties · ₹ 62.4 L receivable' : '6 of 14 mills · ₹ 38.9 L payable'
+    };
+  }
+}
+</script>
+</body>
+</html>

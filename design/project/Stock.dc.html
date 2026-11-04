@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Stock</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.fbar{display:flex;align-items:center;gap:8px;padding:14px 20px;flex-wrap:wrap}
+.fbar .inp{flex:1 1 130px;max-width:180px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:14px 20px 0}
+.chip{height:30px;padding:0 12px;border-radius:8px;border:0;background:var(--s1);color:var(--t3);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--s3);color:var(--t1)}
+.chip span{font-variant-numeric:tabular-nums}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.tw{overflow-x:auto;padding:0 20px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:46px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr:hover td{background:var(--s1)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cb{width:16px;height:16px;margin:0;accent-color:#8F8F8F;vertical-align:middle}
+.bar{display:inline-block;width:70px;height:6px;border-radius:3px;background:var(--s2);overflow:hidden;vertical-align:middle;margin-right:8px}.bar i{display:block;height:6px;border-radius:3px}
+.foot{display:flex;align-items:center;gap:10px;padding:14px 20px;margin-top:auto;flex-wrap:wrap}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="stock" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span class="m">Stock</span><span class="m">/</span><button class="btn gh" type="button" style="font-size: 17px; font-weight: 400; padding: 0 8px; height: 32px">Lot-wise<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+<button class="btn" type="button">Physical count</button>
+<button class="btn pr" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Stock transfer</button>
+</header>
+<div class="chips" role="group" aria-label="Godown">
+<sc-for list="{{godowns}}" as="g" hint-placeholder-count="5"><button class="{{g.cls}}" type="button" onClick="{{g.pick}}">{{g.n}} <span>{{g.kg}}</span></button></sc-for>
+</div>
+<div class="fbar">
+<input class="inp" type="text" placeholder="Yarn" aria-label="Yarn">
+<input class="inp" type="text" placeholder="Lot" aria-label="Lot">
+<select class="inp" aria-label="Type"><option>Type</option><option>FDY</option><option>POY</option><option>DTY</option><option>Viscose</option><option>Nylon</option><option>Spun</option></select>
+<select class="inp" aria-label="Status"><option>Status</option><option>Low</option><option>Reserved</option><option>Ageing</option></select>
+<div style="flex: 1"></div>
+<button class="btn" type="button">Filter</button><button class="btn" type="button">Sort</button><button class="btn" type="button">Columns</button>
+</div>
+<div class="tw"><table>
+<thead><tr><th style="width: 36px"><input class="cb" type="checkbox" aria-label="Select all"></th><th>Yarn</th><th>Lot · Grade</th><th>Godown</th><th class="r">Boxes</th><th class="r">Net kg</th><th>Free vs reserved</th><th class="r">Age</th><th class="r">Value</th><th>Status</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="10">
+<tr><td><input class="cb" type="checkbox" aria-label="Select lot"></td><td><a href="YarnMaster.dc.html">{{x.y}}</a></td><td class="t2">{{x.l}}</td><td class="t2">{{x.g}}</td><td class="r">{{x.b}}</td><td class="r">{{x.kg}}</td><td><span class="bar"><i style="{{x.bw}}"></i></span><span class="muted" style="font-size: 13px">{{x.res}}</span></td><td class="r t2">{{x.age}}</td><td class="r">{{x.v}}</td><td><span class="dot" style="{{x.sc}}">{{x.s}}</span></td></tr>
+</sc-for>
+</tbody></table></div>
+<div class="foot"><span class="muted">{{summary}}</span><div style="flex: 1"></div><button class="btn" type="button">Load More</button></div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="stock" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { gd: 'All' }; }
+  renderVals() {
+    const S = { ok: ['In stock', '#22C55E'], low: ['Low', '#EF4444'], res: ['Reserved', '#3B82F6'], old: ['Ageing', '#F97316'] };
+    const mk = (y, l, g, b, kg, free, res, age, v, s) => ({ y, l, g, b, kg, res: res, bw: 'width: ' + free + '%; background: ' + (free < 30 ? '#EF4444' : '#22C55E'), age, v, s: S[s][0], sc: '--c: ' + S[s][1] });
+    const all = [
+      mk('PFY 75/36 SD Raw White', 'L-2231 · AA', 'Sachin GIDC', '177', '10,600', 77, '2,400 reserved', '6 d', '₹ 13.9 L', 'ok'),
+      mk('PFY 75/36 SD Raw White', 'L-2198 · AA', 'Pandesara', '60', '3,600', 100, 'all free', '41 d', '₹ 4.7 L', 'ok'),
+      mk('PFY 150/48 BR', 'L-2245 · AA', 'Sachin GIDC', '148', '8,900', 64, '3,200 reserved', '2 d', '₹ 10.5 L', 'ok'),
+      mk('PFY 150/48 BR', 'L-2170 · A', 'Kadodara', '40', '2,400', 100, 'all free', '68 d', '₹ 2.8 L', 'old'),
+      mk('Viscose Filament 120D BR', 'V-118 · A', 'Sachin GIDC', '80', '3,860', 16, '3,240 reserved', '12 d', '₹ 8.2 L', 'low'),
+      mk('Nylon 6 FDY 40/34 SD', 'N-904 · A', 'Sachin GIDC', '268', '6,420', 94, '384 reserved', '19 d', '₹ 17.2 L', 'ok'),
+      mk('PV Spun 30s (65/35)', 'S-311 · A', 'Pandesara', '150', '6,840', 78, '1,500 reserved', '27 d', '₹ 14.4 L', 'ok'),
+      mk('Polyester POY 250/48', 'P-077 · AA', 'Kadodara', '75', '6,000', 33, '4,000 reserved', '9 d', '₹ 6.2 L', 'res'),
+      mk('DTY 80/36 SIM', 'D-552 · A', 'Pandesara', '83', '4,150', 61, '1,600 reserved', '33 d', '₹ 5.3 L', 'ok'),
+      mk('Cotton Combed 40s', 'C-019 · A', 'Bhiwandi', '47', '2,140', 100, 'all free', '96 d', '₹ 6.7 L', 'old')
+    ];
+    const gds = [['All', '54,910 kg'], ['Sachin GIDC', '29,780 kg'], ['Pandesara', '14,590 kg'], ['Kadodara', '8,400 kg'], ['Bhiwandi', '2,140 kg']];
+    const gd = this.state.gd;
+    const rows = gd === 'All' ? all : all.filter((r) => r.g === gd);
+    return {
+      theme: this.props.theme ?? 'dark', rows,
+      godowns: gds.map(([n, kg]) => ({ n, kg, cls: n === gd ? 'chip on' : 'chip', pick: () => this.setState({ gd: n }) })),
+      summary: rows.length + ' lots shown · stock valued at weighted average cost'
+    };
+  }
+}
+</script>
+</body>
+</html>

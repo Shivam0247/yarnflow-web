@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Sales Order Register</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;--pop:#1E1E1E;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;--pop:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.light .btn.no{color:#B91C1C}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.inp:focus{outline:0;border-color:var(--bd2)}
+.tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:8px;padding:12px 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--t1)}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2);font-variant-numeric:tabular-nums}
+.fbar{display:flex;align-items:center;gap:8px;padding:12px 20px;flex-wrap:wrap}
+.fbar .inp{flex:1 1 120px;max-width:170px}
+.seg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:4px 10px;border-radius:6px;color:var(--t3);cursor:pointer;font-size:13px;white-space:nowrap}
+.seg button.on{background:var(--s3);color:var(--t1)}
+.bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 20px 10px;padding:8px 10px 8px 14px;border-radius:10px;background:var(--s2);border:1px solid var(--bd2)}
+.tw{overflow-x:auto;padding:0 20px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:9px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+td{padding:0 10px;height:50px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr:hover td{background:var(--s1)}
+tr.sel td{background:var(--s2)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cb{width:16px;height:16px;margin:0;accent-color:#8F8F8F;vertical-align:middle;cursor:pointer}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.sub{font-size:12px;color:var(--t3)}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.link{border:0;background:none;padding:0;cursor:pointer;color:var(--t1);font-weight:500;text-decoration:underline;text-decoration-color:var(--bd2);text-underline-offset:3px}
+.bar{display:inline-block;width:56px;height:5px;border-radius:3px;background:var(--s3);overflow:hidden;vertical-align:middle;margin-left:8px}.bar i{display:block;height:5px;border-radius:3px;background:#3B82F6}
+.foot{display:flex;align-items:center;gap:20px;padding:12px 20px;border-top:1px solid var(--bd);flex-wrap:wrap;margin-top:8px}
+.foot b{font-weight:600;font-variant-numeric:tabular-nums}
+.drawer{margin:0 20px 20px;border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.dh{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--s1);flex-wrap:wrap}
+.dh b{font-weight:600}
+.grp td{height:56px}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t2)}
+.flow b{font-weight:600;color:var(--t1)}
+.flow .arr{color:var(--t3)}
+.xr>td{height:auto;padding:2px 0 16px;background:var(--bg)!important;white-space:normal}
+.xp{margin-left:36px;border:1px solid var(--bd2);border-radius:12px;overflow:hidden}
+.xh{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s1);flex-wrap:wrap}
+.xh b{font-weight:600}
+.xs{display:flex;gap:32px;padding:12px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.xs div{display:flex;flex-direction:column;gap:2px}.xs b{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+.xs .k{font-size:12px;color:var(--t3)}
+.bt td{height:44px;white-space:nowrap}
+.bt thead th{background:transparent;border-bottom:1px solid var(--bd);border-radius:0!important;font-size:13px}
+.bt tr.on>td{background:var(--s2)}
+.bt tfoot td{font-weight:600;height:44px;border-bottom:0}
+.bd>td{height:auto;padding:10px 14px 16px;background:var(--s1)!important;white-space:normal}
+.bill{border:1px solid var(--bd2);border-radius:10px;background:var(--bg);overflow:hidden}
+.bh{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bh b{font-weight:600;font-size:15px}
+.bgr{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 24px;padding:14px}
+.bgr .k{font-size:12px;color:var(--t3);margin-bottom:2px}
+.bl{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:0 14px 14px}
+.bl .it{flex:1 1 560px;min-width:0;overflow-x:auto}
+.bl .it td{height:44px}
+.tt{flex:0 1 300px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;font-variant-numeric:tabular-nums}
+.tt .g{font-weight:600;font-size:16px;padding-top:8px;border-top:1px solid var(--bd)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-orange{color:#C2410C}.light .t-green{color:#15803D}.light .t-red{color:#B91C1C}
+.ib{width:30px;height:30px;border-radius:8px;border:0;display:inline-grid;place-items:center;cursor:pointer;background:var(--s2);color:var(--t2)}
+.ib.ok{background:rgba(22,163,74,.16);color:#4ADE80}.ib.ok:hover{background:#16A34A;color:#fff}.ib.no:hover{background:rgba(239,68,68,.22);color:#F87171}
+.light .ib.ok{color:#15803D}
+.cnt{border:0;background:var(--s2);color:var(--t2);height:28px;padding:0 10px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap}
+.cnt:hover,.cnt.on{background:var(--s3);color:var(--t1)}
+.split{display:flex;flex-direction:column}
+.scr{overflow:auto;flex:none}
+.dock{flex:none;display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+.grip{flex:none;height:10px;display:grid;place-items:center;cursor:ns-resize;touch-action:none;background:var(--s1);border-top:1px solid var(--bd2);border-bottom:1px solid var(--bd)}
+.grip span{width:48px;height:4px;border-radius:2px;background:var(--bd2)}
+.grip:hover span{background:var(--t3)}
+.dock .xh{background:var(--bg);padding:8px 16px}
+.dbody{flex:1 1 auto;min-height:0;overflow:auto;border-top:1px solid var(--bd)}
+.dbody .xs{padding:10px 16px;gap:28px}
+.dbody .bt td:first-child,.dbody .bt th:first-child{padding-left:16px}
+.dseg{display:inline-flex;background:var(--s1);border-radius:8px;padding:3px;gap:2px}
+.dseg button{border:0;background:transparent;padding:3px 10px;border-radius:6px;color:var(--t3);cursor:pointer;font-size:12px}
+.dseg button.on{background:var(--s3);color:var(--t1)}
+.scr .tw tbody tr:nth-child(even)>td{background:rgba(255,255,255,.055)}
+.light .scr .tw tbody tr:nth-child(even)>td{background:#F3F4F6}
+.scr .tw tbody tr:hover>td{background:var(--s2)}
+.scr .tw tbody tr.sel>td,.scr .tw tbody tr.sel:hover>td{background:rgba(59,130,246,.32);border-bottom-color:rgba(59,130,246,.45)}
+.light .scr .tw tbody tr.sel>td,.light .scr .tw tbody tr.sel:hover>td{background:#DBEAFE;border-bottom-color:#BFDBFE}
+.scr .tw tbody tr.sel>td:first-child{box-shadow:inset 3px 0 0 #3B82F6}
+.scr .tw td,.scr .tw th{padding-left:7px;padding-right:7px}
+.scr .tw .bar{display:block;width:72px;margin:5px 0 0 auto}
+.scr{overflow-x:hidden}
+.scr .tw tbody td:nth-child(3) div,.scr .tw tbody td:nth-child(4) div{max-width:168px;overflow:hidden;text-overflow:ellipsis}
+.scr .tw{overflow:visible}
+.scr .tw tfoot td{position:sticky;bottom:0;z-index:2;background:var(--s2);font-weight:600;height:44px;border-top:1px solid var(--bd2);border-bottom:0;font-variant-numeric:tabular-nums}
+.sumbar{flex:none;display:flex;align-items:center;gap:6px;padding:8px 20px;border-top:1px solid var(--bd);background:var(--bg);overflow-x:auto}
+.sumbar .st{display:flex;flex-direction:column;gap:1px;padding:4px 14px 4px 0;margin-right:8px;border-right:1px solid var(--bd);white-space:nowrap}
+.sumbar .st:last-of-type{border-right:0}
+.sumbar .st span{font-size:12px;color:var(--t3)}
+.sumbar .st b{font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+.sumbar .warn{color:#F87171}.light .sumbar .warn{color:#B91C1C}
+.sumbar .okc{color:#4ADE80}.light .sumbar .okc{color:#15803D}
+.scr .tw tbody tr.more>td{height:52px;text-align:center;color:var(--t3);font-size:13px;background:transparent}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bd2);border-top-color:#3B82F6;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen11: column sort + filter */
+.cft thead th{position:sticky;top:0;z-index:5}
+.cft thead th.fh{padding:0}
+.fb{display:flex;align-items:center;gap:5px;width:100%;height:38px;padding:0 10px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;white-space:nowrap;text-align:left;border-radius:6px}
+th.r .fb{justify-content:flex-end}
+.fb:hover{color:var(--t1);background:var(--s2)}
+.fb .fi{opacity:.0;flex:none;transition:opacity .12s}
+.fb:hover .fi,.fb.on .fi,.fb.op .fi{opacity:1}
+.fb.on{color:#3B82F6}.fb.on .fi{color:#3B82F6}
+.fb .si{font-size:12px;color:#3B82F6;font-weight:600}
+.fpbk{position:fixed;inset:0;z-index:30;cursor:default}
+.fp{position:absolute;top:calc(100% + 2px);left:0;z-index:31;width:264px;background:var(--pop,var(--bg));border:1px solid var(--bd2);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.35);padding:6px;display:flex;flex-direction:column;gap:2px;text-align:left;font-weight:400;font-size:13px;color:var(--t1);cursor:default;white-space:normal}
+.light .fp{box-shadow:0 14px 36px rgba(0,0,0,.12)}
+.fp.rt{left:auto;right:0}
+.fpi{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border:0;border-radius:6px;background:transparent;color:var(--t1);font:inherit;font-size:13px;cursor:pointer;text-align:left;width:100%}
+.fpi:hover{background:var(--s2)}
+.fpi.on{color:#3B82F6;font-weight:500}
+.fpi svg{flex:none;color:var(--t3)}.fpi.on svg{color:#3B82F6}
+.fpsep{height:1px;background:var(--bd);margin:4px 2px}
+.fpt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:2px 8px}
+.fps{height:32px;border:1px solid var(--bd2);border-radius:7px;background:var(--s1);padding:0 9px;font:inherit;font-size:13px;color:var(--t1);margin:2px 0 4px;outline:0;width:100%}
+.fps:focus{border-color:#3B82F6}
+.fpl{max-height:216px;overflow-y:auto;display:flex;flex-direction:column}
+.fpo{display:flex;align-items:center;gap:9px;min-height:30px;padding:0 8px;border-radius:6px;font-size:13px;cursor:pointer}
+.fpo:hover{background:var(--s2)}
+.fpo input{width:15px;height:15px;margin:0;accent-color:#3B82F6;flex:none;cursor:pointer}
+.fpo .v{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpo .n{font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums}
+.fpo.all{font-weight:500}
+.fpe{padding:10px 8px;color:var(--t3);font-size:12.5px}
+.fpf{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 2px 0;border-top:1px solid var(--bd);margin-top:4px}
+.fchips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 20px 10px;font-size:13px}
+.fchips .lbl{color:var(--t3)}
+.fchip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 3px 0 10px;border-radius:7px;background:rgba(59,130,246,.14);color:var(--t1);font-size:12.5px;white-space:nowrap}
+.fchip b{font-weight:600}
+.fchip button{width:20px;height:20px;border:0;border-radius:5px;background:transparent;color:var(--t2);cursor:pointer;display:grid;place-items:center;padding:0}
+.fchip button:hover{background:rgba(59,130,246,.28);color:var(--t1)}
+.fclr{border:0;background:transparent;color:#3B82F6;font:inherit;font-size:12.5px;cursor:pointer;padding:0 6px}
+.cft td.it{font-weight:500}
+.cft .den{font-variant-numeric:tabular-nums}
+
+/* gen12: order register scrolls both ways, totals pinned to bottom */
+.scr{display:flex;flex-direction:column;overflow:hidden!important}
+.scr>*{flex:none}
+.scr>.tw,.scr>sc-if>.tw{flex:1 1 auto;min-height:0;overflow:auto!important}
+.scr .tw{flex:1 1 auto;min-height:0;overflow:auto!important;padding:0 20px}
+.scr .tw>table.cft{min-height:100%;width:max-content;min-width:100%}
+.cft tbody tr.fillr>td{height:auto!important;padding:0!important;border:0!important;background:transparent!important}
+.cft tfoot td{position:sticky;bottom:0;z-index:4}
+
+.cft tbody tr:not(.more):not(.fillr){cursor:pointer;user-select:none}
+
+/* gen16: compact registers, more rows per screen */
+.cft{font-size:13.5px;line-height:18px}
+.cft tbody tr:not(.fillr):not(.more)>td{height:36px!important;padding-top:3px!important;padding-bottom:3px!important}
+.cft tbody td .sub{font-size:11.5px;line-height:14px;margin-top:0}
+.cft tbody td .link{font-size:13.5px}
+.cft thead th.fh .fb{height:34px;font-size:13px}
+.cft thead th{font-size:13px}
+.cft tfoot td{height:38px!important}
+.cft td .bar{display:inline-block!important;vertical-align:middle;width:44px!important;margin:0 0 0 8px!important}
+.cft .tag{height:20px;font-size:11.5px;padding:0 7px}
+.cft .cb,.cft .cbx{width:15px;height:15px}
+.cft .ib{width:26px;height:26px}
+.tabs .tab{padding-top:9px;padding-bottom:9px}
+.fbar{padding-top:8px!important;padding-bottom:8px!important}
+.fbar .inp{height:32px}
+.fchips{padding-top:2px;padding-bottom:8px}
+.cft tbody tr.more>td{height:40px!important}
+.cft tbody td:last-child .sub{display:inline;margin-left:6px}
+.cft tbody td:last-child{white-space:nowrap}
+
+/* gen16b: compact bills dock under the order register */
+.dock .xh{padding:5px 16px;gap:8px;font-size:13.5px}
+.dock .xh .btn.sm{height:28px}
+.dock .xs{gap:6px 26px;padding:6px 16px;flex-wrap:wrap}
+.dock .xs div{flex-direction:row;align-items:baseline;gap:6px}
+.dock .xs .k{font-size:12px}
+.dock .xs b{font-size:13.5px}
+.dock .bt{font-size:13.5px}
+.dock .bt thead th{height:30px;padding-top:4px;padding-bottom:4px;font-size:12.5px;position:sticky;top:0;background:var(--bg);z-index:2}
+.dock .bt tbody tr:not(.bd)>td{height:32px!important;padding-top:2px;padding-bottom:2px}
+.dock .bt tfoot td{height:34px;position:sticky;bottom:0;background:var(--s2);z-index:2}
+.dock .bt .tag{height:20px;font-size:11.5px;padding:0 7px}
+.dock .bt .btn.sm{height:26px;padding:0 8px;font-size:12.5px}
+.dock .bill{font-size:13.5px}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+
+/* gen28: bills table under the order matches the order table above (rounded header, same sizes, zebra rows) */
+.dock .xh{padding:6px 20px}
+.dock .xs{padding:6px 20px 8px;border-bottom:0}
+.dock .dbody>div:has(>table.bt){overflow:visible!important;padding:0 20px 10px}
+.dock .bt{font-size:13.5px;line-height:18px;width:100%}
+.dock .bt thead th{position:sticky;top:0;z-index:2;background:var(--s1)!important;border-bottom:0!important;color:var(--t3);font-weight:400;font-size:13px;height:34px;padding:7px}
+.dock .bt thead th:first-child{border-radius:8px 0 0 8px!important;padding-left:10px}
+.dock .bt thead th:last-child{border-radius:0 8px 8px 0!important}
+.dock .bt td{padding-left:7px;padding-right:7px}
+.dock .bt tbody td:first-child{padding-left:10px}
+.dock .bt tbody tr:not(.bd)>td{height:36px!important;padding-top:3px;padding-bottom:3px;border-bottom:1px solid var(--bd)}
+.dock .bt tbody tr:not(.bd):nth-child(even)>td{background:rgba(255,255,255,.055)}
+.light .dock .bt tbody tr:not(.bd):nth-child(even)>td{background:#F3F4F6}
+.dock .bt tbody tr:not(.bd):hover>td{background:var(--s2)}
+.dock .bt tbody tr.on>td,.dock .bt tbody tr.on:hover>td{background:rgba(59,130,246,.32)}
+.light .dock .bt tbody tr.on>td,.light .dock .bt tbody tr.on:hover>td{background:#DBEAFE}
+.dock .bt tbody tr.on>td:first-child{box-shadow:inset 3px 0 0 #3B82F6}
+.dock .bt tfoot td{background:var(--s2);border-top:1px solid var(--bd2);height:38px}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="so" hint-size="236px,1000px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span class="m">Sales Orders</span><span class="m">/</span><span>Register</span></div>
+<div class="seg" role="group" aria-label="View"><button type="button" class="{{vw.order}}" onClick="{{setView.order}}">Order-wise</button><button type="button" class="{{vw.group}}" onClick="{{setView.group}}">Party group-wise</button><button type="button" class="{{vw.broker}}" onClick="{{setView.broker}}">Broker-wise</button></div>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>Print</button>
+<button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Excel</button>
+<a class="btn pr" href="{{newHref}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>New order</a>
+</header>
+<div class="split"><div class="scr" style="{{topH}}">
+<div class="tabs" role="tablist" aria-label="Status">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="7"><button class="{{t.cls}}" type="button" role="tab" onClick="{{t.pick}}"><span class="dot" style="{{t.c}}">{{t.l}}</span><span class="n">{{t.n}}</span></button></sc-for>
+</div>
+<div class="fbar">
+<input class="inp" type="text" value="01-04-2026" aria-label="From date" style="max-width: 120px"><span class="muted">to</span><input class="inp" type="text" value="31-03-2027" aria-label="To date" style="max-width: 120px">
+<div style="flex: 1"></div>
+</div>
+
+<sc-if value="{{hasSel}}" hint-placeholder-val="{{false}}">
+<div class="bulk" role="toolbar" aria-label="Bulk actions"><b style="font-weight: 600">{{selCount}} selected</b><span class="muted" style="flex: 1">{{selQty}} kg pending</span>
+<button class="btn sm ok" type="button" onClick="{{bulk.Approve}}">Approve → Pending</button>
+<button class="btn sm" type="button" onClick="{{bulk.Hold}}">Put on hold</button>
+<button class="btn sm" type="button" onClick="{{bulk.Clear}}">Close</button>
+<button class="btn sm" type="button" onClick="{{bulk.Pending}}">Reopen</button>
+<button class="btn sm" type="button" onClick="{{bulk.Locked}}">Lock</button>
+<button class="btn sm no" type="button" onClick="{{bulk.Cancelled}}">Cancel order</button>
+<button class="btn sm gh" type="button" onClick="{{clearSel}}">Clear</button>
+</div>
+</sc-if>
+
+<sc-if value="{{isOrder}}" hint-placeholder-val="{{true}}">
+<sc-if value="{{cf.hasChips}}" hint-placeholder-val="{{false}}"><div class="fchips" role="status"><span class="lbl">Showing</span><sc-for list="{{cf.chips}}" as="c" hint-placeholder-count="2"><span class="fchip">{{c.l}}: <b>{{c.v}}</b><button type="button" onClick="{{c.x}}" aria-label="Remove filter"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span></sc-for><button class="fclr" type="button" onClick="{{cf.clearAll}}">Clear all</button></div></sc-if>
+<div class="tw" onScroll="{{onScroll}}"><table class="cft">
+<thead><tr><th style="width: 36px"><input class="cb" type="checkbox" aria-label="Select all" checked="{{allOn}}" onChange="{{toggleAll}}"></th><sc-for list="{{cf.heads}}" as="h" hint-placeholder-count="12"><th class="{{h.thc}}"><button class="{{h.btn}}" type="button" onClick="{{h.toggle}}" aria-haspopup="dialog" aria-expanded="{{h.open}}" title="Sort and filter">{{h.l}}<span class="si">{{h.ic}}</span><svg class="fi" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button><sc-if value="{{h.open}}" hint-placeholder-val="{{false}}"><div class="fpbk" onClick="{{h.close}}"></div><div class="{{h.popCls}}" role="dialog" aria-label="Sort and filter"><button class="{{h.ascC}}" type="button" onClick="{{h.asc}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>{{h.ascL}}</button><button class="{{h.descC}}" type="button" onClick="{{h.desc}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>{{h.descL}}</button><div class="fpsep"></div><div class="fpt">Filter {{h.l}}</div><input class="fps" type="search" value="{{h.q}}" onChange="{{h.setQ}}" placeholder="Search values" aria-label="Search values" autoFocus="{{ true }}"><label class="fpo all"><input type="checkbox" checked="{{h.allCk}}" onChange="{{h.selAll}}"><span class="v">Select all</span><span class="n">{{h.nOpts}}</span></label><div class="fpl"><sc-for list="{{h.opts}}" as="o" hint-placeholder-count="6"><label class="fpo"><input type="checkbox" checked="{{o.ck}}" onChange="{{o.tog}}"><span class="v">{{o.v}}</span><span class="n">{{o.n}}</span></label></sc-for><sc-if value="{{h.noOpts}}" hint-placeholder-val="{{false}}"><div class="fpe">No matching values</div></sc-if></div><div class="fpf"><button class="btn sm gh" type="button" onClick="{{h.clear}}">Clear filter</button><button class="btn sm pr" type="button" onClick="{{h.close}}">Done</button></div></div></sc-if></th></sc-for><sc-if value="{{showBills}}" hint-placeholder-val="{{true}}"><th class="r">Bills</th></sc-if></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="12">
+<tr class="{{x.rc}}" onClick="{{x.rowClick}}" onDoubleClick="{{x.open}}" title="Click to select · double-click to open"><td><input class="cb" type="checkbox" aria-label="Select order" checked="{{x.on}}" onChange="{{x.tog}}"></td>
+<td><button class="link" type="button" onClick="{{x.focus}}">{{x.no}}</button></td><td class="t2">{{x.dt}}</td>
+<td><div>{{x.p}}</div></td><td class="it">{{x.itn}}</td><td class="den">{{x.den}}</td><td class="t2">{{x.br}}</td><td class="t2">{{x.lot}}</td><td>{{x.gr}}</td>
+<td class="r">{{x.rate}}</td><td class="r">{{x.oq}}</td><td class="r t2">{{x.dq}}</td>
+<td class="r" style="font-weight: 500">{{x.pq}}<span class="bar" aria-hidden="true"><i style="{{x.bw}}"></i></span></td>
+<td class="t2">{{x.bk}}</td><td><sc-if value="{{x.ask}}" hint-placeholder-val="{{false}}"><span style="display: inline-flex; align-items: center; gap: 6px"><span class="tag t-orange">On hold</span><button class="ib ok" type="button" aria-label="Approve" onClick="{{x.ok}}" title="Approve → Pending"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button><button class="ib no" type="button" aria-label="Reject" onClick="{{x.no2}}" title="Reject → Cancelled"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span></sc-if><sc-if value="{{x.show}}" hint-placeholder-val="{{true}}"><span class="dot" style="{{x.sc}}">{{x.st}}</span></sc-if></td>
+<sc-if value="{{showBills}}" hint-placeholder-val="{{true}}"><td class="r"><button class="{{x.cc}}" type="button" onClick="{{x.focus}}" aria-label="Show bills of this order">{{x.bn}} {{x.chev}}</button></td></sc-if></tr>
+</sc-for>
+<sc-if value="{{moreLeft}}" hint-placeholder-val="{{false}}"><tr class="more"><td colspan="16"><span class="spin" aria-hidden="true"></span>Loading more orders as you scroll · {{loadedLabel}}</td></tr></sc-if>
+<sc-if value="{{allLoaded}}" hint-placeholder-val="{{false}}"><tr class="more"><td colspan="16">All {{sm.n}} orders shown</td></tr></sc-if>
+<tr class="fillr" aria-hidden="true"><td colspan="16"></td></tr>
+</tbody>
+<tfoot><tr><td></td><td>{{sm.n}} orders</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="r">{{sm.avg}}</td><td class="r">{{sm.oq}}</td><td class="r">{{sm.dq}}</td><td class="r">{{sm.pq}}</td><td></td><td></td><sc-if value="{{showBills}}" hint-placeholder-val="{{true}}"><td></td></sc-if></tr></tfoot></table></div>
+</sc-if>
+
+<sc-if value="{{isGroup}}" hint-placeholder-val="{{false}}">
+<div class="tw"><table>
+<thead><tr><th>{{groupLabel}}</th><th class="r">Orders</th><th class="r">Ordered kg</th><th class="r">Dispatched</th><th class="r">Pending</th><th>Progress</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="8">
+<tr class="grp"><td style="font-weight: 500">{{g.k}}</td><td class="r">{{g.n}}</td><td class="r">{{g.oq}}</td><td class="r t2">{{g.dq}}</td><td class="r" style="font-weight: 500">{{g.pq}}</td><td><span class="bar" style="width: 140px; margin: 0" aria-hidden="true"><i style="{{g.bw}}"></i></span> <span class="sub">{{g.pc}}</span></td><td class="r"><button class="btn sm" type="button" onClick="{{g.open}}">Open orders</button></td></tr>
+</sc-for>
+</tbody></table></div>
+</sc-if>
+
+
+</div>
+<sc-if value="{{hasFocus}}" hint-placeholder-val="{{true}}">
+<section class="dock" style="{{botH}}" aria-label="Bills of selected order">
+<div class="grip" onPointerDown="{{startDrag}}" role="separator" aria-orientation="horizontal" aria-label="Drag to resize bills panel" title="Drag to make bigger or smaller"><span></span></div>
+<div class="xh"><b>Bills against order {{f.no}}</b><span class="muted">{{f.p}} · {{f.it}} · Lot {{f.lot}}</span><div style="flex: 1"></div><a class="btn sm" href="{{dispHref}}" onClick="{{markBack}}">Create dispatch</a><a class="btn sm" href="{{recHref}}" onClick="{{openFocus}}">Open order</a></div>
+<div class="dbody">
+<div class="xs"><div><span class="k">Ordered</span><b>{{f.oq}} kg</b></div><div><span class="k">Dispatched · {{f.n}} bills</span><b>{{f.dq}} kg</b></div><div><span class="k">Pending</span><b>{{f.pq}} kg</b></div><div><span class="k">Billed value</span><b>{{f.val}}</b></div><div><span class="k">Received</span><b>{{f.recv}}</b></div><div><span class="k">Balance</span><b>{{f.bal}}</b></div></div>
+<div style="overflow-x: auto"><table class="bt">
+<thead><tr><th>Bill no.</th><th>Date</th><th class="r">Boxes</th><th class="r">Net kg</th><th class="r">Rate</th><th class="r">Taxable</th><th class="r">GST 5%</th><th class="r">Bill amount</th><th>Transporter · LR</th><th>Payment</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{f.ds}}" as="d" hint-placeholder-count="10">
+<tr class="{{d.rc}}"><td><button class="link" type="button" onClick="{{d.pick}}">{{d.inv}}</button></td><td class="t2">{{d.dt}}</td><td class="r">{{d.bx}}</td><td class="r">{{d.kg}}</td><td class="r t2">{{d.rate}}</td><td class="r">{{d.tx}}</td><td class="r t2">{{d.gst}}</td><td class="r" style="font-weight: 500">{{d.amt}}</td><td class="t2">{{d.tr}} · {{d.lr}}</td><td><span class="{{d.pc}}">{{d.pay}}</span></td><td class="r"><button class="btn sm gh" type="button" onClick="{{d.pick}}">{{d.act}}</button></td></tr>
+<sc-if value="{{d.open}}" hint-placeholder-val="{{false}}">
+<tr class="bd"><td colspan="16"><div class="bill">
+<div class="bh"><b>Sale bill {{d.inv}}</b><span class="{{d.pc}}">{{d.pay}}</span><span class="muted">Bill date {{d.dt}} · Due {{d.due}}</span><div style="flex: 1"></div><button class="btn sm" type="button">Print</button><button class="btn sm" type="button">Send on WhatsApp</button><a class="btn sm" href="{{dispHref}}" onClick="{{markBack}}">Open full bill</a><button class="btn sm gh" type="button" onClick="{{d.pick}}" aria-label="Close bill">✕</button></div>
+<div class="bgr">
+<div><div class="k">Bill to</div><div style="font-weight: 500">{{f.p}}</div><div class="sub">GSTIN {{f.gstin}} · Surat, Gujarat</div></div>
+<div><div class="k">Against order</div><div>{{f.no}} · {{f.odt}}</div><div class="sub">Broker · {{f.bk}}</div></div>
+<div><div class="k">Transport</div><div>{{d.tr}}</div><div class="sub">LR {{d.lr}} · {{d.veh}}</div></div>
+<div><div class="k">E-way bill</div><div>{{d.ewb}}</div><div class="sub">IRN generated · e-invoice</div></div>
+</div>
+<div class="bl"><div class="it"><table>
+<thead><tr><th>Item</th><th>Lot</th><th>Grade</th><th class="r">Boxes</th><th class="r">Net kg</th><th class="r">Rate</th><th class="r">Taxable</th></tr></thead>
+<tbody><tr><td><div>{{f.it}}</div><div class="sub">HSN 5402</div></td><td class="t2">{{f.lot}}</td><td class="t2">{{f.gr}}</td><td class="r">{{d.bx}}</td><td class="r">{{d.kg}}</td><td class="r">{{d.rate}}</td><td class="r">{{d.tx}}</td></tr></tbody>
+</table></div>
+<div class="tt"><span class="muted">Taxable value</span><span>{{d.tx}}</span><span class="muted">CGST 2.5%</span><span>{{d.cg}}</span><span class="muted">SGST 2.5%</span><span>{{d.cg}}</span><span class="muted">Round off</span><span>{{d.ro}}</span><span class="g">Bill total</span><span class="g">{{d.amt}}</span><span class="muted">Received</span><span>{{d.recv}}</span><span class="muted">Balance</span><span style="font-weight: 600">{{d.bal}}</span></div>
+</div>
+</div></td></tr>
+</sc-if>
+</sc-for>
+<sc-if value="{{f.none}}" hint-placeholder-val="{{false}}"><tr><td colspan="11" class="muted" style="text-align: center">No bill made yet · {{f.pq}} kg pending dispatch</td></tr></sc-if>
+</tbody>
+<sc-if value="{{f.some}}" hint-placeholder-val="{{true}}"><tfoot><tr><td>{{f.n}} bills</td><td></td><td></td><td class="r">{{f.dq}}</td><td></td><td class="r">{{f.tx}}</td><td class="r">{{f.gst}}</td><td class="r">{{f.val}}</td><td></td><td></td><td></td></tr></tfoot></sc-if>
+</table></div>
+</div>
+</section>
+</sc-if>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="so" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'Pending', view: 'order', sel: [], focus: 'SAL02722', bill: null, top: 690, bot: 300, over: {} }; }
+  /* live data (app) — on the design canvas window.YF_API is absent and the sample data below is used */
+  api() { return typeof window !== 'undefined' ? window.YF_API : null; }
+  async load() {
+    const api = this.api(); if (!api || !api.session) return;
+    try {
+      const [reg, stock] = await Promise.all([api.get('/vouchers/sales-orders', { view: 'lines', pageSize: 1000 }), api.get('/reports/stock')]);
+      const stk = {}; stock.rows.forEach((r) => { stk[r.itemName] = (stk[r.itemName] || 0) + r.qty; });
+      this.setState({ live: reg.data, liveStock: stk, err: null });
+      if (this.state.focus && !reg.data.some((r) => r.number === this.state.focus)) this.setState({ focus: reg.data[0] ? reg.data[0].number : null });
+    } catch (e) { this.setState({ err: api.message(e) }); }
+  }
+  async loadBills(id) {
+    const api = this.api(); if (!api || !id || (this.state.rel || {})[id]) return;
+    try { const rel = await api.get('/vouchers/sales-orders/' + id + '/related'); this.setState({ rel: { ...(this.state.rel || {}), [id]: rel.filter((b) => b.type === 'SALE_BILL') } }); } catch (e) {}
+  }
+  async act(ids, action, reason) {
+    const api = this.api(); if (!api) return;
+    const errs = [];
+    for (const id of [...new Set(ids)]) { try { await api.post('/vouchers/sales-orders/' + id + '/actions/' + action, reason ? { reason } : {}); } catch (e) { errs.push(api.message(e)); } }
+    if (errs.length) window.alert(errs.join('\n'));
+    this.setState({ sel: [], selAll: false, excl: [], rel: {} });
+    await this.load();
+  }
+  componentDidMount() { this.load(); try { const h = window.innerHeight; if (h >= 560 && h <= 1600) { const t = h - 60; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); } } catch (e) {} }
+
+  go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
+  cf(base, COLS) {
+    const st = this.state; const flt = st.flt || {}; const sk = st.sk || null; const sd = st.sd || 1; const pop = st.pop || null; const pq = String(st.pq || '').toLowerCase();
+    const val = (r, c) => { const v = c.get ? c.get(r) : r[c.k]; return v == null || v === '' ? '—' : v; };
+    const dk = (s) => { const m = String(s).match(/^(\d{2})-(\d{2})-(\d{4})$/); return m ? Number(m[3] + m[2] + m[1]) : 0; };
+    const cmp = (c) => (a, b) => { const x = val(a, c), y = val(b, c); const r = c.num ? (Number(x) || 0) - (Number(y) || 0) : c.date ? dk(x) - dk(y) : String(x).localeCompare(String(y), 'en', { numeric: true, sensitivity: 'base' }); return r * sd; };
+    const pass = (r, skip) => COLS.every((c) => c.k === skip || !flt[c.k] || flt[c.k].indexOf(String(val(r, c))) >= 0);
+    const list = base.filter((r) => pass(r));
+    const sc = sk ? COLS.find((x) => x.k === sk) : null;
+    const sorter = sc ? cmp(sc) : null;
+    if (sorter) list.sort(sorter);
+    const set = (patch) => this.setState(Object.assign({ loaded: 20 }, patch));
+    const fmtV = (c, v) => (c.fmt && v !== '—' ? c.fmt(v) : v);
+    const heads = COLS.map((c) => {
+      const on = !!flt[c.k]; const open = pop === c.k; const sorted = sk === c.k;
+      let opts = []; let all = [];
+      if (open) {
+        const cnt = {}; base.filter((r) => pass(r, c.k)).forEach((r) => { const v = String(val(r, c)); cnt[v] = (cnt[v] || 0) + 1; });
+        all = Object.keys(cnt).sort((a, b) => c.num ? (Number(a) || 0) - (Number(b) || 0) : c.date ? dk(a) - dk(b) : a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' }));
+        opts = all.filter((v) => !pq || String(fmtV(c, v)).toLowerCase().indexOf(pq) >= 0).map((v) => {
+          const ck = !on || flt[c.k].indexOf(v) >= 0;
+          return { v: fmtV(c, v), n: cnt[v], ck, tog: () => { let cur = on ? flt[c.k].slice() : all.slice(); const i = cur.indexOf(v); if (i >= 0) cur.splice(i, 1); else cur.push(v); const nf = Object.assign({}, flt); if (cur.length === all.length) delete nf[c.k]; else nf[c.k] = cur; set({ flt: nf }); } };
+        });
+      }
+      const allCk = !on || (all.length > 0 && all.every((v) => flt[c.k].indexOf(v) >= 0));
+      return {
+        l: c.l, open, thc: 'fh' + (c.r ? ' r' : ''), btn: 'fb' + (on || sorted ? ' on' : '') + (open ? ' op' : ''),
+        ic: sorted ? (sd > 0 ? '↑' : '↓') : '',
+        toggle: () => this.setState({ pop: open ? null : c.k, pq: '' }), close: () => this.setState({ pop: null, pq: '' }),
+        popCls: 'fp' + (c.rt ? ' rt' : ''),
+        ascL: c.num ? 'Smallest to largest' : c.date ? 'Oldest to newest' : 'Sort A to Z', descL: c.num ? 'Largest to smallest' : c.date ? 'Newest to oldest' : 'Sort Z to A',
+        ascC: sorted && sd > 0 ? 'fpi on' : 'fpi', descC: sorted && sd < 0 ? 'fpi on' : 'fpi',
+        asc: () => set({ sk: c.k, sd: 1, pop: null }), desc: () => set({ sk: c.k, sd: -1, pop: null }),
+        q: st.pq || '', setQ: (e) => this.setState({ pq: e.target.value }),
+        opts, nOpts: String(all.length), noOpts: open && opts.length === 0, allCk,
+        selAll: () => { const nf = Object.assign({}, flt); if (allCk) nf[c.k] = []; else delete nf[c.k]; set({ flt: nf }); },
+        clear: () => { const nf = Object.assign({}, flt); delete nf[c.k]; set({ flt: nf, pop: null }); }
+      };
+    });
+    const chips = COLS.filter((c) => flt[c.k]).map((c) => { const vs = flt[c.k].map((v) => fmtV(c, v)); return { l: c.l, v: vs.length === 0 ? 'none' : vs.slice(0, 2).join(', ') + (vs.length > 2 ? ' +' + (vs.length - 2) : ''), x: () => { const nf = Object.assign({}, flt); delete nf[c.k]; set({ flt: nf }); } }; });
+    if (sc) chips.push({ l: 'Sorted by ' + sc.l, v: sd > 0 ? (sc.num ? 'smallest first' : sc.date ? 'oldest first' : 'A to Z') : (sc.num ? 'largest first' : sc.date ? 'newest first' : 'Z to A'), x: () => set({ sk: null, sd: 1 }) });
+    const active = Object.keys(flt).length > 0 || !!sc;
+    return { list, sorter, heads, chips, hasChips: chips.length > 0, active, filtered: Object.keys(flt).length > 0, clearAll: () => set({ flt: {}, sk: null, sd: 1, pop: null }) };
+  }
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const sfx = theme === 'light' ? 'Light' : '';
+    const inr = (n, d) => { const s = Number(n).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return rest + l3 + (f ? '.' + f : ''); };
+    const pd = (s) => { const [d, m, y] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+    const fd = (t) => { const z = (n) => String(n).padStart(2, '0'); return z(t.getUTCDate()) + '-' + z(t.getUTCMonth() + 1) + '-' + t.getUTCFullYear(); };
+    const addD = (t, n) => new Date(t.getTime() + n * 864e5);
+    const TODAY = pd('23-10-2026');
+    const hsh = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 99991, 7);
+    const gstOf = (s) => { const h = hsh(s); return '24AA' + 'BCDFGHJKLM'[h % 10] + 'FS' + String(1000 + h % 9000) + 'K1Z' + (h % 9 + 1); };
+    const TR = [['Navkar Roadlines', 'NR'], ['Jay Ambe Roadlines', 'JAR'], ['Shree Maruti Cargo', 'SMC'], ['VRL Logistics', 'VRL']];
+    const ewbF = (n) => String(n).replace(/(\d{4})(?=\d)/g, '$1 ');
+    const mkBills = (r, q, pre, step, lag) => {
+      const out = []; if (q <= 0) return out;
+      const chunk = r.oq <= 12000 ? 1000 : Math.ceil(r.oq / 10 / 500) * 500;
+      const n = Math.ceil(q / chunk - 1e-9); const seq = parseInt(r.no.slice(3), 10); const od = pd(r.dt);
+      let left = q;
+      for (let i = 0; i < n; i++) {
+        const kg = Math.round(Math.min(chunk, left) * 1000) / 1000; left = Math.round((left - kg) * 1000) / 1000;
+        const dt = addD(od, lag + i * step); const due = addD(dt, r.cr || 1);
+        const tx = kg * r.rate; const g = tx * 0.025; const tot = Math.round(tx + 2 * g); const ro = tot - (tx + 2 * g);
+        const age = Math.round((TODAY - due) / 864e5); const paid = age > 20 && i < n - 2;
+        const t = TR[(seq + i) % 4];
+        out.push({ key: r.no + '#' + i, i, inv: pre + (seq % 5000 + 2000 + i * 37), dt: fd(dt), due: fd(due), bx: Math.max(1, Math.round(kg / 62)), kgN: kg, txN: tx, totN: tot, paid,
+          kg: inr(kg, 3), rate: inr(r.rate, 2), tx: '₹ ' + inr(tx, 2), cg: '₹ ' + inr(g, 2), gst: '₹ ' + inr(2 * g, 2), amt: '₹ ' + inr(tot, 2), ro: (ro >= 0 ? '+ ' : '− ') + inr(Math.abs(ro), 2),
+          pay: paid ? 'Paid' : age > 0 ? 'Overdue ' + age + ' days' : 'Due ' + fd(due), pc: paid ? 'tag t-green' : age > 0 ? 'tag t-red' : 'tag t-gray',
+          recv: paid ? '₹ ' + inr(tot, 2) : '₹ 0.00', bal: paid ? '₹ 0.00' : '₹ ' + inr(tot, 2),
+          tr: t[0], lr: t[1] + '-' + (41000 + seq % 900 + i * 13), veh: 'GJ-05-' + ['BX', 'AV', 'CT', 'UU'][i % 4] + '-' + (4100 + (seq * 7 + i * 53) % 5800),
+          ewb: ewbF(481000000000 + seq * 1000 + i * 17), mill: 'MI/' + (seq % 900 + 100) + '/' + (i + 1) });
+      }
+      return out;
+    };
+    const SC = { Pending: '#3B82F6', Hold: '#F97316', Clear: '#22C55E', Cancelled: '#EF4444', Locked: '#A855F7' };
+    const SN = { Pending: 'Pending dispatch', Hold: 'On hold · approval', Clear: 'Closed', Cancelled: 'Cancelled', Locked: 'Locked' };
+    const LIVE = this.state.live;
+    const LST = { PENDING_APPROVAL: 'Hold', OPEN: 'Pending', PARTIAL: 'Pending', COMPLETED: 'Clear', CANCELLED: 'Cancelled', REJECTED: 'Cancelled', LOCKED: 'Locked', DRAFT: 'Hold' };
+    const fromLive = (r) => ({ id: r.id, lineId: r.lineId, no: r.number.replace(/\/\d{2}-\d{2}$/, ''), dt: r.date.split('-').reverse().join('-'), cr: r.creditDays, p: r.partyName, g: r.partyGroupName || r.partyName,
+      it: r.itemName || '', br: r.brand || '—', lot: r.lotNo || '—', gr: r.grade || '—', rate: r.rate, oq: r.qty, dq: r.doneQty, bk: r.brokerName || 'Direct', st: LST[r.status] || 'Pending', bc: r.doneCount });
+    const DEMO = [
+      ['SAL11834', '23-10-2026', 45, 'Krishna Textiles', 'Krishna Textiles', '75/36 FDY', 'Reliance', 'L-2231', 'A+', 136, 2400, 0, 'Direct', 'Hold'],
+      ['SAL11829', '22-10-2026', 30, 'Navrang Prints', 'Navrang Prints', 'DTY 80/36 SIM', 'Filatex', 'D-552', 'A', 128, 1500, 0, 'Kiran', 'Hold'],
+      ['SAL02722', '21-05-2026', 4, 'Bhagwati Filaments', 'Bhagwati Filaments', '50/24 SD CAT', 'Reliance', '356C9S', 'A+', 179.6, 10050, 9335.8, 'Avi M', 'Pending'],
+      ['SAL02933', '26-05-2026', 15, 'Riddhi Dharmesh Patel', 'Meghna Yogeshbhai', '100/36 TEX', 'GTPL', '16100', 'CLQ', 115, 130, 0, 'Manoj', 'Pending'],
+      ['SAL02934', '26-05-2026', 15, 'Riddhi Dharmesh Patel', 'Meghna Yogeshbhai', '108/36 TEX', 'GTPL', 'G108', 'PQ', 115, 130, 0, 'Manoj', 'Pending'],
+      ['SAL02970', '27-05-2026', 1, 'A P N Corporation', 'A P N Corporation', '75/144 SIM', 'Reliance', 'P6075459P', 'A+', 95, 785.81, 0, 'Aelish', 'Pending'],
+      ['SAL03514', '05-06-2026', 1, 'Bansam Fabrics', 'Bansam Fabrics', '50/48 FDY', 'Reliance', '338C1M', 'A+', 140, 36050, 34827.45, 'Ramji', 'Pending'],
+      ['SAL04254', '19-06-2026', 4, 'Shree Rudraksha Poly', 'Shree Rudraksha Poly', '50/12 BRT', 'Durga', 'SIBS1008', 'F1', 185.14, 15050, 14526.4, 'Direct', 'Pending'],
+      ['SAL04424', '23-06-2026', 15, 'Jigita Fab LLP', 'Jigita Fab LLP', 'Muskan Bright', 'J.J. Industries', 'MB123', '1ST', 370, 2050, 1478.26, 'Direct', 'Pending'],
+      ['SAL04425', '23-06-2026', 15, 'Jigita Fab LLP', 'Jigita Fab LLP', 'Muskan Gold', 'J.J. Industries', 'MG123', '1ST', 580, 2050, 1771.99, 'Direct', 'Pending'],
+      ['SAL04614', '25-06-2026', 4, 'Shree Rudraksha Poly', 'Shree Rudraksha Poly', '50/12 BRT', 'Durga', 'SIBS1008', 'F1', 185.14, 15050, 10252.42, 'Direct', 'Pending'],
+      ['SAL05058', '02-07-2026', 15, 'Ganpati Silk Mill', 'Kanvi Corporation', '50/24 SD CAT', 'Reliance', '356C9S', 'PQ', 151, 5050, 4453.69, 'Krish J', 'Pending'],
+      ['SAL05360', '06-07-2026', 1, 'Maa Ashapura Textile', 'Maa Madhawali Fabrics', '110 Vichitra', 'GTPL', '5024', 'A+', 154.71, 850, 0, 'Babul', 'Pending'],
+      ['SAL05773', '10-07-2026', 1, 'Shree Rudraksha Poly', 'Shree Rudraksha Poly', '50/48 FDY NLBS', 'Garden', 'FD002I4', '1ST', 134.12, 31050, 27058.727, 'Direct', 'Pending'],
+      ['SAL05802', '11-07-2026', 1, 'Sujal Synthetics', 'Sujal Synthetics', '50/48 FDY', 'Reliance', '338C1M', 'A+', 132.71, 5550, 4967.78, 'Direct', 'Pending'],
+      ['SAL05863', '11-07-2026', 1, 'Veer Enterprise', 'Binaka Textiles', '50/24 SD CAT', 'Reliance', 'FX85', 'PQ', 151, 2450, 2012.1, 'Direct', 'Pending'],
+      ['SAL06126', '16-07-2026', 15, 'Badra Fabrics', 'Ajit Textiles', '50/48 Crep', 'Roscco', 'NEW LOT', 'A1', 259.61, 1550, 1550, 'Direct', 'Pending'],
+      ['SAL06373', '20-07-2026', 15, 'OM Fabrics', 'Poonam Silk Corporation', '75/72 Roto', 'Saanika', '0001', '1ST', 138.5, 5050, 0, 'Direct', 'Hold'],
+      ['SAL06398', '20-07-2026', 17, 'Yogeshwar Textiles', 'Mahadev Textile', '75/36 Crimp', 'Saanika', 'CR7523', '1ST', 136.76, 1050, 496.48, 'Nilka', 'Locked'],
+      ['SAL06551', '22-07-2026', 1, 'Chetna Textiles', 'Yami Textiles', '75/72 Roto SIM', 'Durga', 'TX3113', 'A1', 139.75, 10050, 10050, 'Direct', 'Clear'],
+      ['SAL06932', '27-07-2026', 15, 'Geeta Fab', 'Ved Textiles', '110 Vichitra', 'Wellknown', '57460', 'PQ', 152, 3050, 2595.73, 'Direct', 'Pending'],
+      ['SAL06939', '27-07-2026', 10, 'Omkar Synthetics', 'Omkar Filaments', '50/36 Bright', 'Sanathan', 'D723A2', '1ST', 176.25, 2050, 0, 'Direct', 'Cancelled']
+    ].map((r) => { const base = r[13] === 'Pending' && r[11] >= r[10] ? 'Clear' : r[13]; return { no: r[0], dt: r[1], cr: r[2], p: r[3], g: r[4], it: r[5], br: r[6], lot: r[7], gr: r[8], rate: r[9], oq: r[10], dq: r[11], bk: r[12], st: this.state.over[r[0]] || base }; });
+    const D = LIVE ? LIVE.map(fromLive) : DEMO;
+    const splitIt = (s) => { const m = String(s).match(/(\d+(?:\/\d+){1,2}|\b\d{2,3}\b)/); if (!m) return { den: '\u2014', itn: s }; const rest = String(s).replace(m[1], '').replace(/\s+/g, ' ').trim(); return { den: m[1], itn: rest || s }; };
+    D.forEach((r) => { const z = splitIt(r.it); r.den = z.den; r.itn = z.itn; });
+    const nOrd = (st) => new Set(D.filter((r) => !st || r.st === st).map((r) => r.no)).size;
+    const tabDefs = LIVE ? [['Pending', 'Pending dispatch', nOrd('Pending')], ['Hold', 'On hold · approval', nOrd('Hold')], ['Clear', 'Closed', nOrd('Clear')], ['Cancelled', 'Cancelled', nOrd('Cancelled')], ['Locked', 'Locked', nOrd('Locked')], ['All', 'All', nOrd(null)]]
+      : [['Pending', 'Pending dispatch', 356], ['Hold', 'On hold · approval', 11], ['Clear', 'Closed', 1208], ['Cancelled', 'Cancelled', 12], ['Locked', 'Locked', 3], ['All', 'All', 1590]];
+    const tab = this.state.tab;
+    const vis0 = D.filter((r) => tab === 'All' || r.st === tab);
+    const COLS = [{ k: 'no', l: 'Order no.' }, { k: 'dt', l: 'Date', date: 1 }, { k: 'p', l: 'Party' }, { k: 'itn', l: 'Item' }, { k: 'den', l: 'Denier' }, { k: 'br', l: 'Brand' }, { k: 'lot', l: 'Lot no.' }, { k: 'gr', l: 'Grade' }, { k: 'rate', l: 'Rate', num: 1, r: 1, fmt: (v) => inr(v, 2) }, { k: 'oq', l: 'Ordered kg', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'dq', l: 'Dispatched', num: 1, r: 1, fmt: (v) => inr(v, 3) }, { k: 'pq', l: 'Pending kg', num: 1, r: 1, rt: 1, get: (r) => Math.max(r.oq - r.dq, 0), fmt: (v) => inr(v, 3) }, { k: 'bk', l: 'Broker', rt: 1 }, { k: 'stL', l: 'Status', rt: 1, get: (r) => SN[r.st] || r.st }];
+    const cf = this.cf(vis0, COLS); const vis = cf.list;
+    const tabTotal0 = (tabDefs.find((t) => t[0] === tab) || [0, 0, 0])[2];
+    const tabTotal = cf.filtered || LIVE ? vis.length : tabTotal0;
+    const loaded = this.state.loaded ?? 20;
+    const shown = [];
+    if (LIVE) shown.push(...vis.slice(0, loaded));
+    else while (vis.length && shown.length < Math.min(loaded, tabTotal)) { const r = vis[shown.length % vis.length]; const kk = Math.floor(shown.length / vis.length); const len = r.no.length - 3;
+      let num = parseInt(r.no.slice(3), 10) - kk * 1009; let no = r.no; if (kk > 0) { do { num = num > 50 ? num - 3 : num + 9973; no = r.no.slice(0, 3) + String(num).padStart(len, '0'); } while (D.some((x) => x.no === no) || shown.some((x) => x.no === no)); }
+      shown.push(kk === 0 ? r : { ...r, no }); }
+    if (cf.sorter) shown.sort(cf.sorter);
+    const SA = !!this.state.selAll; const EX = this.state.excl || [];
+    const isSel = (no) => SA ? EX.indexOf(no) < 0 : this.state.sel.indexOf(no) >= 0;
+    const sel = SA ? vis.map((r) => r.no).filter((n) => EX.indexOf(n) < 0) : this.state.sel;
+    const setSel = (s) => this.setState({ sel: s });
+    const rows = shown.map((r) => {
+      const pq = Math.max(r.oq - r.dq, 0); const pct = r.oq ? Math.round(r.dq / r.oq * 100) : 0; const on = isSel(r.no); const exp = r.no === this.state.focus; const nb = LIVE ? r.bc : mkBills(r, r.dq, 'SI-', 4, 3).length;
+      return { ...r, st: SN[r.st] || r.st, rate: inr(r.rate, 2), oq: inr(r.oq, 3), dq: inr(r.dq, 3), pq: inr(pq, 3), bw: 'width: ' + pct + '%', sc: '--c: ' + (SC[r.st] || '#8F8F8F'), on, rc: on || r.no === this.state.focus ? 'sel' : '',
+        exp, bn: nb ? nb + (nb > 1 ? ' bills' : ' bill') : 'No bills', cc: exp ? 'cnt on' : 'cnt', chev: '',
+        ask: r.st === 'Hold', show: r.st !== 'Hold', ok: () => (LIVE ? this.act([r.id], 'approve', 'Approved from register') : this.setState({ over: { ...this.state.over, [r.no]: 'Pending' } })),
+        no2: () => { if (!LIVE) return this.setState({ over: { ...this.state.over, [r.no]: 'Cancelled' } }); const why = window.prompt('Reason for rejecting ' + r.no + '?'); if (why) this.act([r.id], 'reject', why); },
+        tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : setSel(on ? sel.filter((s) => s !== r.no) : sel.concat([r.no])), focus: () => this.setState({ focus: r.no, bill: null }), rowClick: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; this.setState({ focus: r.no, bill: null }); }, open: (e) => { if (e && e.target && e.target.closest && e.target.closest('input,button,a,label,select')) return; try { window.localStorage.setItem('yf-view-so', JSON.stringify({ t: Date.now(), id: r.id, no: r.no, dt: r.dt, p: r.p, g: r.g || r.ag || '', it: r.it, br: r.br, lot: r.lot, gr: r.gr, rate: r.rate, oq: r.oq, dq: (r.dq ?? r.rq ?? 0), bk: r.bk || r.ref || '', stL: SN[r.st] || r.st })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} this.go('SalesOrderView' + sfx + '.dc.html'); } };
+    });
+    const sum = (arr, k) => arr.reduce((a, r) => a + r[k], 0);
+    const tot = { oq: inr(sum(vis, 'oq'), 3), dq: inr(sum(vis, 'dq'), 3), pq: inr(sum(vis, 'oq') - sum(vis, 'dq'), 3) };
+    const STK = {'50/24 SD CAT': 1850.5, '100/36 TEX': 0, '108/36 TEX': 40, '75/144 SIM': 900, '50/48 FDY': 2400.25, '50/12 BRT': 3100, 'Muskan Bright': 620, 'Muskan Gold': 410, '110 Vichitra': 1200.4, '50/48 FDY NLBS': 4212.6, '75/36 FDY': 2550, '75/72 Roto': 3800, 'DTY 80/36 SIM': 900, '75/36 Crimp': 300, '75/72 Roto SIM': 0, '50/48 Crep': 0, '50/36 Bright': 520};
+    const byIt = {}; vis.forEach((r) => { byIt[r.it] = (byIt[r.it] || 0) + Math.max(r.oq - r.dq, 0); });
+    const STKU = LIVE ? (this.state.liveStock || {}) : STK;
+    let stk = 0, short = 0; Object.keys(byIt).forEach((k) => { const st = STKU[k] ?? 0; stk += st; short += Math.max(0, byIt[k] - st); });
+    const pv = vis.reduce((a, r) => a + Math.max(r.oq - r.dq, 0) * r.rate, 0); const oqS = sum(vis, 'oq'); const pqS = Math.max(oqS - sum(vis, 'dq'), 0);
+    const F = LIVE ? (vis.length ? 1 : 0) : vis.length ? tabTotal / vis.length : 0; const stkA = stk * Math.min(F, 6); const pqA = pqS * F;
+    const sm = { n: inr(tabTotal, 0), oq: inr(oqS * F, 3), dq: inr(sum(vis, 'dq') * F, 3), pq: inr(pqA, 3), pv: inr(pv * F, 0), stk: inr(stkA, 3), short: inr(Math.max(0, pqA - stkA), 3), after: inr(stkA + pqA, 3), avg: oqS ? inr(vis.reduce((a, r) => a + r.oq * r.rate, 0) / oqS, 2) : '0.00' };
+    const view = this.state.view;
+    const key = view === 'broker' ? 'bk' : 'g';
+    const gm = {};
+    vis.forEach((r) => { const k = r[key]; gm[k] = gm[k] || { n: 0, oq: 0, dq: 0 }; gm[k].n += 1; gm[k].oq += r.oq; gm[k].dq += r.dq; });
+    const groups = Object.keys(gm).sort((a, b) => (gm[b].oq - gm[b].dq) - (gm[a].oq - gm[a].dq)).map((k) => { const v = gm[k]; const pct = v.oq ? Math.round(v.dq / v.oq * 100) : 0; return { k, n: v.n, oq: inr(v.oq, 3), dq: inr(v.dq, 3), pq: inr(v.oq - v.dq, 3), bw: 'width: ' + pct + '%', pc: pct + '% dispatched', open: () => this.setState({ view: 'order' }) }; });
+    const fr = shown.concat(D).find((r) => r.no === this.state.focus);
+    let f = null;
+    if (fr && LIVE) this.loadBills(fr.id);
+    const liveBills = (o) => ((this.state.rel || {})[o.id] || []).map((b, i) => {
+      const due = b.dueDate || b.date; const age = Math.round((Date.now() - new Date(due + 'T00:00:00').getTime()) / 864e5); const paid = b.pending <= 0.5;
+      const half = b.cgst; return { key: 'b' + b.id, i, id: b.id, inv: b.number.replace(/\/\d{2}-\d{2}$/, ''), dt: b.date.split('-').reverse().join('-'), due: due.split('-').reverse().join('-'), bx: b.pcs, kgN: b.qty, txN: b.lineTaxable, totN: b.net, paid,
+        kg: inr(b.qty, 3), rate: inr(b.rate, 2), tx: '₹ ' + inr(b.lineTaxable, 2), cg: '₹ ' + inr(half, 2), gst: '₹ ' + inr(b.gst, 2), amt: '₹ ' + inr(b.net, 2), ro: (b.roundOff >= 0 ? '+ ' : '− ') + inr(Math.abs(b.roundOff), 2),
+        pay: paid ? 'Paid' : age > 0 ? 'Overdue ' + age + ' days' : 'Due ' + due.split('-').reverse().join('-'), pc: paid ? 'tag t-green' : age > 0 ? 'tag t-red' : 'tag t-gray',
+        recv: '₹ ' + inr(b.net - b.tds - b.pending, 2), bal: '₹ ' + inr(b.pending, 2), tr: b.transporterName || '—', lr: b.lrNo || '—', veh: b.vehicleNo || '—', ewb: b.ewbNo ? ewbF(b.ewbNo) : 'Not generated', mill: b.refNo || '—' };
+    });
+    if (fr) {
+      const bs = LIVE ? liveBills(fr) : mkBills(fr, fr.dq, 'SI-', 4, 3);
+      const ds = bs.map((b) => { const open = this.state.bill === b.key; return { ...b, open, rc: open ? 'on' : '', act: open ? 'Hide' : 'View', pick: () => this.setState({ bill: open ? null : b.key }) }; });
+      const val = bs.reduce((a, b) => a + b.totN, 0); const rc = LIVE ? ((this.state.rel || {})[fr.id] || []).reduce((a, b) => a + (b.net - b.tds - b.pending), 0) : bs.filter((b) => b.paid).reduce((a, b) => a + b.totN, 0); const tx = bs.reduce((a, b) => a + b.txN, 0);
+      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, bk: fr.bk, gstin: LIVE ? '' : gstOf(fr.p), ds, none: ds.length === 0, some: ds.length > 0, n: ds.length,
+        oq: inr(fr.oq, 3), dq: inr(fr.dq, 3), pq: inr(Math.max(fr.oq - fr.dq, 0), 3), val: '₹ ' + inr(val, 2), tx: '₹ ' + inr(tx, 2), gst: '₹ ' + inr(val - tx, 2), recv: '₹ ' + inr(rc, 2), bal: '₹ ' + inr(val - rc, 2) };
+    }
+    const bulk = {};
+    const LACT = { Approve: 'approve', Clear: 'close', Pending: 'reopen', Locked: 'lock', Cancelled: 'cancel' };
+    ['Approve', 'Hold', 'Clear', 'Pending', 'Locked', 'Cancelled'].forEach((s) => { bulk[s] = () => {
+      if (LIVE) { const ids = D.filter((r) => sel.indexOf(r.no) >= 0).map((r) => r.id); if (!LACT[s]) { window.alert('Use Lock to put orders on hold'); return; } this.act(ids, LACT[s], s === 'Approve' ? 'Bulk approval' : undefined); return; } const o = { ...this.state.over }; sel.forEach((n) => { o[n] = s === 'Approve' ? 'Pending' : s; }); this.setState({ over: o, sel: [], selAll: false, excl: [] }); }; });
+    const selRows = shown.filter((r) => sel.indexOf(r.no) >= 0);
+    const allOn = SA ? EX.length === 0 : (shown.length > 0 && shown.every((r) => sel.indexOf(r.no) >= 0));
+    return {
+      moreLeft: shown.length < tabTotal, allLoaded: tabTotal > 0 && shown.length >= tabTotal, loadedLabel: shown.length + ' of ' + inr(tabTotal, 0) + ' loaded',
+      onScroll: (e) => { const el = e.currentTarget || e.target; if (!el || this._ld || shown.length >= tabTotal) return; if (el.scrollTop + el.clientHeight >= el.scrollHeight - 140) { this._ld = true; setTimeout(() => { this._ld = false; this.setState({ loaded: (this.state.loaded ?? 20) + 20 }); }, 400); } },
+      cf, sm, theme, rows, groups, tot, f: f || { no: '', p: '', it: '', lot: '', ds: [], none: false, some: false, pq: '' },
+      tabs: tabDefs.map(([k, l, n]) => ({ l, n: inr(n, 0), c: '--c: ' + (SC[k] || '#8F8F8F'), cls: k === tab ? 'tab on' : 'tab', pick: () => this.setState({ tab: k, sel: [], selAll: false, excl: [], loaded: 20 }) })),
+      isHoldTab: tab === 'Hold', lastCol: tab === 'Hold' ? 'Approve / reject' : 'Status',
+      vw: { order: view === 'order' ? 'on' : '', group: view === 'group' ? 'on' : '', broker: view === 'broker' ? 'on' : '' },
+      setView: { order: () => this.setState({ view: 'order' }), group: () => this.setState({ view: 'group' }), broker: () => this.setState({ view: 'broker' }) },
+      isOrder: view === 'order', isGroup: view !== 'order', groupLabel: view === 'broker' ? 'Broker' : 'Party group',
+      hasSel: SA ? tabTotal - EX.length > 0 : sel.length > 0, selCount: SA ? inr(tabTotal - EX.length, 0) + ' (all)' : sel.length, selQty: SA ? inr(pqA, 3) : inr(selRows.reduce((a, r) => a + Math.max(r.oq - r.dq, 0), 0), 3),
+      bulk, clearSel: () => this.setState({ sel: [], selAll: false, excl: [] }), allOn,
+      toggleAll: () => this.setState(allOn || SA ? { selAll: false, excl: [], sel: [] } : { selAll: true, excl: [], sel: [] }),
+      showBills: tab !== 'Hold',
+      topH: 'height: ' + (tab === 'Hold' ? this.state.top + this.state.bot + 10 : this.state.top) + 'px', botH: 'height: ' + this.state.bot + 'px',
+      sz: (() => { const r = this.state.bot / (this.state.top + this.state.bot); return { s: r < 0.2 ? 'on' : '', m: r >= 0.2 && r <= 0.45 ? 'on' : '', l: r > 0.45 ? 'on' : '' }; })(),
+      setS: () => { const t = this.state.top + this.state.bot; this.setState({ top: t - 150, bot: 150 }); },
+      setM: () => { const t = this.state.top + this.state.bot; const top = Math.round(t * 0.7); this.setState({ top, bot: t - top }); },
+      setL: () => { const t = this.state.top + this.state.bot; const top = Math.round(t * 0.3); this.setState({ top, bot: t - top }); },
+      startDrag: (e) => { if (e && e.preventDefault) e.preventDefault(); const y0 = e.clientY; const t0 = this.state.top; const tot = this.state.top + this.state.bot;
+        const mv = (ev) => { const top = Math.round(Math.max(120, Math.min(tot - 100, t0 + (ev.clientY - y0)))); this.setState({ top, bot: tot - top }); };
+        const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
+        window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); },
+      hasFocus: !!fr && tab !== 'Hold',
+      unfocus: () => this.setState({ focus: null }),
+      countLabel: vis.length + ' of ' + (tabDefs.find((t) => t[0] === tab) || [0, 0, 0])[2] + ' orders',
+      markBack: () => { try { if (fr) window.localStorage.setItem('yf-new-from', JSON.stringify({ type: 'so', id: fr.id, no: fr.no })); } catch (err) {} try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} },
+      openFocus: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'SalesOrderList' + sfx + '.dc.html', label: 'Sales order register' })); } catch (err) {} if (fr) { try { window.localStorage.setItem('yf-view-so', JSON.stringify({ t: Date.now(), id: fr.id, no: fr.no, dt: fr.dt, p: fr.p, g: fr.g || fr.ag || '', it: fr.it, br: fr.br, lot: fr.lot, gr: fr.gr, rate: fr.rate, oq: fr.oq, dq: (fr.dq ?? fr.rq ?? 0), stL: SN[fr.st] || fr.st })); } catch (err) {} } },
+      newHref: 'SalesOrderEntry' + sfx + '.dc.html', dispHref: 'Dispatch' + sfx + '.dc.html', recHref: 'SalesOrderView' + sfx + '.dc.html'
+    };
+  }
+}
+</script>
+</body>
+</html>

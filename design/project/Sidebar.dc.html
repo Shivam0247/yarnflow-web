@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Sidebar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}
+/* sidebar keeps to the window height and scrolls on its own (page content can be taller) */
+@media (min-width:761px){.app>.sbw{position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;z-index:15}}
+.fit .app>.sbw{position:relative;height:auto}</style>
+</helmet>
+<sc-if value="{{col}}" hint-placeholder-val="{{false}}">
+<nav class="sbc" aria-label="Main (collapsed)" style="width: 100%; min-height: 100%; box-sizing: border-box; background: var(--sb, #1B1B1B); color: var(--t1, #EDEDED); padding: 10px 0 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: Inter, system-ui, sans-serif">
+<button type="button" onClick="{{expand}}" title="Expand menu" aria-label="Expand menu" style="width: 40px; height: 40px; border: 0; padding: 0; border-radius: 10px; background: linear-gradient(135deg, #F59E0B, #EA580C); display: grid; place-items: center; cursor: pointer; margin-bottom: 10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.5 6.5c4.5.5 9 4.5 10.5 12"/><path d="M3.4 10.5c4 0 7.8 3.2 8.8 10"/><path d="M9.5 3.3c3.5 2 6.6 6 7.6 11.6"/></svg></button>
+<a href="{{h.dash}}" title="Dashboard" aria-label="Dashboard" style="{{c.dash}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></a>
+<span style="width: 24px; height: 1px; background: var(--bd2, #383838); margin: 6px 0"></span>
+<button type="button" onClick="{{c.salesGo}}" title="Sales" aria-label="Sales" style="{{c.sales}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></button>
+<button type="button" onClick="{{c.purGo}}" title="Purchase" aria-label="Purchase" style="{{c.pur}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></button>
+<button type="button" onClick="{{c.bankGo}}" title="Bank &amp; Cash" aria-label="Bank &amp; Cash" style="{{c.bank}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M3 10h18"/><path d="m12 3 9 7H3Z"/><path d="M6 10v8"/><path d="M10 10v8"/><path d="M14 10v8"/><path d="M18 10v8"/></svg></button>
+<button type="button" onClick="{{c.jvGo}}" title="Journal &amp; Notes" aria-label="Journal &amp; Notes" style="{{c.jv}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 12v6"/></svg></button>
+<span style="width: 24px; height: 1px; background: var(--bd2, #383838); margin: 6px 0"></span>
+<button type="button" onClick="{{c.accGo}}" title="Accounts" aria-label="Accounts" style="{{c.acc}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></button>
+<button type="button" onClick="{{c.invGo}}" title="Inventory" aria-label="Inventory" style="{{c.inv}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></button>
+<button type="button" onClick="{{c.repGo}}" title="Reports &amp; GST" aria-label="Reports &amp; GST" style="{{c.rep}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></button>
+<a href="{{h.mast}}" title="Masters" aria-label="Masters" style="{{c.mast}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></a>
+<div style="flex: 1; min-height: 20px"></div>
+<button type="button" onClick="{{toggleTheme}}" title="{{themeLabel}}" aria-label="Switch between dark and light mode" style="{{c.btn}}"><sc-if value="{{isDark}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></sc-if><sc-if value="{{isLight}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></sc-if></button>
+<button type="button" onClick="{{expand}}" title="Expand menu" aria-label="Expand menu" style="{{c.btn}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M21 19V5"/><path d="m11 6 6 6-6 6"/><path d="M17 12H3"/></svg></button>
+</nav>
+</sc-if>
+<sc-if value="{{exp}}" hint-placeholder-val="{{true}}">
+<nav aria-label="Main" style="width: 100%; min-height: 100%; box-sizing: border-box; background: var(--sb, #1B1B1B); color: var(--t1, #EDEDED); padding: 10px 10px 12px; display: flex; flex-direction: column; gap: 2px; font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 20px">
+<button type="button" onClick="{{org.toggle}}" aria-expanded="{{org.open}}" title="Switch company or financial year" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px; border-radius: 10px; background: transparent; border: 0; cursor: pointer; text-align: left; font: inherit; color: inherit; margin-bottom: 6px">
+<span style="width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #F59E0B, #EA580C); display: grid; place-items: center; flex: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.5 6.5c4.5.5 9 4.5 10.5 12"/><path d="M3.4 10.5c4 0 7.8 3.2 8.8 10"/><path d="M9.5 3.3c3.5 2 6.6 6 7.6 11.6"/></svg></span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{org.name}}</span><span style="display: block; font-size: 12px; color: var(--t2, #B5B5B5)">{{org.sub}}</span></span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="color: var(--t3, #8F8F8F)"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+</button>
+<sc-if value="{{org.open}}" hint-placeholder-val="{{false}}">
+<div role="menu" style="margin: 0 0 8px; padding: 6px; border-radius: 10px; border: 1px solid var(--bd2, #383838); background: var(--s1, #1E1E1E); box-shadow: 0 12px 30px rgba(0,0,0,.25); font-size: 13px">
+<div style="padding: 6px 8px 4px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--t3, #8F8F8F)">COMPANY</div>
+<sc-for list="{{org.companies}}" as="co" hint-placeholder-count="2"><button type="button" role="menuitemradio" aria-checked="{{co.on}}" onClick="{{co.pick}}" style="{{co.s}}"><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{co.name}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{co.city}}</span><sc-if value="{{co.on}}" hint-placeholder-val="{{true}}"><span style="color: #3B82F6">✓</span></sc-if></button></sc-for>
+<div style="padding: 10px 8px 4px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--t3, #8F8F8F)">FINANCIAL YEAR</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 0 4px 4px"><sc-for list="{{org.fys}}" as="f" hint-placeholder-count="2"><button type="button" onClick="{{f.pick}}" style="{{f.s}}">{{f.label}}</button></sc-for></div>
+<div style="height: 1px; background: var(--bd, #262626); margin: 6px 0"></div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 6px 8px"><span style="width: 26px; height: 26px; border-radius: 50%; background: var(--s3, #2E2E2E); display: grid; place-items: center; font-size: 12px; font-weight: 600; flex: none">{{org.ini}}</span><span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 500">{{org.user}}</span><span style="display: block; font-size: 11.5px; color: var(--t3, #8F8F8F)">{{org.email}}</span></span><span style="font-size: 11px; padding: 1px 7px; border-radius: 6px; background: var(--s2, #262626); color: var(--t2, #B5B5B5)">{{org.role}}</span></div>
+<button type="button" onClick="{{org.signOut}}" style="display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: #F87171; font: inherit; cursor: pointer; text-align: left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</button>
+</div>
+</sc-if>
+<label style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 8px; background: var(--s2, #262626); color: var(--t3, #8F8F8F); margin-bottom: 8px">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+<input type="search" aria-label="Search menus and records" placeholder="Search menu or record" style="flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 13px; color: var(--t1, #EDEDED)">
+</label>
+
+<a href="{{h.dash}}" style="{{n.dash}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a>
+
+<div style="font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--t3, #8F8F8F); padding: 14px 10px 4px">TRANSACTIONS</div>
+
+<button type="button" style="{{g.sales.s}}" onClick="{{g.sales.t}}" aria-expanded="{{g.sales.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span style="flex: 1">Sales</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.sales.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
+<sc-if value="{{g.sales.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.sales.items}}" as="x" hint-placeholder-count="5"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
+
+<button type="button" style="{{g.pur.s}}" onClick="{{g.pur.t}}" aria-expanded="{{g.pur.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg><span style="flex: 1">Purchase</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.pur.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
+<sc-if value="{{g.pur.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.pur.items}}" as="x" hint-placeholder-count="5"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
+
+<button type="button" style="{{g.bank.s}}" onClick="{{g.bank.t}}" aria-expanded="{{g.bank.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M3 21h18"/><path d="M3 10h18"/><path d="m12 3 9 7H3Z"/><path d="M6 10v8"/><path d="M10 10v8"/><path d="M14 10v8"/><path d="M18 10v8"/></svg><span style="flex: 1">Bank &amp; Cash</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.bank.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
+<sc-if value="{{g.bank.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.bank.items}}" as="x" hint-placeholder-count="6"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
+
+<button type="button" style="{{g.jv.s}}" onClick="{{g.jv.t}}" aria-expanded="{{g.jv.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 12v6"/></svg><span style="flex: 1">Journal &amp; Notes</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.jv.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
+<sc-if value="{{g.jv.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.jv.items}}" as="x" hint-placeholder-count="5"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
+
+<div style="font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--t3, #8F8F8F); padding: 14px 10px 4px">ACCOUNTS &amp; STOCK</div>
+
+<button type="button" style="{{g.acc.s}}" onClick="{{g.acc.t}}" aria-expanded="{{g.acc.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span style="flex: 1">Accounts</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.acc.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
+<sc-if value="{{g.acc.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.acc.items}}" as="x" hint-placeholder-count="5"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
+
+<button type="button" style="{{g.inv.s}}" onClick="{{g.inv.t}}" aria-expanded="{{g.inv.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><span style="flex: 1">Inventory</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.inv.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
+<sc-if value="{{g.inv.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.inv.items}}" as="x" hint-placeholder-count="4"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
+
+<button type="button" style="{{g.rep.s}}" onClick="{{g.rep.t}}" aria-expanded="{{g.rep.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg><span style="flex: 1">Reports &amp; GST</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.rep.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
+<sc-if value="{{g.rep.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.rep.items}}" as="x" hint-placeholder-count="4"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
+
+<a href="{{h.mast}}" style="{{n.mast}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>Masters<span style="margin-left: auto; font-size: 11px; color: var(--t3, #8F8F8F)">38</span></a>
+
+<div style="flex: 1; min-height: 20px"></div>
+<button type="button" onClick="{{toggleTheme}}" title="Switch between dark and light mode" style="{{n.set}} width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; font: inherit"><sc-if value="{{isDark}}" hint-placeholder-val="{{true}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></sc-if><sc-if value="{{isLight}}" hint-placeholder-val="{{false}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></sc-if>{{themeLabel}}</button>
+<a href="#" style="{{n.set}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Tools &amp; Settings</a>
+<a href="#" style="{{n.help}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Help &amp; Support</a>
+<button type="button" onClick="{{collapse}}" title="Collapse menu" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; background: transparent; border: 0; color: var(--t1, #EDEDED); font: inherit; cursor: pointer; text-align: left"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="color: var(--t2, #B5B5B5)"><path d="M3 19V5"/><path d="m13 6-6 6 6 6"/><path d="M7 12h14"/></svg>Collapse</button>
+</nav>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"active":{"editor":"enum","default":"dash","options":["dash","appr","ewb","so","soe","soa","disp","po","poe","poa","pb","pay","led","out","stock","rep","mast","acc","grp","yarn","trn","ds","gs","sr","gp","pr"]},"$preview":{"width":236,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { open: null, col: null }; }
+  componentDidMount() { const rd = () => { try { const v = window.localStorage.getItem('yf-sb-col'); const c = v === '1'; if (c !== this.state.col) this.setState({ col: c }); } catch (e) {} }; this._rd = rd; rd(); try { window.addEventListener('storage', rd); window.addEventListener('focus', rd); } catch (e) {} }
+  componentWillUnmount() { try { window.removeEventListener('storage', this._rd); window.removeEventListener('focus', this._rd); } catch (e) {} }
+  toggleTheme() {
+    const t = (this.props.theme ?? 'dark') === 'light' ? 'dark' : 'light';
+    try { window.localStorage.setItem('yf-theme', t); window.dispatchEvent(new Event('yf-theme')); } catch (e) {}
+    // on the canvas each theme is its own board: jump to the matching dark / light board
+    let f = ''; try { f = window.location.pathname.split('/').pop() || ''; } catch (e) {}
+    const m = /^([A-Za-z]+?)(Light)?\.dc\.html$/.exec(f);
+    if (m) { try { const a = document.createElement('a'); a.href = m[1] + (t === 'light' ? 'Light' : '') + '.dc.html'; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
+  }
+  setCol(c, openGroup) { try { window.localStorage.setItem('yf-sb-col', c ? '1' : '0'); } catch (e) {} const st = { col: c }; if (openGroup) st.open = [openGroup]; this.setState(st); }
+  renderVals() {
+    const active = ({ soe: 'so', soa: 'so', poe: 'po', poa: 'po' })[this.props.active] || (this.props.active ?? 'dash');
+    const sfx = (this.props.theme ?? 'dark') === 'light' ? 'Light' : '';
+    const L = (f) => (f === '#' ? '#' : f + sfx + '.dc.html');
+    const top = 'display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; font-size: 14px; color: var(--t1, #EDEDED); text-decoration: none;';
+    const on = ' background: var(--s3, #2C2C2C); font-weight: 500;';
+    const sub = 'display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 8px; border-radius: 7px; font-size: 13px; color: var(--t2, #B5B5B5); text-decoration: none;';
+    const subOn = ' background: var(--s3, #2C2C2C); color: var(--t1, #EDEDED); font-weight: 500;';
+    const G = {
+      sales: [['Sales order register', 'SalesOrderList', 'Ctrl F4', 'so'], ['Dispatch schedule', 'DispatchScheduleList', 'Ctrl F8', 'ds'], ['Sale bills', 'SaleBillList', '', 'disp'], ['E-way bills', 'EwayBills', '', 'ewb'], ['Sale returns', 'SaleReturnList', 'Ctrl ⇧ F8', 'sr'], ['General sale', 'GeneralSaleList', '⇧ F8', 'gs']],
+      pur: [['Purchase order register', 'PurchaseOrderList', 'Ctrl F5', 'po'], ['Purchase bills', 'PurchaseBillList', '', 'pb'], ['Purchase returns', 'PurchaseReturnList', 'Ctrl ⇧ F9', 'pr'], ['General purchase', 'GeneralPurchaseList', '⇧ F9', 'gp'], ['Import bills · Excel', 'PurchaseBill', '', '']],
+      bank: [['Bank receipt / payment', 'Payments', 'F6 · F7', 'pay'], ['Cash receipt / payment', 'Payments', '⇧ F6 · ⇧ F7', ''], ['On-account entries', 'Payments', '', ''], ['Bank reconciliation', 'Payments', '', ''], ['Cheque book inward', 'Payments', '', ''], ['Payment follow-up', 'Outstanding', '', '']],
+      jv: [['Debit note', 'Payments', 'Ctrl D', ''], ['Credit note', 'Payments', 'Ctrl E', ''], ['Journal voucher', 'Payments', 'Ctrl J', ''], ['Interest debit notes', 'Outstanding', '', ''], ['Opening entries', 'Ledger', '', '']],
+      acc: [['Ledgers', 'Ledger', '', 'led'], ['Outstanding & ageing', 'Outstanding', '', 'out'], ['Bill adjustment', 'Payments', '', ''], ['Pending bill adjustment', 'Outstanding', '', ''], ['Opening balances', 'Ledger', '', '']],
+      inv: [['Stock & godowns', 'Stock', '', 'stock'], ['Stock ledger', 'Stock', '', ''], ['Godown transfer', 'Stock', '', ''], ['Lot & grade changes', 'Stock', '', '']],
+      rep: [['Account reports', 'Reports', '', 'rep'], ['Inventory reports', 'Reports', '', ''], ['GST & e-invoice', 'Reports', '', ''], ['E-way bill closure', 'Reports', '', '']]
+    };
+    const owner = {};
+    Object.keys(G).forEach((g) => G[g].forEach((it) => { if (it[3]) owner[it[3]] = g; }));
+    const masterKeys = ['mast', 'acc', 'grp', 'yarn', 'trn'];
+    const openSet = this.state.open ?? (owner[active] ? [owner[active]] : []);
+    const g = {};
+    Object.keys(G).forEach((k) => {
+      const isOpen = openSet.indexOf(k) >= 0;
+      const hasActive = owner[active] === k;
+      g[k] = {
+        o: isOpen,
+        s: top + ' width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; font-family: inherit;' + (hasActive && !isOpen ? on : ''),
+        c: 'flex: none; color: var(--t3, #8F8F8F); transition: transform .15s;' + (isOpen ? ' transform: rotate(90deg);' : ''),
+        t: () => { const cur = openSet.slice(); const i = cur.indexOf(k); if (i >= 0) cur.splice(i, 1); else cur.push(k); this.setState({ open: cur }); },
+        items: G[k].map((it) => ({ l: it[0], h: L(it[1]), k: '', s: sub + (it[3] && it[3] === active ? subOn : '') }))
+      };
+    });
+    const n = {
+      dash: top + (active === 'dash' ? on : ''), appr: top + (active === 'appr' ? on : ''),
+      mast: top + (masterKeys.indexOf(active) >= 0 ? on : ''), set: top, help: top
+    };
+    const h = { dash: L('Main'), appr: L('Approvals'), mast: L('Masters') };
+    const col = !!this.state.col;
+    const cb = 'width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; border: 0; padding: 0; background: transparent; color: var(--t2, #B5B5B5); cursor: pointer; text-decoration: none;';
+    const cOn = ' background: var(--s3, #2C2C2C); color: var(--t1, #EDEDED);';
+    const c = { btn: cb, dash: cb + (active === 'dash' ? cOn : ''), mast: cb + (masterKeys.indexOf(active) >= 0 ? cOn : '') };
+    ['sales', 'pur', 'bank', 'jv', 'acc', 'inv', 'rep'].forEach((k) => { c[k] = cb + (owner[active] === k ? cOn : ''); c[k + 'Go'] = () => this.setCol(false, k); });
+    const isLight = (this.props.theme ?? 'dark') === 'light';
+    // company / FY / user — live from the session in the app, sample data on the design canvas
+    const api = typeof window !== 'undefined' ? window.YF_API : null;
+    const ses = api && api.session ? api.session : null;
+    const user = ses ? api.user : { name: 'Avi Patel', email: 'admin@yarnflow.in', role: 'ADMIN', companies: [{ id: 1, name: 'Shree Umiya Yarn', city: 'Surat', financialYears: [{ id: 1, label: '26-27' }, { id: 2, label: '25-26' }] }, { id: 2, name: 'Umiya Trading Co.', city: 'Surat', financialYears: [{ id: 3, label: '26-27' }] }] };
+    const cid = ses ? ses.companyId : (this.state.cid ?? 1);
+    const fid = ses ? ses.fyId : (this.state.fid ?? 1);
+    const comp = user.companies.find((x) => x.id === cid) || user.companies[0] || { name: '—', financialYears: [] };
+    const fyOf = comp.financialYears.find((f) => f.id === fid) || comp.financialYears[0] || { label: '' };
+    const item = 'display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: var(--t1, #EDEDED); font: inherit; cursor: pointer; text-align: left;';
+    const chip = 'height: 26px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--bd2, #383838); background: transparent; color: var(--t2, #B5B5B5); font: inherit; font-size: 12px; cursor: pointer;';
+    const chipOn = ' background: var(--ib, #F5F5F5); color: var(--it, #171717); border-color: transparent; font-weight: 500;';
+    const reload = () => { try { window.location.assign('/'); } catch (e) {} };
+    const org = {
+      open: !!this.state.orgOpen,
+      toggle: () => this.setState({ orgOpen: !this.state.orgOpen }),
+      name: comp.name,
+      sub: user.name.split(' ')[0] + ' ' + (user.name.split(' ')[1] || '') .trim() + ' · FY ' + fyOf.label,
+      user: user.name, email: user.email, role: String(user.role).charAt(0) + String(user.role).slice(1).toLowerCase(),
+      ini: user.name.split(' ').map((w) => w.charAt(0)).join('').slice(0, 2).toUpperCase(),
+      companies: user.companies.map((x) => ({ name: x.name, city: x.city || '', on: x.id === comp.id, s: item + (x.id === comp.id ? ' background: var(--s3, #2E2E2E); font-weight: 500;' : ''),
+        pick: () => { if (api && ses) { api.switchCompany(x.id); reload(); } else this.setState({ cid: x.id, fid: x.financialYears[0].id, orgOpen: false }); } })),
+      fys: comp.financialYears.map((f) => ({ label: 'FY ' + f.label, s: chip + (f.id === fyOf.id ? chipOn : ''),
+        pick: () => { if (api && ses) { api.switchCompany(comp.id, f.id); reload(); } else this.setState({ fid: f.id, orgOpen: false }); } })),
+      signOut: () => { if (api && ses) api.logout(); else this.setState({ orgOpen: false }); }
+    };
+    return { org, g, n, h, c, col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
+  }
+}
+</script>
+</body>
+</html>
