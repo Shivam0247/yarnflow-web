@@ -254,7 +254,11 @@ export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts
     p.bills += 1;
     p.maxDays = Math.max(p.maxDays, b.ageDays);
   }
-  let list = [...parties.values()].map((p) => ({ ...p, onAccount: r2(p.net - p.billsPending), overLimit: p.creditLimit > 0 && p.net > p.creditLimit }));
+  const lastPay = await ctx.db.execute(sql`select party_id as id, max(date) as d from vouchers where company_id = ${ctx.companyId} and type = ${side === 'receivable' ? 'RECEIPT' : 'PAYMENT'} and status <> 'CANCELLED' and date <= ${asOn} group by party_id`);
+  const lastMap = new Map(lastPay.rows.map((r: Row) => [Number(r.id), r.d as string]));
+  const mob = await ctx.db.execute(sql`select id, mobile from accounts where company_id = ${ctx.companyId} and mobile is not null`);
+  const mobMap = new Map(mob.rows.map((r: Row) => [Number(r.id), r.mobile as string]));
+  let list = [...parties.values()].map((p) => ({ ...p, onAccount: r2(p.net - p.billsPending), overLimit: p.creditLimit > 0 && p.net > p.creditLimit, lastPayment: lastMap.get(p.partyId) ?? null, mobile: mobMap.get(p.partyId) ?? null }));
   list = list.filter((p) => Math.abs(p.net) > 0.005 || p.billsPending > 0.005);
   if (opts.overdueOnly || opts.minDays) list = list.filter((p) => p.billsPending > 0.005);
   list.sort((a, b) => b.net - a.net);
