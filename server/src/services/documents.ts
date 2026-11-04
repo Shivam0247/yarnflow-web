@@ -1057,9 +1057,15 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
            v.distance_km as "distanceKm", t.name as "transporterName", t.transporter_id as "transporterGstin",
            ba.name as "bankAccountName", src.number as "sourceNumber", v.remark, v.narration, v.created_at as "createdAt",
            (select string_agg(distinct coalesce(i.name, l.description), ', ') from voucher_lines l left join items i on i.id = l.item_id where l.voucher_id = v.id) as "itemNames",
-           (select string_agg(distinct l.lot_no, ', ') from voucher_lines l where l.voucher_id = v.id) as "lots"
+           (select string_agg(distinct l.lot_no, ', ') from voucher_lines l where l.voucher_id = v.id) as "lots",
+           (select string_agg(distinct l.brand, ', ') from voucher_lines l where l.voucher_id = v.id) as "brands",
+           (select string_agg(distinct l.grade, ', ') from voucher_lines l where l.voucher_id = v.id) as "grades",
+           (select string_agg(distinct ov.number, ', ') from voucher_lines l join voucher_lines ol on ol.id = l.order_line_id join vouchers ov on ov.id = ol.voucher_id where l.voucher_id = v.id) as "orderNumbers",
+           pg.name as "partyGroupName", ag.name as "agentName", v.irn, v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote"
     from vouchers v
     left join accounts p on p.id = v.party_id
+    left join accounts pg on pg.id = p.party_group_id
+    left join accounts ag on ag.id = v.agent_id
     left join accounts ba on ba.id = v.bank_account_id
     left join transporters t on t.id = v.transporter_id
     left join vouchers src on src.id = v.source_id
