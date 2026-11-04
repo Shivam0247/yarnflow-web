@@ -62,12 +62,12 @@ button,input,select,textarea{font:inherit;color:inherit}
 <div class="main">
 <header class="hdr">
 <div class="bc"><span class="m">Groups</span><span class="m">/</span><span>Chart of accounts</span></div>
-<button class="btn" type="button">Expand all</button>
-<button class="btn pr" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Create</button>
+<button class="btn" type="button" onClick="{{expand}}">Expand all</button>
+<button class="btn pr" type="button" onClick="{{create}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Create</button>
 </header>
 <div class="split">
 <div class="lp" role="tree" aria-label="Account groups">
-<div style="padding: 0 4px 10px"><input class="inp" type="search" placeholder="Search groups" aria-label="Search groups"></div>
+<div style="padding: 0 4px 10px"><input class="inp" type="search" placeholder="Search groups" aria-label="Search groups" value="{{q}}" onChange="{{setQ}}"></div>
 <sc-for list="{{tree}}" as="g" hint-placeholder-count="16">
 <button class="{{g.cls}}" type="button" role="treeitem" style="{{g.pad}}" onClick="{{g.pick}}">
 <sc-if value="{{g.parent}}" hint-placeholder-val="{{false}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="color: var(--t3)"><path d="m6 9 6 6 6-6"/></svg></sc-if>
@@ -80,7 +80,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 <div class="rp">
 <div class="pane" style="border-bottom: 1px solid var(--bd)">
-<div class="ph2"><h2>{{sel.name}}</h2><span class="tag">{{sel.nature}}</span><span class="muted" style="flex: 1">Under {{sel.under}}</span><button class="btn" type="button">Delete</button><button class="btn pr" type="button">Save</button></div>
+<div class="ph2"><h2>{{sel.name}}</h2><span class="tag">{{sel.nature}}</span><span class="muted" style="flex: 1">Under {{sel.under}}</span><span class="{{nc}}" style="font-size: 13px">{{note}}</span><button class="btn" type="button" onClick="{{del}}">Delete</button><button class="btn pr" type="button" onClick="{{save}}">{{saveL}}</button></div>
 <div class="stats">
 <div class="stat"><span class="muted">Accounts</span><b>{{sel.count}}</b></div>
 <div class="stat"><span class="muted">Closing balance</span><b>{{sel.bal}}</b></div>
@@ -89,15 +89,15 @@ button,input,select,textarea{font:inherit;color:inherit}
 </div>
 <div class="pane">
 <div class="fgrid">
-<div class="fld"><label for="g1">Group name</label><input id="g1" class="inp" type="text" value="{{sel.name}}"></div>
-<div class="fld"><label for="g2">Under</label><select id="g2" class="inp"><option>{{sel.under}}</option></select></div>
-<div class="fld"><label for="g3">Nature</label><select id="g3" class="inp"><option>{{sel.nature}}</option><option>Assets</option><option>Liabilities</option><option>Income</option><option>Expenses</option></select></div>
+<div class="fld"><label for="g1">Group name</label><input id="g1" class="inp" type="text" value="{{ed.name}}" onChange="{{set.name}}"></div>
+<div class="fld"><label for="g2">Under</label><select id="g2" class="inp" value="{{ed.parentId}}" onChange="{{set.parentId}}"><sc-for list="{{parents}}" as="o" hint-placeholder-count="4"><option value="{{o.v}}">{{o.l}}</option></sc-for></select></div>
+<div class="fld"><label for="g3">Nature</label><select id="g3" class="inp" value="{{ed.nature}}" onChange="{{set.nature}}"><option value="ASSET">Assets</option><option value="LIABILITY">Liabilities</option><option value="INCOME">Income</option><option value="EXPENSE">Expenses</option></select></div>
 </div>
 <div>
-<label class="opt"><input class="sw" type="checkbox" checked><span style="flex: 1">Maintain bill-wise outstanding</span><span class="muted" style="font-size: 13px">Needed for ageing &amp; reminders</span></label>
-<label class="opt"><input class="sw" type="checkbox" checked><span style="flex: 1">Allow credit limit and credit days</span></label>
-<label class="opt"><input class="sw" type="checkbox"><span style="flex: 1">Affects gross profit</span></label>
-<label class="opt" style="border-bottom: 0"><input class="sw" type="checkbox" checked><span style="flex: 1">Show in outstanding reports</span></label>
+<label class="opt"><input class="sw" type="checkbox" checked="{{ed.billWise}}" onChange="{{set.billWise}}"><span style="flex: 1">Maintain bill-wise outstanding</span><span class="muted" style="font-size: 13px">Needed for ageing &amp; reminders</span></label>
+<label class="opt"><input class="sw" type="checkbox" checked="{{ed.creditControl}}" onChange="{{set.creditControl}}"><span style="flex: 1">Allow credit limit and credit days</span></label>
+<label class="opt"><input class="sw" type="checkbox" checked="{{ed.affectsGrossProfit}}" onChange="{{set.affectsGrossProfit}}"><span style="flex: 1">Affects gross profit</span></label>
+<label class="opt" style="border-bottom: 0"><input class="sw" type="checkbox" checked="{{ed.showInOutstanding}}" onChange="{{set.showInOutstanding}}"><span style="flex: 1">Show in outstanding reports</span></label>
 </div>
 </div>
 </div>
@@ -108,8 +108,24 @@ button,input,select,textarea{font:inherit;color:inherit}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
 class Component extends DCLogic {
-  constructor(p) { super(p); this.state = { sel: 3 }; }
+  constructor(p) { super(p); this.state = { sel: 3, q: '', ed: null, collapsed: {} }; }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  componentDidMount() { this.load(); }
+  async load(selId) { const api = this.api(); if (!api) return; try { const g = await api.get('/masters/groups'); const keep = selId || this.state.selId || (g.data.find((x) => /debtor/i.test(x.name)) || g.data[0] || {}).id; this.setState({ rows: g.data }); this.pick(g.data.find((x) => x.id === keep)); } catch (e) { this.setState({ note: api.message(e), err: true }); } }
+  pick(g) { if (!g) return; this.setState({ selId: g.id, ed: { name: g.name, parentId: g.parentId ? String(g.parentId) : '', nature: g.nature, billWise: !!g.billWise, creditControl: !!g.creditControl, affectsGrossProfit: !!g.affectsGrossProfit, showInOutstanding: !!g.showInOutstanding }, note: '', err: false }); }
+  async save() {
+    const api = this.api(); const st = this.state; if (!api) return; const e = st.ed;
+    const body = { name: e.name, parentId: e.parentId ? Number(e.parentId) : null, nature: e.nature, billWise: !!e.billWise, creditControl: !!e.creditControl, affectsGrossProfit: !!e.affectsGrossProfit, showInOutstanding: !!e.showInOutstanding };
+    try { const r = st.selId === 'new' ? await api.post('/masters/groups', body) : await api.put('/masters/groups/' + st.selId, body); api.invalidate(); this.setState({ note: '✓ Saved', err: false }); this.load(r.id); } catch (er) { this.setState({ note: api.message(er), err: true }); }
+  }
+  async del() {
+    const api = this.api(); const st = this.state; if (!api || st.selId === 'new') { this.load(); return; }
+    if (!window.confirm('Delete group ' + st.ed.name + '?')) return;
+    try { await api.del('/masters/groups/' + st.selId); api.invalidate(); this.setState({ selId: null }); this.load(); } catch (er) { this.setState({ note: api.message(er), err: true }); }
+  }
   renderVals() {
+    const st = this.state; const theme = this.props.theme ?? 'dark';
+    if (!st.rows) {
     const G = [
       [0, 'Capital Account', '4', 'Liabilities', 'Primary', '₹ 1.20 Cr Cr', '0', true],
       [0, 'Current Assets', '', 'Assets', 'Primary', '₹ 1.48 Cr Dr', '4', false],
@@ -129,16 +145,30 @@ class Component extends DCLogic {
       [0, 'Direct Expenses', '18', 'Expenses', 'Primary', '₹ 6.1 L Dr', '0', true],
       [0, 'Indirect Expenses', '41', 'Expenses', 'Primary', '₹ 14.8 L Dr', '0', true]
     ];
-    const s = this.state.sel;
-    const tree = G.map((g, i) => ({
-      name: g[1], count: g[2], parent: !g[7], leaf: g[7],
-      cls: i === s ? 'node on' : 'node',
-      pad: 'padding-left: ' + (8 + g[0] * 22) + 'px',
-      ws: g[0] === 0 ? 'font-weight: 500' : '',
-      pick: () => this.setState({ sel: i })
-    }));
-    const g = G[s];
-    return { theme: this.props.theme ?? 'dark', tree, sel: { name: g[1], count: g[2] || '—', nature: g[3], under: g[4], bal: g[5], subs: g[6] } };
+
+      const s = st.sel;
+      const tree = G.map((g, i) => ({ name: g[1], count: g[2], parent: !g[7], leaf: g[7], cls: i === s ? 'node on' : 'node', pad: 'padding-left: ' + (8 + g[0] * 22) + 'px', ws: g[0] === 0 ? 'font-weight: 500' : '', pick: () => this.setState({ sel: i }) }));
+      const g = G[s]; const NAT = { Assets: 'ASSET', Liabilities: 'LIABILITY', Income: 'INCOME', Expenses: 'EXPENSE' };
+      return { theme, tree, sel: { name: g[1], count: g[2] || '—', nature: g[3], under: g[4], bal: g[5], subs: g[6] }, ed: { name: g[1], parentId: '', nature: NAT[g[3]], billWise: true, creditControl: true, affectsGrossProfit: false, showInOutstanding: true },
+        parents: [{ v: '', l: g[4] }], set: {}, q: st.q, setQ: (e) => this.setState({ q: e.target.value }), note: '', nc: 'muted', saveL: 'Save', save: () => {}, del: () => {}, create: () => {}, expand: () => {} };
+    }
+    const rows = st.rows; const byParent = {}; rows.forEach((r) => { (byParent[r.parentId || 0] = byParent[r.parentId || 0] || []).push(r); });
+    const q = st.q.trim().toLowerCase(); const flat = [];
+    const walk = (pid, depth) => (byParent[pid] || []).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0) || a.name.localeCompare(b.name)).forEach((r) => { const kids = byParent[r.id] || []; if (!q || r.name.toLowerCase().indexOf(q) >= 0) flat.push({ r, depth, kids: kids.length }); if (!st.collapsed[r.id] || q) walk(r.id, depth + 1); });
+    walk(0, 0);
+    const L = (v) => (Math.abs(v) >= 1e7 ? '₹ ' + (v / 1e7).toFixed(2) + ' Cr' : Math.abs(v) >= 1e5 ? '₹ ' + (v / 1e5).toFixed(1) + ' L' : '₹ ' + Math.round(v).toLocaleString('en-IN'));
+    const NL = { ASSET: 'Assets', LIABILITY: 'Liabilities', INCOME: 'Income', EXPENSE: 'Expenses' };
+    const tree = flat.map(({ r, depth, kids }) => ({ name: r.name, count: r.accountCount ? String(r.accountCount) : '', parent: kids > 0, leaf: kids === 0, cls: r.id === st.selId ? 'node on' : 'node', pad: 'padding-left: ' + (8 + depth * 22) + 'px', ws: depth === 0 ? 'font-weight: 500' : '',
+      pick: () => { if (kids && r.id === st.selId) this.setState({ collapsed: { ...st.collapsed, [r.id]: !st.collapsed[r.id] } }); this.pick(r); } }));
+    const g = rows.find((x) => x.id === st.selId); const ed = st.ed || {};
+    const sel = g ? { name: g.name, count: String(g.accountCount || 0), nature: NL[g.nature], under: g.parentName || 'Primary', bal: L(g.balance) + ' ' + (g.balanceType === 'DR' ? 'Dr' : 'Cr'), subs: String(g.subGroupCount || 0) } : { name: ed.name || 'New group', count: '0', nature: NL[ed.nature] || '', under: '—', bal: '₹ 0', subs: '0' };
+    const set = {}; ['name', 'parentId', 'nature'].forEach((k) => { set[k] = (e) => this.setState({ ed: { ...this.state.ed, [k]: e.target.value }, note: '' }); });
+    ['billWise', 'creditControl', 'affectsGrossProfit', 'showInOutstanding'].forEach((k) => { set[k] = (e) => this.setState({ ed: { ...this.state.ed, [k]: e.target.checked }, note: '' }); });
+    set.parentId = (e) => { const p = rows.find((x) => String(x.id) === e.target.value); this.setState({ ed: { ...this.state.ed, parentId: e.target.value, nature: p ? p.nature : this.state.ed.nature } }); };
+    return { theme, tree, sel, ed, set, parents: [{ v: '', l: 'Primary' }].concat(rows.filter((x) => x.id !== st.selId).map((x) => ({ v: String(x.id), l: (x.parentName ? x.parentName + ' › ' : '') + x.name }))),
+      q: st.q, setQ: (e) => this.setState({ q: e.target.value }), note: st.note || '', nc: st.err ? 'tag t-red' : 'muted', saveL: st.selId === 'new' ? 'Create' : 'Save', save: () => this.save(), del: () => this.del(),
+      create: () => { const p = rows.find((x) => x.id === st.selId); this.setState({ selId: 'new', ed: { name: '', parentId: p ? String(p.id) : '', nature: p ? p.nature : 'ASSET', billWise: p ? !!p.billWise : false, creditControl: p ? !!p.creditControl : false, affectsGrossProfit: p ? !!p.affectsGrossProfit : false, showInOutstanding: p ? !!p.showInOutstanding : false }, note: 'New group under ' + (p ? p.name : 'Primary'), err: false }); },
+      expand: () => { const any = Object.values(st.collapsed).some(Boolean); const c = {}; if (!any) rows.forEach((r) => { if ((byParent[r.id] || []).length) c[r.id] = true; }); this.setState({ collapsed: c }); } };
   }
 }
 </script>

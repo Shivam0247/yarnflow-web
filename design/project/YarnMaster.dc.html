@@ -63,6 +63,21 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 /* gen27: collapsible sidebar */
 .sbw{transition:flex-basis .18s ease,width .18s ease}
 .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.scrim.fmx{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:56px 16px;z-index:30}
+.fmx .modal{width:min(860px,100%);background:var(--pop,var(--bg));border:1px solid var(--bd2);border-radius:14px;box-shadow:0 24px 64px rgba(0,0,0,.45);display:flex;flex-direction:column;max-height:calc(100vh - 112px)}
+.fmx .mh{display:flex;align-items:center;gap:10px;padding:18px 20px 6px}
+.fmx .mh h2{margin:0;font-size:19px;font-weight:600;flex:1}
+.fmx .fmb{overflow:auto;padding-bottom:6px}
+.fmx .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 16px;padding:10px 20px}
+.fmx .fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fmx .fld>label{color:var(--t3);font-size:13px}
+.fmx .fld .inp{width:100%;max-width:none;height:34px}
+.fmx .sub{padding:12px 20px 0;font-weight:600;font-size:13px}
+.fmx .mf{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--bd)}
+.fmx .sw{appearance:none;width:34px;height:20px;border-radius:99px;background:var(--s3);position:relative;cursor:pointer;margin:0;flex:none}
+.fmx .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+.fmx .sw:checked{background:#22C55E}
+.fmx .sw:checked::after{left:16px}
 </style>
 </helmet>
 <div class="app {{theme}}">
@@ -70,38 +85,96 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 <div class="main">
 <header class="hdr">
 <div class="bc"><span class="m">Yarn Items</span><span class="m">/</span><button class="btn gh" type="button" style="font-size: 17px; font-weight: 400; padding: 0 8px; height: 32px">List<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
-<button class="btn" type="button">Update rates</button>
-<button class="btn pr" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Create</button>
+<button class="btn" type="button" onClick="{{updRates}}">Update rates</button>
+<button class="btn pr" type="button" onClick="{{open}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Create</button>
 </header>
 <div class="chips" role="group" aria-label="Yarn type">
 <sc-for list="{{chips}}" as="c" hint-placeholder-count="7"><button class="{{c.cls}}" type="button" onClick="{{c.pick}}">{{c.n}} <span>{{c.k}}</span></button></sc-for>
 </div>
 <div class="fbar">
-<input class="inp" type="text" placeholder="Item code" aria-label="Item code">
-<input class="inp" type="text" placeholder="Yarn quality" aria-label="Yarn quality">
-<input class="inp" type="text" placeholder="Denier / count" aria-label="Denier or count">
-<select class="inp" aria-label="Lustre"><option>Lustre</option><option>SD</option><option>BR</option><option>FD</option></select>
-<select class="inp" aria-label="Mill"><option>Mill</option><option>Reliance</option><option>Sanathan</option><option>Century</option></select>
+<input class="inp" type="text" placeholder="Item code" aria-label="Item code" value="{{fc}}" onChange="{{setFc}}">
+<input class="inp" type="text" placeholder="Yarn quality" aria-label="Yarn quality" value="{{fq}}" onChange="{{setFq}}">
+<input class="inp" type="text" placeholder="Denier / count" aria-label="Denier or count" value="{{fd}}" onChange="{{setFd}}">
+<select class="inp" aria-label="Lustre" value="{{fl}}" onChange="{{setFl}}"><option value="">Lustre</option><sc-for list="{{lustres}}" as="o" hint-placeholder-count="3"><option>{{o}}</option></sc-for></select>
+<select class="inp" aria-label="Mill" value="{{fm2}}" onChange="{{setFm2}}"><option value="">Mill</option><sc-for list="{{mills}}" as="o" hint-placeholder-count="3"><option>{{o}}</option></sc-for></select>
 <div style="flex: 1"></div>
-<button class="btn" type="button">Filter</button><button class="btn" type="button">Sort</button><button class="btn" type="button">Columns</button>
+<button class="btn" type="button" onClick="{{exportCsv}}">Excel</button>
 </div>
 <div class="tw"><table>
 <thead><tr><th style="width: 36px"><input class="cb" type="checkbox" aria-label="Select all"></th><th>Code</th><th>Yarn quality</th><th>Type</th><th>Denier / count</th><th class="r">Filament</th><th>Lustre</th><th>HSN · GST</th><th class="r">Std box</th><th class="r">Stock kg</th><th class="r">Rate ₹/kg</th></tr></thead>
 <tbody>
 <sc-for list="{{rows}}" as="x" hint-placeholder-count="10">
-<tr><td><input class="cb" type="checkbox" aria-label="Select item"></td><td class="t2" style="font-variant-numeric: tabular-nums">{{x.code}}</td><td><a href="Stock.dc.html"><div>{{x.name}}</div><div class="muted" style="font-size: 12px">{{x.mill}}</div></a></td><td><span class="dot" style="{{x.tc}}">{{x.type}}</span></td><td>{{x.den}}</td><td class="r t2">{{x.fil}}</td><td class="t2">{{x.lus}}</td><td class="t2">{{x.hsn}}</td><td class="r t2">{{x.box}}</td><td class="r"><span class="{{x.sc}}">{{x.stock}}</span></td><td class="r">{{x.rate}}</td></tr>
+<tr onDoubleClick="{{x.edit}}"><td><input class="cb" type="checkbox" aria-label="Select item"></td><td class="t2" style="font-variant-numeric: tabular-nums">{{x.code}}</td><td><a href="Stock.dc.html"><div>{{x.name}}</div><div class="muted" style="font-size: 12px">{{x.mill}}</div></a></td><td><span class="dot" style="{{x.tc}}">{{x.type}}</span></td><td>{{x.den}}</td><td class="r t2">{{x.fil}}</td><td class="t2">{{x.lus}}</td><td class="t2">{{x.hsn}}</td><td class="r t2">{{x.box}}</td><td class="r"><span class="{{x.sc}}">{{x.stock}}</span></td><td class="r">{{x.rate}} <button class="btn sm gh" type="button" onClick="{{x.edit}}">Edit</button></td></tr>
 </sc-for>
 </tbody></table></div>
-<div class="foot"><span class="muted">{{count}}</span><div style="flex: 1"></div><button class="btn" type="button">Load More</button></div>
+<div class="foot"><span class="muted">{{count}}</span><div style="flex: 1"></div><sc-if value="{{more}}" hint-placeholder-val="{{true}}"><button class="btn" type="button" onClick="{{loadMore}}">Load More</button></sc-if></div>
 </div>
+<sc-if value="{{fm.open}}" hint-placeholder-val="{{false}}">
+<div class="scrim fmx">
+<div class="modal" role="dialog" aria-label="{{fm.title}}">
+<div class="mh"><h2>{{fm.title}}</h2><button class="btn gh ic" type="button" aria-label="Close" onClick="{{fm.close}}">✕</button></div>
+<div class="fmb">
+<sc-for list="{{fm.secs}}" as="sec" hint-placeholder-count="3"><div class="sub">{{sec.t}}</div><div class="fgrid"><sc-for list="{{sec.f}}" as="f" hint-placeholder-count="6"><div class="fld"><label>{{f.l}}<span style="color: #EF4444">{{f.req}}</span></label>
+<sc-if value="{{f.isSel}}" hint-placeholder-val="{{false}}"><select class="inp" aria-label="{{f.l}}" value="{{f.v}}" onChange="{{f.on}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="3"><option value="{{o.v}}">{{o.l}}</option></sc-for></select></sc-if>
+<sc-if value="{{f.isIn}}" hint-placeholder-val="{{true}}"><input class="inp" type="text" aria-label="{{f.l}}" value="{{f.v}}" placeholder="{{f.ph}}" onChange="{{f.on}}"></sc-if>
+<sc-if value="{{f.isChk}}" hint-placeholder-val="{{false}}"><span style="display: flex; align-items: center; gap: 10px; min-height: 34px"><input class="sw" type="checkbox" aria-label="{{f.l}}" checked="{{f.c}}" onChange="{{f.on}}"><span class="t2">{{f.ph}}</span></span></sc-if>
+</div></sc-for></div></sc-for>
+</div>
+<div class="mf"><span class="{{fm.nc}}" style="flex: 1; align-self: center; font-size: 13px">{{fm.note}}</span><sc-if value="{{fm.canDel}}" hint-placeholder-val="{{false}}"><button class="btn" type="button" style="color: #F87171" onClick="{{fm.del}}">Delete</button></sc-if><button class="btn" type="button" onClick="{{fm.close}}">Cancel</button><button class="btn pr" type="button" onClick="{{fm.save}}" disabled="{{fm.busy}}">{{fm.saveL}}</button></div>
+</div>
+</div>
+</sc-if>
 <div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="yarn" hint-size="52px,960px"></dc-import></div>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
 class Component extends DCLogic {
-  constructor(p) { super(p); this.state = { t: 'All' }; }
+  constructor(p) { super(p); this.state = { t: 'All', fc: '', fq: '', fd: '', fl: '', fm2: '', lim: 50, fm: null }; }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  /* ---- generic master form (spec → sections of fields) ---- */
+  fmOpen(title, vals, id) { this.setState({ fm: { title, v: { ...vals }, id: id || null, note: '', err: false, busy: false } }); }
+  fmVals(spec, fm) {
+    const secs = spec.map((sec) => ({ t: sec.t, f: sec.f.map((x) => { const v = fm.v[x.k]; const on = (e) => this.setState({ fm: { ...this.state.fm, v: { ...this.state.fm.v, [x.k]: x.type === 'chk' ? e.target.checked : e.target.value }, note: '', err: false } });
+      return { l: x.l, req: x.req ? ' *' : '', isSel: x.type === 'sel', isIn: !x.type || x.type === 'text', isChk: x.type === 'chk', v: v === null || v === undefined ? '' : String(v), c: !!v, ph: x.ph || '', opts: (x.opts || []).map((o) => ({ v: String(o[0]), l: o[1] })), on }; }) }));
+    return { open: true, title: fm.title, secs, note: fm.note, nc: fm.err ? 'tag t-red' : 'muted', busy: !!fm.busy, canDel: !!fm.id, saveL: fm.busy ? 'Saving…' : fm.id ? 'Save changes' : 'Create', close: () => this.setState({ fm: null }) };
+  }
+  async fmSave(slug, body, done) {
+    const api = this.api(); const fm = this.state.fm; if (!api) { this.setState({ fm: null }); return; }
+    this.setState({ fm: { ...fm, busy: true, note: 'Saving…', err: false } });
+    try { const r = fm.id ? await api.put('/masters/' + slug + '/' + fm.id, body) : await api.post('/masters/' + slug, body); api.invalidate(); this.setState({ fm: null, toast: '✓ Saved ' + (r.name || r.code || '') }); if (done) await done(r); }
+    catch (e) { this.setState({ fm: { ...this.state.fm, busy: false, note: api.message(e), err: true } }); }
+  }
+  async fmDel(slug, done) {
+    const api = this.api(); const fm = this.state.fm; if (!api || !fm.id) return;
+    if (!window.confirm('Delete this record? It cannot be undone.')) return;
+    try { await api.del('/masters/' + slug + '/' + fm.id); api.invalidate(); this.setState({ fm: null, toast: '✓ Deleted' }); if (done) await done(); }
+    catch (e) { this.setState({ fm: { ...this.state.fm, note: api.message(e), err: true } }); }
+  }
+  num(v) { const n = Number(String(v ?? '').replace(/[₹,\s]/g, '')); return isNaN(n) ? 0 : n; }
+  nz(v) { return v === '' || v === undefined ? null : v; }
+  componentDidMount() { this.load(); }
+  async load() { const api = this.api(); if (!api) return; try { const [it, br] = await Promise.all([api.get('/masters/items', { pageSize: 2000 }), api.get('/masters/brands')]); this.setState({ rows: it.data, brands: br.data }); } catch (e) { this.setState({ toast: api.message(e) }); } }
+  spec() {
+    const TY = [['FDY', 'FDY'], ['POY', 'POY'], ['DTY', 'DTY'], ['VISCOSE', 'Viscose'], ['NYLON', 'Nylon'], ['SPUN', 'Spun'], ['COTTON', 'Cotton'], ['OTHER', 'Other'], ['SERVICE', 'Service / general']];
+    return [{ t: 'Item', f: [{ k: 'code', l: 'Item code', req: 1 }, { k: 'name', l: 'Yarn quality / name', req: 1 }, { k: 'description', l: 'Description' }, { k: 'type', l: 'Type', type: 'sel', opts: TY }, { k: 'brandId', l: 'Brand / mill', type: 'sel', opts: [['', '—']].concat((this.state.brands || []).map((b) => [b.id, b.name])) }, { k: 'isActive', l: 'Active', type: 'chk', ph: 'Show in entry screens' }] },
+      { t: 'Specification', f: [{ k: 'denier', l: 'Denier / count', ph: '75' }, { k: 'filament', l: 'Filament', ph: '36' }, { k: 'lustre', l: 'Lustre', ph: 'SD / BR / FD' }, { k: 'stdBoxKg', l: 'Std box kg' }, { k: 'conesPerBox', l: 'Cones per box' }, { k: 'unit', l: 'Unit', type: 'sel', opts: [['KG', 'Kg'], ['PCS', 'Pcs'], ['MTR', 'Mtr'], ['BOX', 'Box'], ['NOS', 'Nos']] }] },
+      { t: 'Tax, rate & stock', f: [{ k: 'hsn', l: 'HSN', req: 1, ph: '5402' }, { k: 'gstRate', l: 'GST %', type: 'sel', opts: [[0, '0%'], [0.25, '0.25%'], [3, '3%'], [5, '5%'], [12, '12%'], [18, '18%'], [28, '28%']] }, { k: 'rate', l: 'Default rate ₹/kg' }, { k: 'minStock', l: 'Minimum stock kg' }, { k: 'isGeneral', l: 'General item', type: 'chk', ph: 'Non-yarn (for general bills)' }] }];
+  }
+  body(v) { const b = {}; ['code', 'name', 'description', 'denier', 'filament', 'lustre', 'hsn', 'type', 'unit'].forEach((k) => { b[k] = this.nz(String(v[k] ?? '').trim()); }); b.brandId = v.brandId ? Number(v.brandId) : null; ['stdBoxKg', 'conesPerBox', 'rate', 'minStock', 'gstRate'].forEach((k) => { b[k] = this.num(v[k]); }); b.isGeneral = !!v.isGeneral; b.isActive = v.isActive !== false; return b; }
+  async updRates() {
+    const api = this.api(); if (!api) return; const pct = window.prompt('Change default rate of the listed items by how many % ? (e.g. 2 or -1.5)'); if (!pct || isNaN(Number(pct))) return;
+    const list = this._vis || []; let ok = 0;
+    for (const r of list) { if (!r.rate) continue; try { await api.put('/masters/items/' + r.id, this.body({ ...r, rate: Math.round(r.rate * (1 + Number(pct) / 100) * 100) / 100 })); ok += 1; } catch (e) {} }
+    api.invalidate(); this.setState({ toast: ok + ' rates updated by ' + pct + '%' }); this.load();
+  }
   renderVals() {
-    const C = { FDY: '#3B82F6', POY: '#14B8A6', DTY: '#22C55E', Viscose: '#F97316', Nylon: '#A855F7', Spun: '#EAB308' };
+    const st = this.state; const theme = this.props.theme ?? 'dark';
+    const C = { FDY: '#3B82F6', POY: '#14B8A6', DTY: '#22C55E', Viscose: '#F97316', Nylon: '#A855F7', Spun: '#EAB308', Cotton: '#EC4899', Other: '#8F8F8F', Service: '#8F8F8F' };
+    const fmV = st.fm ? this.fmVals(this.spec(), st.fm) : { open: false };
+    if (st.fm) { fmV.save = () => this.fmSave('items', this.body(st.fm.v), () => this.load()); fmV.del = () => this.fmDel('items', () => this.load()); }
+    const base = { theme: this.props.theme ?? 'dark', fm: fmV, fc: st.fc, fq: st.fq, fd: st.fd, fl: st.fl, fm2: st.fm2, setFc: (e) => this.setState({ fc: e.target.value }), setFq: (e) => this.setState({ fq: e.target.value }), setFd: (e) => this.setState({ fd: e.target.value }), setFl: (e) => this.setState({ fl: e.target.value }), setFm2: (e) => this.setState({ fm2: e.target.value }),
+      open: () => this.fmOpen('New yarn item', { type: 'FDY', unit: 'KG', hsn: '5402', gstRate: 5, stdBoxKg: 60, isActive: true }), updRates: () => this.updRates() };
+    if (!st.rows) {
     const mk = (code, name, mill, type, den, fil, lus, hsn, box, stock, rate, low) => ({ code, name, mill, type, den, fil, lus, hsn, box, stock, rate, tc: '--c: ' + C[type], sc: low ? 'low' : '' });
     const all = [
       mk('PFY-7536-SD', 'Polyester FDY 75/36 SD Raw White', 'Reliance · Silvassa', 'FDY', '75 D', '36', 'SD', '5402 · 5%', '60 kg', '14,200', '136.00'),
@@ -115,13 +188,21 @@ class Component extends DCLogic {
       mk('COT-40S-CMB', 'Cotton Combed 40s', 'Arvind', 'Spun', '40s Ne', '—', '—', '5205 · 5%', '45.36 kg', '2,140', '312.00')
     ];
     const types = [['All', '186'], ['FDY', '64'], ['POY', '18'], ['DTY', '22'], ['Viscose', '26'], ['Nylon', '21'], ['Spun', '35']];
-    const t = this.state.t;
-    const rows = t === 'All' ? all : all.filter((r) => r.type === t);
-    return {
-      theme: this.props.theme ?? 'dark', rows,
-      chips: types.map(([n, k]) => ({ n, k, cls: n === t ? 'chip on' : 'chip', pick: () => this.setState({ t: n }) })),
-      count: rows.length + ' of ' + types.find((x) => x[0] === t)[1] + ' yarn items'
-    };
+
+      const t = st.t; const rows = (t === 'All' ? all : all.filter((r) => r.type === t)).map((r) => ({ ...r, edit: () => {} }));
+      return { ...base, rows, chips: types.map(([n, k]) => ({ n, k, cls: n === t ? 'chip on' : 'chip', pick: () => this.setState({ t: n }) })), count: rows.length + ' of ' + types.find((x) => x[0] === t)[1] + ' yarn items', lustres: ['SD', 'BR', 'FD'], mills: ['Reliance', 'Sanathan', 'Century'], exportCsv: () => {}, more: true, loadMore: () => {} };
+    }
+    const inr = (n, d) => { const v = Number(n) || 0; const s = Math.abs(v).toFixed(d || 0); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (v < 0 ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
+    const TN = (t) => (t ? t.charAt(0) + t.slice(1).toLowerCase() : 'Other');
+    const TL = (t) => (t === 'FDY' || t === 'POY' || t === 'DTY' ? t : TN(t));
+    let vis = st.rows.filter((r) => (st.t === 'All' || TL(r.type) === st.t) && (!st.fc || r.code.toLowerCase().indexOf(st.fc.toLowerCase()) >= 0) && (!st.fq || (r.name + ' ' + (r.description || '')).toLowerCase().indexOf(st.fq.toLowerCase()) >= 0) && (!st.fd || String(r.denier || '').indexOf(st.fd) >= 0) && (!st.fl || r.lustre === st.fl) && (!st.fm2 || r.brandName === st.fm2));
+    this._vis = vis;
+    const rows = vis.slice(0, st.lim).map((r) => ({ code: r.code, name: r.name, mill: r.brandName || r.description || '—', type: TL(r.type), tc: '--c: ' + (C[TL(r.type)] || '#8F8F8F'), den: r.denier ? r.denier + (/\D/.test(r.denier) ? '' : ' D') : '—', fil: r.filament || '—', lus: r.lustre || '—', hsn: r.hsn + ' · ' + r.gstRate + '%', box: r.stdBoxKg ? inr(r.stdBoxKg) + ' kg' : '—', stock: inr(r.stockQty, 0), sc: r.minStock > 0 && r.stockQty < r.minStock ? 'low' : '', rate: r.rate ? inr(r.rate, 2) : '—', edit: () => this.fmOpen('Edit yarn item · ' + r.code, r, r.id) }));
+    const cnt = { All: st.rows.length }; st.rows.forEach((r) => { const t = TL(r.type); cnt[t] = (cnt[t] || 0) + 1; });
+    const csv = () => [['Code', 'Name', 'Type', 'Brand', 'Denier', 'Filament', 'Lustre', 'HSN', 'GST %', 'Std box kg', 'Stock kg', 'Rate', 'Min stock']].concat(vis.map((r) => [r.code, r.name, r.type, r.brandName, r.denier, r.filament, r.lustre, r.hsn, r.gstRate, r.stdBoxKg, r.stockQty, r.rate, r.minStock])).map((a) => a.map((v) => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+    return { ...base, rows, chips: Object.keys(cnt).map((n) => ({ n, k: inr(cnt[n]), cls: n === st.t ? 'chip on' : 'chip', pick: () => this.setState({ t: n }) })), count: rows.length + ' of ' + vis.length + ' yarn items' + (st.toast ? ' · ' + st.toast : ''),
+      lustres: [...new Set(st.rows.map((r) => r.lustre).filter(Boolean))].sort(), mills: [...new Set(st.rows.map((r) => r.brandName).filter(Boolean))].sort(), more: vis.length > st.lim, loadMore: () => this.setState({ lim: st.lim + 50 }),
+      exportCsv: () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = 'Yarn items.csv'; a.click(); } catch (e) {} } };
   }
 }
 </script>
