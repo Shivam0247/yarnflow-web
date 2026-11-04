@@ -11,6 +11,21 @@ import CSS from './VoucherList.css?raw';
 /* ----- screen logic (same as the design) ----- */
 class Component extends DCLogic {
   constructor(p) { super(p); this.state = { tab: 'All', loaded: 22, sel: [], selAll: false, excl: [], focus: null, toast: '', over: {} }; }
+  /* live data (app) — on the design canvas window.YF_API is absent and the sample rows are used */
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  slug() { return { ds: 'dispatch-schedules', gs: 'general-sales', sr: 'sale-returns', gp: 'general-purchases', pr: 'purchase-returns' }[this.props.kind || 'ds']; }
+  async load() {
+    const api = this.api(); if (!api) return;
+    try { const r = await api.get('/vouchers/' + this.slug(), (this.props.kind || 'ds') === 'ds' ? { view: 'lines', pageSize: 1000 } : { pageSize: 1000 }); this.setState({ live: r.data }); }
+    catch (e) { this.setState({ toast: api.message(e) }); }
+  }
+  async liveBulk(ids, l, fn) {
+    const api = this.api(); const errs = [];
+    for (const id of [...new Set(ids)]) { try { await fn(api, id); } catch (e) { errs.push(api.message(e)); } }
+    this.setState({ sel: [], selAll: false, excl: [], toast: errs.length ? errs.join(' · ') : l + ' \u2014 done for ' + ids.length });
+    await this.load();
+  }
+  componentDidMount() { this.load(); }
   VD() { if (this._vd) return this._vd;
 // shared config for the five voucher types (embedded into VoucherEntry + VoucherList)
 const KINDS = {
@@ -122,7 +137,17 @@ function makeRows(kind) {
     const inr = (n, d) => { const s = Number(n || 0).toFixed(d); let [i, f] = s.split('.'); let neg = i[0] === '-'; if (neg) i = i.slice(1); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (neg ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
     if (!this._rows || this._rk !== kind) { this._rows = makeRows(kind); this._rk = kind; }
     const over = this.state.over;
-    const D = this._rows.map((r) => (over[r.no] ? Object.assign({}, r, over[r.no]) : r));
+    const LIVE = this.state.live;
+    const dmy = (x) => (x ? String(x).slice(0, 10).split('-').reverse().join('-') : '');
+    const DS = { OPEN: 'Open', PARTIAL: 'Open', PENDING_APPROVAL: 'Hold', LOCKED: 'Hold', COMPLETED: 'Close', CANCELLED: 'Cancel', REJECTED: 'Cancel' };
+    const fromLive = (b) => { const ex = b.extra || {};
+      if (kind === 'ds') return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName, dp: b.deliveryPartyName || b.partyName, sup: b.millName || '\u2014', it: b.itemName || '', br: b.brand || '', gr: b.grade || '', lot: b.lotNo || '', ct: b.pcs, q: b.qty, rate: b.rate, pch: '', pinv: '', st: DS[b.status] || 'Open', appr: b.status === 'PENDING_APPROVAL' ? 'Pending' : 'Approved', lr: b.lrNo || '', addr: b.deliveryAddress || b.partyCity || '', status: b.status };
+      const paidSt = b.status === 'CANCELLED' ? 'Cancelled' : b.pending <= 0.5 ? 'Paid' : b.pending < b.netAmount - (b.tdsAmount || 0) - 0.5 ? 'Part paid' : 'Unpaid';
+      if (kind === 'gs' || kind === 'gp') return { id: b.id, no: b.number, dt: dmy(b.date), inv: b.refNo || '', p: b.partyName, gst: b.partyGstin || '', pcs: b.totalPcs, wt: b.totalQty, meter: b.totalQty, amt: b.netAmount, st: paidSt, rcm: b.reverseCharge ? 'Yes' : 'No', so: ex.orderNo || '', adj: ex.adjBillNo || '', lock: b.status === 'LOCKED' ? 'Yes' : 'No' };
+      if (kind === 'sr') return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName, it: b.itemNames || '', pcs: b.totalPcs, wt: b.totalQty, amt: b.netAmount, rate: b.totalQty ? b.taxableAmount / b.totalQty : 0, remark: b.reason || b.remark || '', colp: b.collectionPersonName || '', adj: b.sourceNumber || '', adjdt: dmy(b.sourceDate), lr: b.lrNo || '', veh: b.vehicleNo || '',
+        bk: b.brokerName || 'Direct', city: b.partyCity || '', area: b.partyArea || '', state: b.partyState || '', sp: b.salesPersonName || '', tr: b.transporterName || '', irn: b.irn ? b.irn.slice(0, 6) + '\u2026' : '', sign: ex.signCopy || 'Pending' };
+      return { id: b.id, no: b.number, dt: dmy(b.date), inv: b.refNo || '', p: b.partyName, it: b.itemNames || '', pcs: b.totalPcs, wt: b.totalQty, amt: b.netAmount, adj: b.sourceNumber || ex.debitNoteNo || '', adjdt: dmy(b.sourceDate), gst: b.partyGstin || '', tr: b.transporterName || '', st: ex.adjusted || (b.sourceNumber ? 'Adjusted' : 'Pending') }; };
+    const D = LIVE ? LIVE.map(fromLive) : this._rows.map((r) => (over[r.no] ? Object.assign({}, r, over[r.no]) : r));
     const SPLIT = (s) => { const m = String(s).match(/(\d+(?:\/\d+){1,2}|\b\d{2,3}\b)/); if (!m) return ['\u2014', s]; return [m[1], String(s).replace(m[1], '').replace(/\s+/g, ' ').trim() || s]; };
     // ---- per-kind columns, tabs, totals
     const T = (k, l, o) => Object.assign({ k, l }, o || {});
@@ -162,7 +187,7 @@ function makeRows(kind) {
     const isSel = (no) => SA ? EX.indexOf(no) < 0 : this.state.sel.indexOf(no) >= 0;
     const val = (r, c) => { const v = c.get ? c.get(r) : r[c.k]; return v == null || v === '' ? '\u2014' : v; };
     const SKIP = (e) => !!(e && e.target && e.target.closest && e.target.closest('input,button,a,label,select'));
-    const open = (r) => { try { window.localStorage.setItem('yf-view-' + kind, JSON.stringify(Object.assign({ t: Date.now() }, r))); } catch (err) {} this.go(K.view + sfx + '.dc.html'); };
+    const open = (r) => { try { window.localStorage.setItem('yf-view-' + kind, JSON.stringify(Object.assign({ t: Date.now() }, r, LIVE ? { id: r.id } : {}))); } catch (err) {} this.go(K.view + sfx + '.dc.html'); };
     const rows = shown.map((r) => { const on = isSel(r.no);
       return { on, rc: on || this.state.focus === r.no ? 'sel' : '',
         tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : this.setState({ sel: on ? this.state.sel.filter((x) => x !== r.no) : this.state.sel.concat([r.no]) }),
@@ -180,7 +205,16 @@ function makeRows(kind) {
       allOn, hasSel: selRows.length > 0, selCount: SA ? inr(selRows.length, 0) + ' (all)' : selRows.length, selNote: note,
       toggleAll: () => this.setState(allOn || SA ? { selAll: false, excl: [], sel: [] } : { selAll: true, excl: [], sel: [] }),
       clearSel: () => this.setState({ sel: [], selAll: false, excl: [] }),
-      bulk: bulk.map(([l, cls, patch]) => ({ l, cls, go: () => { if (patch) { const o = Object.assign({}, this.state.over); selRows.forEach((r) => { o[r.no] = Object.assign({}, o[r.no] || {}, patch); }); this.setState({ over: o, sel: [], selAll: false, excl: [], toast: l + ' \u2014 done for ' + selRows.length + ' ' + (selRows.length === 1 ? K.noun : K.nouns) }); } else this.setState({ toast: l + ' \u2014 ' + selRows.length + ' ' + (selRows.length === 1 ? K.noun : K.nouns) + ' sent' }); } })),
+      bulk: bulk.map(([l, cls, patch]) => ({ l, cls, go: () => {
+        if (LIVE) { const ids = selRows.map((r) => r.id); const sl = '/vouchers/' + this.slug() + '/';
+          const ACT = { Approve: 'approve', Hold: 'lock', Close: 'close', Cancel: 'cancel', Lock: 'lock' };
+          if (ACT[l]) return this.liveBulk(ids, l, (api, id) => (l === 'Approve' && D.find((r) => r.id === id).status !== 'PENDING_APPROVAL' ? Promise.resolve() : api.post(sl + id + '/actions/' + ACT[l], l === 'Approve' ? { reason: 'Bulk approval' } : l === 'Cancel' ? { reason: 'Cancelled from register' } : {})));
+          if (l === 'Mark sign copy received') return this.liveBulk(ids, l, (api, id) => api.patch(sl + id + '/extra', { signCopy: 'Received' }));
+          if (l === 'Mark adjusted') return this.liveBulk(ids, l, (api, id) => api.patch(sl + id + '/extra', { adjusted: 'Adjusted' }));
+          if (/Print/.test(l)) { window.print(); return; }
+          if (l === 'Export') { const head = COLS.map((c) => c.l); const lines = [head].concat(selRows.map((r) => COLS.map((c) => { const v = c.get ? c.get(r) : r[c.k]; return v == null ? '' : String(v); }))); const csv = lines.map((a) => a.map((v) => '"' + v.replace(/"/g, '""') + '"').join(',')).join('\n');
+            try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = K.list + '.csv'; a.click(); } catch (e) {} this.setState({ toast: 'Exported ' + selRows.length + ' ' + K.nouns }); return; }
+        } if (patch) { const o = Object.assign({}, this.state.over); selRows.forEach((r) => { o[r.no] = Object.assign({}, o[r.no] || {}, patch); }); this.setState({ over: o, sel: [], selAll: false, excl: [], toast: l + ' \u2014 done for ' + selRows.length + ' ' + (selRows.length === 1 ? K.noun : K.nouns) }); } else this.setState({ toast: l + ' \u2014 ' + selRows.length + ' ' + (selRows.length === 1 ? K.noun : K.nouns) + ' sent' }); } })),
       hasToast: !!this.state.toast, toast: this.state.toast, hideToast: () => this.setState({ toast: '' }),
       onScroll: (e) => { const el = e.currentTarget || e.target; if (!el || this._ld || !this._more) return; if (el.scrollTop + el.clientHeight >= el.scrollHeight - 160) { this._ld = true; setTimeout(() => { this._ld = false; this.setState({ loaded: this.state.loaded + 20 }); }, 350); } },
       moreLeft: shown.length < vis.length, allLoaded: vis.length > 0 && shown.length >= vis.length, loadedLabel: shown.length + ' of ' + vis.length + ' loaded', countLabel: vis.length + ' ' + K.nouns

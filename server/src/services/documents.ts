@@ -823,6 +823,16 @@ export async function deleteDoc(ctx: Ctx, def: TypeDef, id: number) {
 }
 
 /** Workflow actions: approve | reject | cancel | close | lock | unlock | reopen */
+/** merge print / tracking fields (sign copy received, adjusted, …) without re-posting the document */
+export async function setExtra(ctx: Ctx, def: TypeDef, id: number, raw: unknown) {
+  requireRole(ctx, def.write, `edit a ${def.label.toLowerCase()}`);
+  const patch = z.record(z.string(), z.string().max(240)).parse(raw);
+  const v = await mustGet(ctx, def, id);
+  const extra = { ...(v.extra ?? {}), ...patch };
+  await ctx.db.update(vouchers).set({ extra, updatedById: ctx.userId, updatedAt: new Date() }).where(eq(vouchers.id, id));
+  return { id, extra };
+}
+
 export async function docAction(ctx: Ctx, def: TypeDef, id: number, action: string, reason?: string) {
   const v = await mustGet(ctx, def, id);
   await assertWritableFy(ctx, v.date);
@@ -948,6 +958,7 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
         itemCode,
         accountName,
         sourceNumber: s?.vNumber ?? null,
+        sourceQty: s?.qty ?? null,
         orderNumber: l.orderLineId ? src.get(l.orderLineId)?.vNumber ?? null : null,
         doneQty: cons ? u : undefined,
         pendingQty: cons ? (l.lineStatus === 'CLOSED' ? 0 : r3(Math.max(0, l.qty - u))) : undefined,
@@ -1020,7 +1031,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     const rows = await db.execute(sql`
       select v.id, v.number, v.date, v.status, v.due_date as "dueDate", v.credit_days as "creditDays", v.party_id as "partyId",
              p.name as "partyName", p.city as "partyCity", pg.name as "partyGroupName", b.name as "brokerName", sp.name as "salesPersonName",
-             m.name as "millName", ag.name as "agentName", v.ref_no as "refNo", v.ref_name as "refName", v.approval_note as "approvalNote", v.net_amount as "netAmount", v.priority, v.exp_delivery_date as "expDeliveryDate",
+             m.name as "millName", ag.name as "agentName", dpl.name as "deliveryPartyName", v.delivery_address as "deliveryAddress", v.lr_no as "lrNo", v.ref_no as "refNo", v.ref_name as "refName", v.approval_note as "approvalNote", v.net_amount as "netAmount", v.priority, v.exp_delivery_date as "expDeliveryDate",
              l.id as "lineId", l.line_no as "lineNo", l.item_id as "itemId", i.name as "itemName", i.denier, i.code as "itemCode",
              l.brand, l.lot_no as "lotNo", l.grade, l.unit, l.pcs, l.qty, l.rate, l.amount, l.taxable_amount as "taxableAmount", l.line_status as "lineStatus",
              coalesce((select sum(c.qty) from voucher_lines c join vouchers cv on cv.id = c.voucher_id
@@ -1035,6 +1046,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
       left join accounts b on b.id = v.broker_id
       left join accounts m on m.id = v.mill_id
       left join accounts ag on ag.id = v.agent_id
+      left join accounts dpl on dpl.id = v.delivery_party_id
       left join sales_persons sp on sp.id = v.sales_person_id
       where ${where}
       order by v.date desc, v.id desc, l.line_no
@@ -1061,11 +1073,18 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
            (select string_agg(distinct l.brand, ', ') from voucher_lines l where l.voucher_id = v.id) as "brands",
            (select string_agg(distinct l.grade, ', ') from voucher_lines l where l.voucher_id = v.id) as "grades",
            (select string_agg(distinct ov.number, ', ') from voucher_lines l join voucher_lines ol on ol.id = l.order_line_id join vouchers ov on ov.id = ol.voucher_id where l.voucher_id = v.id) as "orderNumbers",
-           pg.name as "partyGroupName", ag.name as "agentName", v.irn, v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote"
+           pg.name as "partyGroupName", ag.name as "agentName", v.irn, v.extra, p.area as "partyArea", p.state as "partyState",
+           br.name as "brokerName", sp.name as "salesPersonName", cp.name as "collectionPersonName", dp.name as "deliveryPartyName", ml.name as "millName",
+           v.reason, v.reverse_charge as "reverseCharge", v.source_id as "sourceId", src.date as "sourceDate", v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote"
     from vouchers v
     left join accounts p on p.id = v.party_id
     left join accounts pg on pg.id = p.party_group_id
     left join accounts ag on ag.id = v.agent_id
+    left join accounts br on br.id = v.broker_id
+    left join accounts dp on dp.id = v.delivery_party_id
+    left join accounts ml on ml.id = v.mill_id
+    left join sales_persons sp on sp.id = v.sales_person_id
+    left join sales_persons cp on cp.id = v.collection_person_id
     left join accounts ba on ba.id = v.bank_account_id
     left join transporters t on t.id = v.transporter_id
     left join vouchers src on src.id = v.source_id

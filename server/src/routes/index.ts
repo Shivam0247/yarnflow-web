@@ -134,6 +134,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.post('/api/vouchers/:slug', write((ctx, req) => docs.createDoc(ctx, typeOf(req), req.body), 201));
   app.put('/api/vouchers/:slug/:id', write((ctx, req) => docs.updateDoc(ctx, typeOf(req), idParam(req), req.body)));
   app.delete('/api/vouchers/:slug/:id', write((ctx, req) => docs.deleteDoc(ctx, typeOf(req), idParam(req))));
+  app.patch('/api/vouchers/:slug/:id/extra', write((ctx, req) => docs.setExtra(ctx, typeOf(req), idParam(req), req.body)));
   app.post('/api/vouchers/:slug/:id/actions/:action', write((ctx, req) => docs.docAction(ctx, typeOf(req), idParam(req), p(req).action, (req.body as { reason?: string } | undefined)?.reason)));
   /** find a document by number (any type) — powers "open record" links */
   app.get('/api/find', read(async (ctx, req) => {

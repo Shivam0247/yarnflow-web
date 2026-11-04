@@ -221,6 +221,11 @@ describe('dispatch schedule → sale bill', () => {
     const bill = await w.api.ok(w.api.get(`/vouchers/sale-bills/${sb.id}`));
     expect(bill.pending).toBe(226706 - 18900);
     expect(bill.settledBy[0].number).toBe(sr.number);
+    // print / tracking fields merge without re-posting
+    const ex = await w.api.ok(w.api.patch(`/vouchers/sale-returns/${sr.id}/extra`, { signCopy: 'Received' }));
+    expect(ex.extra.signCopy).toBe('Received');
+    expect((await w.api.ok(w.api.get(`/vouchers/sale-returns/${sr.id}`))).extra).toEqual({ signCopy: 'Received' });
+    expect((await w.api.ok(w.api.get(`/vouchers/sale-returns?partyId=${w.customer.id}`))).data[0].netAmount).toBe(18900);
   });
 
   it('order actions: close, reopen, cancel, lock', async () => {
