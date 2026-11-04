@@ -82,12 +82,17 @@ class Component extends DCLogic {
     this._d = { IC, TC, AC, R, CTX, ALIAS, NAMES, ANS, KEYS, HIST };
     return this._d;
   }
+  /* live layer: real answers from the books when the app is signed in */
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  async loadIns() { const api = this.api(); if (!api) return; try { this.setState({ liveIns: await api.get('/assistant/insights') }); } catch (e) {} }
   componentDidMount() {
+    this.loadIns();
+    this._ev = (e) => { if (e && e.detail) this.ask(e.detail); }; try { window.addEventListener('yf-ask', this._ev); } catch (e) {}
     try { const v = window.localStorage.getItem('yf-ai-open'); if (v !== null && !this.props.startOpen) this.setState({ open: v === '1' }); const w = parseInt(window.localStorage.getItem('yf-ai-w') || '', 10); if (w >= 320 && w <= 640) this.setState({ w }); } catch (e) {}
     this._key = (e) => { if ((e.ctrlKey || e.metaKey) && (e.key === 'j' || e.key === 'J')) { e.preventDefault(); this.setOpen(!this.isOpen()); } };
     try { window.addEventListener('keydown', this._key); } catch (e) {}
   }
-  componentWillUnmount() { try { window.removeEventListener('keydown', this._key); } catch (e) {} }
+  componentWillUnmount() { try { window.removeEventListener('keydown', this._key); window.removeEventListener('yf-ask', this._ev); } catch (e) {} }
   componentDidUpdate() { if (!this._scroll) return; this._scroll = false; try { const el = document.getElementById('ai-body'); if (el) el.scrollTop = el.scrollHeight; } catch (e) {} }
   isOpen() { return this.state.open ?? !!this.props.startOpen; }
   setOpen(o, view) { try { window.localStorage.setItem('yf-ai-open', o ? '1' : '0'); } catch (e) {} const s = { open: o }; if (view) s.view = view; this.setState(s); }
@@ -95,6 +100,14 @@ class Component extends DCLogic {
   saveW(w) { try { window.localStorage.setItem('yf-ai-w', String(w)); } catch (e) {} }
   data() {
     const { CTX, ALIAS, NAMES } = this.D(); const k = this.props.page || 'soe';
+    if (this.api()) {
+      const S = (t, d, ic, col) => ({ t, d, ic, col });
+      const LBL = { soe: 'Sales order', poe: 'Purchase order', so: 'Sales orders', po: 'Purchase orders', disp: 'Sale bills', ewb: 'E-way bills', pb: 'Purchase bills', dash: 'Dashboard' };
+      const name = LBL[k] || NAMES[k] || 'YarnFlow';
+      return { ctx: name, short: name.toLowerCase(), line: 'Ask me about outstanding, stock, rates, orders or bills — answers come straight from your books.',
+        sugg: [S('Summarise today', 'Sales, purchase and collections', 'list', 'violet'), S('Who owes us the most?', 'Largest overdue balances', 'alert', 'red'), S('Low stock yarns', 'Less than a month of free stock', 'stock', 'amber'), S('Orders on hold to approve', 'Waiting for your decision', 'check', 'amber'), S('Pending e-way bills', 'Bills that cannot leave yet', 'bill', 'blue'), S('Payments due to mills this week', 'Payable in the next 7 days', 'list', 'cyan')],
+        ins: this.state.liveIns || [] };
+    }
     if (CTX[k]) return CTX[k];
     const b = CTX[ALIAS[k]] || CTX.dash;
     return NAMES[k] ? Object.assign({}, b, { ctx: NAMES[k], short: NAMES[k].toLowerCase(), line: 'I can read your ' + NAMES[k].toLowerCase() + '. Ask me anything about it.' }) : b;
@@ -117,10 +130,26 @@ class Component extends DCLogic {
     const q = String(text || '').trim(); if (!q || this.state.busy) return;
     const msgs = this.seed().concat([{ who: 'user', t: q }]);
     this._scroll = true; this.setState({ msgs, draft: '', busy: true, view: 'chat', open: true });
+    const api = this.api();
+    if (api) {
+      try { const h = JSON.parse(window.localStorage.getItem('yf-ai-hist') || '[]'); h.unshift({ t: q, s: this.data().ctx + ' · ' + this.now() }); window.localStorage.setItem('yf-ai-hist', JSON.stringify(h.slice(0, 20))); } catch (e) {}
+      api.post('/assistant/ask', { q }).then((a) => { this._scroll = true; this.setState({ busy: false, msgs: (this.state.msgs || []).concat([Object.assign({ who: 'bot', time: this.now() }, a)]) }); })
+        .catch((e) => { this._scroll = true; this.setState({ busy: false, msgs: (this.state.msgs || []).concat([{ who: 'bot', time: this.now(), t: api.message(e), cardT: '', rows: [], src: [], acts: [] }]) }); });
+      return;
+    }
     const a = this.answer(q);
     setTimeout(() => { this._scroll = true; this.setState({ busy: false, msgs: (this.state.msgs || []).concat([Object.assign({ who: 'bot', time: this.now() }, a)]) }); }, 900);
   }
   say(t) { this._scroll = true; this.setState({ view: 'chat', open: true, msgs: this.seed().concat([{ who: 'bot', time: this.now(), t, cardT: '', rows: [], src: [], acts: [] }]) }); }
+  /** action buttons: open the screen that does the job (app) or acknowledge (canvas) */
+  act(l) {
+    const api = this.api(); if (!api) { this.say('✓ ' + l + ' — done. You can undo this from History.'); return; }
+    const sfx = (this.props.theme ?? 'dark') === 'light' ? 'Light' : '';
+    const T = [[/ledger/i, 'Ledger'], [/reminder|outstanding/i, 'Outstanding'], [/payment|pay/i, 'Payments'], [/approv/i, 'Approvals'], [/e-way|generate/i, 'EwayBills'], [/purchase order/i, 'PurchaseOrderEntry'], [/purchase orders/i, 'PurchaseOrderList'], [/sale bills/i, 'SaleBillList'], [/stock/i, 'Stock'], [/report/i, 'Reports'], [/register/i, 'SalesOrderList'], [/dashboard/i, 'Main']];
+    const hit = T.find(([re]) => re.test(l));
+    if (hit) { if (/payment/i.test(l)) try { window.localStorage.setItem('yf-pay-kind', /record payment|plan/i.test(l) ? 'p' : 'r'); } catch (e) {} try { const a = document.createElement('a'); a.href = hit[1] + sfx + '.dc.html'; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
+    else this.say('Open the relevant screen from the menu to ' + l.toLowerCase() + '.');
+  }
   startResize(e) {
     const x0 = e.clientX, w0 = this.width();
     const mv = (ev) => { const w = Math.max(320, Math.min(640, w0 + (x0 - ev.clientX))); this.setState({ w, drag: true }); };
@@ -142,7 +171,7 @@ class Component extends DCLogic {
       cardT: m.cardT || '', cardN: m.rows && m.rows.length ? m.rows.length + (m.rows.length === 1 ? ' row' : ' rows') : '',
       rows: m.rows || [], hasRows: !!(m.rows && m.rows.length),
       src: m.src || [], hasSrc: !!(m.src && m.src.length),
-      acts: (m.acts || []).map((l, j) => ({ l, cls: j === 0 ? 'ai-act pri' : 'ai-act', go: () => this.say('✓ ' + l + ' — done. You can undo this from History.') })),
+      acts: (m.acts || []).map((l, j) => ({ l, cls: j === 0 ? 'ai-act pri' : 'ai-act', go: () => this.act(l) })),
       hasActs: !!(m.acts && m.acts.length),
       hasTb: m.who === 'bot' && i === lastBot && !this.state.busy,
       upCls: this.state.fb[i] === 'up' ? 'ai-ib ai-on' : 'ai-ib', downCls: this.state.fb[i] === 'down' ? 'ai-ib ai-on' : 'ai-ib',
@@ -152,7 +181,7 @@ class Component extends DCLogic {
       redo: () => { const q = [...list.slice(0, i)].reverse().find((x) => x.who === 'user'); if (q) { this.setState({ msgs: list.slice(0, i - 1) }); setTimeout(() => this.ask(q.t), 0); } },
       note: this.state.note[i] || ''
     }));
-    const insAll = d.ins.map((n) => ({ t: n.t, v: n.v, d: n.d, act: n.act, when: n.when, ac: '--ac: ' + AC[n.sev], ask: () => this.ask(n.t), doIt: () => this.say('✓ ' + n.act + ' — done. You can undo this from History.') }));
+    const insAll = d.ins.map((n) => ({ t: n.t, v: n.v, d: n.d, act: n.act, when: n.when, ac: '--ac: ' + AC[n.sev], ask: () => this.ask(n.t), doIt: () => this.act(n.act) }));
     const userCount = list.filter((m) => m.who === 'user').length;
     const w = this.width();
     const draftOk = !!String(this.state.draft || '').trim();
@@ -178,7 +207,8 @@ class Component extends DCLogic {
       topIns: insAll.slice(0, 2), ins: insAll,
       sugg: d.sugg.map((s) => ({ t: s.t, d: s.d, ic: IC[s.ic], tile: tile(s.col), go: () => this.ask(s.t) })),
       refine: ['Shorter', 'Show only overdue', 'Share on WhatsApp'].map((l) => ({ l, go: () => this.ask(l) })),
-      hist: HIST.map((g) => ({ h: g.h, items: g.items.map(([t, s]) => ({ t, s, go: () => this.ask(t) })) })),
+      hist: (this.api() ? [{ h: 'Recent', items: (() => { try { return JSON.parse(window.localStorage.getItem('yf-ai-hist') || '[]').map((x) => [x.t, x.s]); } catch (e) { return []; } })() }] : HIST).map((g) => ({ h: g.h, items: g.items.map(([t, s]) => ({ t, s, go: () => this.ask(t) })) })),
+      userName: this.api() && this.api().user ? String(this.api().user.name || '').split(' ')[0] : 'Avi',
       msgs, busy: this.state.busy, fileIc: IC.file,
       ctxOn: this.state.ctxOn, ctxOff: !this.state.ctxOn,
       dropCtx: () => this.setState({ ctxOn: false }), addCtx: () => this.setState({ ctxOn: true }),
@@ -330,7 +360,7 @@ class AssistantView extends Component {
                       <h3>
                         {v.greet}{", "}
                         <span>
-                          Avi
+                          {v.userName}
                         </span>
                       </h3>
                       <p>
