@@ -1,0 +1,16 @@
+# PostgreSQL for YarnFlow. Start with:  docker compose up -d
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: yarnflow
+      POSTGRES_PASSWORD: yarnflow
+      POSTGRES_DB: yarnflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - yarnflow-pg:/var/lib/postgresql/data
+      - ./server/scripts/create-test-db.sql:/docker-entrypoint-initdb.d/create-test-db.sql:ro
+volumes:
+  yarnflow-pg:

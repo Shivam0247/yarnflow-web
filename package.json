@@ -1,24 +1,27 @@
 {
-  "name": "yarnflow-web",
+  "name": "yarnflow",
   "private": true,
-  "version": "0.1.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "YarnFlow — yarn trading ERP (sales, purchase, stock, accounts, GST) for Shree Umiya Yarn Pvt Ltd",
+  "workspaces": [
+    "server",
+    "web"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.0"
+    "dev": "concurrently -k -n api,web -c blue,green \"npm:dev -w server\" \"npm:dev -w web\"",
+    "build": "npm run build -w server && npm run build -w web",
+    "start": "npm run start -w server",
+    "test": "npm test -w server",
+    "db:migrate": "npm run db:migrate -w server",
+    "db:deploy": "npm run db:deploy -w server",
+    "db:seed": "npm run db:seed -w server",
+    "db:reset": "npm run db:reset -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "@vitejs/plugin-react": "^4.4.0",
-    "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "concurrently": "^9.2.5"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
