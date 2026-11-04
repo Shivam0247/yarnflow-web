@@ -15,6 +15,7 @@ import * as docs from '../services/documents.js';
 import * as eway from '../services/eway.js';
 import { MASTERS, createMaster, deleteMaster, getMaster, listMaster, updateMaster } from '../services/masters.js';
 import * as rep from '../services/reports.js';
+import * as tables from '../services/tables.js';
 import * as an from '../services/analysis.js';
 import { BILL_TYPES, BY_SLUG, TYPES, type VoucherType } from '../services/types.js';
 
@@ -245,6 +246,8 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
     const fy = await docs.loadFy(ctx);
     return rep.gstr3b(ctx, q(req).from ?? fy.startDate, q(req).to ?? fy.endDate);
   }));
+  app.get('/api/reports/list', read(async () => Object.entries(tables.REPORTS).map(([key, title]) => ({ key, title }))));
+  app.get('/api/reports/table/:key', read((ctx, req) => tables.reportTable(ctx, p(req).key, q(req))));
   app.get('/api/reports/dashboard', read((ctx, req) => rep.dashboard(ctx, q(req).from, q(req).to)));
   app.get('/api/reports/register/:slug', read((ctx, req) => docs.listDocs(ctx, typeOf(req), { ...q(req), pageSize: Number(q(req).pageSize) || 1000 } as never)));
 

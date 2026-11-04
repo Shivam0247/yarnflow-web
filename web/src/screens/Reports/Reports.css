@@ -41,3 +41,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* gen27: collapsible sidebar */
 .sbw{transition:flex-basis .18s ease,width .18s ease}
 .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.rv{margin-bottom:16px}
+.rvh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.rvt{overflow:auto;max-height:calc(100vh - 230px)}
+.rvt table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.rvt th{position:sticky;top:0;background:var(--s1);font-weight:500;color:var(--t3);font-size:13px;text-align:left;padding:8px 12px;white-space:nowrap}
+.rvt td{padding:8px 12px;border-top:1px solid var(--bd);white-space:nowrap}
+.rvt .r{text-align:right}
+.rvt tr.b td{font-weight:600}
+.rvt tfoot td{font-weight:600;background:var(--s1)}
+.rep{cursor:pointer}

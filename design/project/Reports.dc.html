@@ -52,6 +52,16 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* gen27: collapsible sidebar */
 .sbw{transition:flex-basis .18s ease,width .18s ease}
 .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.rv{margin-bottom:16px}
+.rvh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.rvt{overflow:auto;max-height:calc(100vh - 230px)}
+.rvt table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.rvt th{position:sticky;top:0;background:var(--s1);font-weight:500;color:var(--t3);font-size:13px;text-align:left;padding:8px 12px;white-space:nowrap}
+.rvt td{padding:8px 12px;border-top:1px solid var(--bd);white-space:nowrap}
+.rvt .r{text-align:right}
+.rvt tr.b td{font-weight:600}
+.rvt tfoot td{font-weight:600;background:var(--s1)}
+.rep{cursor:pointer}
 </style>
 </helmet>
 <div class="app {{theme}}">
@@ -59,61 +69,81 @@ button,input,select,textarea{font:inherit;color:inherit}
 <div class="main">
 <header class="hdr">
 <div class="bc"><span>Reports &amp; GST</span></div>
-<input class="inp" type="search" placeholder="Search 42 reports" aria-label="Search reports" style="width: 240px">
-<select class="inp" aria-label="Period"><option>Oct 2026</option><option>Sep 2026</option><option>FY 2026-27</option></select>
-<button class="btn pr" type="button">+ Custom report</button>
+<input class="inp" type="search" placeholder="Search {{nRep}} reports" aria-label="Search reports" style="width: 240px" value="{{q}}" onChange="{{setQ}}">
+<select class="inp" aria-label="Period" value="{{per}}" onChange="{{setPer}}"><sc-for list="{{pers}}" as="o" hint-placeholder-count="3"><option value="{{o.v}}">{{o.l}}</option></sc-for></select>
+<button class="btn pr" type="button" onClick="{{custom}}">+ Custom report</button>
 </header>
 <div class="wrap">
 <section class="box">
-<div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--bd); flex-wrap: wrap"><b style="font-weight: 600; font-size: 15px; flex: 1">GST summary · October 2026</b><span class="tag t-orange">GSTR-1 due 11 Nov</span><span class="tag t-gray">GSTR-3B due 20 Nov</span><button class="btn sm" type="button">Reconcile 2B</button><button class="btn sm pr" type="button">Prepare GSTR-1</button></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--bd); flex-wrap: wrap"><b style="font-weight: 600; font-size: 15px; flex: 1">GST summary · {{gs.per}}</b><span class="tag t-orange">GSTR-1 due {{gs.d1}}</span><span class="tag t-gray">GSTR-3B due {{gs.d3}}</span><button class="btn sm" type="button" onClick="{{op.gstr2b}}">Reconcile 2B</button><button class="btn sm pr" type="button" onClick="{{op.gstr1}}">Prepare GSTR-1</button></div>
 <div class="gst">
-<div><span class="muted">Outward taxable</span><b>₹ 1.75 Cr</b><span class="muted" style="font-size: 13px">142 invoices</span></div>
-<div><span class="muted">Output GST</span><b>₹ 8,76,420</b><span class="muted" style="font-size: 13px">CGST+SGST ₹ 6.1 L · IGST ₹ 2.6 L</span></div>
-<div><span class="muted">Input credit (2B)</span><b>₹ 6,02,180</b><span class="muted" style="font-size: 13px">4 bills missing in 2B</span></div>
-<div><span class="muted">Net GST payable</span><b>₹ 2,74,240</b><span class="muted" style="font-size: 13px">after ITC set-off</span></div>
-<div><span class="muted">E-way bills</span><b>118</b><span class="muted" style="font-size: 13px">3 expire today</span></div>
+<div><span class="muted">Outward taxable</span><b>{{gs.out}}</b><span class="muted" style="font-size: 13px">{{gs.inv}}</span></div>
+<div><span class="muted">Output GST</span><b>{{gs.tax}}</b><span class="muted" style="font-size: 13px">{{gs.split}}</span></div>
+<div><span class="muted">Input credit (2B)</span><b>{{gs.itc}}</b><span class="muted" style="font-size: 13px">{{gs.itcN}}</span></div>
+<div><span class="muted">Net GST payable</span><b>{{gs.net}}</b><span class="muted" style="font-size: 13px">after ITC set-off</span></div>
+<div><span class="muted">E-way bills</span><b>{{gs.ewb}}</b><span class="muted" style="font-size: 13px">{{gs.ewbS}}</span></div>
 </div>
 </section>
 
+<sc-if value="{{rv.on}}" hint-placeholder-val="{{false}}"><section class="box rv">
+<div class="rvh"><b style="font-weight: 600; font-size: 15px">{{rv.title}}</b><span class="muted" style="font-size: 13px; flex: 1">{{rv.sub}}</span><select class="inp" aria-label="Report" value="{{rv.key}}" onChange="{{rv.pick}}" style="width: 220px"><sc-for list="{{rv.opts}}" as="o" hint-placeholder-count="3"><option value="{{o.v}}">{{o.l}}</option></sc-for></select><input class="inp" type="text" value="{{rv.from}}" onChange="{{rv.setFrom}}" aria-label="From" style="width: 120px"><span class="muted">to</span><input class="inp" type="text" value="{{rv.to}}" onChange="{{rv.setTo}}" aria-label="To" style="width: 120px"><button class="btn sm" type="button" onClick="{{rv.print}}">Print</button><button class="btn sm" type="button" onClick="{{rv.excel}}">Excel</button><button class="btn sm gh" type="button" onClick="{{rv.close}}" aria-label="Close report">✕</button></div>
+<div class="rvt"><table><thead><tr><sc-for list="{{rv.cols}}" as="c" hint-placeholder-count="6"><th class="{{c.cls}}">{{c.l}}</th></sc-for></tr></thead>
+<tbody><sc-for list="{{rv.rows}}" as="r" hint-placeholder-count="8"><tr class="{{r.cls}}"><sc-for list="{{r.cells}}" as="x" hint-placeholder-count="6"><td class="{{x.cls}}">{{x.v}}</td></sc-for></tr></sc-for>
+<sc-if value="{{rv.empty}}" hint-placeholder-val="{{false}}"><tr><td class="muted" colspan="20" style="text-align: center; padding: 28px">{{rv.emptyL}}</td></tr></sc-if></tbody>
+<sc-if value="{{rv.hasTot}}" hint-placeholder-val="{{true}}"><tfoot><tr><sc-for list="{{rv.tot}}" as="x" hint-placeholder-count="6"><td class="{{x.cls}}">{{x.v}}</td></sc-for></tr></tfoot></sc-if></table></div>
+<sc-if value="{{rv.hasNote}}" hint-placeholder-val="{{false}}"><div class="muted" style="padding: 10px 16px; font-size: 13px">{{rv.note}}</div></sc-if>
+</section></sc-if>
 <div class="grid">
 <section class="box grp"><h2>Sales</h2>
-<a class="rep" href="SalesOrderList.dc.html"><span>Sales register<small>Invoice-wise with GST split</small></span><span class="star" aria-label="Favourite">★</span></a>
-<a class="rep" href="#"><span>Party-wise sales<small>Top buyers, quantity and margin</small></span></a>
-<a class="rep" href="#"><span>Yarn-wise sales<small>Kg and value by quality and lot</small></span></a>
-<a class="rep" href="#"><span>Broker commission<small>Brokerage due by broker</small></span></a>
-<a class="rep" href="#"><span>Pending orders<small>Ordered vs dispatched</small></span></a>
+<a class="rep" href="SalesOrderList.dc.html" onClick="{{op.sales_register}}"><span>Sales register<small>Invoice-wise with GST split</small></span><span class="star" aria-label="Favourite">★</span></a>
+<a class="rep" href="#" onClick="{{op.party_sales}}"><span>Party-wise sales<small>Top buyers, quantity and margin</small></span></a>
+<a class="rep" href="#" onClick="{{op.yarn_sales}}"><span>Yarn-wise sales<small>Kg and value by quality and lot</small></span></a>
+<a class="rep" href="#" onClick="{{op.brokerage}}"><span>Broker commission<small>Brokerage due by broker</small></span></a>
+<a class="rep" href="#" onClick="{{op.pending_so}}"><span>Pending orders<small>Ordered vs dispatched</small></span></a>
+<a class="rep" href="#" onClick="{{op.salesperson_sales}}"><span>Sales person-wise sales<small>Value, kg and returns per sales person</small></span></a>
+<a class="rep" href="#" onClick="{{op.broker_sales}}"><span>Broker-wise sales<small>Business brought by each broker</small></span></a>
+<a class="rep" href="#" onClick="{{op.month_sales}}"><span>Month-wise sales<small>Trend across the year</small></span></a>
 </section>
 <section class="box grp"><h2>Purchase</h2>
-<a class="rep" href="#"><span>Purchase register<small>Bill-wise with ITC</small></span><span class="star" aria-label="Favourite">★</span></a>
-<a class="rep" href="#"><span>Mill-wise purchase<small>Value, kg and average rate</small></span></a>
-<a class="rep" href="#"><span>Rate history<small>Mill rate trend by yarn</small></span></a>
-<a class="rep" href="#"><span>Pending POs<small>Ordered vs received</small></span></a>
-<a class="rep" href="#"><span>TDS 194Q<small>TDS on purchase above ₹ 50 L</small></span></a>
+<a class="rep" href="#" onClick="{{op.purchase_register}}"><span>Purchase register<small>Bill-wise with ITC</small></span><span class="star" aria-label="Favourite">★</span></a>
+<a class="rep" href="#" onClick="{{op.mill_purchase}}"><span>Mill-wise purchase<small>Value, kg and average rate</small></span></a>
+<a class="rep" href="#" onClick="{{op.rate_history}}"><span>Rate history<small>Mill rate trend by yarn</small></span></a>
+<a class="rep" href="#" onClick="{{op.pending_po}}"><span>Pending POs<small>Ordered vs received</small></span></a>
+<a class="rep" href="#" onClick="{{op.tds}}"><span>TDS 194Q<small>TDS on purchase above ₹ 50 L</small></span></a>
 </section>
 <section class="box grp"><h2>Accounts</h2>
 <a class="rep" href="Ledger.dc.html"><span>Ledger statement<small>Any account, any period</small></span><span class="star" aria-label="Favourite">★</span></a>
-<a class="rep" href="Outstanding.dc.html"><span>Outstanding &amp; ageing<small>Receivable and payable</small></span></a>
-<a class="rep" href="#"><span>Day book<small>All vouchers by date</small></span></a>
-<a class="rep" href="#"><span>Trial balance<small>Group-wise closing balances</small></span></a>
-<a class="rep" href="#"><span>Profit &amp; loss · Balance sheet<small>Monthly and FY</small></span></a>
+<a class="rep" href="Outstanding.dc.html" onClick="{{out.party}}"><span>Outstanding &amp; ageing<small>Receivable and payable</small></span></a>
+<a class="rep" href="Outstanding.dc.html" onClick="{{out.group}}"><span>Outstanding group-wise<small>By account group and party group</small></span></a>
+<a class="rep" href="Outstanding.dc.html" onClick="{{out.collectionPerson}}"><span>Outstanding collection person-wise<small>Who has to collect how much</small></span></a>
+<a class="rep" href="Outstanding.dc.html" onClick="{{out.salesPerson}}"><span>Outstanding sales person-wise<small>Ageing per sales person</small></span></a>
+<a class="rep" href="Outstanding.dc.html" onClick="{{out.broker}}"><span>Outstanding broker-wise<small>Dues through each broker</small></span></a>
+<a class="rep" href="#" onClick="{{op.collections_person}}"><span>Collection person-wise collection<small>Receipts by collection person</small></span></a>
+<a class="rep" href="#" onClick="{{op.collections_sales}}"><span>Sales person-wise collection<small>Receipts by sales person</small></span></a>
+<a class="rep" href="#" onClick="{{op.interest}}"><span>Interest on overdue bills<small>Interest by party · raise debit notes</small></span></a>
+<a class="rep" href="#" onClick="{{op.group_summary}}"><span>Group summary<small>Closing balance of every group</small></span></a>
+<a class="rep" href="#" onClick="{{op.balance_sheet}}"><span>Balance sheet<small>Assets and liabilities</small></span></a>
+<a class="rep" href="#" onClick="{{op.day_book}}"><span>Day book<small>All vouchers by date</small></span></a>
+<a class="rep" href="#" onClick="{{op.trial_balance}}"><span>Trial balance<small>Group-wise closing balances</small></span></a>
+<a class="rep" href="#" onClick="{{op.profit_loss}}"><span>Profit &amp; loss · Balance sheet<small>Monthly and FY</small></span></a>
 </section>
 <section class="box grp"><h2>Inventory</h2>
-<a class="rep" href="Stock.dc.html"><span>Stock summary<small>Yarn × godown</small></span></a>
-<a class="rep" href="Stock.dc.html"><span>Lot-wise stock<small>Lot, grade, boxes and age</small></span></a>
-<a class="rep" href="#"><span>Slow-moving yarn<small>No sale in 60+ days</small></span></a>
-<a class="rep" href="#"><span>Stock valuation<small>FIFO / weighted average</small></span></a>
+<a class="rep" href="Stock.dc.html" onClick="{{op.stock_summary}}"><span>Stock summary<small>Yarn × godown</small></span></a>
+<a class="rep" href="Stock.dc.html" onClick="{{op.lot_stock}}"><span>Lot-wise stock<small>Lot, grade, boxes and age</small></span></a>
+<a class="rep" href="#" onClick="{{op.slow_moving}}"><span>Slow-moving yarn<small>No sale in 60+ days</small></span></a>
+<a class="rep" href="#" onClick="{{op.stock_valuation}}"><span>Stock valuation<small>FIFO / weighted average</small></span></a>
 </section>
 <section class="box grp"><h2>GST</h2>
-<a class="rep" href="#"><span>GSTR-1<small>Outward supplies · JSON export</small></span><span class="tag t-orange">Due</span></a>
-<a class="rep" href="#"><span>GSTR-3B<small>Summary return</small></span></a>
-<a class="rep" href="#"><span>GSTR-2B reconciliation<small>Match purchase bills with portal</small></span><span class="tag t-orange">4</span></a>
-<a class="rep" href="#"><span>HSN summary<small>5402, 5403, 5205 …</small></span></a>
-<a class="rep" href="#"><span>E-way bill register<small>Generated, expiring, cancelled</small></span></a>
+<a class="rep" href="#" onClick="{{op.gstr1}}"><span>GSTR-1<small>Outward supplies · JSON export</small></span><span class="tag t-orange">Due</span></a>
+<a class="rep" href="#" onClick="{{op.gstr3b}}"><span>GSTR-3B<small>Summary return</small></span></a>
+<a class="rep" href="#" onClick="{{op.gstr2b}}"><span>GSTR-2B reconciliation<small>Match purchase bills with portal</small></span><span class="tag t-orange">4</span></a>
+<a class="rep" href="#" onClick="{{op.hsn}}"><span>HSN summary<small>5402, 5403, 5205 …</small></span></a>
+<a class="rep" href="#" onClick="{{op.ewb_register}}"><span>E-way bill register<small>Generated, expiring, cancelled</small></span></a>
 </section>
 <section class="box grp"><h2>AI reports</h2>
 <a class="rep" href="Main.dc.html#ai"><span>Ask in plain words<small>“Profit on viscose this quarter”</small></span></a>
-<a class="rep" href="#"><span>Payment behaviour<small>Who pays late, by how much</small></span></a>
-<a class="rep" href="#"><span>Reorder suggestions<small>Yarn to buy from which mill</small></span><span class="tag t-green">New</span></a>
+<a class="rep" href="#" onClick="{{op.payment_behaviour}}"><span>Payment behaviour<small>Who pays late, by how much</small></span></a>
+<a class="rep" href="#" onClick="{{op.reorder}}"><span>Reorder suggestions<small>Yarn to buy from which mill</small></span><span class="tag t-green">New</span></a>
 </section>
 </div>
 </div>
@@ -123,7 +153,76 @@ button,input,select,textarea{font:inherit;color:inherit}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":1000}}'>
 class Component extends DCLogic {
-  renderVals() { return { theme: this.props.theme ?? 'dark' }; }
+  constructor(p) { super(p); this.state = { q: '', per: 'fy', key: null }; }
+  /* live data layer: present in the app, absent on the design canvas (sample data is used there) */
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
+  range(per) {
+    const fy = (this.api() && this.api().fy) || { startDate: '2026-04-01', endDate: '2027-03-31' };
+    if (!per || per === 'fy') return [fy.startDate, fy.endDate];
+    const [y, m] = per.split('-').map(Number); const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    return [per + '-01', per + '-' + String(last).padStart(2, '0')];
+  }
+  async componentDidMount() {
+    const api = this.api(); if (!api) return;
+    try { const list = await api.get('/reports/list'); this.setState({ list }); } catch (e) {}
+    this.loadGst(this.state.per);
+    try { const k = window.localStorage.getItem('yf-report'); if (k) { window.localStorage.removeItem('yf-report'); this.open(k); } } catch (e) {}
+  }
+  async loadGst(per) {
+    const api = this.api(); if (!api) return; const [f, t0] = this.range(per === 'fy' ? this.curMonth() : per); const t = t0;
+    try { const [g3, g1, ew] = await Promise.all([api.get('/reports/gstr3b', { from: f, to: t }), api.get('/reports/gstr1', { from: f, to: t }), api.get('/eway-bills')]); this.setState({ g3, g1, ew: ew.data, gper: per === 'fy' ? this.curMonth() : per }); } catch (e) {}
+  }
+  curMonth() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+  async open(key, from, to) {
+    const api = this.api(); if (!api) return;
+    const [f0, t0] = this.range(this.state.per);
+    const f = from || this.state.rf || f0; const t = to || this.state.rt || t0;
+    this.setState({ key, rf: f, rt: t, tbl: null, busy: true });
+    try { const tbl = await api.get('/reports/table/' + key, { from: f, to: t, asOn: t }); this.setState({ tbl, busy: false }); try { window.scrollTo(0, 0); } catch (e) {} } catch (e) { this.setState({ busy: false, tbl: { title: key, sub: api.message(e), cols: [], rows: [] } }); }
+  }
+  renderVals() {
+    const st = this.state; const theme = this.props.theme ?? 'dark'; const sfx = theme === 'light' ? 'Light' : '';
+    const live = !!this.api();
+    const KEYS = ['sales-register', 'party-sales', 'yarn-sales', 'broker-sales', 'salesperson-sales', 'month-sales', 'brokerage', 'pending-so', 'purchase-register', 'mill-purchase', 'rate-history', 'pending-po', 'tds', 'day-book', 'trial-balance', 'profit-loss', 'balance-sheet', 'group-summary', 'collections-person', 'collections-sales', 'interest', 'payment-behaviour', 'stock-summary', 'lot-stock', 'slow-moving', 'stock-valuation', 'reorder', 'gstr1', 'gstr3b', 'gstr2b', 'hsn', 'ewb-register'];
+    const op = {}; KEYS.forEach((k) => { op[k.replace(/-/g, '_')] = (e) => { if (e && e.preventDefault) e.preventDefault(); if (live) this.open(k); }; });
+    const out = {}; ['party', 'group', 'collectionPerson', 'salesPerson', 'broker'].forEach((g) => { out[g] = () => { try { window.localStorage.setItem('yf-out-gb', g); } catch (e) {} }; });
+    const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const inr = (n, d) => { const v = Number(n) || 0; const s = Math.abs(v).toFixed(d || 0); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (v < 0 ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
+    const L = (v) => { const n = Number(v) || 0; return Math.abs(n) >= 1e7 ? '₹ ' + (n / 1e7).toFixed(2) + ' Cr' : Math.abs(n) >= 1e5 ? '₹ ' + (n / 1e5).toFixed(1) + ' L' : '₹ ' + inr(n); };
+    // periods: months of the FY + FY
+    const fy = (this.api() && this.api().fy) || { startDate: '2026-04-01', label: '2026-27' };
+    const [fyY, fyM] = fy.startDate.split('-').map(Number);
+    const pers = [{ v: 'fy', l: 'FY ' + (fy.label || fyY + '-' + String(fyY + 1).slice(2)) }];
+    for (let i = 0; i < 12; i++) { const m = (fyM - 1 + i) % 12; const y = fyY + Math.floor((fyM - 1 + i) / 12); pers.push({ v: y + '-' + String(m + 1).padStart(2, '0'), l: mon[m] + ' ' + y }); }
+    let gs;
+    if (live && st.g3) {
+      const g3 = st.g3; const [y, m] = st.gper.split('-').map(Number); const nx = new Date(Date.UTC(y, m, 1)); const nm = mon[nx.getUTCMonth()];
+      const outTax = g3.outward.cgst + g3.outward.sgst + g3.outward.igst; const itc = g3.itc.cgst + g3.itc.sgst + g3.itc.igst;
+      const ew = st.ew || []; const endT = new Date(); endT.setHours(23, 59, 59, 999); const exp = ew.filter((b) => b.ewbStatus === 'GENERATED' && b.ewbValidTill && new Date(b.ewbValidTill) <= endT).length;
+      gs = { per: mon[m - 1] + ' ' + y, d1: '11 ' + nm, d3: '20 ' + nm, out: L(g3.outward.taxable), inv: (st.g1.b2b.length + st.g1.b2c.length) + ' invoices', tax: '₹ ' + inr(outTax), split: 'CGST+SGST ' + L(g3.outward.cgst + g3.outward.sgst) + ' · IGST ' + L(g3.outward.igst),
+        itc: '₹ ' + inr(itc), itcN: 'from purchase bills', net: '₹ ' + inr(g3.totalPayable), ewb: String(ew.filter((b) => b.ewbNo).length), ewbS: exp ? exp + ' expire today' : ew.filter((b) => b.ewbStatus === 'PENDING').length + ' pending' };
+    } else gs = { per: 'October 2026', d1: '11 Nov', d3: '20 Nov', out: '₹ 1.75 Cr', inv: '142 invoices', tax: '₹ 8,76,420', split: 'CGST+SGST ₹ 6.1 L · IGST ₹ 2.6 L', itc: '₹ 6,02,180', itcN: '4 bills missing in 2B', net: '₹ 2,74,240', ewb: '118', ewbS: '3 expire today' };
+    // viewer
+    const t = st.tbl; const list = st.list || [];
+    const fmt = (c, v) => { if (v === null || v === undefined || v === '') return c.t === 'money' || c.t === 'qty' ? '' : '—'; if (c.t === 'money') return inr(v, 2); if (c.t === 'qty') return inr(v, 3); if (c.t === 'pct') return Number(v).toFixed(2); if (c.t === 'num') return inr(v); if (c.t === 'date') return String(v).slice(0, 10).split('-').reverse().join('-'); return String(v); };
+    const isR = (c) => c.t === 'money' || c.t === 'qty' || c.t === 'num' || c.t === 'pct';
+    const dmy = (x) => (x ? x.split('-').reverse().join('-') : '');
+    const iso = (d) => { const m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(String(d || '').trim()); return m ? m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0') : null; };
+    const csv = () => { if (!t) return ''; const head = t.cols.map((c) => c.l); const rows = t.rows.map((r) => t.cols.map((c) => fmt(c, r[c.k]))); if (t.total) rows.push(t.cols.map((c) => fmt(c, t.total[c.k]))); return [head].concat(rows).map((a) => a.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n'); };
+    const q = st.q.trim().toLowerCase();
+    const rv = { on: live && !!st.key, key: st.key || '', title: t ? t.title : st.busy ? 'Loading…' : '', sub: t ? t.sub : '', from: dmy(st.rf), to: dmy(st.rt),
+      opts: list.filter((r) => !q || r.title.toLowerCase().indexOf(q) >= 0 || r.key === st.key).map((r) => ({ v: r.key, l: r.title })), pick: (e) => this.open(e.target.value),
+      setFrom: (e) => { const v = iso(e.target.value); if (v) this.open(st.key, v, st.rt); }, setTo: (e) => { const v = iso(e.target.value); if (v) this.open(st.key, st.rf, v); },
+      print: () => window.print(), excel: () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = (t ? t.title : 'report') + '.csv'; a.click(); } catch (e) {} }, close: () => this.setState({ key: null, tbl: null }),
+      cols: t ? t.cols.map((c) => ({ l: c.l, cls: isR(c) ? 'r' : '' })) : [],
+      rows: t ? t.rows.slice(0, 2000).map((r) => ({ cls: r.bold ? 'b' : '', cells: t.cols.map((c) => ({ v: fmt(c, r[c.k]), cls: isR(c) ? 'r' : '' })) })) : [],
+      empty: !!t && t.rows.length === 0, emptyL: st.busy ? 'Loading…' : 'Nothing in this period', hasTot: !!(t && t.total), tot: t && t.total ? t.cols.map((c) => ({ v: fmt(c, t.total[c.k]), cls: isR(c) ? 'r' : '' })) : [], hasNote: !!(t && t.note), note: t ? t.note || '' : '' };
+    return { theme, op, out, gs, rv, nRep: String(live && list.length ? list.length : 42), q: st.q,
+      setQ: (e) => { const v = e.target.value; this.setState({ q: v }); const hit = (st.list || []).find((r) => r.title.toLowerCase().indexOf(v.trim().toLowerCase()) >= 0); if (live && v.trim().length >= 3 && hit && hit.key !== st.key) this.open(hit.key); },
+      per: st.per, pers, setPer: (e) => { const v = e.target.value; const [f, to] = this.range(v); this.setState({ per: v, rf: f, rt: to }); this.loadGst(v); if (st.key) this.open(st.key, f, to); },
+      custom: () => { if (live) this.open(st.key || 'party-sales'); } };
+  }
 }
 </script>
 </body>

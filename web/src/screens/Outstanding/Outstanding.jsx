@@ -14,7 +14,7 @@ class Component extends DCLogic {
   /* live data layer: present in the app, absent on the design canvas (sample data is used there) */
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
   go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
-  componentDidMount() { this.load(); }
+  componentDidMount() { let gb = null; try { gb = window.localStorage.getItem('yf-out-gb'); if (gb) window.localStorage.removeItem('yf-out-gb'); } catch (e) {} if (gb) this.setState({ gb }); this.load(); }
   async load(patch) {
     const st = { ...this.state, ...(patch || {}) }; if (patch) this.setState(patch);
     const api = this.api(); if (!api) return;
