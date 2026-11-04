@@ -187,6 +187,8 @@ const KINDS = {
   gs: { mod: 'Sales', title: 'General sale bill', reg: 'General sale register', list: 'GeneralSaleList', entry: 'GeneralSaleEntry', view: 'GeneralSaleView', no: 'BR51/26-27', noun: 'bill', nouns: 'bills' },
   sr: { mod: 'Sales', title: 'Sale return', reg: 'Sale return register', list: 'SaleReturnList', entry: 'SaleReturnEntry', view: 'SaleReturnView', no: 'R00199/26-27', noun: 'return', nouns: 'returns' },
   gp: { mod: 'Purchase', title: 'General purchase bill', reg: 'General purchase register', list: 'GeneralPurchaseList', entry: 'GeneralPurchaseEntry', view: 'GeneralPurchaseView', no: 'GENU00221/26-27', noun: 'bill', nouns: 'bills' },
+  dn: { mod: 'Accounts', title: 'Debit note', reg: 'Debit note register', list: 'DebitNoteList', entry: 'DebitNoteEntry', view: 'DebitNoteView', no: 'DN00041/26-27', noun: 'note', nouns: 'notes' },
+  cn: { mod: 'Accounts', title: 'Credit note', reg: 'Credit note register', list: 'CreditNoteList', entry: 'CreditNoteEntry', view: 'CreditNoteView', no: 'CN00027/26-27', noun: 'note', nouns: 'notes' },
   pr: { mod: 'Purchase', title: 'Purchase return', reg: 'Purchase return register', list: 'PurchaseReturnList', entry: 'PurchaseReturnEntry', view: 'PurchaseReturnView', no: 'PRT00056/26-27', noun: 'return', nouns: 'returns' }
 };
 const TITLE = (s) => String(s).toLowerCase().replace(/(^|[\s(.\-/&])([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(Llp|Pvt|Ltd|P)\b/g, (w) => w.toUpperCase()).replace(/\bLtd\b/gi, 'Ltd');
@@ -195,6 +197,8 @@ const PARTIES = {
   gs: ['RELIANCE INDUSTRIES LIMITED', 'WELLKNOWN POLYESTERS P LTD', 'FILATEX INDIA LTD', 'GARDEN SILK MILLS PRIVATE LIMITED', 'GOKULANAND PETROFIBRES', 'GTX PRIVATE LIMITED'],
   sr: ['OMLY FASHION', 'DIYA TEXTILES', 'ANKIT ENTERPRISE', 'JAY VEER ENTERPRISE', 'DABHI EMPIRE', 'MANGLUM TEXTILES', 'WIZARD WEAVES', 'SILICATE YARN', 'SUNSTAR NARROW FAB', 'SHREE BHAGWATI FABRICS', 'SHLOK FASHION', 'S V TEX FAB', 'BRAHMANI SILK HOUSE', 'DHANHARI TEXTILE', 'VRUNDAVAN ALLURE', 'MAHALAXMI TEXO FAB', 'KRISHNA FASHION', 'SIYA CORPORATION', 'SHOBHNA TEXTILES', 'BAFNA TRADERS'],
   gp: ['PUROHIT HANSRAJ VELAJI', 'DISHA TEXTECH & GENERAL TRADING', 'SHEKHAWATI ROAD CARRIER', 'DURGA KANWAR', 'SWASTIK TRANSPORT SERVICE', 'UNITED GUJARAT YARN DEALERS ASSOCIATION', 'SHAURYA TEMPO SERVICE', 'MAA ROADLINES', 'LALIT ROAD CARRIER', 'TRI WORLD EXIM SERVICES LLP', 'COMMERCIAL GOODS CARRIERS'],
+  dn: ['KRISHNA TEXTILES', 'LAXMI CREATION', 'SHREE DURGA SYNTEX PVT LTD', 'OM SAI WEAVING', 'SANATHAN TEXTILES LIMITED', 'NAVRANG PRINTS'],
+  cn: ['OM SAI WEAVING', 'BHAGWATI FILAMENTS', 'KRISHNA TEXTILES', 'RELIANCE INDUSTRIES LIMITED', 'GEETA FAB', 'JIGITA FAB LLP'],
   pr: ['SHREE DURGA SYNTEX PVT LTD', 'VINEET SYNTHETICS PVT LTD', 'SHREE RAM YARN TRADING CO', 'GLOBAL SIZER', 'DEVIKA FIBRES (P) LTD', 'SANATHAN TEXTILES LIMITED']
 };
 const ITEMS = [['50/24 FDY', 'Durga', 'F1', 'SDS3001', 154.5], ['55/48 FDY', 'Durga', 'F1', 'SDS3056', 154.25], ['50/48 FDY LBS', 'Durga', 'F1', 'SDS3011', 155.5], ['75/72 Roto', 'Durga', 'A1', 'TX3545', 161.75], ['50/48 FDY NLBS', 'Durga', 'F1', 'SDS3004', 154.5], ['75/36 FDY', 'Reliance', 'A+', '316C1S', 136], ['50/36 Bright', 'Sanathan', '1ST', 'D723A2', 176.25]];
@@ -208,9 +212,9 @@ const dstr = (d) => z2(d.getUTCDate()) + '-' + z2(d.getUTCMonth() + 1) + '-' + d
 const gstin = (r) => ['24', '26', '27'][Math.floor(r() * 3)] + 'AA' + 'ABCDFGHJKLMPR'[Math.floor(r() * 13)] + 'C' + String(1000 + Math.floor(r() * 9000)) + 'K1Z' + 'ABCDEFGH'[Math.floor(r() * 8)];
 
 function makeRows(kind) {
-  const r = rnd({ ds: 11, gs: 23, sr: 37, gp: 41, pr: 53 }[kind]);
+  const r = rnd({ ds: 11, gs: 23, sr: 37, gp: 41, pr: 53, dn: 61, cn: 67 }[kind]);
   const P = PARTIES[kind]; const out = [];
-  const N = { ds: 52, gs: 50, sr: 48, gp: 46, pr: 40 }[kind];
+  const N = { ds: 52, gs: 50, sr: 48, gp: 46, pr: 40, dn: 30, cn: 26 }[kind];
   const start = Date.UTC(2026, 3, 6);
   for (let i = 0; i < N; i++) {
     const dt = new Date(start + Math.floor((i / N) * 200 + r() * 3) * 864e5);
@@ -230,6 +234,10 @@ function makeRows(kind) {
       const it = ITEMS[Math.floor(r() * ITEMS.length)]; const pcs = [1, 2, 6, 12, 22, 24, 32, 34, 36, 52, 72][Math.floor(r() * 11)]; const wt = Math.round(pcs * (26 + r() * 20) * 1000) / 1000; const rate = Math.round((110 + r() * 75) * 100) / 100;
       const c = CITY[Math.floor(r() * CITY.length)]; const ag = AGENTS[Math.floor(r() * AGENTS.length)];
       out.push({ no: 'R' + String(i + 1).padStart(5, '0') + '/26-27', dt: dstr(dt), p, it: it[0], pcs, wt, amt: Math.round(wt * rate), rate, remark: r() > 0.85 ? 'Shade variation' : '', colp: COLP[Math.floor(r() * COLP.length)], adj: r() > 0.25 ? 'GU' + String(400 + Math.floor(r() * 40000)).padStart(5, '0') + '/26-27' : '', adjdt: dstr(new Date(dt.getTime() - Math.floor(r() * 40) * 864e5)), lr: r() > 0.8 ? String(11000 + Math.floor(r() * 900)) : '', veh: 'GJ' + ['19X', '16', '05B', '03B', '19Y'][Math.floor(r() * 5)] + '-' + (1000 + Math.floor(r() * 8999)), bk: ag, city: c[0], area: c[1], state: 'Gujarat', sp: ['Manoj', 'Aelish', 'Avi M'][Math.floor(r() * 3)], tr: TRANS[Math.floor(r() * TRANS.length)], irn: Math.floor(r() * 0xffffff).toString(16) + '…', sign: r() > 0.78 ? 'Received' : 'Pending' });
+    } else if (kind === 'dn' || kind === 'cn') {
+      const why = (kind === 'dn' ? ['Interest on late payment', 'Rate difference', 'Short weight claim', 'Freight recovery'] : ['Rate difference', 'Quality claim', 'Cash discount', 'Turnover discount'])[Math.floor(r() * 4)];
+      const tax = Math.round(500 + r() * 24000); const adj = r() > 0.45;
+      out.push({ no: (kind === 'dn' ? 'DN' : 'CN') + String(i + 1).padStart(5, '0') + '/26-27', dt: dstr(dt), p, gst: gstin(r), reason: why, adj: adj ? (kind === 'dn' ? 'PB' : 'GU') + String(400 + Math.floor(r() * 900)).padStart(5, '0') + '/26-27' : '', amt: Math.round(tax * 1.05), tax, st: adj ? 'Adjusted' : 'Open' });
     } else {
       const it = ITEMS[Math.floor(r() * ITEMS.length)]; const pcs = [1, 2, 8, 13, 16, 22, 24, 31, 34, 35, 60, 69][Math.floor(r() * 12)]; const wt = Math.round(pcs * (28 + r() * 6) * 1000) / 1000; const rate = Math.round((120 + r() * 45) * 100) / 100;
       out.push({ no: 'PRT' + String(i + 1).padStart(5, '0') + '/26-27', dt: dstr(dt), inv: 'R' + String(i + 1).padStart(5, '0') + '/26-27', p, it: it[0], pcs, wt, amt: Math.round(wt * rate * 1.05), adj: r() > 0.55 ? 'DO26' + String(11031000 + Math.floor(r() * 9000)) : '', adjdt: r() > 0.5 ? dstr(new Date(dt.getTime() - Math.floor(r() * 30) * 864e5)) : '', gst: gstin(r), tr: TRANS[Math.floor(r() * TRANS.length)], st: r() > 0.5 ? 'Adjusted' : 'Pending' });
@@ -245,8 +253,9 @@ function makeRows(kind) {
   today() { const t = new Date(); const z = (n) => String(n).padStart(2, '0'); return z(t.getDate()) + '-' + z(t.getMonth() + 1) + '-' + t.getFullYear(); }
   kind() { return this.props.kind || 'ds'; }
   meta() { return { ds: { slug: 'dispatch-schedules', type: 'DISPATCH_SCHEDULE', side: 'customer', src: 'sales-orders' }, gs: { slug: 'general-sales', type: 'GENERAL_SALE', side: 'any' }, sr: { slug: 'sale-returns', type: 'SALE_RETURN', side: 'customer', src: 'sale-bills' },
-    gp: { slug: 'general-purchases', type: 'GENERAL_PURCHASE', side: 'any' }, pr: { slug: 'purchase-returns', type: 'PURCHASE_RETURN', side: 'supplier', src: 'purchase-bills' } }[this.kind()]; }
-  blankLine() { return { itemId: null, name: '', code: '', brand: '', lot: '', grade: '', hsn: '', unit: this.kind() === 'gs' ? 'Nos' : 'Kg', qty: '', rate: '', disp: '', frp: '', gst: this.kind() === 'gs' || this.kind() === 'gp' ? '18' : '5', carton: '', cops: '', remark: '', box: '', lr: '', chno: '', chdt: '' }; }
+    gp: { slug: 'general-purchases', type: 'GENERAL_PURCHASE', side: 'any' }, pr: { slug: 'purchase-returns', type: 'PURCHASE_RETURN', side: 'supplier', src: 'purchase-bills' },
+    dn: { slug: 'debit-notes', type: 'DEBIT_NOTE', side: 'any', note: true }, cn: { slug: 'credit-notes', type: 'CREDIT_NOTE', side: 'any', note: true } }[this.kind()]; }
+  blankLine() { return { itemId: null, name: '', code: '', brand: '', lot: '', grade: '', hsn: '', unit: this.kind() === 'gs' || this.kind() === 'dn' || this.kind() === 'cn' ? 'Nos' : 'Kg', qty: '', rate: '', disp: '', frp: '', gst: this.kind() === 'gs' || this.kind() === 'gp' ? '18' : this.kind() === 'dn' ? '0' : '5', carton: '', cops: '', remark: '', box: '', lr: '', chno: '', chdt: '' }; }
 
   componentDidMount() {
     const api = this.api();
@@ -283,7 +292,7 @@ function makeRows(kind) {
       f: { bookId: s(d.bookId), date: dmy(d.date), refNo: s(d.refNo), refDate: dmy(d.refDate), partyId: s(d.partyId), deliveryPartyId: s(d.deliveryPartyId), millId: s(d.millId), brokerId: s(d.brokerId), salesPersonId: s(d.salesPersonId),
         transporterId: s(d.transporterId), vehicleNo: s(d.vehicleNo), expDeliveryDate: dmy(d.expDeliveryDate), creditDays: s(d.creditDays), reverseCharge: d.reverseCharge ? '1' : '', isTcs: d.isTcs ? '1' : '', doNo: s(d.doNo),
         collectionPersonId: s(d.collectionPersonId), currency: d.currency || 'INR', tdsRate: d.tdsRate ? s(d.tdsRate) : '', sourceId: s(d.sourceId), lrNo: s(d.lrNo), lrDate: dmy(d.lrDate), parcels: d.parcels ? s(d.parcels) : '', driverName: s(d.driverName),
-        deliveryAddress: s(d.deliveryAddress), remark: s(d.remark), godownId: s(d.godownId), accountId: s((d.lines.find((l) => l.accountId) || {}).accountId) },
+        deliveryAddress: s(d.deliveryAddress), remark: s(d.remark), reason: s(d.reason), narration: s(d.narration), godownId: s(d.godownId), accountId: s((d.lines.find((l) => l.accountId) || {}).accountId) },
       x: { ...ex },
       lines: d.lines.map((l) => ({ id: l.id, itemId: l.itemId, name: l.itemName || l.description || '', code: l.itemCode || '', brand: s(l.brand), lot: s(l.lotNo), grade: s(l.grade), hsn: s(l.hsn), unit: l.unit === 'KG' ? 'Kg' : s(l.unit), qty: s(l.qty), rate: s(l.rate),
         disp: l.discPct ? s(l.discPct) : '', frp: l.freightPct ? s(l.freightPct) : '', gst: s(l.gstRate), carton: l.pcs ? s(l.pcs) : '', cops: l.cops ? s(l.cops) : '', remark: s(l.remark1), box: s(l.remark2), lr: s(l.lrNo), chno: s(l.challanNo), chdt: dmy(l.challanDate),
@@ -309,7 +318,10 @@ function makeRows(kind) {
     } catch (e) { this.setState({ note: api.message(e), err: true }); }
   }
   async loadBills(partyId) {
-    const api = this.api(); const M = this.meta(); if (!api || !M.src || M.src === 'sales-orders' || !partyId) return;
+    const api = this.api(); const M = this.meta(); if (!api || !partyId) return;
+    if (M.note) { const p = this.state.lk ? this.state.lk.ledgers.find((a) => String(a.id) === String(partyId)) : null; const side = p && p.kind === 'SUPPLIER' ? 'payable' : 'receivable';
+      try { const b = await api.get('/accounts/' + partyId + '/open-bills', { side }); this.setState({ bills: b.map((x) => ({ id: x.id, number: x.number, netAmount: x.pending })) }); } catch (e) {} return; }
+    if (!M.src || M.src === 'sales-orders') return;
     try { const r = await api.get('/vouchers/' + M.src, { partyId, pageSize: 200 }); this.setState({ bills: r.data.filter((b) => b.status !== 'CANCELLED') }); } catch (e) {}
   }
 
@@ -319,7 +331,7 @@ function makeRows(kind) {
     if (k === 'partyId' && lk) { const p = lk.ledgers.find((a) => String(a.id) === String(v)); if (p) { if (p.creditDays != null) f.creditDays = String(p.creditDays); if (p.brokerId) f.brokerId = String(p.brokerId); if (p.salesPersonId) f.salesPersonId = String(p.salesPersonId); if (p.transporterId) f.transporterId = String(p.transporterId); if (p.collectionPersonId) f.collectionPersonId = String(p.collectionPersonId); }
       f.sourceId = ''; this.setState({ bills: [] }); this.loadBills(v); }
     this.setState({ f, note: this.state.err ? '' : this.state.note, err: false });
-    if (k === 'sourceId' && v) this.loadSource(v);
+    if (k === 'sourceId' && v && !this.meta().note) this.loadSource(v);
   }
   setLine(i, k, v) {
     const lines = this.state.lines.slice(); const l = { ...lines[i], [k]: v };
@@ -346,14 +358,14 @@ function makeRows(kind) {
     if (!iso(f.date)) return this.fail('Date must be dd-mm-yyyy');
     const lines = st.lines.filter((l) => l.name || l.qty || l.code);
     if (!lines.length) return this.fail('Add at least one line');
-    const general = K === 'gs' || K === 'gp';
+    const general = K === 'gs' || K === 'gp' || K === 'dn' || K === 'cn';
     const bad = lines.findIndex((l) => (!general && !l.itemId) || !(n(l.qty) > 0)); if (bad >= 0) return this.fail(!general && !lines[bad].itemId ? 'Pick the item from the list on line ' + (bad + 1) : 'Enter the quantity on line ' + (bad + 1));
     const ex = {}; Object.keys(x).forEach((k) => { if (x[k]) ex[k] = String(x[k]); });
     return {
       bookId: id(f.bookId), date: iso(f.date), partyId: id(f.partyId), deliveryPartyId: id(f.deliveryPartyId), millId: id(f.millId), brokerId: id(f.brokerId), salesPersonId: id(f.salesPersonId), transporterId: id(f.transporterId),
       vehicleNo: f.vehicleNo || null, lrNo: f.lrNo || null, lrDate: iso(f.lrDate), parcels: n(f.parcels), driverName: f.driverName || null, refNo: f.refNo || null, refDate: iso(f.refDate), doNo: f.doNo || null, creditDays: n(f.creditDays),
       expDeliveryDate: iso(f.expDeliveryDate), reverseCharge: !!f.reverseCharge, isTcs: !!f.isTcs, collectionPersonId: id(f.collectionPersonId), currency: f.currency || 'INR', tdsRate: K === 'gp' ? n(f.tdsRate) || 0 : undefined,
-      sourceId: id(f.sourceId), deliveryAddress: f.deliveryAddress || null, remark: f.remark || null, godownId: id(f.godownId), extra: ex,
+      reason: f.reason || null, narration: f.narration || null, sourceId: id(f.sourceId), deliveryAddress: f.deliveryAddress || null, remark: f.remark || null, godownId: id(f.godownId), extra: ex,
       lines: lines.map((l) => ({ itemId: l.itemId || null, accountId: general && !l.itemId ? id(f.accountId) : null, description: l.itemId ? null : l.name || l.code || null, brand: l.brand || null, lotNo: l.lot || null, grade: l.grade || null, hsn: l.hsn || null,
         unit: /^kg$/i.test(l.unit) ? 'KG' : (l.unit || null), qty: n(l.qty) || 0, rate: n(l.rate) || 0, discPct: n(l.disp) || 0, freightPct: n(l.frp) || 0, gstRate: n(l.gst) ?? 0, pcs: n(l.carton) || 0, cops: n(l.cops) || 0,
         remark1: l.remark || null, remark2: l.box || null, lrNo: l.lr || null, challanNo: l.chno || null, challanDate: iso(l.chdt), purchaseRef: l.pid || null, purchaseInvNo: l.pinv || null, sourceLineId: l.sourceLineId || null }))
@@ -412,10 +424,12 @@ function makeRows(kind) {
       'Transporter': ['transporterId', none('—').concat(O(lk.transporters))], 'Vehicle no.': ['vehicleNo'], 'Del. date': ['expDeliveryDate'], 'Credit days': ['creditDays'], 'Challan no. · date': ['x.challan'],
       'Order no.': kind === 'ds' ? ['refNo'] : ['x.orderNo'], 'Order date': ['refDate'], 'Inv. no.': ['refNo'], 'Inv. date': ['refDate'], 'Sch. date': ['date'], 'Sale date': ['date'], 'Rec. date': ['date'], 'Bill date': ['date'],
       'Advance settings': ['reverseCharge', [{ v: '', l: 'None' }, { v: '1', l: 'Reverse charge' }]], 'TCS applicability': ['isTcs', [{ v: '', l: 'Not applicable' }, { v: '1', l: 'Applicable 0.1%' }]], 'Is TCS?': ['isTcs', [{ v: '', l: 'No' }, { v: '1', l: 'Yes' }]],
-      'D.O. no.': ['doNo'], 'Credit account': ['accountId', none('Sales (general)').concat(O(incomeAcc))], 'Debit account': ['accountId', none('Purchase (general)').concat(O(expenseAcc))],
+      'D.O. no.': ['doNo'], 'Credit account': ['accountId', none(this.meta().note ? 'Interest / other income' : 'Sales (general)').concat(O(this.meta().note ? (lk.ledgers || []).filter((x) => ['INCOME', 'SALES', 'EXPENSE', 'OTHER'].indexOf(x.kind) >= 0) : incomeAcc))], 'Debit account': ['accountId', none(this.meta().note ? 'Rate difference / discount' : 'Purchase (general)').concat(O(this.meta().note ? (lk.ledgers || []).filter((x) => ['INCOME', 'SALES', 'EXPENSE', 'PURCHASE', 'OTHER'].indexOf(x.kind) >= 0) : expenseAcc))],
       'Collection person': ['collectionPersonId', none('—').concat(O(lk.collectionPersons))], 'Currency': ['currency', [{ v: 'INR', l: 'INR' }, { v: 'USD', l: 'USD' }]],
       'T.D.S.': ['tdsRate', [{ v: '', l: 'None' }, { v: '1', l: '194C · 1%' }, { v: '2', l: '194C · 2%' }, { v: '10', l: '194J · 10%' }, { v: '0.1', l: '194Q · 0.1%' }]],
       'Against sale bill': ['sourceId', none('Select bill…').concat(billOpts)], 'Against pur. bill': ['sourceId', none('Select bill…').concat(billOpts)], 'L.R. no.': ['lrNo'], 'Debit note no.': ['x.debitNoteNo'],
+      'Note date': ['date'], 'Reason': ['reason', (this.kind() === 'dn' ? ['Interest on late payment', 'Rate difference', 'Short weight claim', 'Quality claim', 'Freight recovery', 'Other'] : ['Rate difference', 'Quality claim', 'Cash discount', 'Turnover discount', 'Short weight', 'Other']).map((x) => ({ v: x, l: x }))],
+      'Against bill': ['sourceId', none(this.kind() === 'dn' ? 'None (new receivable)' : 'None (on account)').concat(billOpts)], 'Ref. no.': ['refNo'], 'Ref. date': ['refDate'], 'Narration': ['narration'], 'Note no.': ['ro', REC ? REC.no : st.nextNo || K.no],
       'Party group': ['ro', P ? P.partyGroupName || P.name : ''], 'Due date': ['ro', due], 'Sch. no.': ['ro', REC ? REC.no : st.nextNo || K.no], 'Entry no.': ['ro', REC ? REC.no : st.nextNo || K.no], 'Bill no.': ['ro', REC ? REC.no : st.nextNo || K.no]
     };
     // ---- header fields  [label, value, type, unit / alternative, role]
@@ -435,7 +449,13 @@ function makeRows(kind) {
            ['Reference', [F('Against sale bill', 'GU00425/26-27', 'sel', 'GU00830/26-27'), F('Order no.', 'SAL02722', 'in'), F('Transporter', 'Navkar Roadlines', 'sel', 'VRL Logistics'), F('L.R. no.', '', 'in', 'LR no.'), F('Vehicle no.', 'GJ19X-4120')]]],
       pr: [['Return', [F('Book', 'Purchase yarn return', 'sel', 'Purchase return · job work'), F('Entry no.', K.no, 'ro', '', 'no'), F('Rec. date', '24-10-2026', 'in', '', 'dt'), F('Inv. no.', K.no, 'in', '', 'inv'), F('Inv. date', '24-10-2026'), F('TCS applicability', 'Not applicable', 'sel', 'Applicable')]],
            ['Party', [F('Party', 'Shree Durga Syntex Pvt Ltd', 'sel', 'Sanathan Textiles Limited', 'party'), F('Delivery party', 'Same as party', 'sel', 'Other'), F('Agent', 'Direct', 'sel', 'Henil'), F('Sales person', '', 'sel', 'Meera Patel'), F('Credit days', '30', 'in', 'days'), F('Due date', '23-11-2026', 'ro')]],
-           ['Reference', [F('Against pur. bill', 'PUR21326/26-27', 'sel', 'PUR21311/26-27'), F('Debit note no.', 'DN-0441', 'in'), F('Transporter', 'Jay Ambe Roadlines', 'sel', 'Navkar Roadlines'), F('L.R. no.', 'LR-4410'), F('Vehicle no.', 'GJ05-CT-1184')]]]
+           ['Reference', [F('Against pur. bill', 'PUR21326/26-27', 'sel', 'PUR21311/26-27'), F('Debit note no.', 'DN-0441', 'in'), F('Transporter', 'Jay Ambe Roadlines', 'sel', 'Navkar Roadlines'), F('L.R. no.', 'LR-4410'), F('Vehicle no.', 'GJ05-CT-1184')]]],
+      dn: [['Note', [F('Book', 'Debit note', 'sel', 'Interest debit note'), F('Note no.', K.no, 'ro', '', 'no'), F('Note date', '24-10-2026', 'in', '', 'dt'), F('Reason', 'Interest on late payment', 'sel', 'Rate difference'), F('Credit days', '15', 'in', 'days'), F('Due date', '08-11-2026', 'ro')]],
+           ['Party', [F('Party', 'Krishna Textiles', 'sel', 'Laxmi Creation', 'party'), F('Against bill', 'GU00598/26-27', 'sel', 'None (new receivable)'), F('Agent', 'Direct', 'sel', 'Avi M'), F('Sales person', 'Manoj', 'sel', 'Aelish'), F('Party group', 'Krishna Textiles', 'ro')]],
+           ['Account', [F('Credit account', 'Interest received', 'sel', 'Rate difference'), F('Ref. no.', '', 'in', 'Party claim / letter no.', 'inv'), F('Ref. date', '', 'in', 'dd-mm-yyyy'), F('Collection person', 'Prakash P. RTGS', 'sel', 'Hitesh B.'), F('Narration', '', 'in', 'Printed on the note')]]],
+      cn: [['Note', [F('Book', 'Credit note', 'sel', 'Discount credit note'), F('Note no.', K.no, 'ro', '', 'no'), F('Note date', '24-10-2026', 'in', '', 'dt'), F('Reason', 'Rate difference', 'sel', 'Quality claim'), F('Credit days', '0', 'in', 'days'), F('Due date', '24-10-2026', 'ro')]],
+           ['Party', [F('Party', 'Om Sai Weaving', 'sel', 'Bhagwati Filaments', 'party'), F('Against bill', 'GU00688/26-27', 'sel', 'None (on account)'), F('Agent', 'Direct', 'sel', 'Avi M'), F('Sales person', 'Manoj', 'sel', 'Aelish'), F('Party group', 'Om Sai Weaving', 'ro')]],
+           ['Account', [F('Debit account', 'Rate difference', 'sel', 'Discount allowed'), F('Ref. no.', '', 'in', 'Party claim / letter no.', 'inv'), F('Ref. date', '', 'in', 'dd-mm-yyyy'), F('Collection person', 'Prakash P. RTGS', 'sel', 'Hitesh B.'), F('Narration', '', 'in', 'Printed on the note')]]]
     }[kind];
     const recVal = (fd) => { if (!REC) return fd.role === 'party' ? 'Select party…' : fd.v; if (fd.role === 'no') return REC.no; if (fd.role === 'dt') return REC.dt; if (fd.role === 'party') return REC.p; if (fd.role === 'inv') return REC.inv || REC.no; return fd.v; };
     const groups = FIELDS.map(([t, rows], gi) => ({ t, rows: rows.map((fd) => {
@@ -461,6 +481,8 @@ function makeRows(kind) {
       pr: null
     };
     COLS.pr = COLS.gp;
+    COLS.dn = [C('code', 'Code'), C('name', 'Particulars', { w: 200 }), C('hsn', 'HSN / SAC'), C('remark', 'Remark'), C('qty', 'Qty', RT(3)), C('rate', 'Rate', RN(2))].concat(GST, [C('amt', 'Amount', RT(2))]);
+    COLS.cn = COLS.dn;
     const cols = COLS[kind];
     const inter = live && P && P.stateCode && lk.companyStateCode ? P.stateCode !== lk.companyStateCode : false;
     const SAMPLE = {
@@ -473,7 +495,9 @@ function makeRows(kind) {
       sr: [{ code: 'I-501', name: '50/48 FDY', pid: 'P-2201', brand: 'Reliance', pinv: 'RIL/88761', hsn: '5402', grade: 'A+', unit: 'Kg', remark: 'Shade issue', chno: 'CH-990', chdt: '09-04-2026', lot: '338C1M', carton: 6, cops: 72, qty: 345.58, rate: 152, disp: 0, frp: 0, gst: 5 },
            { code: 'I-418', name: '75/36 FDY', pid: 'P-2188', brand: 'Reliance', pinv: 'RIL/88540', hsn: '5402', grade: 'A+', unit: 'Kg', remark: 'Weak cops', chno: 'CH-987', chdt: '08-04-2026', lot: '316C1S', carton: 2, cops: 24, qty: 118.4, rate: 138, disp: 0, frp: 0, gst: 5 }],
       pr: [{ code: 'I-705', name: '75/72 Roto', brand: 'Shree Durga', grade: '1ST', hsn: '5402', unit: 'Kg', lr: 'LR-4410', remark: 'Short lot', chno: '', chdt: '', lot: 'TX3545', carton: 34, cops: 408, qty: 1010.34, rate: 142.74, disp: 0, frp: 0, gst: 5 },
-           { code: 'I-702', name: '50/24 FDY', brand: 'Shree Durga', grade: 'F1', hsn: '5402', unit: 'Kg', lr: 'LR-4410', remark: '', chno: '', chdt: '', lot: 'SDS3001', carton: 12, cops: 144, qty: 351.22, rate: 154.5, disp: 0, frp: 0, gst: 5 }]
+           { code: 'I-702', name: '50/24 FDY', brand: 'Shree Durga', grade: 'F1', hsn: '5402', unit: 'Kg', lr: 'LR-4410', remark: '', chno: '', chdt: '', lot: 'SDS3001', carton: 12, cops: 144, qty: 351.22, rate: 154.5, disp: 0, frp: 0, gst: 5 }],
+      dn: [{ code: 'INT', name: 'Interest @ 18% on GU00598 · 79 days', hsn: '997119', remark: 'Late payment', qty: 1, rate: 5776, disp: 0, frp: 0, gst: 0 }],
+      cn: [{ code: 'RD', name: 'Rate difference ₹ 1.70/kg on GU00688', hsn: '5402', remark: '3,600 kg', qty: 3600, rate: 1.7, disp: 0, frp: 0, gst: 5 }]
     }[kind];
     const calc = (o) => { if (kind === 'ds') { o.pschq = Math.max(0, Math.round(((o.ordq || 0) - (o.salq || 0) - (o.schq || 0)) * 1000) / 1000); o.amt = (o.schq || 0) * (o.rate || 0); return o; }
       o.basic = o.qty * o.rate; o.dis = o.basic * (o.disp || 0) / 100; o.fr = o.basic * (o.frp || 0) / 100; o.tax = o.basic - o.dis + o.fr;
@@ -514,7 +538,7 @@ function makeRows(kind) {
       boxes = [{ t: 'Tax summary', kv: taxKV, fl: [], gs: '' }, { t: 'Other details', kv: [], fl: other, gs: '' },
                { t: 'Amount', kv: [KV('Quantity', inr(tot('qty'), kind === 'gs' ? 2 : 3)), KV('Gross amount', '₹ ' + inr(tot('basic'), 2)), KV('Discount', '− ₹ ' + inr(tot('dis'), 2)), KV('GST', '₹ ' + inr(g, 2)), KV('Round off', (net - tot('amt') - tcs >= 0 ? '+ ' : '− ') + inr(Math.abs(net - tot('amt') - tcs), 2)), KV('Net amount', '₹ ' + inr(net, 2), 1)], fl: [], gs: '' }];
     }
-    const HB = { ds: ['Pending orders', 'Outstanding group-wise'], gs: ['Pending GRN', 'Order detail'], gp: ['Pending GRN', 'Pending approval'], sr: ['E-invoice', 'Pending challans'], pr: ['Pending GRN', 'Sales detail'] }[kind];
+    const HB = { ds: ['Pending orders', 'Outstanding group-wise'], gs: ['Pending GRN', 'Order detail'], gp: ['Pending GRN', 'Pending approval'], sr: ['E-invoice', 'Pending challans'], pr: ['Pending GRN', 'Sales detail'], dn: ['Open bills', 'Outstanding'], cn: ['Open bills', 'Outstanding'] }[kind];
     const hb = HB.map((l, i) => ({ l, on: () => {
       if (!live) return;
       if (i === 0 && (kind === 'ds' || kind === 'pr')) return this.loadSource(f.sourceId || null);
@@ -523,16 +547,17 @@ function makeRows(kind) {
       if (i === 1 && kind === 'gp') return this.go('Approvals' + sfx + '.dc.html');
       if (i === 0 && kind === 'sr') return doc ? this.setState({ note: 'E-invoice for credit notes is filed from the GST portal export (Reports → GSTR-1)', err: false }) : this.setState({ note: 'Save the return first', err: true });
       if (i === 1 && kind === 'pr') return this.go('Reports' + sfx + '.dc.html');
+      if (kind === 'dn' || kind === 'cn') { if (i === 0) { if (!f.partyId) return this.setState({ note: 'Select the party first', err: true }); this.loadBills(f.partyId); return this.setState({ note: 'Open bills of this party are listed under Against bill', err: false }); } return this.go('Outstanding' + sfx + '.dc.html'); }
       this.setState({ note: kind === 'gs' || kind === 'gp' ? 'General bills are entered directly — there is no order or GRN to pull from' : '', err: false }); } }));
     const saved = st.saved;
     const STL = { POSTED: 'Saved', OPEN: 'Open', PARTIAL: 'Part billed', COMPLETED: 'Closed', PENDING_APPROVAL: 'Hold · approval', CANCELLED: 'Cancelled', LOCKED: 'Locked', REJECTED: 'Rejected' };
     const tagL = view ? (live ? (doc ? STL[doc.status] || doc.status : '…') : (REC.st || REC.sign || 'Saved')) : 'New';
-    const itemOpts = live ? (lk.items || []).filter((i) => (kind === 'gs' || kind === 'gp') ? true : !i.isGeneral).map((i) => ({ l: i.name, d: i.code })) : [];
+    const itemOpts = live ? (lk.items || []).filter((i) => (kind === 'gs' || kind === 'gp' || kind === 'dn' || kind === 'cn') ? true : !i.isGeneral).map((i) => ({ l: i.name, d: i.code })) : [];
     return {
-      theme, kind, listHref: K.list + sfx + '.dc.html', aiPage: { ds: 'so', gs: 'disp', sr: 'disp', gp: 'pb', pr: 'pb' }[kind],
+      theme, kind, listHref: K.list + sfx + '.dc.html', aiPage: { ds: 'so', gs: 'disp', sr: 'disp', gp: 'pb', pr: 'pb', dn: 'led', cn: 'led' }[kind],
       crumb: view ? K.reg : K.mod + ' · ' + K.title, title: view ? REC.no : 'New ' + K.title.charAt(0).toLowerCase() + K.title.slice(1),
       tagL, tagC: 'tag' + (view ? (tagL === 'Cancelled' || tagL === 'Rejected' ? ' t-red' : tagL.indexOf('Hold') === 0 ? ' t-orange' : ' t-blue') : ''),
-      hbtn: hb, detailsT: { ds: 'Schedule details', gs: 'Bill details', gp: 'Bill details', sr: 'Return details', pr: 'Return details' }[kind],
+      hbtn: hb, detailsT: { ds: 'Schedule details', gs: 'Bill details', gp: 'Bill details', sr: 'Return details', pr: 'Return details', dn: 'Note details', cn: 'Note details' }[kind],
       groups, cols: cols.map((c) => ({ l: c.l, cls: c.r ? 'r' : '' })), itemOpts,
       lines, foot: L.length ? foot : cols.map((c2, i) => ({ cls: c2.r ? 'r' : '', v: i === 0 ? 'Total' : (c2.t ? inr(0, c2.d) : '') })), boxes,
       closeL: view ? 'Close' : 'Cancel', printL: view ? 'Print' : 'Save & print', saveL: st.busy ? 'Saving…' : view ? (saved ? '✓ Updated' : 'Update') : (saved ? '✓ Saved' : 'Save'), busy: !!st.busy,

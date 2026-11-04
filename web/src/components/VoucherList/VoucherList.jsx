@@ -13,7 +13,7 @@ class Component extends DCLogic {
   constructor(p) { super(p); this.state = { tab: 'All', loaded: 22, sel: [], selAll: false, excl: [], focus: null, toast: '', over: {} }; }
   /* live data (app) — on the design canvas window.YF_API is absent and the sample rows are used */
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
-  slug() { return { ds: 'dispatch-schedules', gs: 'general-sales', sr: 'sale-returns', gp: 'general-purchases', pr: 'purchase-returns' }[this.props.kind || 'ds']; }
+  slug() { return { ds: 'dispatch-schedules', gs: 'general-sales', sr: 'sale-returns', gp: 'general-purchases', pr: 'purchase-returns', dn: 'debit-notes', cn: 'credit-notes' }[this.props.kind || 'ds']; }
   async load() {
     const api = this.api(); if (!api) return;
     try { const r = await api.get('/vouchers/' + this.slug(), (this.props.kind || 'ds') === 'ds' ? { view: 'lines', pageSize: 1000 } : { pageSize: 1000 }); this.setState({ live: r.data }); }
@@ -33,6 +33,8 @@ const KINDS = {
   gs: { mod: 'Sales', title: 'General sale bill', reg: 'General sale register', list: 'GeneralSaleList', entry: 'GeneralSaleEntry', view: 'GeneralSaleView', no: 'BR51/26-27', noun: 'bill', nouns: 'bills' },
   sr: { mod: 'Sales', title: 'Sale return', reg: 'Sale return register', list: 'SaleReturnList', entry: 'SaleReturnEntry', view: 'SaleReturnView', no: 'R00199/26-27', noun: 'return', nouns: 'returns' },
   gp: { mod: 'Purchase', title: 'General purchase bill', reg: 'General purchase register', list: 'GeneralPurchaseList', entry: 'GeneralPurchaseEntry', view: 'GeneralPurchaseView', no: 'GENU00221/26-27', noun: 'bill', nouns: 'bills' },
+  dn: { mod: 'Accounts', title: 'Debit note', reg: 'Debit note register', list: 'DebitNoteList', entry: 'DebitNoteEntry', view: 'DebitNoteView', no: 'DN00041/26-27', noun: 'note', nouns: 'notes' },
+  cn: { mod: 'Accounts', title: 'Credit note', reg: 'Credit note register', list: 'CreditNoteList', entry: 'CreditNoteEntry', view: 'CreditNoteView', no: 'CN00027/26-27', noun: 'note', nouns: 'notes' },
   pr: { mod: 'Purchase', title: 'Purchase return', reg: 'Purchase return register', list: 'PurchaseReturnList', entry: 'PurchaseReturnEntry', view: 'PurchaseReturnView', no: 'PRT00056/26-27', noun: 'return', nouns: 'returns' }
 };
 const TITLE = (s) => String(s).toLowerCase().replace(/(^|[\s(.\-/&])([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(Llp|Pvt|Ltd|P)\b/g, (w) => w.toUpperCase()).replace(/\bLtd\b/gi, 'Ltd');
@@ -41,6 +43,8 @@ const PARTIES = {
   gs: ['RELIANCE INDUSTRIES LIMITED', 'WELLKNOWN POLYESTERS P LTD', 'FILATEX INDIA LTD', 'GARDEN SILK MILLS PRIVATE LIMITED', 'GOKULANAND PETROFIBRES', 'GTX PRIVATE LIMITED'],
   sr: ['OMLY FASHION', 'DIYA TEXTILES', 'ANKIT ENTERPRISE', 'JAY VEER ENTERPRISE', 'DABHI EMPIRE', 'MANGLUM TEXTILES', 'WIZARD WEAVES', 'SILICATE YARN', 'SUNSTAR NARROW FAB', 'SHREE BHAGWATI FABRICS', 'SHLOK FASHION', 'S V TEX FAB', 'BRAHMANI SILK HOUSE', 'DHANHARI TEXTILE', 'VRUNDAVAN ALLURE', 'MAHALAXMI TEXO FAB', 'KRISHNA FASHION', 'SIYA CORPORATION', 'SHOBHNA TEXTILES', 'BAFNA TRADERS'],
   gp: ['PUROHIT HANSRAJ VELAJI', 'DISHA TEXTECH & GENERAL TRADING', 'SHEKHAWATI ROAD CARRIER', 'DURGA KANWAR', 'SWASTIK TRANSPORT SERVICE', 'UNITED GUJARAT YARN DEALERS ASSOCIATION', 'SHAURYA TEMPO SERVICE', 'MAA ROADLINES', 'LALIT ROAD CARRIER', 'TRI WORLD EXIM SERVICES LLP', 'COMMERCIAL GOODS CARRIERS'],
+  dn: ['KRISHNA TEXTILES', 'LAXMI CREATION', 'SHREE DURGA SYNTEX PVT LTD', 'OM SAI WEAVING', 'SANATHAN TEXTILES LIMITED', 'NAVRANG PRINTS'],
+  cn: ['OM SAI WEAVING', 'BHAGWATI FILAMENTS', 'KRISHNA TEXTILES', 'RELIANCE INDUSTRIES LIMITED', 'GEETA FAB', 'JIGITA FAB LLP'],
   pr: ['SHREE DURGA SYNTEX PVT LTD', 'VINEET SYNTHETICS PVT LTD', 'SHREE RAM YARN TRADING CO', 'GLOBAL SIZER', 'DEVIKA FIBRES (P) LTD', 'SANATHAN TEXTILES LIMITED']
 };
 const ITEMS = [['50/24 FDY', 'Durga', 'F1', 'SDS3001', 154.5], ['55/48 FDY', 'Durga', 'F1', 'SDS3056', 154.25], ['50/48 FDY LBS', 'Durga', 'F1', 'SDS3011', 155.5], ['75/72 Roto', 'Durga', 'A1', 'TX3545', 161.75], ['50/48 FDY NLBS', 'Durga', 'F1', 'SDS3004', 154.5], ['75/36 FDY', 'Reliance', 'A+', '316C1S', 136], ['50/36 Bright', 'Sanathan', '1ST', 'D723A2', 176.25]];
@@ -54,9 +58,9 @@ const dstr = (d) => z2(d.getUTCDate()) + '-' + z2(d.getUTCMonth() + 1) + '-' + d
 const gstin = (r) => ['24', '26', '27'][Math.floor(r() * 3)] + 'AA' + 'ABCDFGHJKLMPR'[Math.floor(r() * 13)] + 'C' + String(1000 + Math.floor(r() * 9000)) + 'K1Z' + 'ABCDEFGH'[Math.floor(r() * 8)];
 
 function makeRows(kind) {
-  const r = rnd({ ds: 11, gs: 23, sr: 37, gp: 41, pr: 53 }[kind]);
+  const r = rnd({ ds: 11, gs: 23, sr: 37, gp: 41, pr: 53, dn: 61, cn: 67 }[kind]);
   const P = PARTIES[kind]; const out = [];
-  const N = { ds: 52, gs: 50, sr: 48, gp: 46, pr: 40 }[kind];
+  const N = { ds: 52, gs: 50, sr: 48, gp: 46, pr: 40, dn: 30, cn: 26 }[kind];
   const start = Date.UTC(2026, 3, 6);
   for (let i = 0; i < N; i++) {
     const dt = new Date(start + Math.floor((i / N) * 200 + r() * 3) * 864e5);
@@ -76,6 +80,10 @@ function makeRows(kind) {
       const it = ITEMS[Math.floor(r() * ITEMS.length)]; const pcs = [1, 2, 6, 12, 22, 24, 32, 34, 36, 52, 72][Math.floor(r() * 11)]; const wt = Math.round(pcs * (26 + r() * 20) * 1000) / 1000; const rate = Math.round((110 + r() * 75) * 100) / 100;
       const c = CITY[Math.floor(r() * CITY.length)]; const ag = AGENTS[Math.floor(r() * AGENTS.length)];
       out.push({ no: 'R' + String(i + 1).padStart(5, '0') + '/26-27', dt: dstr(dt), p, it: it[0], pcs, wt, amt: Math.round(wt * rate), rate, remark: r() > 0.85 ? 'Shade variation' : '', colp: COLP[Math.floor(r() * COLP.length)], adj: r() > 0.25 ? 'GU' + String(400 + Math.floor(r() * 40000)).padStart(5, '0') + '/26-27' : '', adjdt: dstr(new Date(dt.getTime() - Math.floor(r() * 40) * 864e5)), lr: r() > 0.8 ? String(11000 + Math.floor(r() * 900)) : '', veh: 'GJ' + ['19X', '16', '05B', '03B', '19Y'][Math.floor(r() * 5)] + '-' + (1000 + Math.floor(r() * 8999)), bk: ag, city: c[0], area: c[1], state: 'Gujarat', sp: ['Manoj', 'Aelish', 'Avi M'][Math.floor(r() * 3)], tr: TRANS[Math.floor(r() * TRANS.length)], irn: Math.floor(r() * 0xffffff).toString(16) + '…', sign: r() > 0.78 ? 'Received' : 'Pending' });
+    } else if (kind === 'dn' || kind === 'cn') {
+      const why = (kind === 'dn' ? ['Interest on late payment', 'Rate difference', 'Short weight claim', 'Freight recovery'] : ['Rate difference', 'Quality claim', 'Cash discount', 'Turnover discount'])[Math.floor(r() * 4)];
+      const tax = Math.round(500 + r() * 24000); const adj = r() > 0.45;
+      out.push({ no: (kind === 'dn' ? 'DN' : 'CN') + String(i + 1).padStart(5, '0') + '/26-27', dt: dstr(dt), p, gst: gstin(r), reason: why, adj: adj ? (kind === 'dn' ? 'PB' : 'GU') + String(400 + Math.floor(r() * 900)).padStart(5, '0') + '/26-27' : '', amt: Math.round(tax * 1.05), tax, st: adj ? 'Adjusted' : 'Open' });
     } else {
       const it = ITEMS[Math.floor(r() * ITEMS.length)]; const pcs = [1, 2, 8, 13, 16, 22, 24, 31, 34, 35, 60, 69][Math.floor(r() * 12)]; const wt = Math.round(pcs * (28 + r() * 6) * 1000) / 1000; const rate = Math.round((120 + r() * 45) * 100) / 100;
       out.push({ no: 'PRT' + String(i + 1).padStart(5, '0') + '/26-27', dt: dstr(dt), inv: 'R' + String(i + 1).padStart(5, '0') + '/26-27', p, it: it[0], pcs, wt, amt: Math.round(wt * rate * 1.05), adj: r() > 0.55 ? 'DO26' + String(11031000 + Math.floor(r() * 9000)) : '', adjdt: r() > 0.5 ? dstr(new Date(dt.getTime() - Math.floor(r() * 30) * 864e5)) : '', gst: gstin(r), tr: TRANS[Math.floor(r() * TRANS.length)], st: r() > 0.5 ? 'Adjusted' : 'Pending' });
@@ -146,6 +154,7 @@ function makeRows(kind) {
       if (kind === 'gs' || kind === 'gp') return { id: b.id, no: b.number, dt: dmy(b.date), inv: b.refNo || '', p: b.partyName, gst: b.partyGstin || '', pcs: b.totalPcs, wt: b.totalQty, meter: b.totalQty, amt: b.netAmount, st: paidSt, rcm: b.reverseCharge ? 'Yes' : 'No', so: ex.orderNo || '', adj: ex.adjBillNo || '', lock: b.status === 'LOCKED' ? 'Yes' : 'No' };
       if (kind === 'sr') return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName, it: b.itemNames || '', pcs: b.totalPcs, wt: b.totalQty, amt: b.netAmount, rate: b.totalQty ? b.taxableAmount / b.totalQty : 0, remark: b.reason || b.remark || '', colp: b.collectionPersonName || '', adj: b.sourceNumber || '', adjdt: dmy(b.sourceDate), lr: b.lrNo || '', veh: b.vehicleNo || '',
         bk: b.brokerName || 'Direct', city: b.partyCity || '', area: b.partyArea || '', state: b.partyState || '', sp: b.salesPersonName || '', tr: b.transporterName || '', irn: b.irn ? b.irn.slice(0, 6) + '\u2026' : '', sign: ex.signCopy || 'Pending' };
+      if (kind === 'dn' || kind === 'cn') return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName, gst: b.partyGstin || '', reason: b.reason || b.remark || '', adj: b.sourceNumber || '', tax: b.taxableAmount, amt: b.netAmount, st: b.sourceNumber ? 'Adjusted' : b.pending > 0.5 ? 'Open' : 'Adjusted' };
       return { id: b.id, no: b.number, dt: dmy(b.date), inv: b.refNo || '', p: b.partyName, it: b.itemNames || '', pcs: b.totalPcs, wt: b.totalQty, amt: b.netAmount, adj: b.sourceNumber || ex.debitNoteNo || '', adjdt: dmy(b.sourceDate), gst: b.partyGstin || '', tr: b.transporterName || '', st: ex.adjusted || (b.sourceNumber ? 'Adjusted' : 'Pending') }; };
     const D = LIVE ? LIVE.map(fromLive) : this._rows.map((r) => (over[r.no] ? Object.assign({}, r, over[r.no]) : r));
     const SPLIT = (s) => { const m = String(s).match(/(\d+(?:\/\d+){1,2}|\b\d{2,3}\b)/); if (!m) return ['\u2014', s]; return [m[1], String(s).replace(m[1], '').replace(/\s+/g, ' ').trim() || s]; };
@@ -171,6 +180,11 @@ function makeRows(kind) {
       TABS = [['All', 'All', '#8F8F8F'], ['Pending', 'Sign copy pending', '#F97316'], ['Received', 'Sign copy received', '#22C55E']]; tabOf = (r) => r.sign;
       totals = ['pcs', 'wt', 'amt'];
       bulk = [['Mark sign copy received', 'btn sm ok', { sign: 'Received' }], ['Print e-way bill', 'btn sm', null], ['Print', 'btn sm', null]]; note = '';
+    } else if (kind === 'dn' || kind === 'cn') {
+      COLS = [T('no', 'Note no.'), T('dt', 'Date', { date: 1 }), T('p', 'Party'), T('gst', 'GSTIN'), T('reason', 'Reason'), T('adj', 'Against bill'), T('tax', 'Taxable \u20b9', num(2)), T('amt', 'Amount \u20b9', num(2)), T('st', 'Status', { tag: 1, rt: 1 })];
+      TABS = [['All', 'All', '#8F8F8F'], ['Open', 'Open', '#3B82F6'], ['Adjusted', 'Adjusted', '#22C55E']]; tabOf = (r) => (r.st === 'Paid' ? 'Adjusted' : r.st);
+      totals = ['tax', 'amt'];
+      bulk = [['Print', 'btn sm', null], ['Export', 'btn sm', null]]; note = '';
     } else {
       COLS = [T('no', 'Entry no.'), T('dt', 'Return date', { date: 1 }), T('inv', 'Invoice no.'), T('p', 'Party'), T('itn', 'Item', { get: (r) => SPLIT(r.it)[1] }), T('den', 'Denier', { get: (r) => SPLIT(r.it)[0] }), T('pcs', 'Pcs', num(0)), T('wt', 'Weight', num(3)), T('amt', 'Amount \u20b9', num(2)), T('adj', 'Adj. bill no.'), T('adjdt', 'Adj. bill date', { date: 1 }), T('gst', 'GSTIN', { rt: 1 }), T('tr', 'Transporter', { rt: 1 }), T('st', 'Debit note', { tag: 1, rt: 1 })];
       TABS = [['All', 'All', '#8F8F8F'], ['Pending', 'Not adjusted', '#F97316'], ['Adjusted', 'Adjusted', '#22C55E']]; tabOf = (r) => r.st;
@@ -199,8 +213,8 @@ function makeRows(kind) {
     const allOn = SA ? EX.length === 0 && vis.length > 0 : (shown.length > 0 && shown.every((r) => this.state.sel.indexOf(r.no) >= 0));
     const counts = {}; D.forEach((r) => { const k2 = tabOf(r); counts[k2] = (counts[k2] || 0) + 1; });
     return {
-      theme, kind, k: K, cf, rows, foot, span: String(COLS.length + 1), aiPage: { ds: 'so', gs: 'disp', sr: 'disp', gp: 'pb', pr: 'pb' }[kind],
-      newHref: K.entry + sfx + '.dc.html', newLabel: { ds: 'New schedule', gs: 'New bill', sr: 'New return', gp: 'New bill', pr: 'New return' }[kind],
+      theme, kind, k: K, cf, rows, foot, span: String(COLS.length + 1), aiPage: { ds: 'so', gs: 'disp', sr: 'disp', gp: 'pb', pr: 'pb', dn: 'led', cn: 'led' }[kind],
+      newHref: K.entry + sfx + '.dc.html', newLabel: { ds: 'New schedule', gs: 'New bill', sr: 'New return', gp: 'New bill', pr: 'New return', dn: 'New debit note', cn: 'New credit note' }[kind],
       tabs: TABS.map(([k2, l, c]) => ({ l, n: inr(k2 === 'All' ? D.length : (counts[k2] || 0), 0), c: '--c: ' + c, cls: k2 === tab ? 'tab on' : 'tab', pick: () => this.setState({ tab: k2, loaded: 22, sel: [], selAll: false, excl: [] }) })),
       allOn, hasSel: selRows.length > 0, selCount: SA ? inr(selRows.length, 0) + ' (all)' : selRows.length, selNote: note,
       toggleAll: () => this.setState(allOn || SA ? { selAll: false, excl: [], sel: [] } : { selAll: true, excl: [], sel: [] }),

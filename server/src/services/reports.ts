@@ -448,6 +448,11 @@ export async function dashboard(ctx: Ctx, from?: string, to?: string) {
   const ewb = await ctx.db.execute(sql`select count(*) as n from vouchers where company_id = ${ctx.companyId} and type = 'SALE_BILL' and ewb_status in ('PENDING','PARTB_PENDING')`);
   const approvals = await ctx.db.execute(sql`select count(*) as n from vouchers where company_id = ${ctx.companyId} and status = 'PENDING_APPROVAL'`);
   const low = (await stockSummary(ctx, { asOn: to })).rows.filter((r) => r.minStock > 0 && r.qty < r.minStock);
+  const byType = (bills: Row[]) => { const m: Record<string, number> = {}; for (const b of bills) m[b.type as string] = r2((m[b.type as string] ?? 0) + N(b.pending)); return m; };
+  const irn = await ctx.db.execute(sql`select count(*) as n from vouchers where company_id = ${ctx.companyId} and fy_id = ${ctx.fyId} and irn is not null`);
+  const fySales = await ctx.db.execute(sql`select coalesce(sum(net_amount),0) as a, count(distinct date) as d from vouchers where company_id = ${ctx.companyId} and fy_id = ${ctx.fyId} and type in ('SALE_BILL','GENERAL_SALE')`);
+  const payDays = await ctx.db.execute(sql`select avg(rv.date::date - b.date::date) as d from bill_allocations a join vouchers b on b.id = a.bill_id join vouchers rv on rv.id = a.voucher_id
+    where b.company_id = ${ctx.companyId} and rv.type = 'RECEIPT'`);
 
   return {
     from, to,
@@ -467,6 +472,10 @@ export async function dashboard(ctx: Ctx, from?: string, to?: string) {
     ewbPending: N((ewb.rows[0] as Row).n),
     approvalsPending: N((approvals.rows[0] as Row).n),
     lowStock: low.slice(0, 10),
-    recent
+    recent,
+    outstandingByType: { ...byType(rec.bills as Row[]), ...Object.fromEntries(Object.entries(byType(pay.bills as Row[])).map(([k, v]) => ['P_' + k, v])) },
+    irnCount: N((irn.rows[0] as Row).n),
+    avgDailySales: N((fySales.rows[0] as Row).d) ? r2(N((fySales.rows[0] as Row).a) / N((fySales.rows[0] as Row).d)) : 0,
+    avgDaysToPay: Math.round(N((payDays.rows[0] as Row).d))
   };
 }
