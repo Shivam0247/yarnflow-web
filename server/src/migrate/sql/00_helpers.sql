@@ -26,3 +26,16 @@ CREATE OR REPLACE FUNCTION mig.fy(company integer, d date) RETURNS integer LANGU
 -- the database ("ledger period") that owns a date: UMIYA20 up to FY 2023-24, UMIYA24 after
 CREATE OR REPLACE FUNCTION mig.period(d date) RETURNS integer LANGUAGE sql IMMUTABLE AS $$
   SELECT CASE WHEN d < DATE '2024-04-01' THEN 20 ELSE 24 END $$;
+
+-- Latest version of every row of a master table across both databases, matched by key.
+-- Works even when the two databases have different columns (rows are returned as jsonb).
+CREATE OR REPLACE FUNCTION mig.latest(tbl text, keyexpr text)
+RETURNS TABLE (db text, k text, j jsonb, _row bigint, _sha text) LANGUAGE plpgsql AS $$
+BEGIN
+  RETURN QUERY EXECUTE format(
+    'SELECT DISTINCT ON (k) db, k, j, _row, _sha FROM (
+       SELECT ''UMIYA24''::text AS db, (%2$s)::text AS k, to_jsonb(t) - ''_row'' - ''_sha'' AS j, t._row, t._sha FROM legacy_umiya24.%1$I t
+       UNION ALL
+       SELECT ''UMIYA20'', (%2$s)::text, to_jsonb(t) - ''_row'' - ''_sha'', t._row, t._sha FROM legacy_umiya20.%1$I t) x
+     WHERE k IS NOT NULL ORDER BY k, db DESC', tbl, keyexpr);
+END $$;

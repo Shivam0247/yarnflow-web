@@ -289,6 +289,8 @@ export const costCenters = pgTable('cost_centers', {
   companyId: integer('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 120 }).notNull(),
   isDefault: boolean('is_default').notNull().default(false),
+  legacyCode: varchar('legacy_code', { length: 30 }),
+  extra: jsonb('extra').$type<Record<string, unknown>>(),
   ...stamps
 });
 
@@ -300,6 +302,8 @@ export const godowns = pgTable('godowns', {
   city: varchar('city', { length: 80 }),
   isDefault: boolean('is_default').notNull().default(false),
   isActive: boolean('is_active').notNull().default(true),
+  legacyCode: varchar('legacy_code', { length: 30 }),
+  extra: jsonb('extra').$type<Record<string, unknown>>(),
   ...stamps
 });
 
@@ -311,9 +315,11 @@ export const brands = pgTable(
     name: varchar('name', { length: 120 }).notNull(),
     millAccountId: integer('mill_account_id'),
     location: varchar('location', { length: 120 }),
+    legacyCode: varchar('legacy_code', { length: 30 }),
+    extra: jsonb('extra').$type<Record<string, unknown>>(),
     ...stamps
   },
-  (t) => [uniqueIndex('brand_company_name').on(t.companyId, t.name)]
+  (t) => [index('brand_company_name').on(t.companyId, t.name)]
 );
 
 export const items = pgTable(
@@ -338,9 +344,44 @@ export const items = pgTable(
     minStock: qty('min_stock').notNull().default(0),
     isGeneral: boolean('is_general').notNull().default(false), // non-yarn / service item for general sale/purchase
     isActive: boolean('is_active').notNull().default(true),
+    groupId: integer('group_id'),
+    legacyCode: varchar('legacy_code', { length: 30 }),
+    extra: jsonb('extra').$type<Record<string, unknown>>(),
     ...stamps
   },
   (t) => [uniqueIndex('item_company_code').on(t.companyId, t.code), index('item_name_idx').on(t.companyId, t.name)]
+);
+
+/** Item groups (old ItemGroupMst): tax / HSN / unit defaults and report grouping */
+export const itemGroups = pgTable('item_groups', {
+  id: id(),
+  companyId: integer('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 120 }).notNull(),
+  hsn: varchar('hsn', { length: 20 }),
+  gstRate: pct('gst_rate'),
+  unit: varchar('unit', { length: 10 }),
+  isService: boolean('is_service').notNull().default(false),
+  legacyCode: varchar('legacy_code', { length: 30 }),
+  extra: jsonb('extra').$type<Record<string, unknown>>(),
+  ...stamps
+});
+
+/** Lots (old LotMst): mill lot numbers per item / party, used on order, challan and bill lines */
+export const lots = pgTable(
+  'lots',
+  {
+    id: id(),
+    companyId: integer('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    number: varchar('number', { length: 60 }).notNull(),
+    itemId: integer('item_id'),
+    partyId: integer('party_id'),
+    brandId: integer('brand_id'),
+    isActive: boolean('is_active').notNull().default(true),
+    legacyCode: varchar('legacy_code', { length: 30 }),
+    extra: jsonb('extra').$type<Record<string, unknown>>(),
+    ...stamps
+  },
+  (t) => [index('lot_company_number').on(t.companyId, t.number), index('lot_legacy').on(t.companyId, t.legacyCode)]
 );
 
 export const transporters = pgTable('transporters', {
@@ -358,6 +399,8 @@ export const transporters = pgTable('transporters', {
   rate: money('rate').notNull().default(0),
   accountId: integer('account_id'),
   status: statusEnum('status').notNull().default('ACTIVE'),
+  legacyCode: varchar('legacy_code', { length: 30 }),
+  extra: jsonb('extra').$type<Record<string, unknown>>(),
   ...stamps
 });
 
@@ -368,6 +411,8 @@ export const vehicles = pgTable('vehicles', {
   transporterId: integer('transporter_id'),
   driverName: varchar('driver_name', { length: 120 }),
   driverMobile: varchar('driver_mobile', { length: 20 }),
+  legacyCode: varchar('legacy_code', { length: 30 }),
+  extra: jsonb('extra').$type<Record<string, unknown>>(),
   ...stamps
 });
 
@@ -384,6 +429,11 @@ export const books = pgTable('books', {
   postingAccountId: integer('posting_account_id'),
   isDefault: boolean('is_default').notNull().default(false),
   isActive: boolean('is_active').notNull().default(true),
+  /** old book transaction type and the ledger account of the book itself */
+  legacyType: integer('legacy_type'),
+  accountId: integer('account_id'),
+  legacyCode: varchar('legacy_code', { length: 30 }),
+  extra: jsonb('extra').$type<Record<string, unknown>>(),
   ...stamps
 });
 
@@ -479,6 +529,8 @@ export const vouchers = pgTable(
     totalPcs: qty('total_pcs').notNull().default(0),
     totalCops: qty('total_cops').notNull().default(0),
     totalQty: qty('total_qty').notNull().default(0),
+    /** total weight (kg) — the old software keeps quantity, pieces and weight separately */
+    totalWeight: qty('total_weight'),
     grossAmount: money('gross_amount').notNull().default(0),
     discountAmount: money('discount_amount').notNull().default(0),
     freightAmount: money('freight_amount').notNull().default(0),
@@ -550,6 +602,7 @@ export const voucherLines = pgTable(
     pcs: qty('pcs').notNull().default(0), // cartons / boxes
     cops: qty('cops').notNull().default(0),
     qty: qty('qty').notNull().default(0), // kg
+    weight: qty('weight'),
     rate: exact('rate').notNull().default(0),
     basicAmount: money('basic_amount').notNull().default(0),
     discPct: pct('disc_pct').notNull().default(0),
@@ -578,7 +631,9 @@ export const voucherLines = pgTable(
     sourceLineId: integer('source_line_id'),
     /** root order line (sales / purchase order) — drives pending qty */
     orderLineId: integer('order_line_id'),
-    lineStatus: varchar('line_status', { length: 20 })
+    lineStatus: varchar('line_status', { length: 20 }),
+    legacyCode: varchar('legacy_code', { length: 40 }),
+    extra: jsonb('extra').$type<Record<string, unknown>>()
   },
   (t) => [
     index('vline_voucher').on(t.voucherId),

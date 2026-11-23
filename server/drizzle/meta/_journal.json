@@ -36,6 +36,20 @@
       "when": 1795437584851,
       "tag": "0004_migrated_data",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795437792262,
+      "tag": "0005_item_groups_lots_legacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795437908079,
+      "tag": "0006_weights_line_extra",
+      "breakpoints": true
     }
   ]
 }
