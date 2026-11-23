@@ -8,6 +8,10 @@
  * Load the old software's data:  npm run local -- --import "/Volumes/SanDisk/YarnFlowExport_…"
  * The export folder is only READ (never changed). Its databases are archived exactly, converted,
  * checked (every check old = new) and the report is written to ./migration-report.html.
+ *
+ * Use a cloud PostgreSQL instead of the one on this Mac (no local disk needed):
+ *   npm run local -- --db "postgres://user:pass@host:5432/dbname?sslmode=require" [--import …]
+ * The address is remembered in ./.cloud-db-url, so later runs use it automatically.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
@@ -22,10 +26,14 @@ const PG_PORT = Number(process.env.YF_PG_PORT || 5433);
 const PORT = Number(process.env.PORT || 4000);
 const fresh = !fs.existsSync(path.join(dataDir, 'PG_VERSION'));
 
+const dbArg = process.argv.indexOf('--db');
+const urlFile = path.join(root, '.cloud-db-url');
+if (dbArg > 0) fs.writeFileSync(urlFile, process.argv[dbArg + 1].trim(), { mode: 0o600 });
+const cloudUrl = fs.existsSync(urlFile) ? fs.readFileSync(urlFile, 'utf8').trim() : null;
 const ix = process.argv.indexOf('--import');
 const importDir = ix > 0 ? process.argv[ix + 1] : null;
 if (importDir && !fs.existsSync(importDir)) { console.error('✗ Export folder not found: ' + importDir); process.exit(1); }
-if (importDir) {
+if (importDir && !cloudUrl) {
   fs.mkdirSync(dataDir, { recursive: true });
   const st = fs.statfsSync(dataDir);
   const freeGb = (st.bavail * st.bsize) / 1e9;
@@ -35,15 +43,19 @@ const pg = new EmbeddedPostgres({ databaseDir: dataDir, user: 'yarnflow', passwo
   postgresFlags: ['-c', 'max_wal_size=4GB', '-c', 'shared_buffers=512MB', '-c', 'jit=off', '-c', 'maintenance_work_mem=512MB'] });
 const step = (m) => console.log('\x1b[36m›\x1b[0m ' + m);
 
-if (fresh) { step('Creating local database (first run only)…'); await pg.initialise(); }
-await pg.start();
-if (fresh) await pg.createDatabase('yarnflow');
+if (cloudUrl) step('Using the cloud database ' + cloudUrl.replace(/\/\/([^:]+):[^@]*@/, '//$1:•••@'));
+else {
+  if (fresh) { step('Creating local database (first run only)…'); await pg.initialise(); }
+  await pg.start();
+  if (fresh) await pg.createDatabase('yarnflow');
+}
 
+fs.mkdirSync(dataDir, { recursive: true });
 const secretFile = path.join(dataDir, '.jwt-secret');
 if (!fs.existsSync(secretFile)) fs.writeFileSync(secretFile, crypto.randomBytes(32).toString('hex'));
 const env = {
   ...process.env,
-  DATABASE_URL: `postgres://yarnflow:yarnflow@localhost:${PG_PORT}/yarnflow`,
+  DATABASE_URL: cloudUrl ?? `postgres://yarnflow:yarnflow@localhost:${PG_PORT}/yarnflow`,
   JWT_SECRET: fs.readFileSync(secretFile, 'utf8'),
   PORT: String(PORT),
   HOST: '127.0.0.1',
@@ -59,7 +71,7 @@ const run = async (args, label) => {
 let child;
 async function stop(code = 0) {
   if (child && !child.killed) child.kill('SIGINT');
-  try { await pg.stop(); } catch { /* already stopped */ }
+  if (!cloudUrl) try { await pg.stop(); } catch { /* already stopped */ }
   process.exit(code);
 }
 process.on('SIGINT', () => stop(0));
@@ -72,7 +84,7 @@ if (importDir) {
   await run(['run', 'migrate:archive', '-w', 'server', '--', importDir, dbs.join(',')], `Archiving ${dbs.join(' + ')} exactly as exported (read only; takes a while)`);
   await run(['run', 'migrate:convert', '-w', 'server'], 'Converting to YarnFlow (about 45–60 minutes)');
   await run(['run', 'migrate:report', '-w', 'server', '--', path.join(root, 'migration-report.html')], 'Checking old vs new → migration-report.html');
-} else if (fresh) await run(['run', 'db:seed', '-w', 'server'], 'Loading demo data');
+} else if (fresh && !cloudUrl) await run(['run', 'db:seed', '-w', 'server'], 'Loading demo data');
 if (!fs.existsSync(path.join(root, 'web/dist/index.html')) || process.argv.includes('--build')) await run(['run', 'build', '-w', 'web'], 'Building the web app');
 
 step('Starting YarnFlow…');
