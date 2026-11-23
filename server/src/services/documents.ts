@@ -63,7 +63,9 @@ export const lineSchema = z.object({
   purchaseRef: optStr,
   purchaseInvNo: optStr,
   lrNo: optStr,
-  sourceLineId: z.coerce.number().int().positive().optional().nullable()
+  sourceLineId: z.coerce.number().int().positive().optional().nullable(),
+  /** fields of the old software's line that have no column of their own (TCS %, order rate, box/pallet …) */
+  extra: z.record(z.string(), z.string().max(120)).optional().nullable()
 });
 export type LineIn = z.infer<typeof lineSchema>;
 
@@ -417,6 +419,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
         purchaseRef: l.purchaseRef ?? null,
         purchaseInvNo: l.purchaseInvNo ?? null,
         lrNo: l.lrNo ?? null,
+        extra: l.extra && Object.keys(l.extra).length ? l.extra : null,
         sourceLineId: l.sourceLineId ?? null,
         orderLineId
       };

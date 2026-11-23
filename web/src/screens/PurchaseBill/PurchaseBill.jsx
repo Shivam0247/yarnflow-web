@@ -55,7 +55,8 @@ class Component extends DCLogic {
     const rows = d.lines.map((l) => ({ key: 'L' + l.id, lineId: l.id, sourceLineId: l.sourceLineId, no: (l.orderNumber || l.sourceNumber || '—').replace(/\/\d{2}-\d{2}$/, ''), ch: l.challanNo || d.refNo || '—', lr: l.lrNo || '—', dt: dmy(d.date), dsdt: dmy(l.challanDate || d.date),
       p: d.partyName, partyId: d.partyId, it: l.itemName || l.description || '', itemId: l.itemId, iid: l.itemCode || '—', br: l.brand || '—', lot: l.lotNo || '—', gr: l.grade || '—', hsn: l.hsn || '—', unit: l.unit, rate: Number(l.rate),
       oq: Number(l.qty), dq: 0, sq: Number(l.qty), ctn: Number(l.pcs) || 0, cops: Number(l.cops) || 0, gstRate: Number(l.gstRate), discPct: Number(l.discPct) || 0, freightPct: Number(l.freightPct) || 0, insPct: Number(l.insurancePct) || 0,
-      pid: l.purchaseRef || '—', pinv: l.purchaseInvNo || '—', rem: l.remark1 || '—', godownId: l.godownId }));
+      pid: l.purchaseRef || '—', pinv: l.purchaseInvNo || '—', rem: l.remark1 || '—', godownId: l.godownId,
+      box: (l.extra || {}).boxType || '', oid: l.orderNumber || (l.extra || {}).orderId || '', ort: (l.extra || {}).orderRate ?? '', tcsPct: Number((l.extra || {}).tcsPct) || 0 }));
     const qty = {}; rows.forEach((r) => { qty[r.key] = String(r.sq); });
     this.setState({ doc: d, docRows: rows, sel: rows.map((r) => r.key), qty, tcs: !!d.isTcs,
       f: { bookId: s(d.bookId), date: dmy(d.date), addLess: d.addLess ? s(d.addLess) : '', remark: s(d.remark), opportunityNo: s(d.opportunityNo), transporterId: s(d.transporterId), lrNo: s(d.lrNo), lrDate: dmy(d.lrDate), vehicleNo: s(d.vehicleNo),
@@ -77,7 +78,7 @@ class Component extends DCLogic {
       return { key: String(l.lineId), sourceLineId: l.lineId, no: l.number.replace(/\/\d{2}-\d{2}$/, ''), ch: '—', lr: '—', dt: dmy(l.date), dsdt: dmy(l.date), age: d === 0 ? 'today' : d === 1 ? '1 day' : d + ' days',
         p: l.partyName, partyId: l.partyId, g: c.partyGroupName ? 'Group · ' + c.partyGroupName : 'Direct', dp: l.deliveryPartyName || l.partyName, it: l.itemName, itemId: l.itemId, iid: l.itemCode, br: l.brand || '—', lot: l.lotNo || '—', gr: l.grade || '—', hsn: l.hsn || '—', unit: l.unit,
         rate: l.rate, oq: l.qty, dq: l.usedQty, sq: l.pendingQty, ctn, cops: l.cops ? Math.round(l.cops * l.pendingQty / Math.max(l.qty, 0.001)) : ctn * 4, tr: l.transporterName || '—', trId: l.transporterId, veh: l.vehicleNo || '—',
-        gstRate: l.gstRate, discPct: l.discPct || 0, freightPct: l.freightPct || 0, insPct: 0, pid: '—', pinv: '—', rem: '—', godownId: l.godownId }; });
+        gstRate: l.gstRate, discPct: l.discPct || 0, freightPct: l.freightPct || 0, insPct: 0, pid: '—', pinv: '—', rem: '—', godownId: l.godownId, box: '', oid: l.number, ort: l.rate, tcsPct: 0 }; });
     return (st.docRows || []).concat(out);
   }
 
@@ -100,7 +101,8 @@ class Component extends DCLogic {
       refNo: f.refNo || null, remark: f.remark || null, addLess: n(f.addLess) || 0, collectionPersonId: id(f.collectionPersonId), extra: ex,
       lines: rows.map((r) => { const q = n(st.qty[r.key] ?? r.sq); const ctn = Math.abs(q - r.sq) < 0.001 ? r.ctn : r.ctn ? Math.max(1, Math.round(q / (r.sq / r.ctn))) : 0;
         return { itemId: r.itemId, brand: r.br === '—' ? null : r.br, lotNo: r.lot === '—' ? null : r.lot, grade: r.gr === '—' ? null : r.gr, unit: r.unit, pcs: ctn, cops: r.cops && r.ctn ? Math.round(r.cops / r.ctn * ctn) : 0, qty: q, rate: r.rate,
-          discPct: r.discPct, freightPct: r.freightPct, gstRate: r.gstRate, challanNo: r.ch === '—' ? null : r.ch, godownId: id(f.godownId) || r.godownId || null, sourceLineId: r.sourceLineId || null }; })
+          discPct: r.discPct, freightPct: r.freightPct, gstRate: r.gstRate, challanNo: r.ch === '—' ? null : r.ch, godownId: id(f.godownId) || r.godownId || null, sourceLineId: r.sourceLineId || null,
+          extra: Object.fromEntries([['boxType', r.box], ['orderId', r.oid], ['orderRate', r.ort], ['tcsPct', r.tcsPct]].filter(([, v]) => v !== '' && v !== null && v !== undefined && v !== 0).map(([k, v]) => [k, String(v)])) }; })
     };
   }
   fail(msg) { this.setState({ note: msg, err: true }); return null; }
@@ -177,12 +179,14 @@ class Component extends DCLogic {
     const party = rows.length ? rows[0].p : null; const pt = party ? PT[party] : null;
     if (live && pt && pt.id && !(st.ps || {})[pt.id]) this.loadParty(pt.id);
     const inter = live && pt && pt.stateCode && lk.companyStateCode ? pt.stateCode !== lk.companyStateCode : false;
-    let T = { q: 0, ctn: 0, cops: 0, basic: 0, dr: 0, fr: 0, ir: 0, tx: 0, gst: 0 }; const rates = new Set();
+    let T = { q: 0, ctn: 0, cops: 0, basic: 0, dr: 0, fr: 0, ir: 0, tx: 0, gst: 0, ig: 0, cg: 0, sg: 0, tc: 0 }; const rates = new Set();
     const items = rows.map((r, i) => { const q = num(qty[r.key] ?? r.sq); const basic = q * r.rate; const dr = basic * (r.discPct || 0) / 100; const fr = (basic - dr) * (r.freightPct || 0) / 100; const ir = (basic - dr) * (r.insPct || 0) / 100;
       const tx = basic - dr + fr + ir; const g = tx * (r.gstRate ?? 5) / 100; const ctn = q > 0 ? (live ? (r.ctn ? (Math.abs(q - r.sq) < 0.001 ? r.ctn : Math.max(1, Math.round(q / (r.sq / r.ctn)))) : 0) : Math.max(1, Math.round(q / 25.85))) : 0; const cops = r.ctn ? Math.round((r.cops || 0) / r.ctn * ctn) : 0;
-      T.q += q; T.ctn += ctn; T.cops += cops; T.basic += basic; T.dr += dr; T.fr += fr; T.ir += ir; T.tx += tx; T.gst += g; rates.add(r.gstRate ?? 5);
+      const gr = r.gstRate ?? 5; const ig = inter ? g : 0; const cg = inter ? 0 : g / 2; const tcp = r.tcsPct || 0; const tc = (tx + g) * tcp / 100;
+      T.q += q; T.ctn += ctn; T.cops += cops; T.basic += basic; T.dr += dr; T.fr += fr; T.ir += ir; T.tx += tx; T.gst += g; T.ig += ig; T.cg += cg; T.sg += cg; T.tc += tc; rates.add(gr);
       return { n: i + 1, iid: r.iid, code: r.iid, it: r.it, br: r.br, hsn: r.hsn, gr: r.gr, unit: /^kg$/i.test(r.unit || 'Kg') ? 'Kg' : r.unit, rem: r.rem || '—', lr: r.lr || st.f.lrNo || '—', ch: live ? (st.f.refNo || r.ch) : r.ch, chd: live ? (st.f.refDate || r.dsdt) : '23-10-2026', lot: r.lot,
         ctn, cops, q: qty[r.key] ?? inr(r.sq, 3), rate: inr(r.rate, 2), basic: inr(basic, 2), dp: String(r.discPct || 0), dr: inr(dr, 2), fp: String(r.freightPct || 0), fr: inr(fr, 2), ip: String(r.insPct || 0), ir: inr(ir, 2), tx: inr(tx, 2), gst: inr(g, 2), amt: inr(tx + g, 2),
+        igp: inter ? String(gr) : '0', ig: inr(ig, 2), cgp: inter ? '0' : String(gr / 2), cg: inr(cg, 2), sgp: inter ? '0' : String(gr / 2), sg: inr(cg, 2), tcp: String(tcp), tc: inr(tc, 2), box: r.box || '—', oid: r.oid || '—', ort: r.ort !== '' && r.ort !== undefined ? inr(Number(r.ort), 2) : '—',
         setQ: (e) => this.setState({ qty: { ...qty, [r.key]: e.target.value } }) }; });
     const gst = T.gst; const gross = T.tx + gst; const al = num(st.f.addLess);
     const doc = st.doc;
@@ -194,7 +198,8 @@ class Component extends DCLogic {
     const addDays = (s, n) => { const m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(String(s || '')); if (!m) return '—'; const t = new Date(Date.UTC(+m[3], +m[2] - 1, +m[1]) + n * 864e5); const z = (x) => String(x).padStart(2, '0'); return z(t.getUTCDate()) + '-' + z(t.getUTCMonth() + 1) + '-' + t.getUTCFullYear(); };
     const ords = [...new Set(rows.map((r) => r.no))];
     const ordLabel = rows.length === 0 ? 'Select order…' : ords.length === 1 ? (/\//.test(ords[0]) ? ords[0] : ords[0] + '/26-27') + ' · ' + rows[0].it : ords.length + ' orders · ' + ords.join(', ');
-    const P0 = pt || { g: '—', del: '—', agent: '—', sp: '—', cr: 0, gstin: '—', pan: '—', out: '—', total: '—', bills: '—' };
+    const D0 = live && st.doc && pt ? st.doc : null; /* an opened bill shows what was saved on it, as the old screen did */
+    const P0 = D0 ? { ...pt, cr: D0.creditDays ?? pt.cr, agent: D0.brokerName || pt.agent, del: D0.deliveryPartyName || pt.del } : pt || { g: '—', del: '—', agent: '—', sp: '—', cr: 0, gstin: '—', pan: '—', out: '—', total: '—', bills: '—' };
     const BK = st.back;
     const BR = st.brec || null;
     const isRec = live ? !!doc : !!BR;
@@ -214,7 +219,7 @@ class Component extends DCLogic {
     const opt = live ? { books: opts(lk.books.filter((b) => b.voucherType === 'PURCHASE_BILL')), transporters: opts(lk.transporters), collectors: opts(lk.collectionPersons), godowns: opts(lk.godowns) }
       : { books: [{ v: '', l: 'Yarn purchase A/c new' }, { v: 'i', l: 'Yarn purchase A/c · import' }, { v: 'g', l: 'General purchase A/c' }], transporters: [{ v: 'n', l: 'Navkar Roadlines' }, { v: 'j', l: 'Jay Ambe Roadlines' }], collectors: [{ v: 'p', l: 'Prakash' }], godowns: [{ v: '', l: 'Sachin GIDC' }] };
     if (!live) { f.transporterId = st.f.transporterId ?? 'n'; f.collectionPersonId = st.f.collectionPersonId ?? 'p'; }
-    const dueDt = pt ? addDays(live ? (f.refDate || billDt) : '21-10-2026', Number(P0.cr) || 0) : '—';
+    const dueDt = D0 && D0.dueDate ? String(D0.dueDate).slice(0, 10).split('-').reverse().join('-') : pt ? addDays(live ? (f.refDate || billDt) : '21-10-2026', Number(P0.cr) || 0) : '—';
     const paid = live && doc && doc.pending != null && doc.pending <= 0.5;
     const rate1 = rates.size === 1 ? [...rates][0] : null;
     const parties = [...new Set(pickable.map((r) => r.p))].sort(); const its = [...new Set(pickable.map((r) => r.it))].sort();
@@ -243,7 +248,7 @@ class Component extends DCLogic {
       f, set, x, xset, opt,
       items, hasItems: rows.length > 0, noItems: rows.length === 0, ordLabel, ordTag: rows.length ? 'Against ' + ords.join(', ') : 'No order selected',
       party: party || '—', pt: { ...P0, cr: String(P0.cr), due: dueDt, dueT: paid ? 'Paid' : 'Due ' + dueDt, dueC: paid ? 'tag t-green' : 'tag t-orange' },
-      tot: { ctn: String(T.ctn), cops: String(T.cops), wt: inr(T.q, 3), basic: inr(T.basic, 2), dr: inr(T.dr, 2), fr: inr(T.fr, 2), ir: inr(T.ir, 2), tx: inr(T.tx, 2), gst: inr(gst, 2), amt: inr(gross, 2) },
+      tot: { ctn: String(T.ctn), cops: String(T.cops), wt: inr(T.q, 3), basic: inr(T.basic, 2), dr: inr(T.dr, 2), fr: inr(T.fr, 2), ir: inr(T.ir, 2), tx: inr(T.tx, 2), gst: inr(gst, 2), amt: inr(gross, 2), ig: inr(T.ig, 2), cg: inr(T.cg, 2), sg: inr(T.sg, 2), tc: inr(T.tc, 2) },
       sum: { qty: inr(T.q, 3) + ' kg · ' + T.ctn + ' cartons', basic: '₹ ' + inr(T.tx, 2), half: '₹ ' + inr(inter ? 0 : gst / 2, 2), igst: '₹ ' + inr(inter ? gst : 0, 2), tcs: '₹ ' + inr(tcs, 2),
         l1: 'CGST' + (rate1 != null ? ' ' + rate1 / 2 + '%' : ''), l2: 'SGST' + (rate1 != null ? ' ' + rate1 / 2 + '%' : ''), tdsL: 'TDS ' + (tdsRate || 0) + '%',
         gst: '₹ ' + inr(gst, 2), gross: '₹ ' + inr(gross, 2), ro: '₹ ' + inr(net - gross - al - tcs, 2), net: '₹ ' + inr(net, 2),
@@ -617,7 +622,37 @@ class PurchaseBillView extends Component {
                                   Taxable
                                 </th>
                                 <th className="r">
-                                  CGST + SGST
+                                  IGST %
+                                </th>
+                                <th className="r">
+                                  IGST ₹
+                                </th>
+                                <th className="r">
+                                  CGST %
+                                </th>
+                                <th className="r">
+                                  CGST ₹
+                                </th>
+                                <th className="r">
+                                  SGST %
+                                </th>
+                                <th className="r">
+                                  SGST ₹
+                                </th>
+                                <th className="r">
+                                  TCS %
+                                </th>
+                                <th className="r">
+                                  TCS ₹
+                                </th>
+                                <th>
+                                  Box / pallet
+                                </th>
+                                <th>
+                                  Order id
+                                </th>
+                                <th className="r">
+                                  Order rate
                                 </th>
                               </>
                             ) : null}
@@ -717,7 +752,37 @@ class PurchaseBillView extends Component {
                                       {it?.tx}
                                     </td>
                                     <td className="r">
-                                      {it?.gst}
+                                      {it?.igp}
+                                    </td>
+                                    <td className="r">
+                                      {it?.ig}
+                                    </td>
+                                    <td className="r">
+                                      {it?.cgp}
+                                    </td>
+                                    <td className="r">
+                                      {it?.cg}
+                                    </td>
+                                    <td className="r">
+                                      {it?.sgp}
+                                    </td>
+                                    <td className="r">
+                                      {it?.sg}
+                                    </td>
+                                    <td className="r">
+                                      {it?.tcp}
+                                    </td>
+                                    <td className="r">
+                                      {it?.tc}
+                                    </td>
+                                    <td className="t2">
+                                      {it?.box}
+                                    </td>
+                                    <td className="t2">
+                                      {it?.oid}
+                                    </td>
+                                    <td className="r">
+                                      {it?.ort}
                                     </td>
                                   </>
                                 ) : null}
@@ -786,9 +851,25 @@ class PurchaseBillView extends Component {
                                 <td className="r">
                                   {v.tot?.tx}
                                 </td>
+                                <td />
                                 <td className="r">
-                                  {v.tot?.gst}
+                                  {v.tot?.ig}
                                 </td>
+                                <td />
+                                <td className="r">
+                                  {v.tot?.cg}
+                                </td>
+                                <td />
+                                <td className="r">
+                                  {v.tot?.sg}
+                                </td>
+                                <td />
+                                <td className="r">
+                                  {v.tot?.tc}
+                                </td>
+                                <td />
+                                <td />
+                                <td />
                               </>
                             ) : null}
                             <td className="r">
