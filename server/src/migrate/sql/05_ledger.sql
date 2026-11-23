@@ -5,6 +5,7 @@
 -- (JV_Reff); opening rows to one opening document per database + company + date.
 -- A row whose document cannot be found is NOT dropped: it gets a journal document of its own.
 TRUNCATE public.ledger_entries RESTART IDENTITY;
+DELETE FROM public.accounts WHERE party_type = 'MissingInOldMasters';
 DELETE FROM public.vouchers WHERE type = 'OPENING_BALANCE' OR (subtype IS NOT NULL AND extra ? '_unlinkedLedger');
 SELECT mig.note('ledger: start');
 
@@ -69,6 +70,15 @@ FROM (SELECT DISTINCT ON (db, comp, code, ftype) db, comp, code, ftype, d, billn
 UPDATE src_led s SET vid = v.id FROM public.vouchers v
 WHERE s.vid IS NULL AND v.extra ? '_unlinkedLedger' AND v.company_id = s.comp AND v.legacy_code = s.code AND v.subtype = s.ftype AND v.extra->>'_db' = s.db;
 SELECT mig.note('ledger: openings and unlinked rows given documents');
+
+-- ledger rows whose account code is in neither database's masters: keep them on an account made for that code
+INSERT INTO public.accounts (company_id, group_id, code, name, kind, party_type, legacy_code, notes, extra)
+SELECT 1, 28, m.code, coalesce(m.code, '(blank account code)'), 'OTHER', 'MissingInOldMasters', coalesce(m.code, ''),
+  'Account code used in the old ledger but missing from its party / book masters', jsonb_build_object('_missingMaster', true, '_rows', m.n)
+FROM (SELECT pcode AS code, count(*) AS n FROM src_led s WHERE NOT EXISTS (SELECT 1 FROM acc WHERE acc.code = s.pcode) GROUP BY pcode) m
+WHERE NOT EXISTS (SELECT 1 FROM public.accounts a WHERE a.company_id = 1 AND a.legacy_code = coalesce(m.code, ''));
+INSERT INTO acc SELECT legacy_code, id FROM public.accounts WHERE company_id = 1 AND party_type = 'MissingInOldMasters' AND legacy_code NOT IN (SELECT code FROM acc);
+UPDATE src_led SET pcode = '' WHERE pcode IS NULL;
 
 INSERT INTO public.ledger_entries (company_id, fy_id, voucher_id, account_id, date, debit, credit, narration, ledger_period, subtype,
   contra_account_id, bill_no, cost_center_id, legacy_code, legacy_row)

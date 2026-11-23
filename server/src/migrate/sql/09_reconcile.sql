@@ -130,6 +130,9 @@ FROM (SELECT 20 period, "Ftype" ftype, sum(greatest(mig.num0("TotAmt"), 0)) dr F
 LEFT JOIN (SELECT ledger_period period, subtype ftype, sum(debit) dr FROM public.ledger_entries GROUP BY 1, 2) n USING (period, ftype);
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
 SELECT 'Ledger', 'entries whose account is not in the masters', 'all', 0, count(*) FROM public.ledger_entries WHERE account_id IS NULL;
+INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
+SELECT 'Ledger', 'account codes used in the old ledger but missing from its masters (kept as accounts)', 'all', count(*), count(*)
+FROM public.accounts WHERE party_type = 'MissingInOldMasters';
 SELECT mig.note('reconcile: ledger');
 
 /* 6. settlements: count and amount per source table and database */

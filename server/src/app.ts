@@ -10,13 +10,13 @@
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { ZodError } from 'zod';
 import { config } from './config.js';
 import type { Db } from './db/index.js';
-import { financialYears, userCompanies, users } from './db/schema.js';
+import { companies, financialYears, userCompanies, users } from './db/schema.js';
 import { AppError, badRequest, forbidden, notFound, unauthorized } from './lib/errors.js';
-import type { Ctx, Role } from './services/context.js';
+import { periodOf, type Ctx, type Role } from './services/context.js';
 import { registerRoutes } from './routes/index.js';
 
 declare module 'fastify' {
@@ -76,15 +76,23 @@ export async function buildApp({ db, logger = false }: AppDeps) {
     const [link] = await db.select().from(userCompanies).where(and(eq(userCompanies.userId, req.auth!.userId), eq(userCompanies.companyId, companyId)));
     if (!link) throw forbidden('You do not have access to this company');
     let fyId = Number(req.headers['x-fy-id']);
+    let fyStart: string;
     if (fyId) {
       const [fy] = await db.select().from(financialYears).where(and(eq(financialYears.id, fyId), eq(financialYears.companyId, companyId)));
       if (!fy) throw notFound('Financial year');
+      fyStart = fy.startDate;
     } else {
-      const [fy] = await db.select().from(financialYears).where(eq(financialYears.companyId, companyId)).orderBy(desc(financialYears.startDate)).limit(1);
+      // default: the year that contains today, else the latest year
+      const today = new Date().toISOString().slice(0, 10);
+      const [fy] = await db.select().from(financialYears).where(eq(financialYears.companyId, companyId))
+        .orderBy(sql`(${financialYears.startDate} <= ${today} and ${financialYears.endDate} >= ${today}) desc`, desc(financialYears.startDate)).limit(1);
       if (!fy) throw notFound('Financial year');
       fyId = fy.id;
+      fyStart = fy.startDate;
     }
-    return { userId: req.auth!.userId, role: req.auth!.role, companyId, fyId };
+    const [co] = await db.select({ mc: companies.masterCompanyId }).from(companies).where(eq(companies.id, companyId));
+    const mcId = co?.mc ?? companyId;
+    return { userId: req.auth!.userId, role: req.auth!.role, companyId, fyId, mcId, period: periodOf(fyStart) };
   };
 
   /** run a handler with a read context */

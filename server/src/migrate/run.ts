@@ -25,6 +25,7 @@ export async function convert(only: string[] = [], url = config.databaseUrl) {
       await client.query(`SET LOCAL work_mem = '512MB'`);
       await client.query(fs.readFileSync(path.join(dir, f), 'utf8'));
       await client.query('COMMIT');
+      await client.query('DISCARD TEMP');
       console.log(`✓ ${f} (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
     } catch (e) {
       await client.query('ROLLBACK');

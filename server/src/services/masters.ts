@@ -7,7 +7,7 @@ import { and, asc, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
 import type { PgTable } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 import {
-  accountGroups, accounts, auditLogs, books, brands, costCenters, godowns, items, salesPersons, transporters, vehicles
+  accountGroups, accounts, auditLogs, books, brands, costCenters, godowns, items, persons, transporters, vehicles
 } from '../db/schema.js';
 import { conflict, notFound, unprocessable } from '../lib/errors.js';
 import { r2 } from '../lib/money.js';
@@ -142,7 +142,36 @@ export const vehicleSchema = z.object({
 });
 
 export const godownSchema = z.object({ name: s(120).min(1), address: optS(400), city: optS(80), isDefault: z.boolean().optional(), isActive: z.boolean().optional() });
-export const salesPersonSchema = z.object({ name: s(120).min(1), mobile, email, isActive: z.boolean().optional() });
+/** brokers, party groups, collection persons, sales persons (old BrokerMst) */
+export const personSchema = z.preprocess(
+  // older screens send "mobile" for a person's phone
+  (v) => (v && typeof v === 'object' && 'mobile' in v && !('phone' in v) ? { ...(v as object), phone: (v as { mobile: unknown }).mobile } : v),
+  z.object({
+  role: z.enum(['PARTY_GROUP', 'BROKER', 'COLLECTOR', 'SALES_PERSON', 'GODOWN_PERSON']).optional(),
+  code: optS(20),
+  name: s(160).min(1),
+  shortName: optS(60),
+  phone: optS(60),
+  email,
+  address1: optS(400),
+  address2: optS(400),
+  city: optS(80),
+  pan: optS(10),
+  rate: z.coerce.number().min(0).optional().nullable(),
+  creditLimit: z.coerce.number().min(0).optional().nullable(),
+  creditDays: z.coerce.number().int().min(0).optional().nullable(),
+  isBlocked: z.boolean().optional(),
+  blockReason: optS(400),
+  remark: optS(400)
+})) as unknown as z.ZodObject<z.ZodRawShape>;
+/** person roles each person master shows / creates */
+export const PERSON_ROLES: Record<string, string[]> = {
+  persons: ['PARTY_GROUP', 'BROKER', 'COLLECTOR', 'SALES_PERSON', 'GODOWN_PERSON'],
+  brokers: ['BROKER'],
+  'party-groups': ['PARTY_GROUP'],
+  'sales-persons': ['SALES_PERSON', 'COLLECTOR'],
+  collectors: ['COLLECTOR']
+};
 export const costCenterSchema = z.object({ name: s(120).min(1), isDefault: z.boolean().optional() });
 export const bookSchema = z.object({
   voucherType: z.enum(['SALES_ORDER', 'PURCHASE_ORDER', 'DISPATCH_SCHEDULE', 'SALE_BILL', 'PURCHASE_BILL', 'SALE_RETURN', 'PURCHASE_RETURN', 'GENERAL_SALE', 'GENERAL_PURCHASE', 'RECEIPT', 'PAYMENT', 'CONTRA', 'JOURNAL', 'DEBIT_NOTE', 'CREDIT_NOTE', 'STOCK_TRANSFER', 'OPENING_STOCK']),
@@ -169,13 +198,17 @@ interface MasterDef {
 
 export const MASTERS: Record<string, MasterDef> = {
   groups: { slug: 'groups', label: 'Group', table: accountGroups as never, schema: groupSchema, write: SETUP_WRITE, search: ['name'], order: 'sortOrder', refs: { parentId: accountGroups } },
-  accounts: { slug: 'accounts', label: 'Account', table: accounts as never, schema: accountSchema, write: MASTER_WRITE, search: ['name', 'alias', 'code', 'gstin', 'city', 'mobile'], order: 'name', refs: { groupId: accountGroups, partyGroupId: accounts, brokerId: accounts, transporterId: transporters, salesPersonId: salesPersons, collectionPersonId: salesPersons } },
+  accounts: { slug: 'accounts', label: 'Account', table: accounts as never, schema: accountSchema, write: MASTER_WRITE, search: ['name', 'alias', 'code', 'gstin', 'city', 'mobile'], order: 'name', refs: { groupId: accountGroups, partyGroupId: persons, brokerId: persons, transporterId: transporters, salesPersonId: persons, collectionPersonId: persons } },
   items: { slug: 'items', label: 'Yarn item', table: items as never, schema: itemSchema, write: MASTER_WRITE, search: ['name', 'code', 'description', 'denier', 'hsn'], order: 'code', refs: { brandId: brands } },
   brands: { slug: 'brands', label: 'Brand', table: brands as never, schema: brandSchema, write: MASTER_WRITE, search: ['name'], order: 'name', refs: { millAccountId: accounts } },
   transporters: { slug: 'transporters', label: 'Transporter', table: transporters as never, schema: transporterSchema, write: MASTER_WRITE, search: ['name', 'transporterId', 'city', 'routes', 'mobile'], order: 'name', refs: { accountId: accounts } },
   vehicles: { slug: 'vehicles', label: 'Vehicle', table: vehicles as never, schema: vehicleSchema, write: MASTER_WRITE, search: ['number', 'driverName'], order: 'number', refs: { transporterId: transporters } },
   godowns: { slug: 'godowns', label: 'Godown', table: godowns as never, schema: godownSchema, write: SETUP_WRITE, search: ['name', 'city'], order: 'name' },
-  'sales-persons': { slug: 'sales-persons', label: 'Sales person', table: salesPersons as never, schema: salesPersonSchema, write: SETUP_WRITE, search: ['name', 'mobile'], order: 'name' },
+  'persons': { slug: 'persons', label: 'Person', table: persons as never, schema: personSchema, write: MASTER_WRITE, search: ['name', 'code', 'phone', 'city'], order: 'name' },
+  'brokers': { slug: 'brokers', label: 'Broker', table: persons as never, schema: personSchema, write: MASTER_WRITE, search: ['name', 'code', 'phone', 'city'], order: 'name' },
+  'party-groups': { slug: 'party-groups', label: 'Party group', table: persons as never, schema: personSchema, write: MASTER_WRITE, search: ['name', 'code', 'phone', 'city'], order: 'name' },
+  'sales-persons': { slug: 'sales-persons', label: 'Sales person', table: persons as never, schema: personSchema, write: MASTER_WRITE, search: ['name', 'code', 'phone', 'city'], order: 'name' },
+  'collectors': { slug: 'collectors', label: 'Collection person', table: persons as never, schema: personSchema, write: MASTER_WRITE, search: ['name', 'code', 'phone', 'city'], order: 'name' },
   'cost-centers': { slug: 'cost-centers', label: 'Cost center', table: costCenters as never, schema: costCenterSchema, write: SETUP_WRITE, search: ['name'], order: 'name' },
   books: { slug: 'books', label: 'Book', table: books as never, schema: bookSchema, write: SETUP_WRITE, search: ['name', 'prefix'], order: 'name', refs: { postingAccountId: accounts } }
 };
@@ -187,7 +220,7 @@ async function checkRefs(ctx: Ctx, def: MasterDef, data: Record<string, unknown>
   for (const [k, table] of Object.entries(def.refs ?? {})) {
     const v = data[k];
     if (!v) continue;
-    const rows = await ctx.db.select({ id: col(table, 'id') }).from(table).where(and(eq(col(table, 'id'), v), eq(col(table, 'companyId'), ctx.companyId)));
+    const rows = await ctx.db.select({ id: col(table, 'id') }).from(table).where(and(eq(col(table, 'id'), v), eq(col(table, 'companyId'), ctx.mcId)));
     if (!rows.length) throw unprocessable(`${k.replace(/Id$/, '')} not found`);
   }
 }
@@ -198,7 +231,8 @@ async function audit(ctx: Ctx, entity: string, entityId: number, action: string,
 
 export async function listMaster(ctx: Ctx, def: MasterDef, q: { q?: string; kind?: string; type?: string; groupId?: number; voucherType?: string; active?: string; page?: number; pageSize?: number }) {
   const t = def.table;
-  const conds: (SQL | undefined)[] = [eq(col(t, 'companyId'), ctx.companyId)];
+  const conds: (SQL | undefined)[] = [eq(col(t, 'companyId'), ctx.mcId)];
+  if (PERSON_ROLES[def.slug]) conds.push(inArray(persons.role, PERSON_ROLES[def.slug] as never));
   if (q.q) conds.push(or(...def.search.map((k) => ilike(col(t, k), '%' + q.q + '%'))));
   if (q.kind && def.slug === 'accounts') conds.push(inArray(accounts.kind, q.kind.split(',') as never));
   if (q.groupId && def.slug === 'accounts') conds.push(eq(accounts.groupId, Number(q.groupId)));
@@ -221,9 +255,9 @@ async function decorateAccounts(ctx: Ctx, rows: (typeof accounts.$inferSelect)[]
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
   const bal = await ctx.db.execute<{ account_id: number; b: string }>(sql`
-    select account_id, sum(debit - credit) as b from ledger_entries where company_id = ${ctx.companyId} and account_id in ${sql.raw('(' + ids.join(',') + ')')} group by account_id`);
+    select account_id, sum(debit - credit) as b from ledger_entries where company_id = ${ctx.companyId} and ledger_period = ${ctx.period} and account_id in ${sql.raw('(' + ids.join(',') + ')')} group by account_id`);
   const bm = new Map(bal.rows.map((r) => [Number(r.account_id), Number(r.b)]));
-  const groups = await ctx.db.select({ id: accountGroups.id, name: accountGroups.name }).from(accountGroups).where(eq(accountGroups.companyId, ctx.companyId));
+  const groups = await ctx.db.select({ id: accountGroups.id, name: accountGroups.name }).from(accountGroups).where(eq(accountGroups.companyId, ctx.mcId));
   const gm = new Map(groups.map((g) => [g.id, g.name]));
   return rows.map((r) => {
     const b = r2((r.openingType === 'DR' ? r.openingBalance : -r.openingBalance) + (bm.get(r.id) ?? 0));
@@ -237,7 +271,7 @@ async function decorateItems(ctx: Ctx, rows: (typeof items.$inferSelect)[]) {
   const st = await ctx.db.execute<{ item_id: number; q: string }>(sql`
     select item_id, sum(qty_in - qty_out) as q from stock_entries where company_id = ${ctx.companyId} and item_id in ${sql.raw('(' + ids.join(',') + ')')} group by item_id`);
   const sm = new Map(st.rows.map((r) => [Number(r.item_id), Number(r.q)]));
-  const bs = await ctx.db.select().from(brands).where(eq(brands.companyId, ctx.companyId));
+  const bs = await ctx.db.select().from(brands).where(eq(brands.companyId, ctx.mcId));
   const bm = new Map(bs.map((b) => [b.id, b.name]));
   return rows.map((r) => ({ ...r, brandName: r.brandId ? bm.get(r.brandId) ?? null : null, stockQty: sm.get(r.id) ?? 0 }));
 }
@@ -246,8 +280,8 @@ async function decorateGroups(ctx: Ctx, rows: (typeof accountGroups.$inferSelect
   const counts = await ctx.db.execute<{ group_id: number; n: string; b: string }>(sql`
     select a.group_id, count(*) as n,
       sum(case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end
-          + coalesce((select sum(debit - credit) from ledger_entries e where e.account_id = a.id), 0)) as b
-    from accounts a where a.company_id = ${ctx.companyId} group by a.group_id`);
+          + coalesce((select sum(debit - credit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id), 0)) as b
+    from accounts a where a.company_id = ${ctx.mcId} group by a.group_id`);
   const cm = new Map(counts.rows.map((r) => [Number(r.group_id), { n: Number(r.n), b: Number(r.b) }]));
   // roll up to parents
   const byId = new Map(rows.map((r) => [r.id, r]));
@@ -278,7 +312,7 @@ async function decorateTransporters(ctx: Ctx, rows: (typeof transporters.$inferS
 
 export async function getMaster(ctx: Ctx, def: MasterDef, id: number) {
   const t = def.table;
-  const [row] = await ctx.db.select().from(t).where(and(eq(col(t, 'id'), id), eq(col(t, 'companyId'), ctx.companyId)));
+  const [row] = await ctx.db.select().from(t).where(and(eq(col(t, 'id'), id), eq(col(t, 'companyId'), ctx.mcId)));
   if (!row) throw notFound(def.label);
   if (def.slug === 'accounts') return (await decorateAccounts(ctx, [row as never]))[0];
   if (def.slug === 'items') return (await decorateItems(ctx, [row as never]))[0];
@@ -290,7 +324,7 @@ async function uniqueCheck(ctx: Ctx, def: MasterDef, data: Record<string, unknow
   for (const k of keys) {
     if (!data[k]) continue;
     const t = def.table;
-    const rows = await ctx.db.select({ id: col(t, 'id') }).from(t).where(and(eq(col(t, 'companyId'), ctx.companyId), sql`lower(${col(t, k)}) = lower(${data[k] as string})`));
+    const rows = await ctx.db.select({ id: col(t, 'id') }).from(t).where(and(eq(col(t, 'companyId'), ctx.mcId), sql`lower(${col(t, k)}) = lower(${data[k] as string})`));
     if (rows.some((r: { id: number }) => r.id !== exceptId)) throw conflict(`${def.label} with this ${k} already exists`);
   }
 }
@@ -312,7 +346,7 @@ export async function createMaster(ctx: Ctx, def: MasterDef, raw: unknown) {
   await checkRefs(ctx, def, data);
   await uniqueCheck(ctx, def, data);
   if (data.isDefault) await clearDefault(ctx, def, data);
-  const [row] = await ctx.db.insert(def.table).values({ ...data, companyId: ctx.companyId } as never).returning();
+  const [row] = await ctx.db.insert(def.table).values({ ...(PERSON_ROLES[def.slug] && !data.role ? { role: PERSON_ROLES[def.slug][0] } : {}), ...data, companyId: ctx.mcId } as never).returning();
   await audit(ctx, def.slug, (row as { id: number }).id, 'CREATE', `${def.label} ${(data.name ?? data.number ?? data.code) as string} created`);
   return getMaster(ctx, def, (row as { id: number }).id);
 }
@@ -332,7 +366,7 @@ export async function updateMaster(ctx: Ctx, def: MasterDef, id: number, raw: un
   await uniqueCheck(ctx, def, data, id);
   if (data.isDefault) await clearDefault(ctx, def, data);
   const t = def.table;
-  await ctx.db.update(t).set({ ...data, updatedAt: new Date() } as never).where(and(eq(col(t, 'id'), id), eq(col(t, 'companyId'), ctx.companyId)));
+  await ctx.db.update(t).set({ ...data, updatedAt: new Date() } as never).where(and(eq(col(t, 'id'), id), eq(col(t, 'companyId'), ctx.mcId)));
   await audit(ctx, def.slug, id, 'UPDATE', `${def.label} ${(existing.name ?? existing.number ?? existing.code) as string} updated`);
   return getMaster(ctx, def, id);
 }
@@ -340,22 +374,21 @@ export async function updateMaster(ctx: Ctx, def: MasterDef, id: number, raw: un
 async function clearDefault(ctx: Ctx, def: MasterDef, data: Record<string, unknown>) {
   const t = def.table;
   const extra = def.slug === 'books' ? eq(books.voucherType, data.voucherType as never) : undefined;
-  await ctx.db.update(t).set({ isDefault: false } as never).where(and(eq(col(t, 'companyId'), ctx.companyId), extra));
+  await ctx.db.update(t).set({ isDefault: false } as never).where(and(eq(col(t, 'companyId'), ctx.mcId), extra));
 }
 
 /** where each master is referenced — blocks deleting records in use */
 const USAGE: Record<string, string[]> = {
   accounts: [
-    'select 1 from vouchers where party_id = $1 or delivery_party_id = $1 or broker_id = $1 or mill_id = $1 or bank_account_id = $1',
+    'select 1 from vouchers where party_id = $1 or delivery_party_id = $1 or mill_id = $1 or bank_account_id = $1 or agent_id = $1',
     'select 1 from voucher_lines where account_id = $1',
-    'select 1 from ledger_entries where account_id = $1',
-    'select 1 from accounts where party_group_id = $1 or broker_id = $1'
+    'select 1 from ledger_entries where account_id = $1'
   ],
   groups: ['select 1 from accounts where group_id = $1', 'select 1 from account_groups where parent_id = $1'],
   items: ['select 1 from voucher_lines where item_id = $1', 'select 1 from stock_entries where item_id = $1'],
   transporters: ['select 1 from vouchers where transporter_id = $1', 'select 1 from vehicles where transporter_id = $1'],
   godowns: ['select 1 from stock_entries where godown_id = $1', 'select 1 from vouchers where godown_id = $1 or to_godown_id = $1'],
-  'sales-persons': ['select 1 from vouchers where sales_person_id = $1 or collection_person_id = $1', 'select 1 from accounts where sales_person_id = $1 or collection_person_id = $1'],
+  persons: ['select 1 from vouchers where sales_person_id = $1 or collection_person_id = $1 or broker_id = $1', 'select 1 from accounts where sales_person_id = $1 or collection_person_id = $1 or broker_id = $1 or party_group_id = $1'],
   'cost-centers': ['select 1 from vouchers where cost_center_id = $1'],
   books: ['select 1 from vouchers where book_id = $1'],
   brands: ['select 1 from items where brand_id = $1']
@@ -365,12 +398,12 @@ export async function deleteMaster(ctx: Ctx, def: MasterDef, id: number) {
   requireRole(ctx, def.write, `delete a ${def.label.toLowerCase()}`);
   const existing = (await getMaster(ctx, def, id)) as Record<string, unknown>;
   if (existing.isSystem) throw conflict('System records cannot be deleted');
-  for (const q of USAGE[def.slug] ?? []) {
+  for (const q of USAGE[PERSON_ROLES[def.slug] ? 'persons' : def.slug] ?? []) {
     const res = await ctx.db.execute(sql.raw(q.replace(/\$1/g, String(Number(id))) + ' limit 1'));
     if (res.rows.length) throw conflict(`${def.label} is in use and cannot be deleted — mark it inactive instead`);
   }
   const t = def.table;
-  await ctx.db.delete(t).where(and(eq(col(t, 'id'), id), eq(col(t, 'companyId'), ctx.companyId)));
+  await ctx.db.delete(t).where(and(eq(col(t, 'id'), id), eq(col(t, 'companyId'), ctx.mcId)));
   await audit(ctx, def.slug, id, 'DELETE', `${def.label} ${(existing.name ?? existing.number ?? existing.code) as string} deleted`);
   return { ok: true };
 }

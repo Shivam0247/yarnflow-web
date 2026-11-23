@@ -47,7 +47,7 @@ describe('accounts master', () => {
     expect((await w.api.del(`/masters/accounts/${a.id}`)).status).toBe(200);
     expect((await w.api.get(`/masters/accounts/${a.id}`)).status).toBe(404);
     // the bank has an opening balance but is used by nothing yet → a broker linked from a customer is "in use"
-    expect((await w.api.del(`/masters/accounts/${w.broker.id}`)).status).toBe(409);
+    expect((await w.api.del(`/masters/brokers/${w.broker.id}`)).status).toBe(409);
   });
 
   it('protects system ledgers', async () => {

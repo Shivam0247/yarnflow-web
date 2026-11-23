@@ -14,9 +14,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import bcrypt from 'bcryptjs';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { createDb, type Db, type Tx } from './index.js';
-import { accountGroups, accounts, brands, companies, godowns, items, salesPersons, transporters, userCompanies, users, vehicles, vouchers } from './schema.js';
+import { accountGroups, accounts, brands, companies, godowns, items, persons, transporters, userCompanies, users, vehicles, vouchers } from './schema.js';
 import type { Ctx } from '../services/context.js';
 import { createDoc, docAction, pendingLines } from '../services/documents.js';
 import { generateEwb } from '../services/eway.js';
@@ -76,7 +76,7 @@ export async function seedDemo(db: Db) {
   };
 
   /* -------- masters */
-  const sp = await db.insert(salesPersons).values(['Avi M', 'Rajesh Shah', 'Manoj', 'Aelish', 'Krish J'].map((name) => ({ companyId: C, name }))).returning();
+  const sp = await db.insert(persons).values(['Avi M', 'Rajesh Shah', 'Manoj', 'Aelish', 'Krish J'].map((name) => ({ companyId: C, role: 'SALES_PERSON' as const, name }))).returning();
   await db.insert(godowns).values({ companyId: C, name: 'Pandesara godown', city: 'Surat', address: 'Plot 22, Pandesara GIDC' });
   await db.update(godowns).set({ name: 'Sachin GIDC godown', address: 'Plot 118, Sachin GIDC, Surat' }).where(and(eq(godowns.companyId, C), eq(godowns.isDefault, true)));
 
@@ -150,6 +150,8 @@ export async function seedDemo(db: Db) {
   for (const [name, city, mobile] of [['Mahesh Shah (Broker)', 'Surat', '98251 66870'], ['Manoj Brokers', 'Surat', '98250 30401'], ['Kiran Agency', 'Surat', '98795 11223'], ['Ramji Agency', 'Surat', '99790 44120']] as const) {
     brokers.push(await acc({ name, groupId: G.brokers, kind: 'BROKER', city, mobile, stateCode: '24', state: 'Gujarat', brokerageRate: 0.5, brokerageType: 'PER_KG', openingBalance: between(5, 40) * 1000, openingType: 'CR' }));
   }
+  // brokers as people (who brought the party / order), as in the old software
+  const brokerPersons = await db.insert(persons).values(brokers.map((b) => ({ companyId: C, role: 'BROKER' as const, name: b.name, city: b.city, phone: b.mobile, rate: 0.5 }))).returning();
   const hdfc = await acc({ name: 'HDFC Bank · Current ••4412', groupId: G.bank, kind: 'BANK', bankName: 'HDFC Bank', bankAccountNo: '50200012344412', ifsc: 'HDFC0000123', city: 'Surat', openingBalance: 1842300, openingType: 'DR' });
   const sbi = await acc({ name: 'SBI · Current ••0918', groupId: G.bank, kind: 'BANK', bankName: 'State Bank of India', bankAccountNo: '30887110918', ifsc: 'SBIN0001234', city: 'Surat', openingBalance: 640000, openingType: 'DR' });
   const rent = await acc({ name: 'Office Rent', groupId: G.indirect, kind: 'EXPENSE' });
@@ -177,12 +179,14 @@ export async function seedDemo(db: Db) {
     cust[name] = await acc({
       name, groupId: st === '24' ? G.surat : G.outstation, kind: 'CUSTOMER', city, area: area ?? null, state: STATE[st][0], stateCode: st, gstin, pan: gstin.slice(2, 12),
       mobile: `98${between(10, 99)}${between(100, 999)} ${between(10000, 99999)}`.slice(0, 11), creditLimit: lim * 100000, creditDays: days, status: status as never,
-      brokerId: rnd() < 0.5 ? pick(brokers).id : null, salesPersonId: pick(sp).id, collectionPersonId: pick(sp.slice(0, 3)).id, interestRate: 18, transporterId: pick(trs.slice(0, 7)).id,
+      brokerId: rnd() < 0.5 ? pick(brokerPersons).id : null, salesPersonId: pick(sp).id, collectionPersonId: pick(sp.slice(0, 3)).id, interestRate: 18, transporterId: pick(trs.slice(0, 7)).id,
       openingBalance: between(0, 3) ? between(20, 300) * 1000 : 0, openingType: 'DR', address1: `${between(1, 400)}, ${area ?? city} Textile Market`
     });
   }
-  await db.update(accounts).set({ partyGroupId: cust['Meghna Yogeshbhai'].id }).where(eq(accounts.id, cust['Riddhi Dharmesh Patel'].id));
-  await db.update(accounts).set({ partyGroupId: cust['Kanvi Corporation'].id }).where(eq(accounts.id, cust['Ganpati Silk Mill'].id));
+  const [pgMeghna, pgKanvi] = await db.insert(persons).values([
+    { companyId: C, role: 'PARTY_GROUP' as const, name: 'Meghna Yogeshbhai' }, { companyId: C, role: 'PARTY_GROUP' as const, name: 'Kanvi Corporation' }]).returning();
+  await db.update(accounts).set({ partyGroupId: pgMeghna.id }).where(inArray(accounts.id, [cust['Riddhi Dharmesh Patel'].id, cust['Meghna Yogeshbhai'].id]));
+  await db.update(accounts).set({ partyGroupId: pgKanvi.id }).where(inArray(accounts.id, [cust['Ganpati Silk Mill'].id, cust['Kanvi Corporation'].id]));
 
   // suppliers / mills
   const SU: [string, string, string, number][] = [
@@ -210,7 +214,7 @@ export async function seedDemo(db: Db) {
   const net = all.reduce((s, a) => s + (a.openingType === 'DR' ? a.openingBalance : -a.openingBalance), 0);
 
   /* -------- transactions (through the real engine) */
-  const ctx = (tx: Tx): Ctx => ({ db: tx, userId: admin.id, role: 'ADMIN', companyId: C, fyId });
+  const ctx = (tx: Tx): Ctx => ({ db: tx, userId: admin.id, role: 'ADMIN', companyId: C, fyId, mcId: C, period: 24 });
   const run = <T>(fn: (c: Ctx) => Promise<T>) => db.transaction((tx) => fn(ctx(tx)));
   const create = (slug: keyof typeof SLUG, body: unknown) => run((c) => createDoc(c, TYPES[SLUG[slug]], body)) as Promise<Record<string, unknown> & { id: number; number: string; netAmount: number; lines: { id: number; qty: number }[] }>;
   const SLUG = { cn: 'CREDIT_NOTE', dn: 'DEBIT_NOTE', so: 'SALES_ORDER', po: 'PURCHASE_ORDER', ds: 'DISPATCH_SCHEDULE', sb: 'SALE_BILL', pb: 'PURCHASE_BILL', sr: 'SALE_RETURN', pr: 'PURCHASE_RETURN', gs: 'GENERAL_SALE', gp: 'GENERAL_PURCHASE', rc: 'RECEIPT', py: 'PAYMENT', jv: 'JOURNAL', ct: 'CONTRA', os: 'OPENING_STOCK' } as const;

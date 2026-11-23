@@ -65,7 +65,7 @@ export async function generateEwb(ctx: Ctx, id: number, raw: unknown) {
   const vehicleNo = input.vehicleNo ?? v.vehicleNo;
   if (!transporterId && !vehicleNo) throw unprocessable('Give a transporter or a vehicle number');
   if (transporterId) {
-    const [t] = await ctx.db.select().from(transporters).where(and(eq(transporters.id, transporterId), eq(transporters.companyId, ctx.companyId)));
+    const [t] = await ctx.db.select().from(transporters).where(and(eq(transporters.id, transporterId), eq(transporters.companyId, ctx.mcId)));
     if (!t) throw unprocessable('Transporter not found');
   }
   const distanceKm = input.distanceKm ?? v.distanceKm ?? 10;

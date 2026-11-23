@@ -82,7 +82,7 @@ export async function makeWorld(name = 'Test Yarn') {
   const lk = await api.ok(api.get('/masters/groups'));
   const g = (n: string) => lk.data.find((x: any) => x.name === n).id;
   const mk = (body: any) => api.ok(api.post('/masters/accounts', body));
-  const broker = await mk({ name: 'Test Broker', groupId: g('Brokers'), kind: 'BROKER', stateCode: '24' });
+  const broker = await api.ok(api.post('/masters/brokers', { name: 'Test Broker', city: 'Surat' }));
   const customer = await mk({ name: 'Surat Weavers', groupId: g('Surat Debtors'), kind: 'CUSTOMER', gstin: '24AABCK1234F1Z5', city: 'Surat', creditLimit: 5000000, creditDays: 30, brokerId: broker.id });
   const outCustomer = await mk({ name: 'Bhiwandi Looms', groupId: g('Out-station Debtors'), kind: 'CUSTOMER', gstin: '27AALFL2290M1Z1', city: 'Bhiwandi', creditLimit: 5000000, creditDays: 30 });
   const smallCustomer = await mk({ name: 'Small Credit Fab', groupId: g('Surat Debtors'), kind: 'CUSTOMER', gstin: '24ABHPO5521K1Z8', creditLimit: 50000, creditDays: 15 });

@@ -11,7 +11,7 @@ import { z } from 'zod';
 import type { Tx } from '../db/index.js';
 import {
   accounts, approvalLogs, auditLogs, billAllocations, books, companies, counters, financialYears, godowns, items,
-  ledgerEntries, stockEntries, voucherLines, vouchers
+  ledgerEntries, persons, stockEntries, voucherLines, vouchers
 } from '../db/schema.js';
 import { addDays, today } from '../lib/dates.js';
 import { badRequest, conflict, forbidden, locked, notFound, unprocessable } from '../lib/errors.js';
@@ -163,7 +163,7 @@ export const formatNumber = (prefix: string, padding: number, fySuffix: boolean,
 
 /** what the next number will be (not reserved) */
 export async function peekNumber(ctx: Ctx, type: VoucherType, bookId?: number | null) {
-  const book = bookId ? (await ctx.db.select().from(books).where(and(eq(books.id, bookId), eq(books.companyId, ctx.companyId))))[0] : await defaultBook(ctx.db, ctx.companyId, type);
+  const book = bookId ? (await ctx.db.select().from(books).where(and(eq(books.id, bookId), eq(books.companyId, ctx.mcId))))[0] : await defaultBook(ctx.db, ctx.companyId, type);
   if (!book) throw notFound('Book');
   const fy = await loadFy(ctx);
   const [c] = await ctx.db.select().from(counters).where(and(eq(counters.bookId, book.id), eq(counters.fyId, ctx.fyId)));
@@ -172,19 +172,19 @@ export async function peekNumber(ctx: Ctx, type: VoucherType, bookId?: number | 
 
 async function getAccount(ctx: Ctx, id: number | null | undefined, what: string) {
   if (!id) return null;
-  const [a] = await ctx.db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.companyId, ctx.companyId)));
+  const [a] = await ctx.db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.companyId, ctx.mcId)));
   if (!a) throw unprocessable(`${what} not found`);
   return a;
 }
 
 /** current ledger balance of an account (Dr positive), opening included */
-export async function accountBalance(db: Tx, companyId: number, accountId: number, upto?: string) {
-  const [a] = await db.select().from(accounts).where(and(eq(accounts.id, accountId), eq(accounts.companyId, companyId)));
+export async function accountBalance(ctx: Pick<Ctx, 'db' | 'companyId' | 'mcId' | 'period'>, accountId: number, upto?: string) {
+  const [a] = await ctx.db.select().from(accounts).where(and(eq(accounts.id, accountId), eq(accounts.companyId, ctx.mcId)));
   if (!a) return 0;
   const opening = a.openingType === 'DR' ? a.openingBalance : -a.openingBalance;
-  const res = await db.execute<{ bal: string }>(sql`
+  const res = await ctx.db.execute<{ bal: string }>(sql`
     select coalesce(sum(debit - credit), 0) as bal from ledger_entries
-    where account_id = ${accountId} and company_id = ${companyId} ${upto ? sql`and date <= ${upto}` : sql``}`);
+    where account_id = ${accountId} and company_id = ${ctx.companyId} and ledger_period = ${ctx.period} ${upto ? sql`and date <= ${upto}` : sql``}`);
   return r2(opening + Number(res.rows[0].bal));
 }
 
@@ -320,11 +320,18 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
   if (def.party !== 'none' && def.lines !== 'journal' && !party) throw unprocessable('Select a party');
   if (party) {
     if (party.status === 'BLOCKED') throw unprocessable(`${party.name} is blocked — unblock the account first`);
-    if (def.party === 'customer' && !['CUSTOMER', 'BROKER', 'OTHER'].includes(party.kind)) throw unprocessable(`${party.name} is not a customer account`);
-    if (def.party === 'supplier' && !['SUPPLIER', 'BROKER', 'OTHER'].includes(party.kind)) throw unprocessable(`${party.name} is not a supplier / mill account`);
+    // like the old software, a trading party may buy and sell; only books / tax / cash ledgers are refused
+    if (def.party !== 'none' && ['BANK', 'CASH', 'TAX', 'SALES', 'PURCHASE'].includes(party.kind)) throw unprocessable(`${party.name} is not a party account`);
   }
-  for (const [k, label] of [['deliveryPartyId', 'Delivery party'], ['brokerId', 'Broker'], ['agentId', 'Agent'], ['millId', 'Supplier (mill)'], ['bankAccountId', 'Bank account']] as const) {
+  for (const [k, label] of [['deliveryPartyId', 'Delivery party'], ['agentId', 'Agent'], ['millId', 'Supplier (mill)'], ['bankAccountId', 'Bank account']] as const) {
     await getAccount(ctx, input[k], label);
+  }
+  // broker, sales person and collection person are people (persons), not ledger accounts
+  for (const [k, label] of [['brokerId', 'Broker'], ['salesPersonId', 'Sales person'], ['collectionPersonId', 'Collection person']] as const) {
+    const pid = input[k];
+    if (!pid) continue;
+    const [p] = await ctx.db.select({ id: persons.id }).from(persons).where(and(eq(persons.id, pid), eq(persons.companyId, ctx.mcId)));
+    if (!p) throw unprocessable(`${label} not found`);
   }
 
   const stateCode = input.placeOfSupply || party?.stateCode || party?.gstin?.slice(0, 2) || company.stateCode;
@@ -337,7 +344,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     const raw = input.lines.filter((l) => l.itemId || l.accountId || l.description || l.qty || l.amount);
     if (!raw.length) throw unprocessable('Add at least one item');
     const itemIds = [...new Set(raw.map((l) => l.itemId).filter(Boolean))] as number[];
-    const itemRows = itemIds.length ? await db.select().from(items).where(and(inArray(items.id, itemIds), eq(items.companyId, ctx.companyId))) : [];
+    const itemRows = itemIds.length ? await db.select().from(items).where(and(inArray(items.id, itemIds), eq(items.companyId, ctx.mcId))) : [];
     const itemMap = new Map(itemRows.map((i) => [i.id, i]));
     const srcIds = raw.map((l) => l.sourceLineId).filter(Boolean) as number[];
     const src = await loadSourceLines(db, ctx.companyId, srcIds);
@@ -483,7 +490,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
   // ---- approval rules
   const approvalReasons: string[] = [];
   if (def.approval === 'credit' && party) {
-    const bal = await accountBalance(db, ctx.companyId, party.id);
+    const bal = await accountBalance(ctx, party.id);
     if (party.status === 'ON_HOLD') approvalReasons.push(`${party.name} is on hold`);
     if (party.creditLimit > 0 && bal + (totals.netAmount ?? 0) > party.creditLimit) {
       approvalReasons.push(`Credit limit ₹${party.creditLimit} exceeded (outstanding ₹${bal} + this order ₹${totals.netAmount})`);
@@ -669,14 +676,14 @@ async function post(ctx: Ctx, def: TypeDef, v: typeof vouchers.$inferSelect, lin
     const d = r2(sum(entries, (e) => e.debit));
     const c = r2(sum(entries, (e) => e.credit));
     if (Math.abs(d - c) > 0.01) throw new Error(`Posting for ${v.number} does not balance (Dr ${d} / Cr ${c})`);
-    await db.insert(ledgerEntries).values(entries.filter((e) => e.debit || e.credit).map((e) => ({ companyId: ctx.companyId, fyId: v.fyId, voucherId: v.id, date: v.date, accountId: e.accountId, debit: e.debit, credit: e.credit, narration: e.narration ?? narr })));
+    await db.insert(ledgerEntries).values(entries.filter((e) => e.debit || e.credit).map((e) => ({ companyId: ctx.companyId, fyId: v.fyId, voucherId: v.id, date: v.date, accountId: e.accountId, debit: e.debit, credit: e.credit, narration: e.narration ?? narr, ledgerPeriod: ctx.period })));
   }
 
   // stock
   if (def.stock !== 0) {
     let defGodown = v.godownId;
     if (!defGodown) {
-      const [g] = await db.select().from(godowns).where(and(eq(godowns.companyId, ctx.companyId), eq(godowns.isDefault, true)));
+      const [g] = await db.select().from(godowns).where(and(eq(godowns.companyId, ctx.mcId), eq(godowns.isDefault, true)));
       defGodown = g?.id ?? null;
     }
     const rows: (typeof stockEntries.$inferInsert)[] = [];
@@ -739,7 +746,7 @@ export async function createDoc(ctx: Ctx, def: TypeDef, raw: unknown) {
   const p = await prepare(ctx, def, input);
 
   const book = p.header.bookId
-    ? (await ctx.db.select().from(books).where(and(eq(books.id, p.header.bookId as number), eq(books.companyId, ctx.companyId), eq(books.voucherType, def.type))))[0]
+    ? (await ctx.db.select().from(books).where(and(eq(books.id, p.header.bookId as number), eq(books.companyId, ctx.mcId), eq(books.voucherType, def.type))))[0]
     : await defaultBook(ctx.db, ctx.companyId, def.type);
   if (!book) throw unprocessable('Book does not belong to this document type');
 
@@ -755,11 +762,11 @@ export async function createDoc(ctx: Ctx, def: TypeDef, raw: unknown) {
   const status = def.posting !== 'none' || def.stock !== 0 ? 'POSTED' : p.approvalReasons.length ? 'PENDING_APPROVAL' : 'OPEN';
   const [v] = await ctx.db
     .insert(vouchers)
-    .values({ ...(p.header as object), companyId: ctx.companyId, fyId: ctx.fyId, type: def.type, bookId: book.id, number, seq, status: status as never, createdById: ctx.userId, updatedById: ctx.userId } as never)
+    .values({ ...(p.header as object), companyId: ctx.companyId, fyId: ctx.fyId, ledgerPeriod: ctx.period, type: def.type, bookId: book.id, number, seq, status: status as never, createdById: ctx.userId, updatedById: ctx.userId } as never)
     .returning();
   const lines = p.lines.length ? await ctx.db.insert(voucherLines).values(p.lines.map((l) => ({ ...l, voucherId: v.id })) as never).returning() : [];
   await post(ctx, def, v, lines);
-  if (p.allocations.length) await ctx.db.insert(billAllocations).values(p.allocations.map((a) => ({ ...a, companyId: ctx.companyId, voucherId: v.id })));
+  if (p.allocations.length) await ctx.db.insert(billAllocations).values(p.allocations.map((a) => ({ ...a, companyId: ctx.companyId, voucherId: v.id, ledgerPeriod: ctx.period })));
   if (p.approvalReasons.length) await ctx.db.insert(approvalLogs).values({ voucherId: v.id, action: 'SUBMITTED', reason: p.approvalReasons.join('; '), userId: ctx.userId });
   await refreshStatuses(ctx.db, p.touchedOrders);
   await audit(ctx, def.slug, v.id, 'CREATE', `${def.label} ${number} created`);
@@ -799,7 +806,7 @@ export async function updateDoc(ctx: Ctx, def: TypeDef, id: number, raw: unknown
   const [v] = await ctx.db.select().from(vouchers).where(eq(vouchers.id, id));
   const lines = p.lines.length ? await ctx.db.insert(voucherLines).values(p.lines.map((l) => ({ ...l, voucherId: id })) as never).returning() : [];
   await post(ctx, def, v, lines);
-  if (p.allocations.length) await ctx.db.insert(billAllocations).values(p.allocations.map((a) => ({ ...a, companyId: ctx.companyId, voucherId: id })));
+  if (p.allocations.length) await ctx.db.insert(billAllocations).values(p.allocations.map((a) => ({ ...a, companyId: ctx.companyId, voucherId: id, ledgerPeriod: ctx.period })));
   if (status === 'PENDING_APPROVAL' && old.status !== 'PENDING_APPROVAL') await ctx.db.insert(approvalLogs).values({ voucherId: id, action: 'SUBMITTED', reason: p.approvalReasons.join('; '), userId: ctx.userId });
   await refreshStatuses(ctx.db, [...p.touchedOrders, ...[...oldSources.values()].map((s) => s.voucherId), ...(await orderVouchersOf(ctx.db, oldLines.map((l) => l.orderLineId))), id]);
   await audit(ctx, def.slug, id, 'UPDATE', `${def.label} ${number} updated`);
@@ -922,7 +929,8 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
   const srcIds = lines.flatMap((x) => [x.l.sourceLineId, x.l.orderLineId]).filter(Boolean) as number[];
   const src = await loadSourceLines(db, ctx.companyId, srcIds);
 
-  const names = await nameMap(ctx, [v.partyId, v.deliveryPartyId, v.brokerId, v.millId, v.bankAccountId, v.agentId]);
+  const names = await nameMap(ctx, [v.partyId, v.deliveryPartyId, v.millId, v.bankAccountId, v.agentId]);
+  const broker = v.brokerId ? (await ctx.db.select({ name: persons.name }).from(persons).where(eq(persons.id, v.brokerId)))[0] : undefined;
   const party = v.partyId ? (await db.select().from(accounts).where(eq(accounts.id, v.partyId)))[0] : null;
   const allocations = await db
     .select({ billId: billAllocations.billId, amount: billAllocations.amount, number: vouchers.number, date: vouchers.date, net: vouchers.netAmount })
@@ -943,7 +951,7 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
     party: party ? { id: party.id, name: party.name, city: party.city, gstin: party.gstin, pan: party.pan, stateCode: party.stateCode, creditLimit: party.creditLimit, creditDays: party.creditDays, status: party.status } : null,
     partyName: names.get(v.partyId ?? 0) ?? null,
     deliveryPartyName: names.get(v.deliveryPartyId ?? 0) ?? null,
-    brokerName: names.get(v.brokerId ?? 0) ?? null,
+    brokerName: broker?.name ?? null,
     millName: names.get(v.millId ?? 0) ?? null,
     agentName: names.get(v.agentId ?? 0) ?? null,
     bankAccountName: names.get(v.bankAccountId ?? 0) ?? null,
@@ -1042,12 +1050,12 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
       join voucher_lines l on l.voucher_id = v.id
       left join items i on i.id = l.item_id
       left join accounts p on p.id = v.party_id
-      left join accounts pg on pg.id = p.party_group_id
-      left join accounts b on b.id = v.broker_id
+      left join persons pg on pg.id = p.party_group_id
+      left join persons b on b.id = v.broker_id
       left join accounts m on m.id = v.mill_id
       left join accounts ag on ag.id = v.agent_id
       left join accounts dpl on dpl.id = v.delivery_party_id
-      left join sales_persons sp on sp.id = v.sales_person_id
+      left join persons sp on sp.id = v.sales_person_id
       where ${where}
       order by v.date desc, v.id desc, l.line_no
       limit ${pageSize} offset ${(page - 1) * pageSize}`);
@@ -1078,13 +1086,13 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
            v.reason, v.reverse_charge as "reverseCharge", v.source_id as "sourceId", src.date as "sourceDate", v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote"
     from vouchers v
     left join accounts p on p.id = v.party_id
-    left join accounts pg on pg.id = p.party_group_id
+    left join persons pg on pg.id = p.party_group_id
     left join accounts ag on ag.id = v.agent_id
-    left join accounts br on br.id = v.broker_id
+    left join persons br on br.id = v.broker_id
     left join accounts dp on dp.id = v.delivery_party_id
     left join accounts ml on ml.id = v.mill_id
-    left join sales_persons sp on sp.id = v.sales_person_id
-    left join sales_persons cp on cp.id = v.collection_person_id
+    left join persons sp on sp.id = v.sales_person_id
+    left join persons cp on cp.id = v.collection_person_id
     left join accounts ba on ba.id = v.bank_account_id
     left join transporters t on t.id = v.transporter_id
     left join vouchers src on src.id = v.source_id

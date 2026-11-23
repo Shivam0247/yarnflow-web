@@ -38,7 +38,8 @@ describe('sales order', () => {
   it('validates input', async () => {
     expect((await w.api.post('/vouchers/sales-orders', { date: '2026-10-01', lines: [] })).status).toBe(422);
     expect((await w.api.post('/vouchers/sales-orders', soBody(w, { lines: [] }))).status).toBe(422);
-    expect((await w.api.post('/vouchers/sales-orders', soBody(w, { partyId: w.supplier.id }))).status).toBe(422);
+    // like the old software a trading party may buy and sell; a bank / book ledger may not be the party
+    expect((await w.api.post('/vouchers/sales-orders', soBody(w, { partyId: w.bank.id }))).status).toBe(422);
     expect((await w.api.post('/vouchers/sales-orders', soBody(w, { date: '2025-10-01' }))).status).toBe(422); // outside FY
     expect((await w.api.post('/vouchers/sales-orders', soBody(w, { date: '01-10-2026' }))).status).toBe(422);
   });

@@ -127,7 +127,7 @@ SELECT 1,
   (SELECT name FROM desc_names WHERE code = c."P_OState"), lpad(mig.s(p."P_GstState"), 2, '0'), left(mig.s(p."P_PINCODE"), 10),
   mig.s(p."P_ContPerName"), left(coalesce(mig.s(p."P_Mobile"), mig.s(c."P_OMobile")), 20), left(mig.s(c."P_OTel"), 30), left(mig.s(c."P_Email"), 160),
   mig.num0(p."P_CrLimit"), coalesce(mig.int(p."P_CrDay"), 0), mig.s(p."P_BankName"), mig.s(p."P_BnkACNo"), left(mig.s(p."P_BnkIFSCcode"), 15),
-  mig.num0(p."P_Opening"), coalesce(mig.b(p."P_IsTdsReq"), false), coalesce(mig.b(p."P_TCSReq"), false),
+  0 /* openings are ledger entries (OPENING); P_Opening stays in extra */, coalesce(mig.b(p."P_IsTdsReq"), false), coalesce(mig.b(p."P_TCSReq"), false),
   (CASE WHEN EXISTS (SELECT 1 FROM legacy_umiya24."BlockPartyMst" bl WHERE bl."Blok_PCode" = p."P_Code") THEN 'BLOCKED' ELSE 'ACTIVE' END)::record_status,
   mig.s(p."P_Rmk"), p."P_Code",
   mig.row(to_jsonb(p) - 'db') || jsonb_build_object('_contact', mig.row(to_jsonb(c) - 'db'))

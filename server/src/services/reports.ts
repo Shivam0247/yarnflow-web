@@ -20,10 +20,10 @@ export async function ledger(ctx: Ctx, accountId: number, from?: string, to?: st
   const fy = await loadFy(ctx);
   from ??= fy.startDate;
   to ??= fy.endDate;
-  const [acc] = await ctx.db.select().from(accounts).where(and(eq(accounts.id, accountId), eq(accounts.companyId, ctx.companyId)));
+  const [acc] = await ctx.db.select().from(accounts).where(and(eq(accounts.id, accountId), eq(accounts.companyId, ctx.mcId)));
   if (!acc) throw notFound('Account');
   const [grp] = await ctx.db.select().from(accountGroups).where(eq(accountGroups.id, acc.groupId));
-  const before = await ctx.db.execute<{ b: string }>(sql`select coalesce(sum(debit - credit),0) as b from ledger_entries where account_id = ${accountId} and date < ${from}`);
+  const before = await ctx.db.execute<{ b: string }>(sql`select coalesce(sum(debit - credit),0) as b from ledger_entries where company_id = ${ctx.companyId} and ledger_period = ${ctx.period} and account_id = ${accountId} and date < ${from}`);
   const opening = r2((acc.openingType === 'DR' ? acc.openingBalance : -acc.openingBalance) + N(before.rows[0].b));
   const rows = await ctx.db.execute(sql`
     select e.id, e.date, e.debit, e.credit, e.narration, v.id as "voucherId", v.type, v.number, v.ref_no as "refNo", v.total_qty as qty,
@@ -31,7 +31,7 @@ export async function ledger(ctx: Ctx, accountId: number, from?: string, to?: st
         where e2.voucher_id = e.voucher_id and e2.account_id <> e.account_id
           and sign(e2.debit - e2.credit) <> sign(e.debit - e.credit)) as against
     from ledger_entries e join vouchers v on v.id = e.voucher_id
-    where e.account_id = ${accountId} and e.date between ${from} and ${to}
+    where e.account_id = ${accountId} and e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.date between ${from} and ${to}
     order by e.date, v.id, e.id`);
   let bal = opening;
   const entries = rows.rows.map((r: Row) => {
@@ -56,12 +56,12 @@ async function balances(ctx: Ctx, upto: string, from?: string) {
   const res = await ctx.db.execute(sql`
     select a.id, a.name, a.code, a.kind, a.group_id as "groupId", g.nature, g.affects_gross_profit as gp, g.name as "groupName",
       case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end as opening,
-      coalesce((select sum(debit - credit) from ledger_entries e where e.account_id = a.id and e.date <= ${upto}
+      coalesce((select sum(debit - credit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date <= ${upto}
         ${from ? sql`and e.date >= ${from}` : sql``}), 0) as movement,
-      coalesce((select sum(debit) from ledger_entries e where e.account_id = a.id and e.date <= ${upto} ${from ? sql`and e.date >= ${from}` : sql``}), 0) as dr,
-      coalesce((select sum(credit) from ledger_entries e where e.account_id = a.id and e.date <= ${upto} ${from ? sql`and e.date >= ${from}` : sql``}), 0) as cr
+      coalesce((select sum(debit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date <= ${upto} ${from ? sql`and e.date >= ${from}` : sql``}), 0) as dr,
+      coalesce((select sum(credit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date <= ${upto} ${from ? sql`and e.date >= ${from}` : sql``}), 0) as cr
     from accounts a join account_groups g on g.id = a.group_id
-    where a.company_id = ${ctx.companyId}`);
+    where a.company_id = ${ctx.mcId}`);
   return res.rows.map((r: Row) => {
     const pl = r.nature === 'INCOME' || r.nature === 'EXPENSE';
     const opening = pl ? 0 : N(r.opening);
@@ -70,7 +70,7 @@ async function balances(ctx: Ctx, upto: string, from?: string) {
 }
 
 async function groupTree(ctx: Ctx) {
-  const gs = await ctx.db.select().from(accountGroups).where(eq(accountGroups.companyId, ctx.companyId)).orderBy(accountGroups.sortOrder);
+  const gs = await ctx.db.select().from(accountGroups).where(eq(accountGroups.companyId, ctx.mcId)).orderBy(accountGroups.sortOrder);
   const top = (id: number): typeof gs[number] => {
     let g = gs.find((x) => x.id === id)!;
     while (g.parentId) g = gs.find((x) => x.id === g.parentId)!;
@@ -200,10 +200,10 @@ export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts
       v.net_amount - v.tds_amount - coalesce((select sum(a.amount) from bill_allocations a join vouchers av on av.id = a.voucher_id
         where a.bill_id = v.id and av.date <= ${asOn}), 0) as pending
     from vouchers v join accounts p on p.id = v.party_id join account_groups g on g.id = p.group_id
-      left join accounts pg on pg.id = p.party_group_id
-      left join accounts b on b.id = v.broker_id left join accounts pb on pb.id = p.broker_id
-      left join sales_persons sp on sp.id = v.sales_person_id left join sales_persons psp on psp.id = p.sales_person_id
-      left join sales_persons cp on cp.id = p.collection_person_id
+      left join persons pg on pg.id = p.party_group_id
+      left join persons b on b.id = v.broker_id left join persons pb on pb.id = p.broker_id
+      left join persons sp on sp.id = v.sales_person_id left join persons psp on psp.id = p.sales_person_id
+      left join persons cp on cp.id = p.collection_person_id
     where v.company_id = ${ctx.companyId} and ${sql.raw(BILL_SQL[side])} and v.date <= ${asOn} ${filters}
     order by p.name, v.date, v.id`);
   let bills = res.rows
@@ -223,17 +223,17 @@ export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts
   const partyIds = [...new Set(bills.map((b) => b.partyId))];
   const extraParties = await ctx.db.execute(sql`
     select a.id from accounts a join account_groups g on g.id = a.group_id
-    where a.company_id = ${ctx.companyId} and g.show_in_outstanding = true and g.nature = ${side === 'receivable' ? 'ASSET' : 'LIABILITY'}
+    where a.company_id = ${ctx.mcId} and g.show_in_outstanding = true and g.nature = ${side === 'receivable' ? 'ASSET' : 'LIABILITY'}
       ${opts.partyId ? sql`and a.id = ${opts.partyId}` : sql``} ${opts.groupId ? sql`and a.group_id = ${opts.groupId}` : sql``}`);
   const sign = side === 'receivable' ? 1 : -1;
   const balRows = await ctx.db.execute(sql`
     select a.id, a.name, a.city, a.area, a.state, a.credit_limit as "creditLimit", a.credit_days as "creditDays", g.name as "groupName", pg.name as "partyGroupName",
       pb.name as "brokerName", psp.name as "salesPersonName", cp.name as "collectionPersonName",
       (case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end)
-        + coalesce((select sum(debit - credit) from ledger_entries e where e.account_id = a.id and e.date <= ${asOn}), 0) as bal
-    from accounts a join account_groups g on g.id = a.group_id left join accounts pg on pg.id = a.party_group_id
-      left join accounts pb on pb.id = a.broker_id left join sales_persons psp on psp.id = a.sales_person_id left join sales_persons cp on cp.id = a.collection_person_id
-    where a.company_id = ${ctx.companyId} and a.id in ${sql.raw('(' + [0, ...partyIds, ...extraParties.rows.map((r: Row) => Number(r.id))].join(',') + ')')}
+        + coalesce((select sum(debit - credit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date <= ${asOn}), 0) as bal
+    from accounts a join account_groups g on g.id = a.group_id left join persons pg on pg.id = a.party_group_id
+      left join persons pb on pb.id = a.broker_id left join persons psp on psp.id = a.sales_person_id left join persons cp on cp.id = a.collection_person_id
+    where a.company_id = ${ctx.mcId} and a.id in ${sql.raw('(' + [0, ...partyIds, ...extraParties.rows.map((r: Row) => Number(r.id))].join(',') + ')')}
       ${opts.brokerId ? sql`and a.broker_id = ${opts.brokerId}` : sql``} ${opts.salesPersonId ? sql`and a.sales_person_id = ${opts.salesPersonId}` : sql``}
       ${opts.collectionPersonId ? sql`and a.collection_person_id = ${opts.collectionPersonId}` : sql``}`);
 

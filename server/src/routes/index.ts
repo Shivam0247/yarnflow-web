@@ -6,7 +6,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { RouteKit } from '../app.js';
 import {
-  accounts, approvalLogs, auditLogs, books, brands, costCenters, godowns, items, salesPersons, transporters, users, vehicles, vouchers
+  accounts, approvalLogs, auditLogs, books, brands, costCenters, godowns, items, persons, transporters, users, vehicles, vouchers
 } from '../db/schema.js';
 import { badRequest, notFound } from '../lib/errors.js';
 import * as admin from '../services/admin.js';
@@ -87,26 +87,27 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
 
   /** everything the entry forms need for their dropdowns, in one call */
   app.get('/api/lookups', read(async (ctx) => {
-    const c = ctx.companyId;
+    const c = ctx.mcId; // masters are shared by the companies of one business
     const acc = await db
       .select({ id: accounts.id, name: accounts.name, kind: accounts.kind, city: accounts.city, area: accounts.area, address1: accounts.address1, mobile: accounts.mobile, contactPerson: accounts.contactPerson, gstin: accounts.gstin, stateCode: accounts.stateCode, creditDays: accounts.creditDays, creditLimit: accounts.creditLimit, brokerId: accounts.brokerId, brokerageRate: accounts.brokerageRate, brokerageType: accounts.brokerageType, transporterId: accounts.transporterId, salesPersonId: accounts.salesPersonId, collectionPersonId: accounts.collectionPersonId, partyGroupId: accounts.partyGroupId, status: accounts.status, groupId: accounts.groupId, tdsApplicable: accounts.tdsApplicable, tdsRate: accounts.tdsRate, tcsApplicable: accounts.tcsApplicable })
       .from(accounts)
       .where(and(eq(accounts.companyId, c), ne(accounts.status, 'INACTIVE')))
       .orderBy(asc(accounts.name));
-    // closing balance (Dr +) for every account in one query
+    // closing balance (Dr +) of every account in the selected company and ledger period, in one query
     const bal = await db.execute<{ id: number; b: string }>(sql`
-      select a.id, (case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end)
-        + coalesce((select sum(debit - credit) from ledger_entries e where e.account_id = a.id), 0) as b
-      from accounts a where a.company_id = ${c}`);
+      select account_id as id, sum(debit - credit) as b from ledger_entries
+      where company_id = ${ctx.companyId} and ledger_period = ${ctx.period} group by account_id`);
     const bm = new Map(bal.rows.map((r) => [Number(r.id), Number(r.b)]));
-    const names = new Map(acc.map((a) => [a.id, a.name]));
-    const company = (await db.execute(sql`select state_code as "stateCode" from companies where id = ${c}`)).rows[0];
-    const accR = acc.map((a) => ({ ...a, balance: Math.round((bm.get(a.id) ?? 0) * 100) / 100, partyGroupName: a.partyGroupId ? names.get(a.partyGroupId) ?? null : null }));
+    const pgNames = new Map((await db.select({ id: persons.id, name: persons.name }).from(persons).where(and(eq(persons.companyId, c), eq(persons.role, 'PARTY_GROUP')))).map((p) => [p.id, p.name]));
+    const company = (await db.execute(sql`select state_code as "stateCode" from companies where id = ${ctx.companyId}`)).rows[0];
+    const accR = acc.map((a) => ({ ...a, balance: Math.round(((bm.get(a.id) ?? 0) + 0) * 100) / 100, partyGroupName: a.partyGroupId ? pgNames.get(a.partyGroupId) ?? null : null }));
     const by = (...k: string[]) => accR.filter((a) => k.includes(a.kind));
     return {
       customers: by('CUSTOMER'),
       suppliers: by('SUPPLIER'),
-      brokers: by('BROKER'),
+      brokerAccounts: by('BROKER'),
+      /** trading parties: every account that is not a book / bank / cash / tax ledger */
+      parties: accR.filter((a) => !['BANK', 'CASH', 'TAX', 'SALES', 'PURCHASE'].includes(a.kind)),
       banks: by('BANK', 'CASH'),
       ledgers: accR,
       companyStateCode: company?.stateCode ?? '24',
@@ -115,8 +116,10 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
       items: await db.select().from(items).where(and(eq(items.companyId, c), eq(items.isActive, true))).orderBy(asc(items.name)),
       brands: await db.select().from(brands).where(eq(brands.companyId, c)).orderBy(asc(brands.name)),
       godowns: await db.select().from(godowns).where(and(eq(godowns.companyId, c), eq(godowns.isActive, true))).orderBy(asc(godowns.name)),
-      collectionPersons: await db.select().from(salesPersons).where(and(eq(salesPersons.companyId, c), eq(salesPersons.isActive, true))).orderBy(asc(salesPersons.name)),
-      salesPersons: await db.select().from(salesPersons).where(and(eq(salesPersons.companyId, c), eq(salesPersons.isActive, true))).orderBy(asc(salesPersons.name)),
+      collectionPersons: await db.select().from(persons).where(and(eq(persons.companyId, c), inArray(persons.role, ['COLLECTOR', 'SALES_PERSON']))).orderBy(asc(persons.name)),
+      salesPersons: await db.select().from(persons).where(and(eq(persons.companyId, c), inArray(persons.role, ['SALES_PERSON', 'COLLECTOR']))).orderBy(asc(persons.name)),
+      brokers: await db.select().from(persons).where(and(eq(persons.companyId, c), eq(persons.role, 'BROKER'), eq(persons.isBlocked, false))).orderBy(asc(persons.name)),
+      partyGroups: await db.select({ id: persons.id, name: persons.name, code: persons.code }).from(persons).where(and(eq(persons.companyId, c), eq(persons.role, 'PARTY_GROUP'))).orderBy(asc(persons.name)),
       costCenters: await db.select().from(costCenters).where(eq(costCenters.companyId, c)).orderBy(asc(costCenters.name)),
       books: await db.select().from(books).where(and(eq(books.companyId, c), eq(books.isActive, true))).orderBy(asc(books.name))
     };
@@ -158,7 +161,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
     const logs = ids.length ? await db.select({ voucherId: approvalLogs.voucherId, action: approvalLogs.action, reason: approvalLogs.reason, at: approvalLogs.at, userName: users.name }).from(approvalLogs).leftJoin(users, eq(users.id, approvalLogs.userId)).where(inArray(approvalLogs.voucherId, ids)).orderBy(asc(approvalLogs.at)) : [];
     const creators = await db.select({ id: users.id, name: users.name }).from(users);
     const balances = new Map<number, number>();
-    for (const r of rows) if (r.partyId && !balances.has(r.partyId)) balances.set(r.partyId, await docs.accountBalance(db, ctx.companyId, r.partyId));
+    for (const r of rows) if (r.partyId && !balances.has(r.partyId)) balances.set(r.partyId, await docs.accountBalance(ctx, r.partyId));
     return rows.map((r) => ({
       ...r,
       slug: TYPES[r.type as VoucherType].slug,
@@ -191,9 +194,9 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   }));
   app.get('/api/accounts/:id/summary', read(async (ctx, req) => {
     const id = idParam(req);
-    const [a] = await db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.companyId, ctx.companyId)));
+    const [a] = await db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.companyId, ctx.mcId)));
     if (!a) throw notFound('Account');
-    const balance = await docs.accountBalance(db, ctx.companyId, id);
+    const balance = await docs.accountBalance(ctx, id);
     const side = a.kind === 'SUPPLIER' ? 'payable' : 'receivable';
     const out = await rep.outstanding(ctx, side, { partyId: id });
     const recent = await db.select({ id: vouchers.id, type: vouchers.type, number: vouchers.number, date: vouchers.date, amount: vouchers.amount, mode: vouchers.mode, netAmount: vouchers.netAmount }).from(vouchers).where(and(eq(vouchers.companyId, ctx.companyId), eq(vouchers.partyId, id))).orderBy(desc(vouchers.date), desc(vouchers.id)).limit(10);

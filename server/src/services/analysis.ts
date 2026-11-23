@@ -73,8 +73,8 @@ export async function salesAnalysis(ctx: Ctx, raw: unknown) {
       count(distinct v.id) filter (where v.type <> ${sql.raw(retType)}) as bills
     from vouchers v join voucher_lines l on l.voucher_id = v.id
       join accounts p on p.id = v.party_id join account_groups g on g.id = p.group_id
-      left join accounts pg on pg.id = p.party_group_id left join items i on i.id = l.item_id
-      left join accounts b on b.id = coalesce(v.broker_id, p.broker_id) left join sales_persons sp on sp.id = coalesce(v.sales_person_id, p.sales_person_id)
+      left join persons pg on pg.id = p.party_group_id left join items i on i.id = l.item_id
+      left join persons b on b.id = coalesce(v.broker_id, p.broker_id) left join persons sp on sp.id = coalesce(v.sales_person_id, p.sales_person_id)
     where v.company_id = ${ctx.companyId} and (v.type in ${sql.raw(inTypes)} or v.type = ${sql.raw(retType)})
       and v.date between ${from} and ${to}
       ${q.partyId ? sql`and v.party_id = ${q.partyId}` : sql``} ${q.itemId ? sql`and l.item_id = ${q.itemId}` : sql``}
@@ -101,7 +101,7 @@ export async function pendingOrders(ctx: Ctx, raw: unknown) {
       coalesce((select sum(c.qty) from voucher_lines c join vouchers cv on cv.id = c.voucher_id where c.order_line_id = l.id and cv.type = ${btype}), 0) as done,
       coalesce((select sum(c.qty) from voucher_lines c join vouchers cv on cv.id = c.voucher_id where c.source_line_id = l.id and cv.type = 'DISPATCH_SCHEDULE' and cv.status <> 'CANCELLED'), 0) as scheduled
     from vouchers v join voucher_lines l on l.voucher_id = v.id join accounts p on p.id = v.party_id left join items i on i.id = l.item_id
-      left join accounts b on b.id = v.broker_id left join sales_persons sp on sp.id = v.sales_person_id
+      left join persons b on b.id = v.broker_id left join persons sp on sp.id = v.sales_person_id
     where v.company_id = ${ctx.companyId} and v.type = ${otype} and v.status in ('OPEN','PARTIAL') and coalesce(l.line_status,'') <> 'CLOSED' and v.date <= ${asOn}
     order by v.date, v.id`);
   const lines = res.rows
@@ -133,12 +133,12 @@ export async function brokerage(ctx: Ctx, raw: unknown) {
   const { from, to } = await range(ctx, q.from, q.to);
   const res = await ctx.db.execute(sql`
     select v.id, v.type, v.number, v.date, p.name as "partyName", b.id as "brokerId", b.name as "brokerName",
-      coalesce(nullif(v.brokerage_rate, 0), p.brokerage_rate, b.brokerage_rate, 0) as rate,
-      coalesce(nullif(v.brokerage_type, ''), b.brokerage_type, 'PER_KG') as "rateType",
+      coalesce(nullif(v.brokerage_rate, 0), nullif(p.brokerage_rate, 0), b.rate, 0) as rate,
+      coalesce(nullif(v.brokerage_type, ''), nullif(p.brokerage_type, ''), 'PER_KG') as "rateType",
       case when v.type = 'SALE_RETURN' then -v.total_qty else v.total_qty end as qty,
       case when v.type = 'SALE_RETURN' then -v.taxable_amount else v.taxable_amount end as taxable,
       (select coalesce(sum(a.amount),0) from bill_allocations a where a.bill_id = v.id) as received, v.net_amount as net
-    from vouchers v join accounts p on p.id = v.party_id join accounts b on b.id = coalesce(v.broker_id, p.broker_id)
+    from vouchers v join accounts p on p.id = v.party_id join persons b on b.id = coalesce(v.broker_id, p.broker_id)
     where v.company_id = ${ctx.companyId} and v.type in ('SALE_BILL','SALE_RETURN') and v.date between ${from} and ${to}
       ${q.brokerId ? sql`and b.id = ${q.brokerId}` : sql``}
     order by b.name, v.date`);
@@ -168,8 +168,8 @@ export async function collections(ctx: Ctx, raw: unknown) {
       coalesce(cp.name, pcp.name, '(not set)') as "collectionPerson", coalesce(psp.name, '(not set)') as "salesPerson", coalesce(b.name, '(direct)') as broker,
       (select coalesce(sum(a.amount),0) from bill_allocations a where a.voucher_id = v.id) as adjusted
     from vouchers v join accounts p on p.id = v.party_id left join accounts ba on ba.id = v.bank_account_id
-      left join sales_persons cp on cp.id = v.collection_person_id left join sales_persons pcp on pcp.id = p.collection_person_id
-      left join sales_persons psp on psp.id = p.sales_person_id left join accounts b on b.id = p.broker_id
+      left join persons cp on cp.id = v.collection_person_id left join persons pcp on pcp.id = p.collection_person_id
+      left join persons psp on psp.id = p.sales_person_id left join persons b on b.id = p.broker_id
     where v.company_id = ${ctx.companyId} and v.type = ${q.side === 'receipts' ? 'RECEIPT' : 'PAYMENT'} and v.date between ${from} and ${to}
     order by v.date, v.id`);
   const rows = res.rows.map((r: Row) => ({ ...r, amount: N(r.amount), adjusted: N(r.adjusted), onAccount: r2(N(r.amount) - N(r.adjusted)) }));
@@ -261,15 +261,15 @@ export async function groupSummary(ctx: Ctx, raw: unknown) {
   const q = z.object({ asOn: z.string().optional(), groupId: z.coerce.number().optional() }).parse(raw ?? {});
   const fy = await loadFy(ctx);
   const asOn = q.asOn ?? fy.endDate;
-  const groups = await ctx.db.select().from(accountGroups).where(eq(accountGroups.companyId, ctx.companyId));
+  const groups = await ctx.db.select().from(accountGroups).where(eq(accountGroups.companyId, ctx.mcId));
   const res = await ctx.db.execute(sql`
     select a.id, a.name, a.group_id as "groupId", g.nature,
       (case when g.nature in ('INCOME','EXPENSE') then 0 else case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end end)
-      + coalesce((select sum(debit - credit) from ledger_entries e where e.account_id = a.id and e.date <= ${asOn}
+      + coalesce((select sum(debit - credit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date <= ${asOn}
           and (g.nature not in ('INCOME','EXPENSE') or e.date >= ${fy.startDate})), 0) as bal,
-      coalesce((select sum(debit) from ledger_entries e where e.account_id = a.id and e.date between ${fy.startDate} and ${asOn}), 0) as dr,
-      coalesce((select sum(credit) from ledger_entries e where e.account_id = a.id and e.date between ${fy.startDate} and ${asOn}), 0) as cr
-    from accounts a join account_groups g on g.id = a.group_id where a.company_id = ${ctx.companyId}`);
+      coalesce((select sum(debit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date between ${fy.startDate} and ${asOn}), 0) as dr,
+      coalesce((select sum(credit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date between ${fy.startDate} and ${asOn}), 0) as cr
+    from accounts a join account_groups g on g.id = a.group_id where a.company_id = ${ctx.mcId}`);
   const accs = res.rows.map((r: Row) => ({ id: Number(r.id), name: r.name as string, groupId: Number(r.groupId), balance: r2(N(r.bal)), debit: r2(N(r.dr)), credit: r2(N(r.cr)) }));
   const children = (pid: number | null) => groups.filter((g) => g.parentId === pid);
   const total = (gid: number): { balance: number; debit: number; credit: number } => {
