@@ -664,7 +664,9 @@ export const ledgerEntries = pgTable(
     contraAccountId: integer('contra_account_id'),
     billNo: varchar('bill_no', { length: 60 }),
     costCenterId: integer('cost_center_id'),
-    legacyCode: varchar('legacy_code', { length: 30 })
+    legacyCode: varchar('legacy_code', { length: 30 }),
+    /** row number of the source line in the archived AccountLedger of that period */
+    legacyRow: integer('legacy_row')
   },
   (t) => [index('ledger_account_date').on(t.accountId, t.date), index('ledger_voucher').on(t.voucherId), index('ledger_company_account').on(t.companyId, t.accountId, t.ledgerPeriod)]
 );

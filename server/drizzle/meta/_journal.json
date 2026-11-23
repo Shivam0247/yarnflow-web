@@ -50,6 +50,13 @@
       "when": 1795437908079,
       "tag": "0006_weights_line_extra",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795439678475,
+      "tag": "0007_ledger_legacy_row",
+      "breakpoints": true
     }
   ]
 }

@@ -39,3 +39,7 @@ BEGIN
        SELECT ''UMIYA20'', (%2$s)::text, to_jsonb(t) - ''_row'' - ''_sha'', t._row, t._sha FROM legacy_umiya20.%1$I t) x
      WHERE k IS NOT NULL ORDER BY k, db DESC', tbl, keyexpr);
 END $$;
+
+-- progress messages from inside a step
+CREATE OR REPLACE FUNCTION mig.note(t text) RETURNS void LANGUAGE plpgsql AS $$
+BEGIN RAISE NOTICE '% %', to_char(clock_timestamp(), 'HH24:MI:SS'), t; END $$;

@@ -35,8 +35,9 @@ meaning**:
 - Every legacy row that carries business data has a home in YarnFlow.
 - Values are converted exactly. Amounts, quantities and dates are checked in
   the reconcile step.
-- Anything not yet modelled is kept in the record's `extra` JSON, so nothing
-  is dropped.
+- Anything not yet modelled stays in the permanent archive, and the record links to
+  its exact original row, so nothing is dropped. Masters also carry their full
+  original row in `extra`.
 
 ## 3a. Zero-difference guarantee (owner's instruction, 23 Nov 2026)
 
@@ -108,9 +109,11 @@ difference. Go-live is allowed only when every difference is exactly 0.
   files, not in one-off scripts. Running the final export means running the same
   command on a new folder:
   `npm run migrate -- --from /path/YarnFlowExport_<date>`.
-- **Unknown data is kept.** Any column with no YarnFlow field yet is not
-  dropped. It goes into the record's `extra` JSON, keyed by the legacy column
-  name, so no value is lost and it can be promoted to a real field later.
+- **Unknown data is kept.** Any column with no YarnFlow field yet stays in the
+  archive (`legacy_umiya20` / `legacy_umiya24`), which is never deleted. Every
+  YarnFlow row links to its archived row (`legacy_refs`, or `legacy_row` on ledger
+  entries), so a value can always be shown or promoted to a real field later.
+  The full row is not duplicated into transaction records, to save space.
 - **The YarnFlow design follows the data.** Tables that actually hold rows
   decide which screens and fields YarnFlow gets. Schema changes are made with
   normal Drizzle migrations, so the database, API and UI stay in sync. Design
