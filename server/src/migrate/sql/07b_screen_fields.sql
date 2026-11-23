@@ -152,3 +152,39 @@ UPDATE public.vouchers v SET
     'modeName', (SELECT name FROM public.lookups WHERE code = rm.j->>'Rec_CheqMode'))
 FROM rm WHERE v.id = rm.id;
 SELECT mig.note('screen fields: receipts and payments');
+
+/* ---------------------------------------------------------------- sales / purchase orders (QuotationMst / QuotationSubMst) */
+CREATE TEMP TABLE qm AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher', 'QuotationMst') r JOIN legacy_umiya20."QuotationMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher', 'QuotationMst') r JOIN legacy_umiya24."QuotationMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+UPDATE public.vouchers v SET
+  mill_id = coalesce(v.mill_id, (SELECT id FROM acc WHERE code = qm.j->>'Sal_SupplierCode')),
+  brokerage_rate = coalesce(nullif(v.brokerage_rate, 0), mig.num(qm.j->>'Sal_BrkKgs'), 0),
+  order_mode = coalesce(v.order_mode, left(mig.s(qm.j->>'Sal_OrdBase'), 20)),
+  ref_name = coalesce(v.ref_name, left(mig.s(qm.j->>'Sal_ReffName'), 120)),
+  -- the old Order Type list (QuotationMst.Sal_OrderType is its position): Yarn, Beam, Spool, Pcs, Taka, Bag, Saree, Job, Stock taka, Stock saree
+  order_type = (ARRAY['Yarn','Beam','Spool','Pcs','Taka','Bag','Saree','Job','Stock taka','Stock saree'])[coalesce(mig.int(qm.j->>'Sal_OrderType'), 0) + 1],
+  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['priority','approved','approvedOn','approvedBy','followUp','netVat','expDelDays']) || pg_temp.jx(
+    'expDelDays', mig.s(qm.j->>'Sal_ExpDelDays'),
+    'priority', mig.s(qm.j->>'Sal_Priority'),
+    'approved', CASE WHEN qm.j->>'Sal_ApproveQuatation' = '1' THEN 'Yes' END,
+    'approvedOn', to_char(mig.d(qm.j->>'Sal_ApproveDt'), 'DD-MM-YYYY'),
+    'approvedBy', mig.s(qm.j->>'Sal_ApproveUserCode'),
+    'followUp', mig.s(qm.j->>'Sal_FollowUpStatus'),
+    'netVat', mig.s(qm.j->>'Sal_NetVat'))
+FROM qm WHERE v.id = qm.id;
+CREATE TEMP TABLE ql AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher_line', 'QuotationSubMst') r JOIN legacy_umiya20."QuotationSubMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher_line', 'QuotationSubMst') r JOIN legacy_umiya24."QuotationSubMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+UPDATE public.voucher_lines l SET extra = (coalesce(l.extra, '{}'::jsonb) - ARRAY['netRate','freeQty','lastRate','avgRate','avgRateGst','grossAmt','closedOn']) || pg_temp.jx(
+    'netRate', mig.s(ql.j->>'Sals_NetRate'),
+    'freeQty', mig.s(ql.j->>'SalS_FreeQty'),
+    'lastRate', mig.s(ql.j->>'SalS_LastRate'),
+    'avgRate', mig.s(ql.j->>'SalS_AvgRate'),
+    'avgRateGst', mig.s(ql.j->>'SalS_AvgRateGst'),
+    'grossAmt', mig.s(ql.j->>'SalS_GrossAmt'),
+    'closedOn', to_char(mig.d(ql.j->>'Sals_CloDate'), 'DD-MM-YYYY'))
+FROM ql WHERE l.id = ql.id;
+SELECT mig.note('screen fields: orders');

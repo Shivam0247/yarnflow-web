@@ -18,7 +18,7 @@ class Component extends DCLogic {
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
   go(h) { try { const a = document.createElement('a'); a.href = h; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {} }
   today() { const t = new Date(); const z = (n) => String(n).padStart(2, '0'); return z(t.getDate()) + '-' + z(t.getMonth() + 1) + '-' + t.getFullYear(); }
-  blank() { return { costCenterId: '', bookId: '', date: this.today(), brokerId: '', brokerageRate: '', brokeragePct: '', partyId: '', deliveryPartyId: '', refNo: '', creditDays: '', millId: '', salesPersonId: '', expDeliveryDate: '', processType: 'Direct dispatch', refName: '', priority: 'NORMAL', transporterId: '', orderType: 'Yarn', addLess: '', remark: '' }; }
+  blank() { return { costCenterId: '', bookId: '', date: this.today(), brokerId: '', brokerageRate: '', brokeragePct: '', partyId: '', deliveryPartyId: '', refNo: '', creditDays: '', millId: '', salesPersonId: '', expDeliveryDate: '', processType: 'Direct dispatch', refName: '', orderMode: 'Direct', expDelDays: '', priority: 'NORMAL', transporterId: '', orderType: 'Yarn', addLess: '', remark: '' }; }
   blankLine() { return { itemId: null, itemName: '', brand: '', lotNo: '', unit: 'Kg', grade: '', pcs: '', qty: '', rate: '', discPct: '', freightPct: '', gstRate: '5', remark1: '', remark2: '', hsn: '' }; }
   isView() { return this.props.mode === 'view'; }
 
@@ -65,7 +65,7 @@ class Component extends DCLogic {
     this.setState({
       doc: d, same: !d.deliveryPartyId,
       f: { costCenterId: s(d.costCenterId), bookId: s(d.bookId), date: dmy(d.date), brokerId: s(d.brokerId), brokerageRate: pct ? '' : s(d.brokerageRate || ''), brokeragePct: pct ? s(d.brokerageRate) : '', partyId: s(d.partyId), deliveryPartyId: s(d.deliveryPartyId),
-        refNo: s(d.refNo), creditDays: s(d.creditDays), millId: s(d.millId), salesPersonId: s(d.salesPersonId), expDeliveryDate: dmy(d.expDeliveryDate), processType: d.processType || 'Direct dispatch', refName: s(d.refName),
+        refNo: s(d.refNo), creditDays: s(d.creditDays), millId: s(d.millId), salesPersonId: s(d.salesPersonId), expDeliveryDate: dmy(d.expDeliveryDate), processType: d.processType || 'Direct dispatch', refName: s(d.refName), orderMode: d.orderMode || 'Direct', expDelDays: s((d.extra || {}).expDelDays),
         priority: d.priority || 'NORMAL', transporterId: s(d.transporterId), orderType: d.orderType || 'Yarn', addLess: d.addLess ? s(d.addLess) : '', remark: s(d.remark) },
       disc: (d.discounts && d.discounts.length ? d.discounts.map((x) => [x.label, s(x.amount)]) : [['Quantity discount', ''], ['Cash discount', ''], ['Rate difference', '']]),
       lines: d.lines.map((l) => ({ id: l.id, itemId: l.itemId, itemName: l.itemName || l.description || '', brand: s(l.brand), lotNo: s(l.lotNo), unit: l.unit === 'KG' ? 'Kg' : s(l.unit), grade: s(l.grade), pcs: s(l.pcs || ''), qty: s(l.qty), rate: s(l.rate),
@@ -118,7 +118,7 @@ class Component extends DCLogic {
     return {
       bookId: id(f.bookId), costCenterId: id(f.costCenterId), date: iso(f.date), partyId: id(f.partyId), deliveryPartyId: st.same === false ? id(f.deliveryPartyId) : null, brokerId: id(f.brokerId),
       brokerageRate: pct || n(f.brokerageRate) || 0, brokerageType: pct ? 'PERCENT' : 'PER_KG', refNo: f.refNo || null, creditDays: n(f.creditDays), millId: id(f.millId), salesPersonId: id(f.salesPersonId),
-      expDeliveryDate: iso(f.expDeliveryDate), processType: f.processType, refName: f.refName || null, priority: f.priority, transporterId: id(f.transporterId), orderType: f.orderType, addLess: n(f.addLess) || 0, remark: f.remark || null,
+      expDeliveryDate: iso(f.expDeliveryDate), processType: f.processType, refName: f.refName || null, orderMode: f.orderMode || null, extra: { expDelDays: String(f.expDelDays || '').trim() }, priority: f.priority, transporterId: id(f.transporterId), orderType: f.orderType, addLess: n(f.addLess) || 0, remark: f.remark || null,
       discounts: st.disc.filter((d) => n(d[1])).map((d) => ({ label: d[0], amount: n(d[1]) })),
       lines: lines.map((l) => ({ itemId: l.itemId, brand: l.brand || null, lotNo: l.lotNo || null, grade: l.grade || null, unit: /^kg$/i.test(l.unit) ? 'KG' : l.unit, pcs: n(l.pcs) || 0, qty: n(l.qty) || 0, rate: n(l.rate) || 0, discPct: n(l.discPct) || 0, freightPct: n(l.freightPct) || 0, gstRate: n(l.gstRate) ?? 5, remark1: l.remark1 || null, remark2: l.remark2 || null }))
     };
@@ -212,17 +212,19 @@ class Component extends DCLogic {
     const pState = hasP && live ? PTY[bi].stateCode : null;
     const inter = !!(pState && lk.companyStateCode && pState !== lk.companyStateCode);
     const stk = st.stk || {};
-    let tPcs = 0, tQty = 0, tBasic = 0, tDisc = 0, tTax = 0, tGst = 0; const rates = new Set();
+    let tPcs = 0, tQty = 0, tBasic = 0, tDisc = 0, tTax = 0, tGst = 0, tFr = 0, tA = 0, tB = 0; const rates = new Set();
     const lines = st.lines.map((l, i) => {
       const qty = num(l.qty), rate = num(l.rate), g = num(l.gstRate);
       const basic = qty * rate; const disc = basic * num(l.discPct) / 100; const fr = (basic - disc) * num(l.freightPct) / 100; const tax = basic - disc + fr;
       const blank = !l.itemName && !l.qty;
-      if (!blank) { tPcs += num(l.pcs); tQty += qty; tBasic += basic; tDisc += disc; tTax += tax; tGst += tax * g / 100; if (g) rates.add(g); }
+      const gv = tax * g / 100; const aa = inter ? gv : gv / 2; const ba = inter ? 0 : gv / 2;
+      if (!blank) { tPcs += num(l.pcs); tQty += qty; tBasic += basic; tDisc += disc; tTax += tax; tGst += gv; tFr += fr; tA += aa; tB += ba; if (g) rates.add(g); }
       const on = {}; ['itemName', 'brand', 'lotNo', 'unit', 'grade', 'pcs', 'qty', 'rate', 'discPct', 'freightPct', 'gstRate', 'remark1', 'remark2'].forEach((k) => { on[k] = (e) => this.setLine(i, k, e.target.value); });
       const have = l.itemId ? stk[l.itemId] : null;
       const stock = l.saved ? 'Dispatched ' + inr(l.doneQty || 0, 3) + ' kg' : blank ? '—' : have != null ? inr(have, 0) + ' kg in stock' : live && l.itemName && !l.itemId ? 'Pick from list' : '—';
       const stc = l.saved || (have != null && have >= qty) ? 'stockok' : blank ? 'muted' : 'tag t-orange';
-      return { ...l, n: i + 1, on, rc: blank ? '' : '', amt: blank ? '—' : inr(tax, 2), stock, stc, avg: blank ? '—' : inr(rate * (1 + g / 100), 2),
+      return { ...l, n: i + 1, on, rc: blank ? '' : '', amt: blank ? '—' : inr(tax, 2), frA: blank ? '—' : inr(fr, 2),
+        ap: blank ? '—' : String(inter ? g : g / 2), aa: blank ? '—' : inr(aa, 2), bp: blank ? '—' : String(inter ? 0 : g / 2), ba: blank ? '—' : inr(ba, 2), stock, stc, avg: blank ? '—' : inr(rate * (1 + g / 100), 2),
         ppcs: l.saved ? String(Math.max(0, Math.round((l.pendingQty ?? qty) / Math.max(1, qty) * num(l.pcs)))) : blank ? '—' : l.pcs || '0', pq: blank ? '—' : inr(l.saved ? l.pendingQty ?? qty : qty, 3),
         st: l.saved ? (l.lineStatus === 'CLOSED' ? 'Closed' : (l.pendingQty ?? qty) <= 0.001 ? 'Clear' : (l.doneQty || 0) > 0 ? 'Partly dispatched' : 'Pending') : blank ? '—' : 'New', hsn: l.hsn || '—' };
     });
@@ -233,7 +235,8 @@ class Component extends DCLogic {
     const am = { q: inr(tQty, 3) + ' kg · ' + inr(tPcs, 0) + ' pcs', gross: '₹ ' + inr(tBasic, 2), disc: '− ₹ ' + inr(tDisc + hdrDisc, 2), tax: '₹ ' + inr(taxable, 2), half: '₹ ' + inr(gst / 2, 2), al: '₹ ' + inr(al, 2), net: '₹ ' + inr(net, 2),
       l1: inter ? 'IGST' + (rate1 != null ? ' ' + rate1 + '%' : '') : 'CGST' + (rate1 != null ? ' ' + rate1 / 2 + '%' : ''), v1: '₹ ' + inr(inter ? gst : gst / 2, 2),
       l2: inter ? 'CGST + SGST' : 'SGST' + (rate1 != null ? ' ' + rate1 / 2 + '%' : ''), v2: '₹ ' + inr(inter ? 0 : gst / 2, 2) };
-    const tt = { pcs: inr(tPcs, 0), qty: inr(tQty, 3), amt: inr(tTax, 2) };
+    const tt = { pcs: inr(tPcs, 0), qty: inr(tQty, 3), amt: inr(tTax, 2), fr: inr(tFr, 2), aa: inr(tA, 2), ba: inr(tB, 2) };
+    const tx = { a: inter ? 'IGST' : 'CGST', b: inter ? '—' : 'SGST' };
 
     // due date
     const due = (() => { const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(f.date || ''); if (!m) return ''; const t = new Date(Date.UTC(+m[3], +m[2] - 1, +m[1] + num(f.creditDays))); const z = (x) => String(x).padStart(2, '0'); return z(t.getUTCDate()) + '-' + z(t.getUTCMonth() + 1) + '-' + t.getUTCFullYear(); })();
@@ -268,7 +271,7 @@ class Component extends DCLogic {
     const saveLabel = st.busy ? 'Saving…' : 'Save for approval';
     return {
       backHref: BK ? BK.href : 'SalesOrderList' + sfx + '.dc.html', backLabel: BK ? BK.label : 'Sales order register',
-      sideKey: isRec ? 'so' : 'soe', regLabel: isRec ? 'Sales order register' : 'Sales Orders', isRec, isNew: !isRec,
+      tx, sideKey: isRec ? 'so' : 'soe', regLabel: isRec ? 'Sales order register' : 'Sales Orders', isRec, isNew: !isRec,
       recTitle: isRec ? recNo : 'New order', recTag: isRec ? stL : 'New', recTagC: isRec ? (TAGC[stL] || 'tag') : 'tag', recNo, recDt: f.date,
       updLabel: st.busy ? 'Saving…' : st.upd ? '✓ Updated' : 'Update order', updNote: st.note || ('Editing ' + recNo), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy,
       doUpdate: () => this.save(false), save: () => this.save(false), savePrint: () => this.save(true), print: () => window.print(), remove: () => this.remove(), saveLabel,
@@ -417,6 +420,28 @@ class SalesOrderEntryView extends Component {
                             </option>
                           </Fragment>
                         ))}
+                      </select>
+                    </div>
+                    <div className="pr">
+                      <label htmlFor="f21">
+                        Ord base
+                      </label>
+                      <select id="f21" className="pv" value={v.f?.orderMode} onChange={v.set?.orderMode}>
+                        <option>
+                          Direct
+                        </option>
+                        <option>
+                          Indent
+                        </option>
+                        <option>
+                          Phone
+                        </option>
+                        <option>
+                          Email
+                        </option>
+                        <option>
+                          Mill portal
+                        </option>
                       </select>
                     </div>
                     <div className="pr">
@@ -597,8 +622,19 @@ class SalesOrderEntryView extends Component {
                       </select>
                     </div>
                     <div className="pr">
+                      <label htmlFor="f22">
+                        Exp. delivery days
+                      </label>
+                      <div className="unit">
+                        <input id="f22" className="pv" type="text" value={v.f?.expDelDays} onChange={v.set?.expDelDays} />
+                        <span>
+                          days
+                        </span>
+                      </div>
+                    </div>
+                    <div className="pr">
                       <label htmlFor="f15">
-                        Exp. delivery
+                        Exp. delivery date
                       </label>
                       <input id="f15" className="pv" type="text" value={v.f?.expDeliveryDate} onChange={v.set?.expDeliveryDate} placeholder="dd-mm-yyyy" />
                     </div>
@@ -883,7 +919,22 @@ class SalesOrderEntryView extends Component {
                           Freight %
                         </th>
                         <th className="r">
+                          Freight ₹
+                        </th>
+                        <th className="r">
                           GST %
+                        </th>
+                        <th className="r">
+                          {v.tx?.a}{" %"}
+                        </th>
+                        <th className="r">
+                          {v.tx?.a}{" ₹"}
+                        </th>
+                        <th className="r">
+                          {v.tx?.b}{" %"}
+                        </th>
+                        <th className="r">
+                          {v.tx?.b}{" ₹"}
                         </th>
                         {v.more ? (
                           <>
@@ -955,8 +1006,23 @@ class SalesOrderEntryView extends Component {
                             <td>
                               <input className="cin r" type="text" aria-label="Freight percent" value={l?.freightPct} onChange={l?.on?.freightPct} style={{"width":"52px"}} />
                             </td>
+                            <td className="r">
+                              {l?.frA}
+                            </td>
                             <td>
                               <input className="cin r" type="text" aria-label="GST percent" value={l?.gstRate} onChange={l?.on?.gstRate} style={{"width":"44px"}} />
+                            </td>
+                            <td className="r">
+                              {l?.ap}
+                            </td>
+                            <td className="r">
+                              {l?.aa}
+                            </td>
+                            <td className="r">
+                              {l?.bp}
+                            </td>
+                            <td className="r">
+                              {l?.ba}
                             </td>
                             {v.more ? (
                               <>
@@ -1014,7 +1080,18 @@ class SalesOrderEntryView extends Component {
                         <td />
                         <td />
                         <td />
+                        <td className="r">
+                          {v.tt?.fr}
+                        </td>
                         <td />
+                        <td />
+                        <td className="r">
+                          {v.tt?.aa}
+                        </td>
+                        <td />
+                        <td className="r">
+                          {v.tt?.ba}
+                        </td>
                         {v.more ? (
                           <>
                             <td />
@@ -1092,7 +1169,31 @@ class SalesOrderEntryView extends Component {
                           Yarn
                         </option>
                         <option>
-                          General
+                          Beam
+                        </option>
+                        <option>
+                          Spool
+                        </option>
+                        <option>
+                          Pcs
+                        </option>
+                        <option>
+                          Taka
+                        </option>
+                        <option>
+                          Bag
+                        </option>
+                        <option>
+                          Saree
+                        </option>
+                        <option>
+                          Job
+                        </option>
+                        <option>
+                          Stock taka
+                        </option>
+                        <option>
+                          Stock saree
                         </option>
                       </select>
                     </div>

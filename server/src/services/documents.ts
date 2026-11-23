@@ -815,16 +815,29 @@ export async function updateDoc(ctx: Ctx, def: TypeDef, id: number, raw: unknown
   const number = input.number?.trim() || old.number;
   await ctx.db
     .update(vouchers)
-    .set({ ...(p.header as object), bookId: (p.header.bookId as number) ?? old.bookId, number, status: status as never, updatedById: ctx.userId, updatedAt: new Date() } as never)
+    .set({ ...(p.header as object), extra: mergeExtra(old.extra, p.header.extra), bookId: (p.header.bookId as number) ?? old.bookId, number, status: status as never, updatedById: ctx.userId, updatedAt: new Date() } as never)
     .where(eq(vouchers.id, id));
   const [v] = await ctx.db.select().from(vouchers).where(eq(vouchers.id, id));
-  const lines = p.lines.length ? await ctx.db.insert(voucherLines).values(p.lines.map((l) => ({ ...l, voucherId: id })) as never).returning() : [];
+  // a line still in its place (same item) keeps the fields the screen does not show (e.g. the old software's own values)
+  oldLines.sort((x, y) => x.lineNo - y.lineNo);
+  const kept = p.lines.map((l, i) => {
+    const o = oldLines[i];
+    return o && o.itemId === (l as { itemId?: number | null }).itemId ? { ...l, extra: mergeExtra(o.extra, (l as { extra?: unknown }).extra) } : l;
+  });
+  const lines = kept.length ? await ctx.db.insert(voucherLines).values(kept.map((l) => ({ ...l, voucherId: id })) as never).returning() : [];
   await post(ctx, def, v, lines);
   await insertAllocations(ctx, def, v, p.allocations);
   if (status === 'PENDING_APPROVAL' && old.status !== 'PENDING_APPROVAL') await ctx.db.insert(approvalLogs).values({ voucherId: id, action: 'SUBMITTED', reason: p.approvalReasons.join('; '), userId: ctx.userId });
   await refreshStatuses(ctx.db, [...p.touchedOrders, ...[...oldSources.values()].map((s) => s.voucherId), ...(await orderVouchersOf(ctx.db, oldLines.map((l) => l.orderLineId))), id]);
   await audit(ctx, def.slug, id, 'UPDATE', `${def.label} ${number} updated`);
   return getDoc(ctx, def, id);
+}
+
+/** saved extra fields stay unless the screen sends a new value; an empty value clears one */
+function mergeExtra(old: unknown, next: unknown): Record<string, unknown> | null {
+  const m: Record<string, unknown> = { ...((old as Record<string, unknown>) ?? {}), ...((next as Record<string, unknown>) ?? {}) };
+  for (const k of Object.keys(m)) if (m[k] === '' || m[k] === null) delete m[k];
+  return Object.keys(m).length ? m : null;
 }
 
 export async function deleteDoc(ctx: Ctx, def: TypeDef, id: number) {

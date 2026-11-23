@@ -242,12 +242,13 @@ class Component extends DCLogic {
       const on = {}; ['itemName', 'brand', 'lotNo', 'grade', 'pcs', 'qty', 'rate', 'freightPct', 'remark1'].forEach((k) => { on[k] = (e) => this.setLine(i, k, e.target.value); });
       const have = l.itemId ? stk[l.itemId] : null;
       const stock = l.saved ? 'Received ' + inr(l.doneQty || 0, 3) + ' kg' : blank ? '—' : have != null ? inr(have, 0) + ' kg' : live && l.itemName && !l.itemId ? 'Pick from list' : '—';
-      return { ...l, n: i + 1, on, amt: blank ? '—' : inr(tax, 2), stock, stc: blank ? 'muted' : l.saved ? 't2' : live && l.itemName && !l.itemId ? 'tag t-orange' : 't2',
+      return { ...l, n: i + 1, on, amt: blank ? '—' : inr(tax, 2), frA: blank ? '—' : inr(fr, 2), ap: blank ? '—' : String(inter ? g : g / 2), bp: blank ? '—' : String(inter ? 0 : g / 2), stock, stc: blank ? 'muted' : l.saved ? 't2' : live && l.itemName && !l.itemId ? 'tag t-orange' : 't2',
         t1: blank ? '—' : inr(inter ? gst : gst / 2, 2), t2: blank ? '—' : inr(inter ? 0 : gst / 2, 2), avg: blank ? '—' : inr(rate * (1 + g / 100), 2), pq: blank ? '—' : inr(pq, 3),
         st: l.saved ? (l.lineStatus === 'CLOSED' ? 'Closed' : pq <= 0.001 ? 'Clear' : (l.doneQty || 0) > 0 ? 'Part received' : 'Pending') : blank ? '—' : 'New', hsn: l.hsn || '—' };
     });
     const al = num(f.addLess); const net = Math.round(tTax + tGst + al);
-    const tt = { pcs: inr(tPcs, 0), qty: inr(tQty, 3), t1: inr(inter ? tGst : tGst / 2, 2), t2: inr(inter ? 0 : tGst / 2, 2), amt: inr(tTax, 2), pq: inr(tPq, 3) };
+    const gx = { a: inter ? 'IGST' : 'CGST', b: inter ? '—' : 'SGST' };
+    const tt = { fr: inr(tFr, 2), pcs: inr(tPcs, 0), qty: inr(tQty, 3), t1: inr(inter ? tGst : tGst / 2, 2), t2: inr(inter ? 0 : tGst / 2, 2), amt: inr(tTax, 2), pq: inr(tPq, 3) };
     const am = { q: inr(tQty, 3) + ' kg · ' + inr(tPcs, 0) + ' pcs', gross: '₹ ' + inr(tBasic, 2), fr: '₹ ' + inr(tFr, 2), gl: inter ? 'IGST' : 'CGST + SGST', gst: '₹ ' + inr(tGst, 2), al: '₹ ' + inr(al, 2), net: '₹ ' + inr(net, 2) };
     const txRows = [];
     Object.keys(hsnT).forEach((k) => { const [h, g] = k.split('|'); const v = hsnT[k]; txRows.push({ l: 'HSN ' + h + ' · taxable', v: '₹ ' + inr(v, 2) });
@@ -295,7 +296,7 @@ class Component extends DCLogic {
     const BK = st.back;
     return {
       backHref: BK ? BK.href : 'PurchaseOrderList' + sfx + '.dc.html', backLabel: BK ? BK.label : 'Purchase order register',
-      sideKey: isRec ? 'po' : 'poe', regLabel: isRec ? 'Purchase order register' : 'Purchase Orders', isRec, isNew: !isRec,
+      gx, sideKey: isRec ? 'po' : 'poe', regLabel: isRec ? 'Purchase order register' : 'Purchase Orders', isRec, isNew: !isRec,
       recTitle: isRec ? recNo : 'New order', recTag: isRec ? stL : 'New', recTagC: isRec ? (TAGC[stL] || 'tag') : 'tag', recNo, recDt: f.date,
       updLabel: st.busy ? 'Saving…' : st.upd ? '✓ Updated' : 'Update order', updNote: st.note || ('Editing ' + recNo), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy,
       doUpdate: () => this.save(false), save: () => this.save(false), saveSend: () => this.save(true), print: () => window.print(), remove: () => this.remove(), saveLabel: st.busy ? 'Saving…' : 'Save for approval',
@@ -511,6 +512,12 @@ class PurchaseOrderEntryView extends Component {
                         Order mode
                       </label>
                       <select id="p11" className="pv" value={v.f?.orderMode} onChange={v.set?.orderMode}>
+                        <option>
+                          Direct
+                        </option>
+                        <option>
+                          Indent
+                        </option>
                         <option>
                           Phone
                         </option>
@@ -931,10 +938,19 @@ class PurchaseOrderEntryView extends Component {
                           Freight %
                         </th>
                         <th className="r">
-                          CGST
+                          Freight ₹
                         </th>
                         <th className="r">
-                          SGST
+                          {v.gx?.a}{" %"}
+                        </th>
+                        <th className="r">
+                          {v.gx?.a}{" ₹"}
+                        </th>
+                        <th className="r">
+                          {v.gx?.b}{" %"}
+                        </th>
+                        <th className="r">
+                          {v.gx?.b}{" ₹"}
                         </th>
                         {v.more ? (
                           <>
@@ -995,7 +1011,16 @@ class PurchaseOrderEntryView extends Component {
                               <input className="cin r" type="text" aria-label="Freight percent" value={l?.freightPct} onChange={l?.on?.freightPct} style={{"width":"52px"}} />
                             </td>
                             <td className="r">
+                              {l?.frA}
+                            </td>
+                            <td className="r">
+                              {l?.ap}
+                            </td>
+                            <td className="r">
                               {l?.t1}
+                            </td>
+                            <td className="r">
+                              {l?.bp}
                             </td>
                             <td className="r">
                               {l?.t2}
@@ -1049,8 +1074,13 @@ class PurchaseOrderEntryView extends Component {
                         <td />
                         <td />
                         <td className="r">
+                          {v.tt?.fr}
+                        </td>
+                        <td />
+                        <td className="r">
                           {v.tt?.t1}
                         </td>
+                        <td />
                         <td className="r">
                           {v.tt?.t2}
                         </td>
@@ -1131,7 +1161,31 @@ class PurchaseOrderEntryView extends Component {
                           Yarn
                         </option>
                         <option>
-                          General
+                          Beam
+                        </option>
+                        <option>
+                          Spool
+                        </option>
+                        <option>
+                          Pcs
+                        </option>
+                        <option>
+                          Taka
+                        </option>
+                        <option>
+                          Bag
+                        </option>
+                        <option>
+                          Saree
+                        </option>
+                        <option>
+                          Job
+                        </option>
+                        <option>
+                          Stock taka
+                        </option>
+                        <option>
+                          Stock saree
                         </option>
                       </select>
                     </div>
