@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One-time setup of YarnFlow on a fresh Ubuntu server (22.04 / 24.04). Run as root:
-#   git clone https://github.com/Shivam0247/yarnflow-web.git && cd yarnflow-web/deploy && sudo ./setup.sh erp.yourcompany.in
+#   git clone https://github.com/Shivam0247/yarnflow-web.git && cd yarnflow-web/deploy && sudo bash setup.sh erp.yourcompany.in
 # With no domain it serves plain http on the server's IP (use a domain for HTTPS).
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -27,7 +27,7 @@ if command -v ufw >/dev/null; then ufw allow OpenSSH >/dev/null; ufw allow 80/tc
 echo "› Building and starting YarnFlow…"
 docker compose up -d --build
 # nightly database backup at 02:30, keeping 14 days
-( crontab -l 2>/dev/null | grep -v yarnflow-backup; echo "30 2 * * * $(pwd)/backup.sh >> $(pwd)/backups/backup.log 2>&1 # yarnflow-backup" ) | crontab -
+( crontab -l 2>/dev/null | grep -v yarnflow-backup; echo "30 2 * * * bash $(pwd)/backup.sh >> $(pwd)/backups/backup.log 2>&1 # yarnflow-backup" ) | crontab -
 if [ -n "$DOMAIN" ]; then URL="https://$DOMAIN"; else URL="http://$(curl -s https://api.ipify.org || echo SERVER-IP)"; fi
 echo "✓ YarnFlow is running: $URL"
-echo "  Next: copy the old software's export folder to $(pwd)/export and run ./load-data.sh"
+echo "  Next: copy the old software's export folder to $(pwd)/export and run: bash load-data.sh"

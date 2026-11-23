@@ -15,18 +15,18 @@ rsync -av --progress --exclude '._*' /Volumes/SanDisk/YarnFlowExport_20261123_17
 ## 2. Start YarnFlow (on the server)
 ```
 ssh root@SERVER_IP
-cd /opt/yarnflow/deploy && ./setup.sh erp.yourcompany.in     # or ./setup.sh with no domain → http on the IP
+cd /opt/yarnflow/deploy && bash setup.sh erp.yourcompany.in     # or bash setup.sh with no domain → http on the IP
 ```
 It prints the administrator password (also kept in `deploy/.env`).
 For HTTPS, point the domain's DNS A record at SERVER_IP first.
 
 ## 3. Load the old software's data
 ```
-cd /opt/yarnflow/deploy && ./load-data.sh
+cd /opt/yarnflow/deploy && bash load-data.sh
 ```
 About 1–1½ hours. Report: `deploy/reports/migration-report.html`. Run it again later with a fresh export to re-load.
 
 ## Everyday
 - Update the app: copy the new code (step 1, first command) then `docker compose up -d --build`
 - Logs: `docker compose logs -f app`
-- Backup now: `./backup.sh` · Restore: `docker compose exec -T db pg_restore -U yarnflow -d yarnflow --clean < backups/FILE.dump`
+- Backup now: `bash backup.sh` · Restore: `docker compose exec -T db pg_restore -U yarnflow -d yarnflow --clean < backups/FILE.dump`
