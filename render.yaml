@@ -1,0 +1,25 @@
+# Render Blueprint: YarnFlow web service (Docker) + PostgreSQL 16 in the same region.
+# Render → New → Blueprint → pick this repo. Choose plans in the Render dashboard
+# (the database needs ~30 GB storage for the migrated data).
+databases:
+  - name: yarnflow-db
+    region: singapore
+    postgresMajorVersion: "16"
+    databaseName: yarnflow
+    user: yarnflow
+services:
+  - type: web
+    name: yarnflow
+    runtime: docker
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: yarnflow-db, property: connectionString }
+      - key: JWT_SECRET
+        generateValue: true
+      - key: YF_ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://yarnflow.onrender.com
