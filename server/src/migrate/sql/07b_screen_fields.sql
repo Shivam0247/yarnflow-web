@@ -50,3 +50,45 @@ UPDATE public.voucher_lines l SET extra = (coalesce(l.extra, '{}'::jsonb) - ARRA
     'grossAmt', mig.s(pl.j->>'Pur_GrossAmt'))
 FROM pl WHERE l.id = pl.id;
 SELECT mig.note('screen fields: purchase bills');
+
+/* ---------------------------------------------------------------- sale bills (SalesMst / SalesSubMst) */
+CREATE TEMP TABLE per AS SELECT code, name FROM public.persons WHERE company_id = 1;
+CREATE UNIQUE INDEX ON per (code); ANALYZE per;
+CREATE TEMP TABLE sm AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher', 'SalesMst') r JOIN legacy_umiya20."SalesMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher', 'SalesMst') r JOIN legacy_umiya24."SalesMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+UPDATE public.vouchers v SET
+  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['partyGroup','supplier','avgRate','netVat','gstTranType','cashCustomer','godownCompany']) || pg_temp.jx(
+    'partyGroup', (SELECT name FROM per WHERE code = sm.j->>'Sal_Mistry'),
+    'supplier', (SELECT name FROM acc WHERE code = sm.j->>'Sal_Supplier'),
+    'avgRate', mig.s(sm.j->>'Sal_AvgRate'),
+    'netVat', mig.s(sm.j->>'Sal_NetVat'),
+    'gstTranType', mig.s(sm.j->>'Sal_GstTranType'),
+    'cashCustomer', mig.s(sm.j->>'Sal_CashCusAdd'),
+    'godownCompany', (SELECT name FROM per WHERE code = sm.j->>'Sal_Godown'))
+FROM sm WHERE v.id = sm.id;
+CREATE TEMP TABLE sl AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher_line', 'SalesSubMst') r JOIN legacy_umiya20."SalesSubMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher_line', 'SalesSubMst') r JOIN legacy_umiya24."SalesSubMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+-- the old sale screen keeps freight in the Ar columns and TCS in the M columns of the line
+UPDATE public.voucher_lines l SET
+  freight_pct = coalesce(nullif(mig.num0(sl.j->>'Sals_ArPer'), 0), l.freight_pct),
+  freight_amount = coalesce(nullif(mig.num0(sl.j->>'Sals_ArAmt'), 0), l.freight_amount),
+  tcs_amount = coalesce(nullif(mig.num0(sl.j->>'Sals_MAmt'), 0), l.tcs_amount),
+  purchase_ref = coalesce(left(mig.s(sl.j->>'SalS_Com'), 40), l.purchase_ref),
+  purchase_inv_no = coalesce(left(mig.s(sl.j->>'SalS_To'), 40), l.purchase_inv_no),
+  extra = (coalesce(l.extra, '{}'::jsonb) - ARRAY['tcsPct','boxType','bomId','purchaseCode','orderId','avgRate','avgRateGst','grossAmt','brokeragePct','jobHsn']) || pg_temp.jx(
+    'tcsPct', mig.s(sl.j->>'Sals_MPer'),
+    'boxType', mig.s(sl.j->>'Sals_Boxtype'),
+    'bomId', mig.s(sl.j->>'SalS_BomId'),
+    'purchaseCode', mig.s(sl.j->>'Sals_PurCodeMain'),
+    'orderId', mig.s(sl.j->>'Sals_OrderId'),
+    'avgRate', mig.s(sl.j->>'SalS_AvgRate'),
+    'avgRateGst', mig.s(sl.j->>'SalS_AvgRateGst'),
+    'grossAmt', mig.s(sl.j->>'SalS_GrossAmt'),
+    'brokeragePct', mig.s(sl.j->>'SalS_BrkRagePer'),
+    'jobHsn', mig.s(sl.j->>'SalS_JobHsn'))
+FROM sl WHERE l.id = sl.id;
+SELECT mig.note('screen fields: sale bills');

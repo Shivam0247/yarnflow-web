@@ -107,3 +107,8 @@ UPDATE public.vouchers v SET source_id = x.src FROM (
   WHERE l.source_line_id IS NOT NULL OR l.order_line_id IS NOT NULL GROUP BY l.voucher_id) x
 WHERE v.id = x.voucher_id AND v.source_id IS NULL;
 SELECT mig.note('tidy: bills linked to their orders and challans');
+
+-- 6. books: the old "display" flag is not "in use" — a book used in the current books (UMIYA24 period) stays selectable
+UPDATE public.books b SET is_active = true
+WHERE NOT b.is_active AND EXISTS (SELECT 1 FROM public.vouchers v WHERE v.book_id = b.id AND v.ledger_period = 24);
+SELECT mig.note('tidy: books in use active');
