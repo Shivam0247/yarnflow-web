@@ -8,7 +8,8 @@ export type VoucherType =
   | 'SALES_ORDER' | 'PURCHASE_ORDER' | 'DISPATCH_SCHEDULE' | 'SALE_BILL' | 'PURCHASE_BILL'
   | 'SALE_RETURN' | 'PURCHASE_RETURN' | 'GENERAL_SALE' | 'GENERAL_PURCHASE'
   | 'RECEIPT' | 'PAYMENT' | 'CONTRA' | 'JOURNAL' | 'DEBIT_NOTE' | 'CREDIT_NOTE'
-  | 'STOCK_TRANSFER' | 'OPENING_STOCK';
+  | 'STOCK_TRANSFER' | 'OPENING_STOCK'
+  | 'RECEIPT_RETURN' | 'PAYMENT_RETURN' | 'INTEREST_DEBIT_NOTE' | 'PENDING_ADJUSTMENT' | 'OPENING_BALANCE';
 
 export type Area = 'sales' | 'purchase' | 'accounts' | 'stock';
 /** How a document hits the ledger */
@@ -69,7 +70,17 @@ export const TYPES: Record<VoucherType, TypeDef> = {
    *  from a supplier (their extra charges) it is a payable bill. */
   CREDIT_NOTE: { type: 'CREDIT_NOTE', slug: 'credit-notes', label: 'Credit note', area: 'accounts', prefix: 'CN', party: 'any', lines: 'item', tax: true, posting: 'note', stock: 0, sources: [], write: ACCOUNTS },
   STOCK_TRANSFER: { type: 'STOCK_TRANSFER', slug: 'stock-transfers', label: 'Godown transfer', area: 'stock', prefix: 'ST', party: 'none', lines: 'item', tax: false, posting: 'none', stock: 2, sources: [], write: STOCK },
-  OPENING_STOCK: { type: 'OPENING_STOCK', slug: 'opening-stock', label: 'Opening stock', area: 'stock', prefix: 'OS', party: 'none', lines: 'item', tax: false, posting: 'none', stock: 1, sources: [], write: STOCK }
+  OPENING_STOCK: { type: 'OPENING_STOCK', slug: 'opening-stock', label: 'Opening stock', area: 'stock', prefix: 'OS', party: 'none', lines: 'item', tax: false, posting: 'none', stock: 1, sources: [], write: STOCK },
+  /** cheque returned (bounced): reverses a receipt — party debited again, bank credited */
+  RECEIPT_RETURN: { type: 'RECEIPT_RETURN', slug: 'receipt-returns', label: 'Receipt return', area: 'accounts', prefix: 'RR', party: 'any', lines: 'none', tax: false, posting: 'payment', stock: 0, sources: [], write: ACCOUNTS },
+  /** our cheque returned: reverses a payment — bank debited, party credited */
+  PAYMENT_RETURN: { type: 'PAYMENT_RETURN', slug: 'payment-returns', label: 'Payment return', area: 'accounts', prefix: 'PRT', party: 'any', lines: 'none', tax: false, posting: 'receipt', stock: 0, sources: [], write: ACCOUNTS },
+  /** interest debit notes made by the old software's automatic interest run (new ones are made from the interest report as debit notes) */
+  INTEREST_DEBIT_NOTE: { type: 'INTEREST_DEBIT_NOTE', slug: 'interest-debit-notes', label: 'Interest debit note', area: 'accounts', prefix: 'IDN', party: 'customer', lines: 'item', tax: true, posting: 'none', stock: 0, sources: [], bill: 'receivable', write: [] },
+  /** pending adjustments of the old software (bill against bill / on-account settlement) */
+  PENDING_ADJUSTMENT: { type: 'PENDING_ADJUSTMENT', slug: 'pending-adjustments', label: 'Pending adjustment', area: 'accounts', prefix: 'PA', party: 'any', lines: 'none', tax: false, posting: 'none', stock: 0, sources: [], write: [] },
+  /** opening balances brought in when a year / database began */
+  OPENING_BALANCE: { type: 'OPENING_BALANCE', slug: 'opening-balances', label: 'Opening balances', area: 'accounts', prefix: 'OB', party: 'none', lines: 'journal', tax: false, posting: 'none', stock: 0, sources: [], write: [] }
 };
 
 export const BY_SLUG: Record<string, TypeDef> = Object.fromEntries(Object.values(TYPES).map((t) => [t.slug, t]));
@@ -77,17 +88,17 @@ export const BY_SLUG: Record<string, TypeDef> = Object.fromEntries(Object.values
 /** documents that never touch the ledger keep their status in the order workflow */
 export const ORDER_TYPES: VoucherType[] = ['SALES_ORDER', 'PURCHASE_ORDER', 'DISPATCH_SCHEDULE'];
 export const BILL_TYPES = {
-  receivable: ['SALE_BILL', 'GENERAL_SALE', 'DEBIT_NOTE'] as VoucherType[],
+  receivable: ['SALE_BILL', 'GENERAL_SALE', 'DEBIT_NOTE', 'INTEREST_DEBIT_NOTE'] as VoucherType[],
   payable: ['PURCHASE_BILL', 'GENERAL_PURCHASE', 'CREDIT_NOTE'] as VoucherType[]
 };
 
 /** is this voucher a bill that carries outstanding on that side? (notes depend on the party) */
 export function isBill(type: string, partyKind: string | null | undefined, side: 'receivable' | 'payable') {
-  if (side === 'receivable') return type === 'SALE_BILL' || type === 'GENERAL_SALE' || (type === 'DEBIT_NOTE' && partyKind !== 'SUPPLIER');
+  if (side === 'receivable') return type === 'SALE_BILL' || type === 'GENERAL_SALE' || type === 'INTEREST_DEBIT_NOTE' || (type === 'DEBIT_NOTE' && partyKind !== 'SUPPLIER');
   return type === 'PURCHASE_BILL' || type === 'GENERAL_PURCHASE' || (type === 'CREDIT_NOTE' && partyKind === 'SUPPLIER');
 }
 /** SQL condition (v = vouchers, p = party account) for bills of a side */
 export const BILL_SQL = {
-  receivable: "(v.type in ('SALE_BILL','GENERAL_SALE') or (v.type = 'DEBIT_NOTE' and p.kind <> 'SUPPLIER'))",
+  receivable: "(v.type in ('SALE_BILL','GENERAL_SALE','INTEREST_DEBIT_NOTE') or (v.type = 'DEBIT_NOTE' and p.kind <> 'SUPPLIER'))",
   payable: "(v.type in ('PURCHASE_BILL','GENERAL_PURCHASE') or (v.type = 'CREDIT_NOTE' and p.kind = 'SUPPLIER'))"
 };

@@ -49,17 +49,17 @@ INSERT INTO src_alloc SELECT 'UMIYA20', 'PendingAdjustmentSubMst', 'PENDING', "O
   mig.num0("OthS_Amount"), NULL, NULL, mig.d("OthS_Date"), to_jsonb(t) - '_row' - '_sha', _row, _sha FROM legacy_umiya20."PendingAdjustmentSubMst" t;
 INSERT INTO src_alloc SELECT 'UMIYA24', 'PendingAdjustmentSubMst', 'PENDING', "OthS_Code", "OthS_BillCode", mig.int("OthS_ComCode"), "OthS_PCode",
   mig.num0("OthS_Amount"), NULL, NULL, mig.d("OthS_Date"), to_jsonb(t) - '_row' - '_sha', _row, _sha FROM legacy_umiya24."PendingAdjustmentSubMst" t;
--- amounts already paid before the database began (carried-forward bills of each database)
+-- amounts already paid before the database began (OpPaidAmt; the old outstanding subtracts it on every bill)
 INSERT INTO src_alloc SELECT db, tbl, 'OPENING_PAID', NULL, code, comp, coalesce(j->>'Sal_Pcode', j->>'Pur_Pcode'),
   coalesce(mig.num(j->>'Sal_OpPaidAmt'), mig.num(j->>'Pur_OpPaidAmt')), NULL, NULL, NULL, NULL, _row, _sha
 FROM (SELECT 'UMIYA20' AS db, 'SalesMst' AS tbl, "Sal_Code" AS code, mig.int("ComCode") AS comp, to_jsonb(t) AS j, _row, _sha FROM legacy_umiya20."SalesMst" t
-        WHERE "Sal_IsLastYearEntry" = '1' AND mig.num("Sal_OpPaidAmt") <> 0
+        WHERE mig.num("Sal_OpPaidAmt") <> 0
       UNION ALL SELECT 'UMIYA24', 'SalesMst', "Sal_Code", mig.int("ComCode"), to_jsonb(t), _row, _sha FROM legacy_umiya24."SalesMst" t
-        WHERE "Sal_IsLastYearEntry" = '1' AND mig.num("Sal_OpPaidAmt") <> 0
+        WHERE mig.num("Sal_OpPaidAmt") <> 0
       UNION ALL SELECT 'UMIYA20', 'PurchaseMst', "Pur_Code", mig.int("ComCode"), to_jsonb(t), _row, _sha FROM legacy_umiya20."PurchaseMst" t
-        WHERE "Pur_IsLastYearEntry" = '1' AND mig.num("Pur_OpPaidAmt") <> 0
+        WHERE mig.num("Pur_OpPaidAmt") <> 0
       UNION ALL SELECT 'UMIYA24', 'PurchaseMst', "Pur_Code", mig.int("ComCode"), to_jsonb(t), _row, _sha FROM legacy_umiya24."PurchaseMst" t
-        WHERE "Pur_IsLastYearEntry" = '1' AND mig.num("Pur_OpPaidAmt") <> 0) x;
+        WHERE mig.num("Pur_OpPaidAmt") <> 0) x;
 ANALYZE src_alloc;
 SELECT mig.note('allocations: sources collected');
 

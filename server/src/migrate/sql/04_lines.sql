@@ -44,7 +44,8 @@ SELECT mig.note('lines: sources collected');
 -- kept on a cancelled document of their own so no row is lost; they never touch the ledger
 CREATE TEMP TABLE orphan AS
 SELECT DISTINCT ON (l.db, l.doc_tbl, l.doc_code) l.db, l.doc_tbl, l.doc_code, l.j
-FROM src_line l WHERE NOT EXISTS (SELECT 1 FROM mig.vmap v WHERE v.db = l.db AND v.tbl = l.doc_tbl AND v.code = l.doc_code)
+FROM src_line l WHERE l.tbl NOT IN ('JVMst', 'DispatchMst')  -- journal rows ARE the document (GST/TDS rows attached to bills are ledger entries)
+  AND NOT EXISTS (SELECT 1 FROM mig.vmap v WHERE v.db = l.db AND v.tbl = l.doc_tbl AND v.code = l.doc_code)
   AND NOT (l.db = 'UMIYA24' AND EXISTS (SELECT 1 FROM public.legacy_refs r WHERE r.entity = 'voucher_copy' AND r.legacy_db = 'UMIYA24' AND r.legacy_table = l.doc_tbl AND r.legacy_key = l.doc_code))
 ORDER BY l.db, l.doc_tbl, l.doc_code, l.line_no;
 WITH ins AS (

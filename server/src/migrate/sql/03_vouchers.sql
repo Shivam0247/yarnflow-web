@@ -80,6 +80,24 @@ SELECT s.*, o._row AS orig_row FROM src_doc s
 JOIN src_doc o ON o.db = 'UMIYA20' AND o.tbl = s.tbl AND o.code = s.code AND o.comp IS NOT DISTINCT FROM s.comp
 WHERE s.db = 'UMIYA24' AND (mig.b(s.j->>'Sal_IsLastYearEntry') OR mig.b(s.j->>'Pur_IsLastYearEntry') OR mig.b(s.j->>'Jv_IsLastYear'));
 ANALYZE cf;
+-- a copy that was changed in UMIYA24 after it was carried (amount, party, date or type differ from the
+-- UMIYA20 original) is NOT a copy any more: it stays a UMIYA24 document of its own, so each database's
+-- figures remain exactly what that database had
+DELETE FROM cf c USING src_doc o
+WHERE o.db = 'UMIYA20' AND o.tbl = c.tbl AND o._row = c.orig_row AND c.tbl IN ('SalesMst', 'PurchaseMst')
+  AND (mig.num0(coalesce(c.j->>'Sal_NetAmt', c.j->>'Pur_NetAmt')) <> mig.num0(coalesce(o.j->>'Sal_NetAmt', o.j->>'Pur_NetAmt'))
+    OR coalesce(c.j->>'Sal_Pcode', c.j->>'Pur_Pcode', '') <> coalesce(o.j->>'Sal_Pcode', o.j->>'Pur_Pcode', '')
+    OR mig.d(coalesce(c.j->>'Sal_Date', c.j->>'Pur_Date')) IS DISTINCT FROM mig.d(coalesce(o.j->>'Sal_Date', o.j->>'Pur_Date'))
+    OR c.ftype IS DISTINCT FROM o.ftype);
+CREATE TEMP TABLE jvsig AS
+SELECT db, "JV_Code" || '/' || "ComCode" AS code, string_agg(coalesce("JV_Pcode", '') || ':' || mig.num0("JV_Amt")::text || ':' || coalesce("Jv_DC", ''), ',' ORDER BY "JV_Pcode", mig.num0("JV_Amt"), "Jv_DC") AS sig
+FROM (SELECT 'UMIYA20' AS db, "JV_Code", "ComCode", "JV_Pcode", "JV_Amt", "Jv_DC" FROM legacy_umiya20."JVMst"
+      UNION ALL SELECT 'UMIYA24', "JV_Code", "ComCode", "JV_Pcode", "JV_Amt", "Jv_DC" FROM legacy_umiya24."JVMst") x
+WHERE "JV_Code" || '/' || "ComCode" IN (SELECT code FROM cf WHERE tbl = 'JVMst')
+GROUP BY 1, 2;
+DELETE FROM cf c WHERE c.tbl = 'JVMst'
+  AND (SELECT sig FROM jvsig WHERE db = 'UMIYA24' AND code = c.code) IS DISTINCT FROM (SELECT sig FROM jvsig WHERE db = 'UMIYA20' AND code = c.code);
+SELECT mig.note('carried-forward copies: ' || (SELECT count(*) FROM cf) || ' identical to their UMIYA20 original');
 DELETE FROM src_doc s USING cf WHERE s.db = cf.db AND s.tbl = cf.tbl AND s._row = cf._row;
 
 SELECT mig.note('carried-forward copies separated');
