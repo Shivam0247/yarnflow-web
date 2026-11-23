@@ -354,7 +354,10 @@ export async function createMaster(ctx: Ctx, def: MasterDef, raw: unknown) {
 export async function updateMaster(ctx: Ctx, def: MasterDef, id: number, raw: unknown) {
   requireRole(ctx, def.write, `edit a ${def.label.toLowerCase()}`);
   const existing = (await getMaster(ctx, def, id)) as Record<string, unknown>;
-  let data = def.schema.partial().parse(raw) as Record<string, unknown>;
+  // a schema wrapped in a pre-processing step (persons: "mobile" → phone) is made partial underneath it
+  const sch = def.schema as unknown as { partial?: () => z.ZodTypeAny; _def: { schema: z.AnyZodObject; effect: { type: string; transform: (v: unknown, c: z.RefinementCtx) => unknown } } };
+  const partial = sch.partial ? sch.partial() : z.preprocess(sch._def.effect.transform, sch._def.schema.partial());
+  let data = partial.parse(raw) as Record<string, unknown>;
   if (def.slug === 'accounts') data = deriveAccount(data);
   if (existing.isSystem && ('nature' in data || 'groupId' in data || 'kind' in data)) {
     if ((data.nature && data.nature !== existing.nature) || (data.groupId && data.groupId !== existing.groupId) || (data.kind && data.kind !== existing.kind)) {

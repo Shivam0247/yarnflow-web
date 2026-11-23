@@ -205,6 +205,7 @@ export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts
       left join persons sp on sp.id = v.sales_person_id left join persons psp on psp.id = p.sales_person_id
       left join persons cp on cp.id = p.collection_person_id
     where v.company_id = ${ctx.companyId} and ${sql.raw(BILL_SQL[side])} and ${billInPeriod(ctx)} and v.status <> 'CANCELLED' and v.date <= ${asOn} ${filters}
+      and ${pendingSql(ctx, 'v', { asOn })} > 0.005
     order by p.name, v.date, v.id`);
   let bills = res.rows
     .map((r: Row) => {
@@ -230,8 +231,10 @@ export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts
     select a.id, a.name, a.city, a.area, a.state, a.credit_limit as "creditLimit", a.credit_days as "creditDays", g.name as "groupName", pg.name as "partyGroupName",
       pb.name as "brokerName", psp.name as "salesPersonName", cp.name as "collectionPersonName",
       (case when a.opening_type = 'DR' then a.opening_balance else -a.opening_balance end)
-        + coalesce((select sum(debit - credit) from ledger_entries e where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.account_id = a.id and e.date <= ${asOn}), 0) as bal
+        + coalesce(lb.bal, 0) as bal
     from accounts a join account_groups g on g.id = a.group_id left join persons pg on pg.id = a.party_group_id
+      left join (select e.account_id, sum(e.debit - e.credit) as bal from ledger_entries e
+                 where e.company_id = ${ctx.companyId} and e.ledger_period = ${ctx.period} and e.date <= ${asOn} group by e.account_id) lb on lb.account_id = a.id
       left join persons pb on pb.id = a.broker_id left join persons psp on psp.id = a.sales_person_id left join persons cp on cp.id = a.collection_person_id
     where a.company_id = ${ctx.mcId} and a.id in ${sql.raw('(' + [0, ...partyIds, ...extraParties.rows.map((r: Row) => Number(r.id))].join(',') + ')')}
       ${opts.brokerId ? sql`and a.broker_id = ${opts.brokerId}` : sql``} ${opts.salesPersonId ? sql`and a.sales_person_id = ${opts.salesPersonId}` : sql``}

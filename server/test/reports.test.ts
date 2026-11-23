@@ -13,7 +13,7 @@ beforeAll(async () => {
   sp = await w.api.ok(w.api.post('/masters/sales-persons', { name: 'Avi M' }));
   cp = await w.api.ok(w.api.post('/masters/sales-persons', { name: 'Prakash (collection)' }));
   await w.api.ok(w.api.patch(`/masters/accounts/${w.customer.id}`, { salesPersonId: sp.id, collectionPersonId: cp.id, interestRate: 18, brokerageRate: 0.5, brokerageType: 'PER_KG' }));
-  await w.api.ok(w.api.patch(`/masters/accounts/${w.broker.id}`, { brokerageRate: 0.5 }));
+  await w.api.ok(w.api.patch(`/masters/brokers/${w.broker.id}`, { rate: 0.5 }));
   bill = await w.api.ok(w.api.post('/vouchers/sale-bills', { date: '2026-06-01', partyId: w.customer.id, lines: [{ itemId: w.item.id, lotNo: 'L1', grade: 'A+', qty: 1000, rate: 180 }] }));
   bill2 = await w.api.ok(w.api.post('/vouchers/sale-bills', { date: '2026-09-20', partyId: w.customer.id, lines: [{ itemId: w.item2.id, lotNo: 'M1', grade: 'A', qty: 400, rate: 140 }] }));
   outBill = await w.api.ok(w.api.post('/vouchers/sale-bills', { date: '2026-10-01', partyId: w.outCustomer.id, lines: [{ itemId: w.item.id, lotNo: 'L1', grade: 'A+', qty: 200, rate: 185 }] }));
