@@ -23,7 +23,11 @@ ENV
 fi
 mkdir -p export reports backups
 # firewall: only ssh + web
-if command -v ufw >/dev/null; then ufw allow OpenSSH >/dev/null; ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null; ufw --force enable >/dev/null; fi
+if [ -f /etc/iptables/rules.v4 ] && command -v netfilter-persistent >/dev/null; then
+  # Oracle Cloud's Ubuntu images block everything but ssh with iptables: open 80 and 443 there
+  for p in 80 443; do iptables -C INPUT -p tcp --dport $p -m state --state NEW -j ACCEPT 2>/dev/null || iptables -I INPUT 5 -p tcp --dport $p -m state --state NEW -j ACCEPT; done
+  netfilter-persistent save >/dev/null
+elif command -v ufw >/dev/null; then ufw allow OpenSSH >/dev/null; ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null; ufw --force enable >/dev/null; fi
 echo "› Building and starting YarnFlow…"
 docker compose up -d --build
 # nightly database backup at 02:30, keeping 14 days
