@@ -92,3 +92,31 @@ UPDATE public.voucher_lines l SET
     'jobHsn', mig.s(sl.j->>'SalS_JobHsn'))
 FROM sl WHERE l.id = sl.id;
 SELECT mig.note('screen fields: sale bills');
+
+/* ---------------------------------------------------------------- dispatch schedules (DispatchMst: one row = header + its line) */
+CREATE TEMP TABLE dm AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher', 'DispatchMst') r JOIN legacy_umiya20."DispatchMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher', 'DispatchMst') r JOIN legacy_umiya24."DispatchMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+UPDATE public.vouchers v SET
+  mill_id = coalesce((SELECT id FROM acc WHERE code = dm.j->>'Dispt_SupplierCode'), v.mill_id),
+  ref_no = coalesce(left(mig.s(dm.j->>'Dispt_OrderCode'), 60), v.ref_no),
+  ref_date = coalesce(mig.d(dm.j->>'Dspt_OrderDate'), v.ref_date),
+  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['saleBillNo','approved','actualChallanNo','actualChallanDate']) || pg_temp.jx(
+    'saleBillNo', mig.s(dm.j->>'Dspt_SalId'),
+    'approved', mig.s(dm.j->>'Dspt_IsApproved'),
+    'actualChallanNo', mig.s(dm.j->>'Dspt_ActChallanNo'),
+    'actualChallanDate', to_char(mig.d(dm.j->>'Dspt_ActChallanDt'), 'DD-MM-YYYY'))
+FROM dm WHERE v.id = dm.id;
+-- the schedule's item line: the supplier's challan / purchase it is dispatched from (the old item table)
+UPDATE public.voucher_lines l SET
+  challan_no = coalesce(left(mig.s(dm.j->>'Dispt_PurChNo'), 40), l.challan_no),
+  challan_date = coalesce(mig.d(dm.j->>'Dispt_PurChDt'), l.challan_date),
+  purchase_ref = coalesce(left(mig.s(dm.j->>'Dispt_PurID'), 40), l.purchase_ref),
+  purchase_inv_no = coalesce(left(mig.s(dm.j->>'Dispt_InvNo'), 40), l.purchase_inv_no),
+  remark2 = coalesce(left(mig.s(dm.j->>'Dspt_Boxtype'), 200), l.remark2),
+  cops = coalesce(nullif(mig.num0(dm.j->>'Dspt_Cops'), 0), l.cops),
+  extra = (coalesce(l.extra, '{}'::jsonb) - ARRAY['ordQty','purchaseCode','boxType']) || pg_temp.jx(
+    'ordQty', mig.s(dm.j->>'Dispt_OrdQty'), 'purchaseCode', mig.s(dm.j->>'Dispt_PurCodeMain'), 'boxType', mig.s(dm.j->>'Dspt_Boxtype'))
+FROM dm WHERE l.voucher_id = dm.id;
+SELECT mig.note('screen fields: dispatch schedules');

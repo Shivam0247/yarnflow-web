@@ -127,7 +127,7 @@ function makeRows(kind) {
       x: { ...ex },
       lines: d.lines.map((l) => ({ id: l.id, itemId: l.itemId, name: l.itemName || l.description || '', code: l.itemCode || '', brand: s(l.brand), lot: s(l.lotNo), grade: s(l.grade), hsn: s(l.hsn), unit: l.unit === 'KG' ? 'Kg' : s(l.unit), qty: s(l.qty), rate: s(l.rate),
         disp: l.discPct ? s(l.discPct) : '', frp: l.freightPct ? s(l.freightPct) : '', gst: s(l.gstRate), carton: l.pcs ? s(l.pcs) : '', cops: l.cops ? s(l.cops) : '', remark: s(l.remark1), box: s(l.remark2), lr: s(l.lrNo), chno: s(l.challanNo), chdt: dmy(l.challanDate),
-        sourceLineId: l.sourceLineId, ordq: l.sourceQty, salq: null, pid: s(l.purchaseRef), pinv: s(l.purchaseInvNo), saved: true, pend: l.pendingQty, src: l.sourceNumber })).concat([this.blankLine()]) });
+        sourceLineId: l.sourceLineId, ordq: l.sourceQty ?? ((l.extra || {}).ordQty !== undefined ? Number(l.extra.ordQty) : null), salq: null, pid: s(l.purchaseRef), pinv: s(l.purchaseInvNo), saved: true, pend: l.pendingQty, src: l.sourceNumber })).concat([this.blankLine()]) });
   }
 
   /** bring in pending lines from the source document (orders for a schedule, the bill for a return) */
