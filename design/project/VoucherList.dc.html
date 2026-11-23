@@ -170,7 +170,7 @@ class Component extends DCLogic {
   slug() { return { ds: 'dispatch-schedules', gs: 'general-sales', sr: 'sale-returns', gp: 'general-purchases', pr: 'purchase-returns', dn: 'debit-notes', cn: 'credit-notes' }[this.props.kind || 'ds']; }
   async load() {
     const api = this.api(); if (!api) return;
-    try { const r = await api.get('/vouchers/' + this.slug(), (this.props.kind || 'ds') === 'ds' ? { view: 'lines', pageSize: 1000 } : { pageSize: 1000 }); this.setState({ live: r.data }); }
+    try { const r = await api.get('/vouchers/' + this.slug(), (this.props.kind || 'ds') === 'ds' ? { view: 'lines', pageSize: 100000 } : { pageSize: 100000 }); this.setState({ live: r.data }); }
     catch (e) { this.setState({ toast: api.message(e) }); }
   }
   async liveBulk(ids, l, fn) {

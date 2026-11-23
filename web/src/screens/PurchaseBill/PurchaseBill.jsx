@@ -36,7 +36,7 @@ class Component extends DCLogic {
   async init() {
     const api = this.api(); if (!api) return;
     try {
-      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/purchase-orders/pending-lines', { for: 'purchase-bills' }), api.get('/company'), api.get('/vouchers/purchase-bills', { pageSize: 1000 })]);
+      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/purchase-orders/pending-lines', { for: 'purchase-bills' }), api.get('/company'), api.get('/vouchers/purchase-bills', { pageSize: 100000 })]);
       const book = lk.books.find((b) => b.voucherType === 'PURCHASE_BILL' && b.isDefault) || lk.books.find((b) => b.voucherType === 'PURCHASE_BILL');
       const gd = lk.godowns.find((g) => g.isDefault) || lk.godowns[0];
       this.setState({ lk, pl, co, bills: list.data, f: { ...this.state.f, bookId: this.state.f.bookId || (book ? String(book.id) : ''), godownId: this.state.f.godownId || (gd ? String(gd.id) : '') } });

@@ -16,7 +16,7 @@ class Component extends DCLogic {
   async load() {
     const api = this.api(); if (!api || !api.session) return;
     try {
-      const [reg, stock] = await Promise.all([api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 1000 }), api.get('/reports/stock')]);
+      const [reg, stock] = await Promise.all([api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 100000 }), api.get('/reports/stock')]);
       const stk = {}; stock.rows.forEach((r) => { stk[r.itemName] = (stk[r.itemName] || 0) + r.qty; });
       this.setState({ live: reg.data, liveStock: stk, err: null });
       if (this.state.focus && !reg.data.some((r) => r.number.replace(/\/\d{2}-\d{2}$/, '') === this.state.focus)) this.setState({ focus: reg.data[0] ? reg.data[0].number.replace(/\/\d{2}-\d{2}$/, '') : null });

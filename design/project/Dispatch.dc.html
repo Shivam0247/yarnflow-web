@@ -430,7 +430,7 @@ class Component extends DCLogic {
   async init() {
     const api = this.api(); if (!api) return;
     try {
-      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/dispatch-schedules/pending-lines', { for: 'sale-bills' }), api.get('/company'), api.get('/vouchers/sale-bills', { pageSize: 1000 })]);
+      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/dispatch-schedules/pending-lines', { for: 'sale-bills' }), api.get('/company'), api.get('/vouchers/sale-bills', { pageSize: 100000 })]);
       const book = lk.books.find((b) => b.voucherType === 'SALE_BILL' && b.isDefault) || lk.books.find((b) => b.voucherType === 'SALE_BILL');
       this.setState({ lk, pl, co, bills: list.data, f: { ...this.state.f, bookId: this.state.f.bookId || (book ? String(book.id) : '') } });
       if (!this.state.doc) { const nx = await api.get('/vouchers/sale-bills/next-number', book ? { bookId: book.id } : undefined); this.setState({ nextNo: nx.number }); }

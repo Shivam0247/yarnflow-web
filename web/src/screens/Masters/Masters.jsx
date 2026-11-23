@@ -36,7 +36,7 @@ class Component extends DCLogic {
   componentDidMount() { this.load(); }
   async load() {
     const api = this.api(); if (!api) return;
-    try { const g = (s) => api.get('/masters/' + s, { pageSize: 2000 }).then((r) => r.data);
+    try { const g = (s) => api.get('/masters/' + s, { pageSize: 100000 }).then((r) => r.data);
       const [accounts, groups, items, brands, transporters, vehicles, godowns, sp, cc, books, stock, lk] = await Promise.all([g('accounts'), g('groups'), g('items'), g('brands'), g('transporters'), g('vehicles'), g('godowns'), g('sales-persons'), g('cost-centers'), g('books'), api.get('/reports/stock'), api.lookups()]);
       this.setState({ d: { accounts, groups, items, brands, transporters, vehicles, godowns, sp, cc, books, stock: stock.rows }, lk }); } catch (e) { this.setState({ toast: api.message(e) }); }
   }

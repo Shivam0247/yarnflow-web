@@ -238,7 +238,7 @@ export async function listMaster(ctx: Ctx, def: MasterDef, q: { q?: string; kind
   if (q.groupId && def.slug === 'accounts') conds.push(eq(accounts.groupId, Number(q.groupId)));
   if (q.type && def.slug === 'items') conds.push(eq(items.type, q.type as never));
   if (q.voucherType && def.slug === 'books') conds.push(eq(books.voucherType, q.voucherType as never));
-  const pageSize = Math.min(Number(q.pageSize) || 500, 2000);
+  const pageSize = Math.min(Number(q.pageSize) || 500, 100000);
   const page = Math.max(Number(q.page) || 1, 1);
   const where = and(...conds);
   const data = await ctx.db.select().from(t).where(where).orderBy(asc(col(t, def.order)), asc(col(t, 'id'))).limit(pageSize).offset((page - 1) * pageSize);
@@ -261,7 +261,8 @@ async function decorateAccounts(ctx: Ctx, rows: (typeof accounts.$inferSelect)[]
   const gm = new Map(groups.map((g) => [g.id, g.name]));
   return rows.map((r) => {
     const b = r2((r.openingType === 'DR' ? r.openingBalance : -r.openingBalance) + (bm.get(r.id) ?? 0));
-    return { ...r, groupName: gm.get(r.groupId) ?? null, balance: Math.abs(b), balanceType: b >= 0 ? 'DR' : 'CR', balanceSigned: b };
+    const { extra: _extra, ...rest } = r; // the old software's full record is shown on the account itself, not in lists
+    return { ...rest, groupName: gm.get(r.groupId) ?? null, balance: Math.abs(b), balanceType: b >= 0 ? 'DR' : 'CR', balanceSigned: b };
   });
 }
 

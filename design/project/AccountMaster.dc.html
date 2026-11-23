@@ -170,7 +170,7 @@ class Component extends DCLogic {
   componentDidMount() { this.load(); }
   async load() {
     const api = this.api(); if (!api) return;
-    try { const [a, g, lk] = await Promise.all([api.get('/masters/accounts', { pageSize: 2000 }), api.get('/masters/groups'), api.lookups()]); this.setState({ rows: a.data, grps: g.data, lk });
+    try { const [a, g, lk] = await Promise.all([api.get('/masters/accounts', { pageSize: 100000 }), api.get('/masters/groups'), api.lookups()]); this.setState({ rows: a.data, grps: g.data, lk });
       let ed = null; try { ed = JSON.parse(window.localStorage.getItem('yf-edit-acc') || 'null'); if (ed) window.localStorage.removeItem('yf-edit-acc'); } catch (e) {}
       if (ed && ed.id) { const r = a.data.find((x) => x.id === ed.id); if (r) this.edit(r); } } catch (e) { this.setState({ toast: api.message(e) }); }
   }

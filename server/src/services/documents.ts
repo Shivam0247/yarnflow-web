@@ -1008,7 +1008,7 @@ export interface ListQuery {
 /** Register data. view=lines → one row per item line with pending quantities (order registers). */
 export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
   const db = ctx.db;
-  const pageSize = Math.min(Math.max(Number(qy.pageSize) || 100, 1), 1000);
+  const pageSize = Math.min(Math.max(Number(qy.pageSize) || 100, 1), 100000);
   const page = Math.max(Number(qy.page) || 1, 1);
   const where = sql.join(
     [
