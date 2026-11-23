@@ -596,11 +596,17 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
 /** open bills of a party, oldest first */
 export async function openBills(ctx: Ctx, partyId: number, side: 'receivable' | 'payable', excludeVoucherId?: number) {
   const res = await ctx.db.execute(sql`
-    select v.id, v.number, v.date, v.due_date as "dueDate", v.net_amount as net, v.tds_amount as tds, v.type
+    select v.id, v.number, v.date, v.due_date as "dueDate", v.net_amount as net, v.tds_amount as tds, v.type,
+      v.total_qty as qty, v.credit_days as "creditDays", br.name as "brokerName", bk.name as "bookName", cp.name as "collectionPersonName",
+      v.extra->>'avgRate' as "avgRate", (select l.brand from voucher_lines l where l.voucher_id = v.id order by l.line_no limit 1) as brand
     from vouchers v join accounts p on p.id = v.party_id
+      left join persons br on br.id = coalesce(v.broker_id, p.broker_id) left join books bk on bk.id = v.book_id
+      left join persons cp on cp.id = coalesce(v.collection_person_id, p.collection_person_id)
     where v.company_id = ${ctx.companyId} and v.party_id = ${partyId} and ${sql.raw(BILL_SQL[side])} and ${billInPeriod(ctx)} and v.status <> 'CANCELLED'
     order by v.date, v.id`);
-  const rows = res.rows.map((r: Record<string, unknown>) => ({ id: Number(r.id), number: r.number as string, date: r.date as string, dueDate: r.dueDate as string | null, net: Number(r.net), tds: Number(r.tds), type: r.type as string }));
+  const rows = res.rows.map((r: Record<string, unknown>) => ({ id: Number(r.id), number: r.number as string, date: r.date as string, dueDate: r.dueDate as string | null, net: Number(r.net), tds: Number(r.tds), type: r.type as string,
+    qty: Number(r.qty) || 0, creditDays: Number(r.creditDays) || 0, brokerName: (r.brokerName as string) ?? null, bookName: (r.bookName as string) ?? null,
+    collectionPersonName: (r.collectionPersonName as string) ?? null, avgRate: r.avgRate ? Number(r.avgRate) : null, brand: (r.brand as string) ?? null }));
   const pend = await billPending(ctx, rows.map((r) => r.id), excludeVoucherId);
   return rows.map((r) => ({ ...r, pending: pend.get(r.id) ?? 0 })).filter((r) => r.pending > 0.005);
 }

@@ -64,7 +64,8 @@ class Component extends DCLogic {
       if (!f.bankAccountId) return this.setState({ note: 'Choose the bank / cash account', err: true });
       const allocations = (st.bills || []).filter((b) => !st.off[b.id] && n(st.adj[b.id]) > 0).map((b) => ({ billId: b.id, amount: n(st.adj[b.id]) }));
       if (allocations.reduce((a, x) => a + x.amount, 0) > amt + 0.005) return this.setState({ note: 'Adjusted more than the amount', err: true });
-      body = { date: iso(f.date), partyId: Number(f.partyId), bankAccountId: Number(f.bankAccountId), mode: f.mode || 'NEFT', instrumentNo: f.instrumentNo || null, amount: amt, narration: f.narration || null, allocations };
+      const ex = {}; if (f.slipNo) ex.slipNo = String(f.slipNo); if (f.partyBank) ex.partyBank = String(f.partyBank);
+      body = { date: iso(f.date), partyId: Number(f.partyId), bankAccountId: Number(f.bankAccountId), mode: f.mode || 'NEFT', instrumentNo: f.instrumentNo || null, instrumentDate: iso(f.instrumentDate), collectionPersonId: f.collectionPersonId ? Number(f.collectionPersonId) : null, amount: amt, narration: f.narration || null, allocations, extra: ex };
     }
     this.setState({ busy: true, note: 'Saving…', err: false });
     try {
@@ -92,9 +93,9 @@ class Component extends DCLogic {
       const pfx = r ? 'SI' : 'PB';
       return { ...base, docNo: { r: 'RC-26-27-0471', p: 'PY-26-27-0092', c: 'CT-26-27-0014', j: 'JV-26-27-0031' }[k], partyLabel: { r: 'Received from', p: 'Paid to', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
         partyName: r ? 'Krishna Textiles' : 'Reliance Industries', partySub: r ? 'Sundry Debtors · Ring Road, Surat' : 'Sundry Creditors · Yarn mill, Silvassa', initial: r ? 'K' : 'R', p: pfx, drcr: r ? 'Dr' : 'Cr',
-        f: { partyId: '', amount: '₹ 2,00,000.00', date: '23-10-2026', mode: 'NEFT', bankAccountId: '', instrumentNo: 'HDFCR52026102318821', narration: '' }, set: {},
-        opt: { parties: [{ v: '', l: r ? 'Krishna Textiles' : 'Reliance Industries' }], banks: [{ v: '', l: 'HDFC Bank · Current ••4412' }, { v: 's', l: 'SBI · Current ••0918' }] },
-        bills: sample.map((b) => ({ no: b[0].replace('SI', pfx), dt: b[1], age: b[2], tc: b[3], amt: b[4], pend: b[5], adj: b[6], on: b[7], tog: () => {}, set: () => {} })), noBills: false, allOn: true, togAll: () => {}, autoAdj: () => {},
+        f: { partyId: '', amount: '₹ 2,00,000.00', date: '23-10-2026', mode: 'NEFT', bankAccountId: '', instrumentNo: 'HDFCR52026102318821', narration: '', instrumentDate: '23-10-2026', slipNo: '1898', collectionPersonId: '', partyBank: 'HDFC Bank' }, set: {},
+        opt: { parties: [{ v: '', l: r ? 'Krishna Textiles' : 'Reliance Industries' }], banks: [{ v: '', l: 'HDFC Bank · Current ••4412' }, { v: 's', l: 'SBI · Current ••0918' }], collectors: [{ v: '', l: 'Prakash P.' }] },
+        bills: sample.map((b) => ({ no: b[0].replace('SI', pfx), dt: b[1], age: b[2], tc: b[3], amt: b[4], paid: '0.00', pend: b[5], qty: '1,004.020', brk: 'Direct', book: 'Yarn sales tax (Umiya)', brand: 'Durga', cp: 'Prakash P.', avg: '154.50', cr: '15', diff: '32', adj: b[6], on: b[7], tog: () => {}, set: () => {} })), noBills: false, allOn: true, togAll: () => {}, autoAdj: () => {},
         sm: { amt: '₹ 2,00,000.00', l2: 'Adjusted', adj: '₹ 2,00,000.00', l3: 'On account', onAcc: '₹ 0.00', after: '₹ 2,82,350.00' },
         ac: { out: '₹ 4,82,350.00', od: '₹ 3,10,250.00', odC: 'tag t-red', cr: '45 days', delay: '+21 days' },
         recent: [{ a: '06-10-2026', b: '₹ 1,50,000 · Cheque' }, { a: '12-09-2026', b: '₹ 2,00,000 · NEFT' }, { a: '18-08-2026', b: '₹ 1,75,500 · RTGS' }], noRecent: false, footTag: 'WhatsApp receipt goes out automatically on save', openLedger: () => {} };
@@ -106,13 +107,14 @@ class Component extends DCLogic {
     const partyList = k === 'r' ? ord('CUSTOMER') : k === 'p' ? ord('SUPPLIER') : k === 'c' ? lk.banks : lk.ledgers;
     const bankList = k === 'j' ? lk.ledgers : lk.banks;
     const P = lk.ledgers.find((a) => String(a.id) === String(f.partyId));
-    const set = {}; ['amount', 'date', 'mode', 'bankAccountId', 'instrumentNo', 'narration'].forEach((key) => { set[key] = (e) => this.setState({ f: { ...this.state.f, [key]: e.target.value }, note: this.state.err ? '' : this.state.note, err: false }); });
+    const set = {}; ['amount', 'date', 'mode', 'bankAccountId', 'instrumentNo', 'narration', 'instrumentDate', 'slipNo', 'collectionPersonId', 'partyBank'].forEach((key) => { set[key] = (e) => this.setState({ f: { ...this.state.f, [key]: e.target.value }, note: this.state.err ? '' : this.state.note, err: false }); });
     set.partyId = (e) => this.pickParty(e.target.value);
     const amt = n(f.amount);
     set.amount = (e) => { const v = e.target.value; this.setState({ f: { ...this.state.f, amount: v } }); if (Object.keys(this.state.adj).length === 0 && n(v) > 0) this.auto(n(v)); };
     const today = Date.now();
     const bills = (st.bills || []).map((b) => { const dd = b.dueDate || b.date; const age = Math.round((today - new Date(String(dd).slice(0, 10) + 'T00:00:00').getTime()) / 864e5); const on = !st.off[b.id] && n(st.adj[b.id]) > 0;
-      return { no: b.number, dt: dmy(b.date), age: age > 0 ? age + ' days' : 'Due ' + dmy(dd), tc: age > 60 ? 'tag t-red' : age > 30 ? 'tag t-orange' : 'tag t-gray', amt: inr(b.net, 2), pend: inr(b.pending, 2), adj: st.off[b.id] ? '' : st.adj[b.id] ?? '', on,
+      return { no: b.number, dt: dmy(b.date), age: age > 0 ? age + ' days' : 'Due ' + dmy(dd), tc: age > 60 ? 'tag t-red' : age > 30 ? 'tag t-orange' : 'tag t-gray', amt: inr(b.net, 2), paid: inr(b.net - b.pending, 2), pend: inr(b.pending, 2), qty: b.qty ? inr(b.qty, 3) : '—', brk: b.brokerName || '—', book: b.bookName || '—', brand: b.brand || '—', cp: b.collectionPersonName || '—',
+        avg: b.avgRate ? inr(b.avgRate, 2) : '—', cr: String(b.creditDays || 0), diff: String(Math.max(0, Math.round((today - new Date(String(b.date).slice(0, 10) + 'T00:00:00').getTime()) / 864e5))), adj: st.off[b.id] ? '' : st.adj[b.id] ?? '', on,
         tog: () => { if (on) this.setState({ off: { ...this.state.off, [b.id]: true } }); else { const used = (st.bills || []).reduce((a, x) => a + (x.id !== b.id && !st.off[x.id] ? n(st.adj[x.id]) : 0), 0); const a = Math.min(b.pending, Math.max(0, amt - used)) || b.pending; this.setState({ off: { ...this.state.off, [b.id]: false }, adj: { ...this.state.adj, [b.id]: a.toFixed(2) } }); } },
         set: (e) => this.setState({ adj: { ...this.state.adj, [b.id]: e.target.value }, off: { ...this.state.off, [b.id]: false } }) }; });
     const adjT = (st.bills || []).reduce((a, b) => a + (st.off[b.id] ? 0 : n(st.adj[b.id])), 0);
@@ -127,8 +129,8 @@ class Component extends DCLogic {
     const name = P ? P.name : { r: 'Select party', p: 'Select party', c: 'Select account', j: 'Select account' }[k];
     return { ...base, docNo: st.nextNo || '…', partyLabel: { r: 'Received from', p: 'Paid to', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
       partyName: name, partySub: P ? (kindL[P.kind] || P.kind) + (P.city ? ' · ' + P.city : '') : '—', initial: P ? P.name.replace(/^(Shree|Shri|The)\s+/i, '').charAt(0) : '+', p: r ? 'GU' : 'PB', drcr: P && P.balance < 0 ? 'Cr' : 'Dr',
-      f: { ...f, partyId: f.partyId || '', amount: f.amount ?? '', instrumentNo: f.instrumentNo ?? '', narration: f.narration ?? '' }, set,
-      opt: { parties: [{ v: '', l: name === 'Select party' || name === 'Select account' ? name + '…' : 'Select…' }].concat(partyList.map((a) => ({ v: String(a.id), l: a.name + (a.city ? ' · ' + a.city : '') }))), banks: bankList.map((a) => ({ v: String(a.id), l: a.name })) },
+      f: { ...f, partyId: f.partyId || '', amount: f.amount ?? '', instrumentNo: f.instrumentNo ?? '', narration: f.narration ?? '', instrumentDate: f.instrumentDate ?? '', slipNo: f.slipNo ?? '', collectionPersonId: f.collectionPersonId ?? '', partyBank: f.partyBank ?? '' }, set,
+      opt: { parties: [{ v: '', l: name === 'Select party' || name === 'Select account' ? name + '…' : 'Select…' }].concat(partyList.map((a) => ({ v: String(a.id), l: a.name + (a.city ? ' · ' + a.city : '') }))), banks: bankList.map((a) => ({ v: String(a.id), l: a.name })), collectors: [{ v: '', l: 'Select…' }].concat((lk.collectionPersons || []).map((a) => ({ v: String(a.id), l: a.name }))) },
       bills, noBills: !!f.partyId && bills.length === 0, allOn: bills.length > 0 && bills.every((b) => b.on),
       togAll: () => { if (bills.length && bills.every((b) => b.on)) { const off = {}; (st.bills || []).forEach((b) => { off[b.id] = true; }); this.setState({ off }); } else this.auto(amt || (st.bills || []).reduce((a, b) => a + b.pending, 0)); },
       autoAdj: () => this.auto(amt),
@@ -272,6 +274,38 @@ class PaymentsView extends Component {
                     </label>
                     <input id="p6" className="inp" type="text" value={v.f?.instrumentNo} onChange={v.set?.instrumentNo} placeholder="Reference" />
                   </div>
+                  <div className="fld">
+                    <label htmlFor="p6d">
+                      Cheque / UTR date
+                    </label>
+                    <input id="p6d" className="inp" type="text" value={v.f?.instrumentDate} onChange={v.set?.instrumentDate} placeholder="dd-mm-yyyy" />
+                  </div>
+                  <div className="fld">
+                    <label htmlFor="p6s">
+                      Slip no.
+                    </label>
+                    <input id="p6s" className="inp" type="text" value={v.f?.slipNo} onChange={v.set?.slipNo} placeholder="Bank slip no." />
+                  </div>
+                  <div className="fld">
+                    <label htmlFor="p6c">
+                      Collection person
+                    </label>
+                    <select id="p6c" className="inp" value={v.f?.collectionPersonId} onChange={v.set?.collectionPersonId}>
+                      {(v.opt?.collectors || []).map((o, $index) => (
+                        <Fragment key={$index}>
+                          <option value={o?.v}>
+                            {o?.l}
+                          </option>
+                        </Fragment>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="fld">
+                    <label htmlFor="p6b">
+                      Party bank
+                    </label>
+                    <input id="p6b" className="inp" type="text" value={v.f?.partyBank} onChange={v.set?.partyBank} placeholder="Party’s bank" />
+                  </div>
                 </div>
                 {v.hasBills ? (
                   <>
@@ -303,7 +337,34 @@ class PaymentsView extends Component {
                               Bill amount
                             </th>
                             <th className="r">
+                              Paid
+                            </th>
+                            <th className="r">
                               Pending
+                            </th>
+                            <th className="r">
+                              Qty kg
+                            </th>
+                            <th>
+                              Broker
+                            </th>
+                            <th>
+                              Book
+                            </th>
+                            <th>
+                              Brand
+                            </th>
+                            <th>
+                              Collection person
+                            </th>
+                            <th className="r">
+                              Avg rate
+                            </th>
+                            <th className="r">
+                              Cr. days
+                            </th>
+                            <th className="r">
+                              Diff. days
                             </th>
                             <th className="r">
                               Adjust now
@@ -332,7 +393,34 @@ class PaymentsView extends Component {
                                   {b?.amt}
                                 </td>
                                 <td className="r">
+                                  {b?.paid}
+                                </td>
+                                <td className="r">
                                   {b?.pend}
+                                </td>
+                                <td className="r">
+                                  {b?.qty}
+                                </td>
+                                <td className="t2">
+                                  {b?.brk}
+                                </td>
+                                <td className="t2">
+                                  {b?.book}
+                                </td>
+                                <td className="t2">
+                                  {b?.brand}
+                                </td>
+                                <td className="t2">
+                                  {b?.cp}
+                                </td>
+                                <td className="r">
+                                  {b?.avg}
+                                </td>
+                                <td className="r">
+                                  {b?.cr}
+                                </td>
+                                <td className="r">
+                                  {b?.diff}
                                 </td>
                                 <td className="r">
                                   <input className="cin" type="text" value={b?.adj} placeholder="0.00" aria-label={`Adjust on ${b?.no ?? ""}`} onChange={b?.set} />
@@ -343,7 +431,7 @@ class PaymentsView extends Component {
                           {v.noBills ? (
                             <>
                               <tr>
-                                <td colSpan="7" className="muted" style={{"textAlign":"center","padding":"20px"}}>
+                                <td colSpan="15" className="muted" style={{"textAlign":"center","padding":"20px"}}>
                                   No pending bills — the amount goes on account
                                 </td>
                               </tr>

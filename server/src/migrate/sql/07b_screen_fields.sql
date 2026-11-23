@@ -120,3 +120,35 @@ UPDATE public.voucher_lines l SET
     'ordQty', mig.s(dm.j->>'Dispt_OrdQty'), 'purchaseCode', mig.s(dm.j->>'Dispt_PurCodeMain'), 'boxType', mig.s(dm.j->>'Dspt_Boxtype'))
 FROM dm WHERE l.voucher_id = dm.id;
 SELECT mig.note('screen fields: dispatch schedules');
+
+/* ---------------------------------------------------------------- bank / cash receipts and payments (RecMst / RecSubMst) */
+CREATE TEMP TABLE rm AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher', 'RecMst') r JOIN legacy_umiya20."RecMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher', 'RecMst') r JOIN legacy_umiya24."RecMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+-- the party, cheque and clearing of each entry sit on its (single) line in the old software
+CREATE TEMP TABLE rs AS
+SELECT DISTINCT ON (l.voucher_id) l.voucher_id AS id, x.j FROM (
+  SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher_line', 'RecSubMst') r JOIN legacy_umiya20."RecSubMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+  UNION ALL
+  SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher_line', 'RecSubMst') r JOIN legacy_umiya24."RecSubMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24') x
+JOIN public.voucher_lines l ON l.id = x.id ORDER BY l.voucher_id, l.line_no;
+UPDATE public.vouchers v SET
+  party_id = coalesce(v.party_id, (SELECT id FROM acc WHERE code = rs.j->>'RecS_Pcode')),
+  instrument_no = coalesce(v.instrument_no, left(mig.s(rs.j->>'RecS_Chkno'), 40)),
+  instrument_date = coalesce(v.instrument_date, mig.d(rs.j->>'Rec_ChkDate')),
+  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['partyBank','cleared','clearedDate','billNo','lineRemark']) || pg_temp.jx(
+    'partyBank', (SELECT name FROM public.lookups WHERE code = rs.j->>'RecS_PbnkAc'),
+    'cleared', CASE WHEN rs.j->>'Clr_YN' = '1' THEN 'Yes' END,
+    'clearedDate', to_char(mig.d(rs.j->>'Clr_Dt'), 'DD-MM-YYYY'),
+    'billNo', mig.s(rs.j->>'RecS_BillNo'),
+    'lineRemark', mig.s(rs.j->>'RecS_Rmk'))
+FROM rs WHERE v.id = rs.id;
+UPDATE public.vouchers v SET
+  mode = coalesce((SELECT (CASE upper(name) WHEN 'CHEQUE' THEN 'CHEQUE' WHEN 'NEFT' THEN 'NEFT' WHEN 'RTGS' THEN 'RTGS' WHEN 'UPI' THEN 'UPI' WHEN 'CASH' THEN 'CASH' ELSE 'OTHER' END)::pay_mode
+                   FROM public.lookups WHERE code = rm.j->>'Rec_CheqMode'), CASE WHEN rm.j->>'Rec_Type' LIKE 'CASH%' THEN 'CASH'::pay_mode END, v.mode),
+  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['slipNo','modeName']) || pg_temp.jx(
+    'slipNo', mig.s(rm.j->>'Rec_Slip'),
+    'modeName', (SELECT name FROM public.lookups WHERE code = rm.j->>'Rec_CheqMode'))
+FROM rm WHERE v.id = rm.id;
+SELECT mig.note('screen fields: receipts and payments');
