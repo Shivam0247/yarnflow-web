@@ -38,6 +38,66 @@ meaning**:
 - Anything not yet modelled is kept in the record's `extra` JSON, so nothing
   is dropped.
 
+## 3a. Zero-difference guarantee (owner's instruction, 23 Nov 2026)
+
+> "UMIYA20 and UMIYA24 data must stay same to same. No data loss, no
+> corruption, no difference of any kind."
+
+The guarantee rests on four layers. Every one must pass before go-live. A
+single failing check blocks go-live; it never only produces a warning.
+
+**Layer 1: Permanent exact archive.** Every legacy table from both databases
+(all 690 tables, empty ones included) is loaded **unchanged** into read-only
+PostgreSQL schemas `legacy_umiya20` and `legacy_umiya24`.
+- Each value is stored as the exact text that SQL Server exported, and binary
+  values (QR codes, images) are stored byte for byte.
+- Each row gets a SHA-256 fingerprint.
+- The archive is never edited or deleted, so the original data can always be
+  shown or re-exported exactly.
+
+**Layer 2: Exact conversion into the clean YarnFlow design.**
+- Amounts, quantities and rates use `numeric` columns with enough precision to
+  hold the legacy value exactly. There is no silent rounding, and the legacy
+  `float` text is parsed as a decimal, never through binary floating point.
+- Dates keep their date and time, and codes and numbers keep their exact text,
+  including leading zeros and spaces.
+- Every YarnFlow row links back to its archive row through `legacy_ref`, so
+  each value can be traced to its source.
+
+**Layer 3: Merging UMIYA20 and UMIYA24 without differences.**
+- *Masters* (parties, brokers, items, groups, books and so on) are matched by
+  legacy code. When the two databases disagree, for example the 493 parties
+  renamed between them, UMIYA24 (the latest) becomes the current value and the
+  UMIYA20 value is kept as history or alias. Both values stay visible.
+- *Carried-forward bills*: UMIYA24 contains 5,719 old-year bills, flagged
+  `IsLastYearEntry`, copied from UMIYA20 for outstanding. Each bill is migrated
+  **once**. The UMIYA20 original is the bill, and the UMIYA24 copy supplies the
+  later payment and adjustment state. The 288 copies that differ in amount or
+  number are listed field by field in the report for the owner to confirm.
+  Nothing is overwritten silently.
+- *Year transactions* are taken from the database that owns that year:
+  UMIYA20 for FY 2019-20 to 2023-24 and UMIYA24 for FY 2024-25 onwards.
+  Opening balances come from UMIYA24's `OpeningBalMst` and are checked against
+  UMIYA20's closing balances.
+
+**Layer 4: Automated reconciliation, zero tolerance, accurate to the paisa.**
+
+| Check | Compared against |
+|---|---|
+| Row count of every table | `summary.txt` |
+| Row fingerprint of every archived row | Exported CSV |
+| Sum of every amount and quantity column, per table, company and year | Legacy archive |
+| Every voucher's header total compared with the sum of its lines | Legacy archive |
+| Dr, Cr and balance of every account, per company and year | `AccountLedger` |
+| Trial balance and P&L per company and year | Legacy views (`modules.sql`) |
+| Outstanding per bill: amount, received, adjusted and due | `RecSubBilladjustMst`, `JVBillAdustMst`, `SalPurBillAdustMst` |
+| GST totals: CGST, SGST, IGST, TDS and TCS per month | Legacy GST/JV lines |
+| Order pending quantities, dispatch quantities and stock | Legacy orders and dispatch |
+| Round trip: rebuild each legacy row's key fields from YarnFlow and compare | Archive (must match 100%) |
+
+The migration report shows every check with old value, new value and
+difference. Go-live is allowed only when every difference is exactly 0.
+
 ## 4. Rules that make re-runs easy
 
 - **Legacy keys.** Every migrated row stores `legacy_db`, `legacy_table` and
