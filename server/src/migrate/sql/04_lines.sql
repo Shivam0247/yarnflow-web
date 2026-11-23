@@ -3,6 +3,8 @@
 -- copies are not loaded twice: their document was made from UMIYA20.
 TRUNCATE public.voucher_lines RESTART IDENTITY;
 DELETE FROM public.legacy_refs WHERE entity = 'voucher_line';
+DELETE FROM mig.vmap WHERE id IN (SELECT id FROM public.vouchers WHERE extra ? '_orphanLines');
+DELETE FROM public.vouchers WHERE extra ? '_orphanLines';
 SELECT mig.note('lines: start');
 
 CREATE TEMP TABLE itm AS SELECT legacy_code AS code, id FROM public.items WHERE company_id = 1;
@@ -37,6 +39,31 @@ INSERT INTO src_line SELECT 'UMIYA24', 'DispatchMst', 'DispatchMst', "Dspt_Code"
 CREATE INDEX ON src_line (db, doc_tbl, doc_code);
 ANALYZE src_line;
 SELECT mig.note('lines: sources collected');
+
+-- lines whose document no longer exists in the old software (header deleted, line left behind):
+-- kept on a cancelled document of their own so no row is lost; they never touch the ledger
+CREATE TEMP TABLE orphan AS
+SELECT DISTINCT ON (l.db, l.doc_tbl, l.doc_code) l.db, l.doc_tbl, l.doc_code, l.j
+FROM src_line l WHERE NOT EXISTS (SELECT 1 FROM mig.vmap v WHERE v.db = l.db AND v.tbl = l.doc_tbl AND v.code = l.doc_code)
+  AND NOT (l.db = 'UMIYA24' AND EXISTS (SELECT 1 FROM public.legacy_refs r WHERE r.entity = 'voucher_copy' AND r.legacy_db = 'UMIYA24' AND r.legacy_table = l.doc_tbl AND r.legacy_key = l.doc_code))
+ORDER BY l.db, l.doc_tbl, l.doc_code, l.line_no;
+WITH ins AS (
+  INSERT INTO public.vouchers (company_id, fy_id, type, subtype, ledger_period, legacy_code, number, date, status, narration, extra)
+  SELECT c.comp, coalesce(mig.fy(c.comp, c.d), c.comp * 100 + 1),
+    (CASE o.doc_tbl WHEN 'SalesMst' THEN 'SALE_BILL' WHEN 'PurchaseMst' THEN 'PURCHASE_BILL' WHEN 'QuotationMst' THEN
+       CASE WHEN o.j->>'SalS_Type' = 'PurOrder' THEN 'PURCHASE_ORDER' ELSE 'SALES_ORDER' END
+     WHEN 'RecMst' THEN CASE WHEN o.j->>'Rec_Type' LIKE '%REC%' THEN 'RECEIPT' ELSE 'PAYMENT' END
+     WHEN 'AutoDebitNoteMst' THEN 'INTEREST_DEBIT_NOTE' ELSE 'JOURNAL' END)::voucher_type,
+    coalesce(o.j->>'SalS_Type', o.j->>'PurS_Type', o.j->>'Rec_Type'), CASE o.db WHEN 'UMIYA20' THEN 20 ELSE 24 END, o.doc_code, o.doc_code,
+    coalesce(c.d, DATE '1900-01-01'), 'CANCELLED', 'Lines without a document in the old software (document deleted there)',
+    jsonb_build_object('_db', o.db, '_table', o.doc_tbl, '_orphanLines', true)
+  FROM orphan o, LATERAL (SELECT coalesce(mig.int(coalesce(o.j->>'ComCode', o.j->>'AutoDbtS_ComCode')), 1) AS comp,
+    coalesce(mig.d(o.j->>'Rec_ChkDate'), mig.d(o.j->>'SalS_Date'), mig.d(o.j->>'PurS_Date')) AS d) c
+  RETURNING id, extra->>'_db' AS db, extra->>'_table' AS tbl, legacy_code AS code, company_id AS comp, fy_id AS fy, type AS vtype, subtype AS ftype, date AS vdate)
+INSERT INTO mig.vmap (id, db, tbl, code, comp, fy, vtype, ftype, vdate) SELECT * FROM ins;
+INSERT INTO public.legacy_refs (entity, entity_id, legacy_db, legacy_table, legacy_key)
+SELECT 'voucher', id, db, tbl, code FROM mig.vmap WHERE id IN (SELECT id FROM public.vouchers WHERE extra ? '_orphanLines') ON CONFLICT DO NOTHING;
+SELECT mig.note('lines: ' || (SELECT count(*) FROM orphan) || ' documents made for lines whose document was deleted in the old software');
 
 CREATE TEMP TABLE lmap AS
 SELECT nextval(pg_get_serial_sequence('public.voucher_lines', 'id'))::integer AS id, v.id AS voucher_id, l.*

@@ -13,7 +13,10 @@ SELECT mig.note('allocations: start');
 -- every old document key -> YarnFlow voucher. Journals are keyed by JV_Code + company;
 -- GST / TDS journals that were attached to their bill point to that bill.
 CREATE TEMP TABLE dk (db text, key text, comp integer, vid integer);
-INSERT INTO dk SELECT db, CASE WHEN tbl = 'JVMst' THEN split_part(code, '/', 1) ELSE code END, comp, id FROM mig.vmap;
+-- orders and dispatch schedules are never settled, and their codes collide with bill codes
+-- (QuotationMst 'SAL04932' vs SalesMst 'SAL04932'), so they are left out
+INSERT INTO dk SELECT db, CASE WHEN tbl = 'JVMst' THEN split_part(code, '/', 1) ELSE code END, comp, id FROM mig.vmap
+WHERE tbl NOT IN ('QuotationMst', 'DispatchMst');
 INSERT INTO dk SELECT DISTINCT ON (j.db, j.code, j.comp) j.db, j.code, j.comp, p.vid
 FROM (SELECT 'UMIYA20' AS db, "JV_Code" AS code, mig.int("ComCode") AS comp, "JV_Reff" AS reff FROM legacy_umiya20."JVMst"
         WHERE "Jv_Type" IN ('CGST','SGST','IGST','TDS','TCSPAY','TCSREC') AND coalesce("JV_Reff", '') <> ''

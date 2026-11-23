@@ -15,7 +15,7 @@ INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
 SELECT 'Masters', 'records', t.name, t.old, t.new FROM (
   SELECT 'Companies' AS name, (SELECT count(*) FROM legacy_umiya24."CompanyMst") AS old, (SELECT count(*) FROM public.companies) AS new
   UNION ALL SELECT 'Account groups', (SELECT count(*) FROM mig.latest('GroupMst', '"Gr_Code"')), (SELECT count(*) FROM public.account_groups)
-  UNION ALL SELECT 'Parties', (SELECT count(*) FROM mig.latest('PartyMst', '"P_Code"')), (SELECT count(*) FROM public.accounts WHERE party_type <> 'Book')
+  UNION ALL SELECT 'Parties', (SELECT count(*) FROM mig.latest('PartyMst', '"P_Code"')), (SELECT count(*) FROM public.accounts WHERE party_type NOT IN ('Book', 'MissingInOldMasters'))
   UNION ALL SELECT 'Book ledgers', (SELECT count(*) FROM mig.latest('BookMst', '"Bok_Code"')), (SELECT count(*) FROM public.accounts WHERE party_type = 'Book')
   UNION ALL SELECT 'Books (series)', (SELECT count(*) FROM mig.latest('BookMst', '"Bok_Code"')), (SELECT count(*) FROM public.books)
   UNION ALL SELECT 'Brokers / party groups / collectors', (SELECT count(*) FROM mig.latest('BrokerMst', '"Brk_Code"')), (SELECT count(*) FROM public.persons)
@@ -32,9 +32,9 @@ SELECT db, tbl, ftype, count(*) AS n, sum(coalesce(mig.num(j->>'Sal_NetAmt'), mi
   mig.num(j->>'AutoDbt_Amount'), mig.num(j->>'Oth_Amount'), 0)) AS amt
 FROM (
   SELECT 'UMIYA20' AS db, 'SalesMst' AS tbl, "Sal_Type" AS ftype, to_jsonb(t) AS j FROM legacy_umiya20."SalesMst" t
-  UNION ALL SELECT 'UMIYA24', 'SalesMst', "Sal_Type", to_jsonb(t) FROM legacy_umiya24."SalesMst" t WHERE NOT (coalesce("Sal_IsLastYearEntry", '0') = '1' AND "Sal_Code" IN (SELECT "Sal_Code" FROM legacy_umiya20."SalesMst"))
+  UNION ALL SELECT 'UMIYA24', 'SalesMst', "Sal_Type", to_jsonb(t) FROM legacy_umiya24."SalesMst" t WHERE NOT (coalesce("Sal_IsLastYearEntry", '0') = '1' AND EXISTS (SELECT 1 FROM legacy_umiya20."SalesMst" o WHERE o."Sal_Code" = t."Sal_Code" AND o."ComCode" IS NOT DISTINCT FROM t."ComCode"))
   UNION ALL SELECT 'UMIYA20', 'PurchaseMst', "Pur_Type", to_jsonb(t) FROM legacy_umiya20."PurchaseMst" t
-  UNION ALL SELECT 'UMIYA24', 'PurchaseMst', "Pur_Type", to_jsonb(t) FROM legacy_umiya24."PurchaseMst" t WHERE NOT (coalesce("Pur_IsLastYearEntry", '0') = '1' AND "Pur_Code" IN (SELECT "Pur_Code" FROM legacy_umiya20."PurchaseMst"))
+  UNION ALL SELECT 'UMIYA24', 'PurchaseMst', "Pur_Type", to_jsonb(t) FROM legacy_umiya24."PurchaseMst" t WHERE NOT (coalesce("Pur_IsLastYearEntry", '0') = '1' AND EXISTS (SELECT 1 FROM legacy_umiya20."PurchaseMst" o WHERE o."Pur_Code" = t."Pur_Code" AND o."ComCode" IS NOT DISTINCT FROM t."ComCode"))
   UNION ALL SELECT 'UMIYA20', 'RecMst', "Rec_Type", to_jsonb(t) FROM legacy_umiya20."RecMst" t
   UNION ALL SELECT 'UMIYA24', 'RecMst', "Rec_Type", to_jsonb(t) FROM legacy_umiya24."RecMst" t
   UNION ALL SELECT 'UMIYA20', 'QuotationMst', "Sal_Type", to_jsonb(t) FROM legacy_umiya20."QuotationMst" t
@@ -50,26 +50,40 @@ CREATE TEMP TABLE new_docs AS
 SELECT r.legacy_db AS db, r.legacy_table AS tbl, v.subtype AS ftype, count(*) AS n,
   sum(CASE WHEN r.legacy_table = 'RecMst' THEN v.amount WHEN r.legacy_table = 'PendingAdjustmentMst' THEN v.amount ELSE v.net_amount END) AS amt
 FROM public.legacy_refs r JOIN public.vouchers v ON v.id = r.entity_id
-WHERE r.entity = 'voucher' AND r.legacy_table <> 'JVMst' GROUP BY 1, 2, 3;
+WHERE r.entity = 'voucher' AND r.legacy_table <> 'JVMst' AND NOT coalesce(v.extra ? '_orphanLines', false) GROUP BY 1, 2, 3;
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
 SELECT 'Documents', 'count', coalesce(o.db, n.db) || ' ' || coalesce(o.tbl, n.tbl) || ' ' || coalesce(o.ftype, n.ftype, ''), o.n, n.n
 FROM old_docs o FULL JOIN new_docs n ON n.db = o.db AND n.tbl = o.tbl AND n.ftype IS NOT DISTINCT FROM o.ftype;
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
 SELECT 'Documents', 'total amount', coalesce(o.db, n.db) || ' ' || coalesce(o.tbl, n.tbl) || ' ' || coalesce(o.ftype, n.ftype, ''), o.amt, n.amt
 FROM old_docs o FULL JOIN new_docs n ON n.db = o.db AND n.tbl = o.tbl AND n.ftype IS NOT DISTINCT FROM o.ftype;
--- journals: count of journal documents (excluding GST/TDS/TCS postings attached to bills)
+-- journals: one document per (JV_Code, company), excluding GST/TDS/TCS postings attached to bills;
+-- UMIYA24 copies of UMIYA20 journals are linked to the UMIYA20 document
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
-SELECT 'Documents', 'count', o.db || ' JVMst ' || o.ftype, o.n, (SELECT count(*) FROM public.legacy_refs r JOIN public.vouchers v ON v.id = r.entity_id
-  WHERE r.entity = 'voucher' AND r.legacy_table = 'JVMst' AND r.legacy_db = o.db AND v.subtype = o.ftype)
-FROM (SELECT db, ftype, count(*) n FROM (
-  SELECT DISTINCT 'UMIYA20' AS db, "Jv_Type" AS ftype, "JV_Code", "ComCode" FROM legacy_umiya20."JVMst" WHERE NOT ("Jv_Type" IN ('CGST','SGST','IGST','TDS','TCSPAY','TCSREC') AND coalesce("JV_Reff", '') <> '')
-  UNION ALL SELECT DISTINCT 'UMIYA24', "Jv_Type", "JV_Code", "ComCode" FROM legacy_umiya24."JVMst" WHERE NOT ("Jv_Type" IN ('CGST','SGST','IGST','TDS','TCSPAY','TCSREC') AND coalesce("JV_Reff", '') <> '')) x
-  GROUP BY 1, 2) o;
+SELECT 'Documents', 'journal documents (incl. debit / credit notes)', o.db || ' JVMst', o.n,
+  (SELECT count(*) FROM public.legacy_refs r WHERE r.entity IN ('voucher', 'voucher_copy') AND r.legacy_table = 'JVMst' AND r.legacy_db = o.db)
+FROM (SELECT db, count(*) n FROM (
+  SELECT DISTINCT 'UMIYA20' AS db, "JV_Code", "ComCode" FROM legacy_umiya20."JVMst" WHERE NOT ("Jv_Type" IN ('CGST','SGST','IGST','TDS','TCSPAY','TCSREC') AND coalesce("JV_Reff", '') <> '')
+  UNION ALL SELECT DISTINCT 'UMIYA24', "JV_Code", "ComCode" FROM legacy_umiya24."JVMst" WHERE NOT ("Jv_Type" IN ('CGST','SGST','IGST','TDS','TCSPAY','TCSREC') AND coalesce("JV_Reff", '') <> '')) x
+  GROUP BY 1) o;
+-- lines whose document was deleted in the old software: one cancelled document per missing document
+INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
+SELECT 'Documents', 'documents made for lines whose document was deleted in the old software', 'all',
+  (SELECT count(*) FROM (SELECT DISTINCT 'UMIYA20', "QuotationSubMst"."SalS_Code" FROM legacy_umiya20."QuotationSubMst" WHERE NOT EXISTS (SELECT 1 FROM legacy_umiya20."QuotationMst" h WHERE h."Sal_Code" = "QuotationSubMst"."SalS_Code")
+     UNION ALL SELECT DISTINCT 'UMIYA24', "SalS_Code" FROM legacy_umiya24."QuotationSubMst" s WHERE NOT EXISTS (SELECT 1 FROM legacy_umiya24."QuotationMst" h WHERE h."Sal_Code" = s."SalS_Code")
+     UNION ALL SELECT DISTINCT 'UMIYA20', "RecS_Code" FROM legacy_umiya20."RecSubMst" s WHERE NOT EXISTS (SELECT 1 FROM legacy_umiya20."RecMst" h WHERE h."Rec_Code" = s."RecS_Code")
+     UNION ALL SELECT DISTINCT 'UMIYA24', "RecS_Code" FROM legacy_umiya24."RecSubMst" s WHERE NOT EXISTS (SELECT 1 FROM legacy_umiya24."RecMst" h WHERE h."Rec_Code" = s."RecS_Code")
+     UNION ALL SELECT DISTINCT 'UMIYA20', "SalS_Code" FROM legacy_umiya20."SalesSubMst" s WHERE NOT EXISTS (SELECT 1 FROM legacy_umiya20."SalesMst" h WHERE h."Sal_Code" = s."SalS_Code")
+     UNION ALL SELECT DISTINCT 'UMIYA20', "PurS_Code" FROM legacy_umiya20."PurchaseSubMst" s WHERE NOT EXISTS (SELECT 1 FROM legacy_umiya20."PurchaseMst" h WHERE h."Pur_Code" = s."PurS_Code")) x),
+  (SELECT count(*) FROM public.vouchers WHERE extra ? '_orphanLines');
 -- carried-forward copies: each is linked to the document made from its UMIYA20 original
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
-SELECT 'Documents', 'carried-forward copies linked', 'UMIYA24 bills flagged IsLastYearEntry',
-  (SELECT count(*) FROM legacy_umiya24."SalesMst" WHERE "Sal_IsLastYearEntry" = '1' AND "Sal_Code" IN (SELECT "Sal_Code" FROM legacy_umiya20."SalesMst"))
-  + (SELECT count(*) FROM legacy_umiya24."PurchaseMst" WHERE "Pur_IsLastYearEntry" = '1' AND "Pur_Code" IN (SELECT "Pur_Code" FROM legacy_umiya20."PurchaseMst")),
+SELECT 'Documents', 'carried-forward copies linked', 'UMIYA24 bills / journals flagged as last-year entries',
+  (SELECT count(*) FROM legacy_umiya24."SalesMst" t WHERE "Sal_IsLastYearEntry" = '1' AND EXISTS (SELECT 1 FROM legacy_umiya20."SalesMst" o WHERE o."Sal_Code" = t."Sal_Code" AND o."ComCode" IS NOT DISTINCT FROM t."ComCode"))
+  + (SELECT count(*) FROM legacy_umiya24."PurchaseMst" t WHERE "Pur_IsLastYearEntry" = '1' AND EXISTS (SELECT 1 FROM legacy_umiya20."PurchaseMst" o WHERE o."Pur_Code" = t."Pur_Code" AND o."ComCode" IS NOT DISTINCT FROM t."ComCode"))
+  + (SELECT count(*) FROM (SELECT DISTINCT "JV_Code", "ComCode" FROM legacy_umiya24."JVMst" t WHERE "Jv_IsLastYear" = '1'
+       AND NOT ("Jv_Type" IN ('CGST','SGST','IGST','TDS','TCSPAY','TCSREC') AND coalesce("JV_Reff", '') <> '')
+       AND EXISTS (SELECT 1 FROM legacy_umiya20."JVMst" o WHERE o."JV_Code" = t."JV_Code" AND o."ComCode" IS NOT DISTINCT FROM t."ComCode")) x),
   (SELECT count(*) FROM public.legacy_refs WHERE entity = 'voucher_copy');
 SELECT mig.note('reconcile: documents');
 
@@ -78,10 +92,10 @@ INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
 SELECT 'Lines', 'count', o.db || ' ' || o.tbl, o.n, (SELECT count(*) FROM public.legacy_refs r WHERE r.entity = 'voucher_line' AND r.legacy_db = o.db AND r.legacy_table = o.tbl)
 FROM (SELECT 'UMIYA20' db, 'SalesSubMst' tbl, count(*) n FROM legacy_umiya20."SalesSubMst"
       UNION ALL SELECT 'UMIYA24', 'SalesSubMst', count(*) FROM legacy_umiya24."SalesSubMst" s WHERE "SalS_Code" NOT IN (
-        SELECT "Sal_Code" FROM legacy_umiya24."SalesMst" WHERE "Sal_IsLastYearEntry" = '1' AND "Sal_Code" IN (SELECT "Sal_Code" FROM legacy_umiya20."SalesMst"))
+        SELECT "Sal_Code" FROM legacy_umiya24."SalesMst" t WHERE "Sal_IsLastYearEntry" = '1' AND EXISTS (SELECT 1 FROM legacy_umiya20."SalesMst" o WHERE o."Sal_Code" = t."Sal_Code" AND o."ComCode" IS NOT DISTINCT FROM t."ComCode"))
       UNION ALL SELECT 'UMIYA20', 'PurchaseSubMst', count(*) FROM legacy_umiya20."PurchaseSubMst"
       UNION ALL SELECT 'UMIYA24', 'PurchaseSubMst', count(*) FROM legacy_umiya24."PurchaseSubMst" WHERE "PurS_Code" NOT IN (
-        SELECT "Pur_Code" FROM legacy_umiya24."PurchaseMst" WHERE "Pur_IsLastYearEntry" = '1' AND "Pur_Code" IN (SELECT "Pur_Code" FROM legacy_umiya20."PurchaseMst"))
+        SELECT "Pur_Code" FROM legacy_umiya24."PurchaseMst" t WHERE "Pur_IsLastYearEntry" = '1' AND EXISTS (SELECT 1 FROM legacy_umiya20."PurchaseMst" o WHERE o."Pur_Code" = t."Pur_Code" AND o."ComCode" IS NOT DISTINCT FROM t."ComCode"))
       UNION ALL SELECT 'UMIYA20', 'QuotationSubMst', count(*) FROM legacy_umiya20."QuotationSubMst"
       UNION ALL SELECT 'UMIYA24', 'QuotationSubMst', count(*) FROM legacy_umiya24."QuotationSubMst"
       UNION ALL SELECT 'UMIYA20', 'RecSubMst', count(*) FROM legacy_umiya20."RecSubMst"
@@ -103,17 +117,18 @@ SELECT mig.note('reconcile: lines');
 
 /* 5. ledger: every account's balance per database (period) and company, exact */
 CREATE TEMP TABLE old_bal AS
-SELECT 20 AS period, mig.int("CompanyCode") AS comp, "Pcode" AS code, sum(mig.num0("TotAmt")) AS bal, count(*) AS n FROM legacy_umiya20."AccountLedger" GROUP BY 1, 2, 3
+SELECT 20 AS period, mig.int("CompanyCode") AS comp, coalesce("Pcode", '') AS code, sum(mig.num0("TotAmt")) AS bal, count(*) AS n FROM legacy_umiya20."AccountLedger" GROUP BY 1, 2, 3
 UNION ALL
-SELECT 24, mig.int("CompanyCode"), "Pcode", sum(mig.num0("TotAmt")), count(*) FROM legacy_umiya24."AccountLedger" GROUP BY 1, 2, 3;
+SELECT 24, mig.int("CompanyCode"), coalesce("Pcode", ''), sum(mig.num0("TotAmt")), count(*) FROM legacy_umiya24."AccountLedger" GROUP BY 1, 2, 3;
 CREATE TEMP TABLE new_bal AS
-SELECT e.ledger_period AS period, e.company_id AS comp, a.legacy_code AS code, sum(e.debit - e.credit) AS bal, count(*) AS n
+SELECT e.ledger_period AS period, e.company_id AS comp, coalesce(a.legacy_code, '') AS code, sum(e.debit - e.credit) AS bal, count(*) AS n
 FROM public.ledger_entries e LEFT JOIN public.accounts a ON a.id = e.account_id GROUP BY 1, 2, 3;
+ANALYZE old_bal; ANALYZE new_bal;
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
 SELECT 'Ledger', 'entries', 'UMIYA' || p, (SELECT sum(n) FROM old_bal WHERE period = p), (SELECT sum(n) FROM new_bal WHERE period = p) FROM (VALUES (20), (24)) t(p);
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)
 SELECT 'Ledger', 'accounts with a different balance', 'UMIYA' || p, 0,
-  (SELECT count(*) FROM old_bal o FULL JOIN new_bal n ON n.period = o.period AND n.comp = o.comp AND n.code IS NOT DISTINCT FROM o.code
+  (SELECT count(*) FROM old_bal o FULL JOIN new_bal n ON n.period = o.period AND n.comp = o.comp AND n.code = o.code
    WHERE coalesce(o.period, n.period) = p AND coalesce(o.bal, 0) <> coalesce(n.bal, 0))
 FROM (VALUES (20), (24)) t(p);
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)

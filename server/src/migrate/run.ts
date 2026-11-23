@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import bcrypt from 'bcryptjs';
 import pg from 'pg';
 import { config } from '../config.js';
 
@@ -16,6 +17,10 @@ export async function convert(only: string[] = [], url = config.databaseUrl) {
   const client = new pg.Client({ connectionString: url });
   await client.connect();
   client.on('notice', (n) => console.log('   ', n.message));
+  // the YarnFlow administrator (access to every company is given in step 08)
+  const adminEmail = process.env.YF_ADMIN_EMAIL ?? 'admin@yarnflow.in';
+  await client.query(`INSERT INTO public.users (name, email, password_hash, role, is_active) VALUES ('Administrator', $1, $2, 'ADMIN', true)
+    ON CONFLICT (email) DO NOTHING`, [adminEmail, await bcrypt.hash(process.env.YF_ADMIN_PASSWORD ?? 'Admin@123', 10)]);
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.sql')).sort()
     .filter((f) => !only.length || f.startsWith('00_') || only.some((o) => f.startsWith(o)));
   for (const f of files) {
