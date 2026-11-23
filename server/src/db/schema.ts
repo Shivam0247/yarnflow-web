@@ -2,7 +2,10 @@
  * YarnFlow database schema (PostgreSQL, Drizzle ORM).
  *
  * Every business record belongs to a company; transactions also belong to a
- * financial year. All money is numeric(14,2), quantities numeric(14,3).
+ * financial year. Money, quantities, rates and percentages are exact decimals
+ * (unconstrained PostgreSQL `numeric`): values migrated from the old software keep
+ * every digit they had there, and nothing is ever rounded on storage. Screens
+ * format to 2/3 decimals for display only.
  *
  * One generic `vouchers` table holds every document type (orders, schedules,
  * bills, returns, receipts, payments, journals …) — exactly how accounting
@@ -25,9 +28,10 @@ import {
   varchar
 } from 'drizzle-orm/pg-core';
 
-const money = (name: string) => numeric(name, { precision: 14, scale: 2, mode: 'number' });
-const qty = (name: string) => numeric(name, { precision: 14, scale: 3, mode: 'number' });
-const pct = (name: string) => numeric(name, { precision: 6, scale: 3, mode: 'number' });
+const exact = (name: string) => numeric(name, { mode: 'number' });
+const money = exact;
+const qty = exact;
+const pct = exact;
 const id = () => integer('id').primaryKey().generatedByDefaultAsIdentity();
 const stamps = {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -49,8 +53,11 @@ export const rateBasisEnum = pgEnum('rate_basis', ['PER_KG', 'PER_BOX', 'PER_TRI
 export const voucherTypeEnum = pgEnum('voucher_type', [
   'SALES_ORDER', 'PURCHASE_ORDER', 'DISPATCH_SCHEDULE', 'SALE_BILL', 'PURCHASE_BILL',
   'SALE_RETURN', 'PURCHASE_RETURN', 'GENERAL_SALE', 'GENERAL_PURCHASE',
-  'RECEIPT', 'PAYMENT', 'CONTRA', 'JOURNAL', 'DEBIT_NOTE', 'CREDIT_NOTE', 'STOCK_TRANSFER', 'OPENING_STOCK'
+  'RECEIPT', 'PAYMENT', 'CONTRA', 'JOURNAL', 'DEBIT_NOTE', 'CREDIT_NOTE', 'STOCK_TRANSFER', 'OPENING_STOCK',
+  'RECEIPT_RETURN', 'PAYMENT_RETURN', 'OPENING_BALANCE', 'INTEREST_DEBIT_NOTE', 'PENDING_ADJUSTMENT'
 ]);
+/** people the business works with who are not ledger accounts (old software: BrokerMst) */
+export const personRoleEnum = pgEnum('person_role', ['PARTY_GROUP', 'BROKER', 'COLLECTOR', 'SALES_PERSON', 'GODOWN_PERSON']);
 export const docStatusEnum = pgEnum('doc_status', [
   'DRAFT', 'PENDING_APPROVAL', 'OPEN', 'PARTIAL', 'COMPLETED', 'CANCELLED', 'LOCKED', 'POSTED', 'REJECTED'
 ]);
@@ -82,6 +89,10 @@ export const companies = pgTable('companies', {
   poApprovalLimit: money('po_approval_limit').notNull().default(1000000),
   /** e-way bill required above this invoice value */
   ewbThreshold: money('ewb_threshold').notNull().default(50000),
+  /** companies of one business share masters (parties, items, groups, books…) kept under this company */
+  masterCompanyId: integer('master_company_id'),
+  legacyCode: varchar('legacy_code', { length: 20 }),
+  extra: jsonb('extra').$type<Record<string, unknown>>(),
   ...stamps
 });
 
@@ -171,7 +182,7 @@ export const accounts = pgTable(
     creditDays: integer('credit_days').notNull().default(0),
     interestRate: pct('interest_rate').notNull().default(0),
     brokerId: integer('broker_id'),
-    brokerageRate: numeric('brokerage_rate', { precision: 10, scale: 3, mode: 'number' }).notNull().default(0),
+    brokerageRate: exact('brokerage_rate').notNull().default(0),
     brokerageType: varchar('brokerage_type', { length: 10 }).notNull().default('PER_KG'), // PER_KG | PERCENT
     transporterId: integer('transporter_id'),
     salesPersonId: integer('sales_person_id'),
@@ -189,10 +200,14 @@ export const accounts = pgTable(
     status: statusEnum('status').notNull().default('ACTIVE'),
     isSystem: boolean('is_system').notNull().default(false),
     notes: text('notes'),
+    /** party | transport party | delivery party | book (sales/purchase/bank ledger) */
+    partyType: varchar('party_type', { length: 20 }),
+    legacyCode: varchar('legacy_code', { length: 20 }),
+    extra: jsonb('extra').$type<Record<string, unknown>>(),
     ...stamps
   },
   (t) => [
-    uniqueIndex('account_company_name').on(t.companyId, t.name),
+    uniqueIndex('account_company_legacy').on(t.companyId, t.legacyCode),
     index('account_kind_idx').on(t.companyId, t.kind),
     index('account_group_idx').on(t.groupId)
   ]
@@ -207,6 +222,67 @@ export const salesPersons = pgTable('sales_persons', {
   isActive: boolean('is_active').notNull().default(true),
   ...stamps
 });
+
+/** Party groups ("Mistry"), brokers, collection persons, sales persons — old BrokerMst */
+export const persons = pgTable(
+  'persons',
+  {
+    id: id(),
+    companyId: integer('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    role: personRoleEnum('role').notNull(),
+    code: varchar('code', { length: 20 }),
+    name: varchar('name', { length: 160 }).notNull(),
+    shortName: varchar('short_name', { length: 60 }),
+    phone: varchar('phone', { length: 60 }),
+    email: varchar('email', { length: 160 }),
+    address1: text('address1'),
+    address2: text('address2'),
+    city: varchar('city', { length: 80 }),
+    pan: varchar('pan', { length: 10 }),
+    rate: exact('rate'),
+    creditLimit: money('credit_limit'),
+    creditDays: integer('credit_days'),
+    isBlocked: boolean('is_blocked').notNull().default(false),
+    blockReason: text('block_reason'),
+    remark: text('remark'),
+    extra: jsonb('extra').$type<Record<string, unknown>>(),
+    ...stamps
+  },
+  (t) => [uniqueIndex('person_company_code').on(t.companyId, t.code), index('person_role_idx').on(t.companyId, t.role)]
+);
+
+/** Per-company settings of a shared account (old ObjectMapMst / CapitalRationMst) */
+export const accountCompanies = pgTable(
+  'account_companies',
+  {
+    accountId: integer('account_id').notNull().references(() => accounts.id, { onDelete: 'cascade' }),
+    companyId: integer('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    creditDays: exact('credit_days'),
+    creditLimit: money('credit_limit'),
+    lockDays: exact('lock_days'),
+    tdsApplicable: boolean('tds_applicable'),
+    tcsApplicable: boolean('tcs_applicable'),
+    rcmApplicable: boolean('rcm_applicable'),
+    capitalRatio: exact('capital_ratio'),
+    extra: jsonb('extra').$type<Record<string, unknown>>()
+  },
+  (t) => [uniqueIndex('account_company_uq').on(t.accountId, t.companyId)]
+);
+
+/** Link from every migrated YarnFlow row to the exact archived row it came from */
+export const legacyRefs = pgTable(
+  'legacy_refs',
+  {
+    entity: varchar('entity', { length: 30 }).notNull(),
+    entityId: integer('entity_id').notNull(),
+    legacyDb: varchar('legacy_db', { length: 20 }).notNull(),
+    legacyTable: varchar('legacy_table', { length: 60 }).notNull(),
+    legacyKey: text('legacy_key').notNull(),
+    legacyRow: integer('legacy_row'),
+    legacySha: varchar('legacy_sha', { length: 64 })
+  },
+  (t) => [uniqueIndex('legacy_ref_uq').on(t.legacyDb, t.legacyTable, t.legacyKey, t.entity), index('legacy_ref_entity').on(t.entity, t.entityId)]
+);
 
 export const costCenters = pgTable('cost_centers', {
   id: id(),
@@ -335,25 +411,31 @@ export const vouchers = pgTable(
     seq: integer('seq').notNull().default(0),
     date: date('date', { mode: 'string' }).notNull(),
     status: docStatusEnum('status').notNull().default('OPEN'),
+    /** exact document type of the old software (SAL, GENSAL, BANKPAYON, PLJV …) */
+    subtype: varchar('subtype', { length: 20 }),
+    /** which books the document belongs to: 20 = UMIYA20 era (to FY 23-24), 24 = UMIYA24 era onwards */
+    ledgerPeriod: integer('ledger_period'),
+    legacyCode: varchar('legacy_code', { length: 30 }),
 
     // parties & people
     partyId: integer('party_id').references(() => accounts.id),
     deliveryPartyId: integer('delivery_party_id').references(() => accounts.id),
-    brokerId: integer('broker_id').references(() => accounts.id),
+    /** broker (person) */
+    brokerId: integer('broker_id').references(() => persons.id),
     /** agent / supplier's agent (purchase side), agent on bills */
     agentId: integer('agent_id').references(() => accounts.id),
     /** how the order was placed: phone / email / mill portal / visit */
     orderMode: varchar('order_mode', { length: 30 }),
-    brokerageRate: numeric('brokerage_rate', { precision: 10, scale: 3, mode: 'number' }).notNull().default(0),
+    brokerageRate: exact('brokerage_rate').notNull().default(0),
     brokerageType: varchar('brokerage_type', { length: 10 }).notNull().default('PER_KG'),
     millId: integer('mill_id').references(() => accounts.id), // supplier (mill) on sales orders
-    salesPersonId: integer('sales_person_id').references(() => salesPersons.id),
+    salesPersonId: integer('sales_person_id').references(() => persons.id),
     costCenterId: integer('cost_center_id').references(() => costCenters.id),
     godownId: integer('godown_id').references(() => godowns.id),
     toGodownId: integer('to_godown_id').references(() => godowns.id),
     bankAccountId: integer('bank_account_id').references(() => accounts.id), // receipts / payments
     collectionPerson: varchar('collection_person', { length: 120 }),
-    collectionPersonId: integer('collection_person_id').references(() => salesPersons.id),
+    collectionPersonId: integer('collection_person_id').references(() => persons.id),
 
     // references
     sourceId: integer('source_id'), // the document this one was made against
@@ -391,7 +473,7 @@ export const vouchers = pgTable(
     tcsRate: pct('tcs_rate').notNull().default(0),
     tdsRate: pct('tds_rate').notNull().default(0),
     currency: varchar('currency', { length: 3 }).notNull().default('INR'),
-    exchangeRate: numeric('exchange_rate', { precision: 12, scale: 4, mode: 'number' }).notNull().default(1),
+    exchangeRate: exact('exchange_rate').notNull().default(1),
 
     // totals (computed by the server)
     totalPcs: qty('total_pcs').notNull().default(0),
@@ -442,7 +524,8 @@ export const vouchers = pgTable(
     ...stamps
   },
   (t) => [
-    uniqueIndex('voucher_number_uq').on(t.companyId, t.fyId, t.type, t.number),
+    index('voucher_number_idx').on(t.companyId, t.fyId, t.type, t.number),
+    index('voucher_legacy').on(t.legacyCode),
     index('voucher_type_date').on(t.companyId, t.fyId, t.type, t.date),
     index('voucher_party').on(t.partyId),
     index('voucher_source').on(t.sourceId)
@@ -467,7 +550,7 @@ export const voucherLines = pgTable(
     pcs: qty('pcs').notNull().default(0), // cartons / boxes
     cops: qty('cops').notNull().default(0),
     qty: qty('qty').notNull().default(0), // kg
-    rate: numeric('rate', { precision: 14, scale: 4, mode: 'number' }).notNull().default(0),
+    rate: exact('rate').notNull().default(0),
     basicAmount: money('basic_amount').notNull().default(0),
     discPct: pct('disc_pct').notNull().default(0),
     discAmount: money('disc_amount').notNull().default(0),
@@ -517,9 +600,18 @@ export const ledgerEntries = pgTable(
     date: date('date', { mode: 'string' }).notNull(),
     debit: money('debit').notNull().default(0),
     credit: money('credit').notNull().default(0),
-    narration: text('narration')
+    narration: text('narration'),
+    /** 20 / 24 — see vouchers.ledgerPeriod; balances are always taken within one period */
+    ledgerPeriod: integer('ledger_period'),
+    /** posting kind of the old software (SAL, CGST, TDS, OPENING …) */
+    subtype: varchar('subtype', { length: 20 }),
+    /** contra account of the posting (old AccountLedger.BkCode) */
+    contraAccountId: integer('contra_account_id'),
+    billNo: varchar('bill_no', { length: 60 }),
+    costCenterId: integer('cost_center_id'),
+    legacyCode: varchar('legacy_code', { length: 30 })
   },
-  (t) => [index('ledger_account_date').on(t.accountId, t.date), index('ledger_voucher').on(t.voucherId)]
+  (t) => [index('ledger_account_date').on(t.accountId, t.date), index('ledger_voucher').on(t.voucherId), index('ledger_company_account').on(t.companyId, t.accountId, t.ledgerPeriod)]
 );
 
 /** Stock movements (in/out) per item + brand + lot + grade + godown */
@@ -541,7 +633,7 @@ export const stockEntries = pgTable(
     qtyOut: qty('qty_out').notNull().default(0),
     pcsIn: qty('pcs_in').notNull().default(0),
     pcsOut: qty('pcs_out').notNull().default(0),
-    rate: numeric('rate', { precision: 14, scale: 4, mode: 'number' }).notNull().default(0),
+    rate: exact('rate').notNull().default(0),
     value: money('value').notNull().default(0)
   },
   (t) => [index('stock_item').on(t.companyId, t.itemId, t.lotNo), index('stock_voucher').on(t.voucherId)]
@@ -553,9 +645,18 @@ export const billAllocations = pgTable(
   {
     id: id(),
     companyId: integer('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
-    voucherId: integer('voucher_id').notNull().references(() => vouchers.id, { onDelete: 'cascade' }),
+    /** settling document; null for amounts settled before the books began (old "OpPaidAmt") */
+    voucherId: integer('voucher_id').references(() => vouchers.id, { onDelete: 'cascade' }),
     billId: integer('bill_id').notNull().references(() => vouchers.id, { onDelete: 'cascade' }),
-    amount: money('amount').notNull()
+    amount: money('amount').notNull(),
+    /** RECEIPT | JOURNAL | BILL | PENDING | OPENING_PAID */
+    kind: varchar('kind', { length: 20 }),
+    date: date('date', { mode: 'string' }),
+    interest: money('interest'),
+    tdsAmount: money('tds_amount'),
+    partyId: integer('party_id'),
+    ledgerPeriod: integer('ledger_period'),
+    extra: jsonb('extra').$type<Record<string, unknown>>()
   },
   (t) => [index('alloc_bill').on(t.billId), index('alloc_voucher').on(t.voucherId)]
 );

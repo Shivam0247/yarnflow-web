@@ -29,6 +29,13 @@
       "when": 1793795578760,
       "tag": "0003_voucher_extra",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795437584851,
+      "tag": "0004_migrated_data",
+      "breakpoints": true
     }
   ]
 }
