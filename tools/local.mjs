@@ -4,6 +4,10 @@
  * Starts a private PostgreSQL 16 (embedded, no install needed) in ./.local-db,
  * migrates + seeds it on first run, builds the web app if needed, then serves
  * everything at http://localhost:4000. Ctrl+C stops it all.
+ *
+ * Load the old software's data:  npm run local -- --import "/Volumes/SanDisk/YarnFlowExport_…"
+ * The export folder is only READ (never changed). Its databases are archived exactly, converted,
+ * checked (every check old = new) and the report is written to ./migration-report.html.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
@@ -18,7 +22,11 @@ const PG_PORT = Number(process.env.YF_PG_PORT || 5433);
 const PORT = Number(process.env.PORT || 4000);
 const fresh = !fs.existsSync(path.join(dataDir, 'PG_VERSION'));
 
-const pg = new EmbeddedPostgres({ databaseDir: dataDir, user: 'yarnflow', password: 'yarnflow', port: PG_PORT, persistent: true, onLog: () => {} });
+const ix = process.argv.indexOf('--import');
+const importDir = ix > 0 ? process.argv[ix + 1] : null;
+if (importDir && !fs.existsSync(importDir)) { console.error('✗ Export folder not found: ' + importDir); process.exit(1); }
+const pg = new EmbeddedPostgres({ databaseDir: dataDir, user: 'yarnflow', password: 'yarnflow', port: PG_PORT, persistent: true, onLog: () => {},
+  postgresFlags: ['-c', 'max_wal_size=4GB', '-c', 'shared_buffers=512MB', '-c', 'jit=off', '-c', 'maintenance_work_mem=512MB'] });
 const step = (m) => console.log('\x1b[36m›\x1b[0m ' + m);
 
 if (fresh) { step('Creating local database (first run only)…'); await pg.initialise(); }
@@ -51,7 +59,13 @@ process.on('SIGINT', () => stop(0));
 process.on('SIGTERM', () => stop(0));
 
 run(['run', 'db:migrate', '-w', 'server'], 'Applying migrations');
-if (fresh) run(['run', 'db:seed', '-w', 'server'], 'Loading demo data');
+if (importDir) {
+  const dbs = fs.readdirSync(importDir).filter((d) => fs.existsSync(path.join(importDir, d, 'summary.txt')));
+  if (!dbs.length) { console.error('✗ No database folders (with summary.txt) in ' + importDir); stop(1); }
+  run(['run', 'migrate:archive', '-w', 'server', '--', importDir, dbs.join(',')], `Archiving ${dbs.join(' + ')} exactly as exported (read only; takes a while)`);
+  run(['run', 'migrate:convert', '-w', 'server'], 'Converting to YarnFlow (about 45–60 minutes)');
+  run(['run', 'migrate:report', '-w', 'server', '--', path.join(root, 'migration-report.html')], 'Checking old vs new → migration-report.html');
+} else if (fresh) run(['run', 'db:seed', '-w', 'server'], 'Loading demo data');
 if (!fs.existsSync(path.join(root, 'web/dist/index.html')) || process.argv.includes('--build')) run(['run', 'build', '-w', 'web'], 'Building the web app');
 
 step('Starting YarnFlow…');

@@ -11,7 +11,7 @@ export type Db = NodePgDatabase<typeof schema>;
 export type Tx = Db | Parameters<Parameters<Db['transaction']>[0]>[0];
 
 export function createDb(url = config.databaseUrl) {
-  const pool = new pg.Pool({ connectionString: url, max: 10 });
+  const pool = new pg.Pool({ connectionString: url, max: 10, options: '-c jit=off' });
   const db = drizzle(pool, { schema, casing: 'snake_case' });
   return { db, pool };
 }

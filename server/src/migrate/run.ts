@@ -40,6 +40,12 @@ export async function convert(only: string[] = [], url = config.databaseUrl) {
       process.exit(1);
     }
   }
+  // fresh statistics and visibility maps after a full load, so screens are fast straight away
+  if (!only.length) {
+    const t0 = Date.now();
+    await client.query('VACUUM (ANALYZE) public.ledger_entries, public.vouchers, public.voucher_lines, public.bill_allocations, public.accounts, public.legacy_refs, public.persons');
+    console.log(`✓ statistics refreshed (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
+  }
   await client.end();
 }
 

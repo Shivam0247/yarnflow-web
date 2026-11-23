@@ -64,6 +64,13 @@
       "when": 1795449468553,
       "tag": "0008_carried_to_period",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795458049069,
+      "tag": "0009_ledger_period_index",
+      "breakpoints": true
     }
   ]
 }
