@@ -25,7 +25,20 @@ YarnFlowExport_<date>/
 | **4 · Load** | Writes the mapped rows into YarnFlow in one transaction, in dependency order: masters, then orders, then bills, then payments, then adjustments. | Yes. Rows are matched by legacy key, as described below. |
 | **5 · Reconcile** | Compares YarnFlow against the old system: party balances, trial balance, outstanding (bill-wise), stock by item and lot, and register totals per month. It also checks that each legacy row is either migrated or listed with a reason. | Yes |
 
-## 3. Rules that make re-runs easy
+## 3. Design principle (owner's instruction)
+
+YarnFlow keeps **its own clean, normalised database design**. It does **not**
+copy the old table layout. The old structure is used only as a source to
+read from. The one hard rule is that **no data may be lost or changed in
+meaning**:
+
+- Every legacy row that carries business data has a home in YarnFlow.
+- Values are converted exactly. Amounts, quantities and dates are checked in
+  the reconcile step.
+- Anything not yet modelled is kept in the record's `extra` JSON, so nothing
+  is dropped.
+
+## 4. Rules that make re-runs easy
 
 - **Legacy keys.** Every migrated row stores `legacy_db`, `legacy_table` and
   `legacy_id` (or the composite key) in a `legacy_ref` table. A later run upserts
@@ -50,7 +63,7 @@ YarnFlowExport_<date>/
   counts per table, reconciliation results, rows skipped with reasons, and any
   differences from the previous run.
 
-## 4. Go-live procedure
+## 5. Go-live procedure
 
 1. Run the trial export, then migrate and reconcile. Fix the mappings until the
    reconcile report is clean.
