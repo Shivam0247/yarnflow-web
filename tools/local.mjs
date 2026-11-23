@@ -25,6 +25,12 @@ const fresh = !fs.existsSync(path.join(dataDir, 'PG_VERSION'));
 const ix = process.argv.indexOf('--import');
 const importDir = ix > 0 ? process.argv[ix + 1] : null;
 if (importDir && !fs.existsSync(importDir)) { console.error('✗ Export folder not found: ' + importDir); process.exit(1); }
+if (importDir) {
+  fs.mkdirSync(dataDir, { recursive: true });
+  const st = fs.statfsSync(dataDir);
+  const freeGb = (st.bavail * st.bsize) / 1e9;
+  if (freeGb < 25) { console.error(`\x1b[31m✗ Only ${freeGb.toFixed(1)} GB free on this disk. Loading the old data needs about 25 GB free — free up space and run again.\x1b[0m`); process.exit(1); }
+}
 const pg = new EmbeddedPostgres({ databaseDir: dataDir, user: 'yarnflow', password: 'yarnflow', port: PG_PORT, persistent: true, onLog: () => {},
   postgresFlags: ['-c', 'max_wal_size=4GB', '-c', 'shared_buffers=512MB', '-c', 'jit=off', '-c', 'maintenance_work_mem=512MB'] });
 const step = (m) => console.log('\x1b[36m›\x1b[0m ' + m);
@@ -43,10 +49,11 @@ const env = {
   HOST: '127.0.0.1',
   CORS_ORIGIN: `http://localhost:${PORT}`
 };
-const run = (args, label) => {
+// a failed step stops everything (nothing after it runs on an incomplete database)
+const run = async (args, label) => {
   step(label);
   const r = spawnSync('npm', args, { cwd: root, env, stdio: 'inherit', shell: process.platform === 'win32' });
-  if (r.status !== 0) { console.error('✗ ' + label + ' failed'); stop(1); }
+  if (r.status !== 0) { console.error('\n\x1b[31m✗ ' + label + ' failed — stopped here.\x1b[0m'); await stop(1); }
 };
 
 let child;
@@ -58,15 +65,15 @@ async function stop(code = 0) {
 process.on('SIGINT', () => stop(0));
 process.on('SIGTERM', () => stop(0));
 
-run(['run', 'db:migrate', '-w', 'server'], 'Applying migrations');
+await run(['run', 'db:migrate', '-w', 'server'], 'Applying migrations');
 if (importDir) {
   const dbs = fs.readdirSync(importDir).filter((d) => fs.existsSync(path.join(importDir, d, 'summary.txt')));
   if (!dbs.length) { console.error('✗ No database folders (with summary.txt) in ' + importDir); stop(1); }
-  run(['run', 'migrate:archive', '-w', 'server', '--', importDir, dbs.join(',')], `Archiving ${dbs.join(' + ')} exactly as exported (read only; takes a while)`);
-  run(['run', 'migrate:convert', '-w', 'server'], 'Converting to YarnFlow (about 45–60 minutes)');
-  run(['run', 'migrate:report', '-w', 'server', '--', path.join(root, 'migration-report.html')], 'Checking old vs new → migration-report.html');
-} else if (fresh) run(['run', 'db:seed', '-w', 'server'], 'Loading demo data');
-if (!fs.existsSync(path.join(root, 'web/dist/index.html')) || process.argv.includes('--build')) run(['run', 'build', '-w', 'web'], 'Building the web app');
+  await run(['run', 'migrate:archive', '-w', 'server', '--', importDir, dbs.join(',')], `Archiving ${dbs.join(' + ')} exactly as exported (read only; takes a while)`);
+  await run(['run', 'migrate:convert', '-w', 'server'], 'Converting to YarnFlow (about 45–60 minutes)');
+  await run(['run', 'migrate:report', '-w', 'server', '--', path.join(root, 'migration-report.html')], 'Checking old vs new → migration-report.html');
+} else if (fresh) await run(['run', 'db:seed', '-w', 'server'], 'Loading demo data');
+if (!fs.existsSync(path.join(root, 'web/dist/index.html')) || process.argv.includes('--build')) await run(['run', 'build', '-w', 'web'], 'Building the web app');
 
 step('Starting YarnFlow…');
 child = spawn('npx', ['tsx', 'src/server.ts'], { cwd: path.join(root, 'server'), env, stdio: ['inherit', 'ignore', 'inherit'], shell: process.platform === 'win32' });
