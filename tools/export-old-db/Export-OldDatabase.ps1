@@ -10,7 +10,8 @@
   What it exports, for every database you pick (e.g. UMIYA24, UMIYA20):
     schema.json        every table/view: columns, data types, keys, relations, row counts
     modules.sql        source of all views / stored procedures / functions (report logic)
-    data\<table>.csv   every row of every table (UTF-8, comma separated, quoted)
+    data\<table>.csv   every row of every table (UTF-8, comma separated, quoted).
+                       Tables bigger than 300 MB continue in <table>.part002.csv, .part003.csv ...
     summary.txt        table list with row counts
 
   How to run (Windows):
@@ -39,20 +40,33 @@ public static class YfExport {
     else s = v.ToString();
     return "\"" + s.Replace("\"", "\"\"") + "\"";
   }
-  public static long Table(SqlConnection c, string sql, string file) {
+  // Writes the query result as CSV. When a file passes maxBytes it continues in
+  // <name>.part002.csv, <name>.part003.csv ... (each part has the header row).
+  public static long Table(SqlConnection c, string sql, string file, long maxBytes) {
+    var enc = new UTF8Encoding(false);
     using (var cmd = c.CreateCommand()) {
       cmd.CommandText = sql; cmd.CommandTimeout = 0;
-      using (var rd = cmd.ExecuteReader())
-      using (var w = new StreamWriter(file, false, new UTF8Encoding(false), 1 << 20)) {
+      using (var rd = cmd.ExecuteReader()) {
         var sb = new StringBuilder();
         for (int k = 0; k < rd.FieldCount; k++) { if (k > 0) sb.Append(','); sb.Append("\"" + rd.GetName(k).Replace("\"", "\"\"") + "\""); }
-        w.WriteLine(sb.ToString());
+        string header = sb.ToString();
+        int part = 1; string cur = file; long bytes = 0;
+        var w = new StreamWriter(cur, false, enc, 1 << 20);
+        w.WriteLine(header); bytes = enc.GetByteCount(header) + 2;
         var vals = new object[rd.FieldCount]; long n = 0;
-        while (rd.Read()) {
-          rd.GetValues(vals); sb.Clear();
-          for (int k = 0; k < vals.Length; k++) { if (k > 0) sb.Append(','); sb.Append(Cell(vals[k])); }
-          w.WriteLine(sb.ToString()); n++;
-        }
+        try {
+          while (rd.Read()) {
+            rd.GetValues(vals); sb.Clear();
+            for (int k = 0; k < vals.Length; k++) { if (k > 0) sb.Append(','); sb.Append(Cell(vals[k])); }
+            string line = sb.ToString(); long lb = enc.GetByteCount(line) + 2;
+            if (maxBytes > 0 && bytes + lb > maxBytes && bytes > 0) {
+              w.Close(); part++;
+              cur = file.Substring(0, file.Length - 4) + ".part" + part.ToString("000") + ".csv";
+              w = new StreamWriter(cur, false, enc, 1 << 20); w.WriteLine(header); bytes = enc.GetByteCount(header) + 2;
+            }
+            w.WriteLine(line); bytes += lb; n++;
+          }
+        } finally { w.Close(); }
         return n;
       }
     }
@@ -96,6 +110,8 @@ $pick = Ask "Databases to export (comma separated names, or ALL)" $defaultPick
 if ($pick -eq 'ALL') { $pick = ($dbs.Rows | ForEach-Object { $_.name }) -join ',' }
 $targets = $pick.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
 
+$onlyTables = Ask "Only these tables (comma separated, blank = ALL tables)" ""
+$onlyList = @($onlyTables.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 $outRoot = Ask "Output folder" (Join-Path ([Environment]::GetFolderPath('Desktop')) ("YarnFlowExport_" + (Get-Date -Format 'yyyyMMdd_HHmm')))
 New-Item -ItemType Directory -Force -Path $outRoot | Out-Null
 
@@ -184,6 +200,7 @@ WHERE o.is_ms_shipped = 0 ORDER BY o.type, o.name
   # data: every row of every table
   $summary = New-Object System.Collections.Generic.List[string]
   $userTables = @($tables.Rows | Where-Object { $_.kind -eq 'USER_TABLE' })
+  if ($onlyList.Count -gt 0) { $userTables = @($userTables | Where-Object { $onlyList -contains $_.name }) }
   Write-Host ("  Copying data of {0} tables..." -f $userTables.Count)
   $n = 0
   foreach ($t in $userTables) {
@@ -191,19 +208,25 @@ WHERE o.is_ms_shipped = 0 ORDER BY o.type, o.name
     $file = Join-Path $dataDir ($t.sch + '.' + $t.name + '.csv')
     Write-Progress -Activity "Exporting $db" -Status "$($t.name)" -PercentComplete (100 * $n / [math]::Max(1, $userTables.Count))
     $sql = "SELECT * FROM [$($t.sch)].[$($t.name)] WITH (NOLOCK)"
-    if ($fast) { $count = [YfExport]::Table($c, $sql, $file) }
+    if ($fast) { $count = [YfExport]::Table($c, $sql, $file, 300MB) }
     else {
       $cmd = $c.CreateCommand(); $cmd.CommandTimeout = 0; $cmd.CommandText = $sql
       $rd = $cmd.ExecuteReader()
       $w = New-Object System.IO.StreamWriter($file, $false, $utf8)
       $hdr = @(); for ($k = 0; $k -lt $rd.FieldCount; $k++) { $hdr += '"' + $rd.GetName($k).Replace('"','""') + '"' }
-      $w.WriteLine(($hdr -join ','))
+      $header = ($hdr -join ','); $w.WriteLine($header); $bytes = $utf8.GetByteCount($header) + 2; $part = 1
       $count = 0; $vals = New-Object object[] $rd.FieldCount
       while ($rd.Read()) {
         [void]$rd.GetValues($vals)
         $line = New-Object System.Text.StringBuilder
         for ($k = 0; $k -lt $vals.Length; $k++) { if ($k) { [void]$line.Append(',') }; [void]$line.Append((CsvCell $vals[$k])) }
-        $w.WriteLine($line.ToString()); $count++
+        $text = $line.ToString(); $lb = $utf8.GetByteCount($text) + 2
+        if ($bytes + $lb -gt 300MB) {
+          $w.Close(); $part++
+          $w = New-Object System.IO.StreamWriter(($file.Substring(0, $file.Length - 4) + ('.part{0:000}.csv' -f $part)), $false, $utf8)
+          $w.WriteLine($header); $bytes = $utf8.GetByteCount($header) + 2
+        }
+        $w.WriteLine($text); $bytes += $lb; $count++
       }
       $w.Close(); $rd.Close()
     }
