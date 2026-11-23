@@ -465,6 +465,8 @@ export const vouchers = pgTable(
     subtype: varchar('subtype', { length: 20 }),
     /** which books the document belongs to: 20 = UMIYA20 era (to FY 23-24), 24 = UMIYA24 era onwards */
     ledgerPeriod: integer('ledger_period'),
+    /** a bill carried forward into the next books (the old software copied it there): outstanding there too */
+    carriedToPeriod: integer('carried_to_period'),
     legacyCode: varchar('legacy_code', { length: 30 }),
 
     // parties & people

@@ -6,6 +6,7 @@
  *   post ledger (double entry) → post stock → bill-wise allocations →
  *   refresh order / schedule status → audit log
  */
+import { billInPeriod, pendingSql } from './bills.js';
 import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Tx } from '../db/index.js';
@@ -188,14 +189,11 @@ export async function accountBalance(ctx: Pick<Ctx, 'db' | 'companyId' | 'mcId' 
   return r2(opening + Number(res.rows[0].bal));
 }
 
-/** pending amount of a bill (net − TDS − settled) */
-export async function billPending(db: Tx, billIds: number[], excludeVoucherId?: number) {
+/** pending amount of bills in the current books (net − settled; TDS is a settlement of its own) */
+export async function billPending(ctx: { db: Tx; period: number }, billIds: number[], excludeVoucherId?: number) {
   if (!billIds.length) return new Map<number, number>();
-  const rows = await db.execute<{ id: number; pending: string }>(sql`
-    select v.id, v.net_amount - v.tds_amount - coalesce((
-      select sum(a.amount) from bill_allocations a where a.bill_id = v.id
-      ${excludeVoucherId ? sql`and a.voucher_id <> ${excludeVoucherId}` : sql``}
-    ), 0) as pending
+  const rows = await ctx.db.execute<{ id: number; pending: string }>(sql`
+    select v.id, ${pendingSql(ctx, 'v', { excludeVoucherId })} as pending
     from vouchers v where v.id in ${sql.raw('(' + billIds.map(Number).join(',') + ')')}`);
   return new Map(rows.rows.map((r) => [Number(r.id), r2(Number(r.pending))]));
 }
@@ -475,7 +473,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     }
     if (req.length) {
       const bills = await db.select().from(vouchers).where(and(inArray(vouchers.id, req.map((a) => a.billId)), eq(vouchers.companyId, ctx.companyId)));
-      const pend = await billPending(db, bills.map((b) => b.id), existingId);
+      const pend = await billPending(ctx, bills.map((b) => b.id), existingId);
       for (const a of req) {
         const b = bills.find((x) => x.id === a.billId);
         if (!b || !kinds.includes(b.type as VoucherType) || !isBill(b.type, party?.kind, side)) throw unprocessable(`Bill ${a.billId} cannot be adjusted here`);
@@ -498,8 +496,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     const overdue = await db.execute<{ n: string }>(sql`
       select count(*) as n from vouchers v
       where v.company_id = ${ctx.companyId} and v.party_id = ${party.id} and v.type in ('SALE_BILL','GENERAL_SALE')
-        and v.due_date < ${addDays(today(), -30)}
-        and v.net_amount - coalesce((select sum(a.amount) from bill_allocations a where a.bill_id = v.id), 0) > 1`);
+        and ${billInPeriod(ctx)} and v.due_date < ${addDays(today(), -30)} and ${pendingSql(ctx)} > 1`);
     if (Number(overdue.rows[0].n) > 0) approvalReasons.push('Party has bills overdue by more than 30 days');
   }
   if (def.approval === 'amount' && (totals.netAmount ?? 0) > company.poApprovalLimit) {
@@ -576,7 +573,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     if (!b || b.partyId !== party.id) throw unprocessable('The bill does not belong to this party');
     const settles = (def.type === 'CREDIT_NOTE' && isBill(b.type, party.kind, 'receivable')) || (def.type === 'DEBIT_NOTE' && isBill(b.type, party.kind, 'payable'));
     if (settles) {
-      const pend = (await billPending(db, [b.id], existingId)).get(b.id) ?? 0;
+      const pend = (await billPending(ctx, [b.id], existingId)).get(b.id) ?? 0;
       const a = r2(Math.min(pend, totals.netAmount ?? 0));
       if (a > 0) allocations = [{ billId: b.id, amount: a }];
     }
@@ -585,7 +582,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
   // automatic allocation of a return against its bill
   if ((def.type === 'SALE_RETURN' || def.type === 'PURCHASE_RETURN') && touchedOrders.length) {
     const billId = touchedOrders[0];
-    const pend = (await billPending(db, [billId], existingId)).get(billId) ?? 0;
+    const pend = (await billPending(ctx, [billId], existingId)).get(billId) ?? 0;
     const a = r2(Math.min(pend, totals.netAmount ?? 0));
     if (a > 0) allocations = [{ billId, amount: a }];
   }
@@ -598,10 +595,10 @@ export async function openBills(ctx: Ctx, partyId: number, side: 'receivable' | 
   const res = await ctx.db.execute(sql`
     select v.id, v.number, v.date, v.due_date as "dueDate", v.net_amount as net, v.tds_amount as tds, v.type
     from vouchers v join accounts p on p.id = v.party_id
-    where v.company_id = ${ctx.companyId} and v.party_id = ${partyId} and ${sql.raw(BILL_SQL[side])}
+    where v.company_id = ${ctx.companyId} and v.party_id = ${partyId} and ${sql.raw(BILL_SQL[side])} and ${billInPeriod(ctx)} and v.status <> 'CANCELLED'
     order by v.date, v.id`);
   const rows = res.rows.map((r: Record<string, unknown>) => ({ id: Number(r.id), number: r.number as string, date: r.date as string, dueDate: r.dueDate as string | null, net: Number(r.net), tds: Number(r.tds), type: r.type as string }));
-  const pend = await billPending(ctx.db, rows.map((r) => r.id), excludeVoucherId);
+  const pend = await billPending(ctx, rows.map((r) => r.id), excludeVoucherId);
   return rows.map((r) => ({ ...r, pending: pend.get(r.id) ?? 0 })).filter((r) => r.pending > 0.005);
 }
 
@@ -724,6 +721,14 @@ async function clearPostings(db: Tx, voucherId: number) {
   await db.delete(billAllocations).where(eq(billAllocations.voucherId, voucherId));
 }
 
+/** settlements made by a document, plus the TDS deducted on a bill (settled on the bill itself) */
+async function insertAllocations(ctx: Ctx, def: TypeDef, v: typeof vouchers.$inferSelect, allocations: { billId: number; amount: number }[]) {
+  const kind = def.posting === 'receipt' || def.posting === 'payment' ? 'RECEIPT' : def.posting === 'journal' || def.posting === 'note' ? 'JOURNAL' : 'BILL';
+  const rows = allocations.map((a) => ({ ...a, kind, date: v.date, companyId: ctx.companyId, voucherId: v.id, partyId: v.partyId, ledgerPeriod: ctx.period }));
+  if (def.bill && Number(v.tdsAmount) > 0) rows.push({ billId: v.id, amount: Number(v.tdsAmount), kind: 'TDS', date: v.date, companyId: ctx.companyId, voucherId: v.id, partyId: v.partyId, ledgerPeriod: ctx.period });
+  if (rows.length) await ctx.db.insert(billAllocations).values(rows);
+}
+
 /** documents built on this one (block edits / deletes) */
 export async function dependents(db: Tx, voucherId: number) {
   const res = await db.execute<{ id: number; type: VoucherType; number: string; date: string }>(sql`
@@ -733,7 +738,7 @@ export async function dependents(db: Tx, voucherId: number) {
        or cl.order_line_id in (select id from voucher_lines where voucher_id = ${voucherId})
     union
     select distinct c.id, c.type, c.number, c.date from bill_allocations a join vouchers c on c.id = a.voucher_id
-    where a.bill_id = ${voucherId}
+    where a.bill_id = ${voucherId} and a.voucher_id <> a.bill_id
     order by date, id`);
   return res.rows.map((r) => ({ id: Number(r.id), type: r.type, number: r.number, date: r.date }));
 }
@@ -766,7 +771,7 @@ export async function createDoc(ctx: Ctx, def: TypeDef, raw: unknown) {
     .returning();
   const lines = p.lines.length ? await ctx.db.insert(voucherLines).values(p.lines.map((l) => ({ ...l, voucherId: v.id })) as never).returning() : [];
   await post(ctx, def, v, lines);
-  if (p.allocations.length) await ctx.db.insert(billAllocations).values(p.allocations.map((a) => ({ ...a, companyId: ctx.companyId, voucherId: v.id, ledgerPeriod: ctx.period })));
+  await insertAllocations(ctx, def, v, p.allocations);
   if (p.approvalReasons.length) await ctx.db.insert(approvalLogs).values({ voucherId: v.id, action: 'SUBMITTED', reason: p.approvalReasons.join('; '), userId: ctx.userId });
   await refreshStatuses(ctx.db, p.touchedOrders);
   await audit(ctx, def.slug, v.id, 'CREATE', `${def.label} ${number} created`);
@@ -806,7 +811,7 @@ export async function updateDoc(ctx: Ctx, def: TypeDef, id: number, raw: unknown
   const [v] = await ctx.db.select().from(vouchers).where(eq(vouchers.id, id));
   const lines = p.lines.length ? await ctx.db.insert(voucherLines).values(p.lines.map((l) => ({ ...l, voucherId: id })) as never).returning() : [];
   await post(ctx, def, v, lines);
-  if (p.allocations.length) await ctx.db.insert(billAllocations).values(p.allocations.map((a) => ({ ...a, companyId: ctx.companyId, voucherId: id, ledgerPeriod: ctx.period })));
+  await insertAllocations(ctx, def, v, p.allocations);
   if (status === 'PENDING_APPROVAL' && old.status !== 'PENDING_APPROVAL') await ctx.db.insert(approvalLogs).values({ voucherId: id, action: 'SUBMITTED', reason: p.approvalReasons.join('; '), userId: ctx.userId });
   await refreshStatuses(ctx.db, [...p.touchedOrders, ...[...oldSources.values()].map((s) => s.voucherId), ...(await orderVouchersOf(ctx.db, oldLines.map((l) => l.orderLineId))), id]);
   await audit(ctx, def.slug, id, 'UPDATE', `${def.label} ${number} updated`);
@@ -938,10 +943,10 @@ export async function getDoc(ctx: Ctx, def: TypeDef, id: number) {
     .innerJoin(vouchers, eq(vouchers.id, billAllocations.billId))
     .where(eq(billAllocations.voucherId, id));
   const settledBy = def.bill || def.posting === 'note'
-    ? await db.select({ voucherId: billAllocations.voucherId, amount: billAllocations.amount, number: vouchers.number, date: vouchers.date, type: vouchers.type }).from(billAllocations).innerJoin(vouchers, eq(vouchers.id, billAllocations.voucherId)).where(eq(billAllocations.billId, id))
+    ? await db.select({ voucherId: billAllocations.voucherId, amount: billAllocations.amount, number: vouchers.number, date: vouchers.date, type: vouchers.type }).from(billAllocations).innerJoin(vouchers, eq(vouchers.id, billAllocations.voucherId)).where(and(eq(billAllocations.billId, id), sql`${billAllocations.voucherId} <> ${billAllocations.billId}`))
     : [];
   const isBillDoc = def.posting === 'note' ? isBill(def.type, party?.kind, def.type === 'DEBIT_NOTE' ? 'receivable' : 'payable') : !!def.bill;
-  const pending = isBillDoc ? (await billPending(db, [id])).get(id) ?? 0 : null;
+  const pending = isBillDoc ? (await billPending(ctx, [id])).get(id) ?? 0 : null;
   const sourceDoc = v.sourceId ? (await db.select({ id: vouchers.id, number: vouchers.number, type: vouchers.type, date: vouchers.date }).from(vouchers).where(eq(vouchers.id, v.sourceId)))[0] ?? null : null;
   const approvals = await db.select().from(approvalLogs).where(eq(approvalLogs.voucherId, id)).orderBy(approvalLogs.at);
 
@@ -1109,7 +1114,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     return r;
   });
   if (def.bill || def.posting === 'note') {
-    const pend = await billPending(db, data.map((r) => Number(r.id)));
+    const pend = await billPending(ctx, data.map((r) => Number(r.id)));
     data = data.map((r) => ({ ...r, pending: pend.get(Number(r.id)) ?? 0 }));
   }
   const a = agg.rows[0];
@@ -1135,7 +1140,7 @@ export async function related(ctx: Ctx, def: TypeDef, id: number) {
       c.taxable_amount as taxable, c.cgst_amount + c.sgst_amount + c.igst_amount as gst, c.cgst_amount as cgst, c.round_off as "roundOff",
       c.vehicle_no as "vehicleNo", c.lr_no as "lrNo", c.ewb_no as "ewbNo", c.ewb_status as "ewbStatus", c.ref_no as "refNo", t.name as "transporterName", g.name as "godownName",
       sum(cl.qty) as qty, sum(cl.pcs) as pcs, max(cl.rate) as rate, sum(cl.taxable_amount) as "lineTaxable",
-      c.net_amount - c.tds_amount - coalesce((select sum(a.amount) from bill_allocations a where a.bill_id = c.id), 0) as pending
+      ${pendingSql(ctx, 'c')} as pending
     from voucher_lines cl join vouchers c on c.id = cl.voucher_id left join transporters t on t.id = c.transporter_id left join godowns g on g.id = coalesce(c.godown_id, (select gl.godown_id from voucher_lines gl where gl.voucher_id = c.id and gl.godown_id is not null limit 1))
     where c.company_id = ${ctx.companyId} and c.status <> 'CANCELLED'
       and (cl.order_line_id in (select id from voucher_lines where voucher_id = ${id})

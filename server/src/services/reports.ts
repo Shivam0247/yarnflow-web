@@ -10,6 +10,7 @@ import { notFound } from '../lib/errors.js';
 import { r2, r3, sum } from '../lib/money.js';
 import type { Ctx } from './context.js';
 import { BILL_SQL } from './types.js';
+import { billInPeriod, pendingSql } from './bills.js';
 import { loadFy } from './documents.js';
 
 type Row = Record<string, unknown>;
@@ -197,14 +198,13 @@ export async function outstanding(ctx: Ctx, side: 'receivable' | 'payable', opts
       v.total_qty as qty, p.name as "partyName", p.city, p.area, p.state, p.mobile, p.credit_limit as "creditLimit", p.credit_days as "creditDays",
       p.interest_rate as "interestRate", g.id as "groupId", g.name as "groupName", pg.name as "partyGroupName",
       coalesce(b.name, pb.name) as "brokerName", coalesce(sp.name, psp.name) as "salesPersonName", cp.name as "collectionPersonName",
-      v.net_amount - v.tds_amount - coalesce((select sum(a.amount) from bill_allocations a join vouchers av on av.id = a.voucher_id
-        where a.bill_id = v.id and av.date <= ${asOn}), 0) as pending
+      ${pendingSql(ctx, 'v', { asOn })} as pending
     from vouchers v join accounts p on p.id = v.party_id join account_groups g on g.id = p.group_id
       left join persons pg on pg.id = p.party_group_id
       left join persons b on b.id = v.broker_id left join persons pb on pb.id = p.broker_id
       left join persons sp on sp.id = v.sales_person_id left join persons psp on psp.id = p.sales_person_id
       left join persons cp on cp.id = p.collection_person_id
-    where v.company_id = ${ctx.companyId} and ${sql.raw(BILL_SQL[side])} and v.date <= ${asOn} ${filters}
+    where v.company_id = ${ctx.companyId} and ${sql.raw(BILL_SQL[side])} and ${billInPeriod(ctx)} and v.status <> 'CANCELLED' and v.date <= ${asOn} ${filters}
     order by p.name, v.date, v.id`);
   let bills = res.rows
     .map((r: Row) => {
@@ -452,7 +452,7 @@ export async function dashboard(ctx: Ctx, from?: string, to?: string) {
   const irn = await ctx.db.execute(sql`select count(*) as n from vouchers where company_id = ${ctx.companyId} and fy_id = ${ctx.fyId} and irn is not null`);
   const fySales = await ctx.db.execute(sql`select coalesce(sum(net_amount),0) as a, count(distinct date) as d from vouchers where company_id = ${ctx.companyId} and fy_id = ${ctx.fyId} and type in ('SALE_BILL','GENERAL_SALE')`);
   const payDays = await ctx.db.execute(sql`select avg(rv.date::date - b.date::date) as d from bill_allocations a join vouchers b on b.id = a.bill_id join vouchers rv on rv.id = a.voucher_id
-    where b.company_id = ${ctx.companyId} and rv.type = 'RECEIPT'`);
+    where a.company_id = ${ctx.companyId} and a.ledger_period = ${ctx.period} and a.kind = 'RECEIPT' and rv.fy_id = ${ctx.fyId} and rv.type = 'RECEIPT'`);
 
   return {
     from, to,

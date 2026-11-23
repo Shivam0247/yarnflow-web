@@ -1,0 +1,1 @@
+ALTER TABLE "vouchers" ADD COLUMN "carried_to_period" integer;

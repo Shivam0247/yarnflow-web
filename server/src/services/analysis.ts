@@ -4,6 +4,7 @@
  * collections, day book, interest on overdue bills (+ interest debit notes),
  * group summary, TDS / TCS.
  */
+import { settledSql } from './bills.js';
 import { and, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { accountGroups } from '../db/schema.js';
@@ -137,7 +138,7 @@ export async function brokerage(ctx: Ctx, raw: unknown) {
       coalesce(nullif(v.brokerage_type, ''), nullif(p.brokerage_type, ''), 'PER_KG') as "rateType",
       case when v.type = 'SALE_RETURN' then -v.total_qty else v.total_qty end as qty,
       case when v.type = 'SALE_RETURN' then -v.taxable_amount else v.taxable_amount end as taxable,
-      (select coalesce(sum(a.amount),0) from bill_allocations a where a.bill_id = v.id) as received, v.net_amount as net
+      ${settledSql(ctx, 'v')} as received, v.net_amount as net
     from vouchers v join accounts p on p.id = v.party_id join persons b on b.id = coalesce(v.broker_id, p.broker_id)
     where v.company_id = ${ctx.companyId} and v.type in ('SALE_BILL','SALE_RETURN') and v.date between ${from} and ${to}
       ${q.brokerId ? sql`and b.id = ${q.brokerId}` : sql``}
