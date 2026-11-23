@@ -1,0 +1,9712 @@
+{
+ "SaleForm/BOK32  [YARN SALES TAX A/C (UMIYA) (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 324,
+    "showLabel": true
+   },
+   {
+    "label": "Is TCS ?",
+    "control": "txtTCSApplicability",
+    "hidden": false,
+    "y": 0,
+    "x": 786,
+    "showLabel": true
+   },
+   {
+    "label": "Bill No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 34,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Bill Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 34,
+    "x": 304,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 34,
+    "x": 535,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpEditSalesPerson",
+    "hidden": false,
+    "y": 34,
+    "x": 993,
+    "showLabel": true
+   },
+   {
+    "label": "Credit Days",
+    "control": "TxtCrdays",
+    "hidden": false,
+    "y": 34,
+    "x": 1355,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 62,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpArchitect",
+    "hidden": false,
+    "y": 62,
+    "x": 537,
+    "showLabel": true
+   },
+   {
+    "label": "Pty.Group",
+    "control": "LookUpMistry",
+    "hidden": false,
+    "y": 62,
+    "x": 994,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem28",
+    "control": "LblDueDate",
+    "hidden": false,
+    "y": 62,
+    "x": 1384,
+    "showLabel": false
+   },
+   {
+    "label": "Item Selection (F11 -Item Ledger)",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 86,
+    "x": 2,
+    "showLabel": false
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 383,
+    "x": 254,
+    "showLabel": true
+   },
+   {
+    "label": "Other Details",
+    "control": "VGridControl1",
+    "hidden": false,
+    "y": 383,
+    "x": 530,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 383,
+    "x": 1066,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 383,
+    "x": 1226,
+    "showLabel": true
+   },
+   {
+    "label": "Dis Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 383,
+    "x": 1325,
+    "showLabel": true
+   },
+   {
+    "label": "Gst",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 383,
+    "x": 1403,
+    "showLabel": true
+   },
+   {
+    "label": "Gr. Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 383,
+    "x": 1480,
+    "showLabel": true
+   },
+   {
+    "label": "Avg Rate",
+    "control": "TxtAvgRate",
+    "hidden": false,
+    "y": 425,
+    "x": 1133,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 425,
+    "x": 1271,
+    "showLabel": true
+   },
+   {
+    "label": "Net Tax Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 425,
+    "x": 1452,
+    "showLabel": true
+   },
+   {
+    "label": "Tax",
+    "control": "TxtTax",
+    "hidden": false,
+    "y": 467,
+    "x": 1101,
+    "showLabel": true
+   },
+   {
+    "label": "Add/Less",
+    "control": "TxtAddless2",
+    "hidden": false,
+    "y": 467,
+    "x": 1224,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 467,
+    "x": 1314,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 467,
+    "x": 1448,
+    "showLabel": true
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 529,
+    "x": 1055,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem25",
+    "control": "ChkQtyNotEffectInGstHSNSummary",
+    "hidden": false,
+    "y": 707,
+    "x": 2,
+    "showLabel": false
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Cash Cust.",
+    "control": "TxtCashCust",
+    "hidden": true,
+    "y": 0,
+    "x": 908,
+    "showLabel": true
+   },
+   {
+    "label": "Cash Cust Add.",
+    "control": "TxtCashCustAdd",
+    "hidden": true,
+    "y": 0,
+    "x": 1193,
+    "showLabel": true
+   },
+   {
+    "label": "F.O.B",
+    "control": "TxtFOB",
+    "hidden": true,
+    "y": 383,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft/Mt",
+    "control": "TxtTotSqFt",
+    "hidden": true,
+    "y": 383,
+    "x": 1144,
+    "showLabel": true
+   },
+   {
+    "label": "Insur.",
+    "control": "TxtInsuranceExport",
+    "hidden": true,
+    "y": 407,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "Frieght",
+    "control": "TxtFrieghtExport",
+    "hidden": true,
+    "y": 431,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "C.F.I.",
+    "control": "TxtCFI",
+    "hidden": true,
+    "y": 455,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "Area",
+    "control": "LookUpEditArea",
+    "hidden": true,
+    "y": 479,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "T. Freight",
+    "control": "TxtT_Freight",
+    "hidden": true,
+    "y": 503,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "T. Loading",
+    "control": "TxtT_Loading",
+    "hidden": true,
+    "y": 527,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "T. Unloading",
+    "control": "TxtT_UnLoading",
+    "hidden": true,
+    "y": 551,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlCSTAgainst",
+    "control": "CheckEditAgaintCform",
+    "hidden": true,
+    "y": 660,
+    "x": 2,
+    "showLabel": false
+   },
+   {
+    "label": "-",
+    "control": "TxtNoService",
+    "hidden": true,
+    "y": 683,
+    "x": 2,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Add.",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 730,
+    "x": 2,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Id",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Purchase Id",
+    "field": "COM",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "SalS_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Pur Inv No",
+    "field": "SalS_To",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "Sals_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "SalS_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Challan No",
+    "field": "THKNESS",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Sals_ChDate",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Thik_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Cartoon",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Size_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "SalS_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Amt",
+    "field": "Sals_BasicAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DISP",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(Rs.)",
+    "field": "DISRS",
+    "sum": ""
+   },
+   {
+    "caption": "Freight(%)",
+    "field": "Sal_ArPer",
+    "sum": ""
+   },
+   {
+    "caption": "Freight(Rs)",
+    "field": "Sal_ArAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance Per",
+    "field": "Sals_InsurancePer",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance Amt",
+    "field": "Sals_InsuranceAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "Sals_TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "IGST(%)",
+    "field": "EXP",
+    "sum": ""
+   },
+   {
+    "caption": "IGST.(Rs)",
+    "field": "EXRS",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(%)",
+    "field": "VATP",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(Rs)",
+    "field": "VATRS",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(%)",
+    "field": "ADTAXP",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(Rs)",
+    "field": "ADTAXRS",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(%)",
+    "field": "Sal_MPer",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(Rs)",
+    "field": "Sal_MAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Box/Pallet",
+    "field": "Sals_Boxtype",
+    "sum": ""
+   },
+   {
+    "caption": "B.O.M. Id",
+    "field": "SalS_BomId",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ],
+  "VXtraGrid": [],
+  "ShowBillGrid": []
+ },
+ "SaleForm/PartyList": {
+  "XtraGrid": [
+   {
+    "caption": "Party Code",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Balance",
+    "field": "GridColumn8",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "GST No",
+    "field": "P_GSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Email",
+    "field": "P_Email",
+    "sum": ""
+   },
+   {
+    "caption": "Contact Person",
+    "field": "P_ContPerName",
+    "sum": ""
+   },
+   {
+    "caption": "Group Name",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Days",
+    "field": "P_CrDay",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Limit",
+    "field": "P_CrLimit",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Pan No",
+    "field": "P_PANo",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CtName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "StName",
+    "sum": ""
+   },
+   {
+    "caption": "Area",
+    "field": "AreaName",
+    "sum": ""
+   },
+   {
+    "caption": "Company Name",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "Sales Person",
+    "field": "SALESPERSON",
+    "sum": ""
+   }
+  ]
+ },
+ "DispatchSchedule/PartyList": {
+  "XtraGrid": [
+   {
+    "caption": "Party Code",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "GST No",
+    "field": "P_GSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Balance",
+    "field": "GridColumn8",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Email",
+    "field": "P_Email",
+    "sum": ""
+   },
+   {
+    "caption": "Contact Person",
+    "field": "P_ContPerName",
+    "sum": ""
+   },
+   {
+    "caption": "Group Name",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Days",
+    "field": "P_CrDay",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Limit",
+    "field": "P_CrLimit",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Pan No",
+    "field": "P_PANo",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CtName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "StName",
+    "sum": ""
+   },
+   {
+    "caption": "Area",
+    "field": "AreaName",
+    "sum": ""
+   },
+   {
+    "caption": "Company Name",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "Sales Person",
+    "field": "SALESPERSON",
+    "sum": ""
+   }
+  ]
+ },
+ "DispatchSchedule/BOK046  [DISPATCH SCHEDULE (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Order No",
+    "control": "TxtOrderNo",
+    "hidden": false,
+    "y": 0,
+    "x": 679,
+    "showLabel": true
+   },
+   {
+    "label": "Order Date",
+    "control": "DateEditOrderDt",
+    "hidden": false,
+    "y": 0,
+    "x": 1019,
+    "showLabel": true
+   },
+   {
+    "label": "Sch. No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Sch. Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 24,
+    "x": 315,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 24,
+    "x": 679,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem18",
+    "control": "ChkListAll",
+    "hidden": false,
+    "y": 24,
+    "x": 1290,
+    "showLabel": false
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 48,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpArchitect",
+    "hidden": false,
+    "y": 48,
+    "x": 679,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpSalesPerson",
+    "hidden": false,
+    "y": 48,
+    "x": 1019,
+    "showLabel": true
+   },
+   {
+    "label": "Supplier Name",
+    "control": "LookUpEditSupplier",
+    "hidden": false,
+    "y": 72,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Del Date",
+    "control": "DateEditDely",
+    "hidden": false,
+    "y": 72,
+    "x": 679,
+    "showLabel": true
+   },
+   {
+    "label": "Credit Days",
+    "control": "TxtCrDays",
+    "hidden": false,
+    "y": 72,
+    "x": 1019,
+    "showLabel": true
+   },
+   {
+    "label": "Transporter",
+    "control": "LookUpEditTransporter",
+    "hidden": false,
+    "y": 96,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Vehical No",
+    "control": "LookUpEditVehicalNo",
+    "hidden": false,
+    "y": 96,
+    "x": 680,
+    "showLabel": true
+   },
+   {
+    "label": "Challan No",
+    "control": "TxtActChallanNo",
+    "hidden": false,
+    "y": 96,
+    "x": 1019,
+    "showLabel": true
+   },
+   {
+    "label": "Challan Dt",
+    "control": "DateEditActChallanDt",
+    "hidden": false,
+    "y": 96,
+    "x": 1207,
+    "showLabel": true
+   },
+   {
+    "label": "Item Details",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 120,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Delivery Address",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": false,
+    "y": 463,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Remarks",
+    "control": "txtRemarks",
+    "hidden": false,
+    "y": 491,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Id",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Dispt_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Dspt_LotNo",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "Sals_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Purchase Id",
+    "field": "Pur_ID",
+    "sum": ""
+   },
+   {
+    "caption": "Pur Inv No",
+    "field": "Pur_InvNo",
+    "sum": ""
+   },
+   {
+    "caption": "Challan No",
+    "field": "Dispt_PurChNo",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Dispt_PurChDt",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "SalS_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "Ord. Qty.",
+    "field": "Ord_QTY",
+    "sum": ""
+   },
+   {
+    "caption": "Sal. Qty.",
+    "field": "Sal_Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Cartton",
+    "field": "PCS",
+    "sum": ""
+   },
+   {
+    "caption": "Sch. Qty.",
+    "field": "Sch_Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Pending Sch. Qty",
+    "field": "Pen_Sch_Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Lr No",
+    "field": "Dspt_Lrno",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Dspt_Remarks1",
+    "sum": ""
+   },
+   {
+    "caption": "Box/Pallet",
+    "field": "Dspt_Boxtype",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Dspt_Cops",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ]
+ },
+ "SaleOrder/BOK040_old": {
+  "fields": [
+   {
+    "label": "Cost Center",
+    "control": "LookUpCostCenter",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 808,
+    "showLabel": true
+   },
+   {
+    "label": "P.Ord.No.",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "P.Ord.Date.",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 24,
+    "x": 504,
+    "showLabel": true
+   },
+   {
+    "label": "Broker",
+    "control": "LookUpArchitect",
+    "hidden": false,
+    "y": 24,
+    "x": 808,
+    "showLabel": true
+   },
+   {
+    "label": "Brokerage (kgs)",
+    "control": "TxtBrokerage",
+    "hidden": false,
+    "y": 24,
+    "x": 1099,
+    "showLabel": true
+   },
+   {
+    "label": "Rs (%)",
+    "control": "TxtBrokrageRate",
+    "hidden": false,
+    "y": 24,
+    "x": 1311,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 48,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Party Group",
+    "control": "LookUpMistry",
+    "hidden": false,
+    "y": 48,
+    "x": 808,
+    "showLabel": true
+   },
+   {
+    "label": "Ref Ord No",
+    "control": "txtRefOrdNo",
+    "hidden": false,
+    "y": 48,
+    "x": 1311,
+    "showLabel": true
+   },
+   {
+    "label": "Credit Days",
+    "control": "TxtCrdays",
+    "hidden": false,
+    "y": 72,
+    "x": 884,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem28",
+    "control": "LblDueDate",
+    "hidden": false,
+    "y": 72,
+    "x": 1335,
+    "showLabel": false
+   },
+   {
+    "label": "Supplier",
+    "control": "LookUpEditSupplier",
+    "hidden": false,
+    "y": 96,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpSalesPerson",
+    "hidden": false,
+    "y": 96,
+    "x": 504,
+    "showLabel": true
+   },
+   {
+    "label": "Exp. Delivery Date",
+    "control": "txtExpDeliveryDate",
+    "hidden": false,
+    "y": 96,
+    "x": 808,
+    "showLabel": true
+   },
+   {
+    "label": "Process Type",
+    "control": "LookUpEditProcessType",
+    "hidden": false,
+    "y": 96,
+    "x": 1099,
+    "showLabel": true
+   },
+   {
+    "label": "Item Selection",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 120,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Discount Structure",
+    "control": "GridControl2",
+    "hidden": false,
+    "y": 425,
+    "x": 10,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 425,
+    "x": 365,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 425,
+    "x": 549,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft/Mt",
+    "control": "TxtTotSqFt",
+    "hidden": false,
+    "y": 425,
+    "x": 711,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 425,
+    "x": 873,
+    "showLabel": true
+   },
+   {
+    "label": "Dis Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 425,
+    "x": 1035,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 425,
+    "x": 1198,
+    "showLabel": true
+   },
+   {
+    "label": "Gr. Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 425,
+    "x": 1360,
+    "showLabel": true
+   },
+   {
+    "label": "Transportation",
+    "control": "ComboBoxDelevered",
+    "hidden": false,
+    "y": 465,
+    "x": 549,
+    "showLabel": true
+   },
+   {
+    "label": "Order Type",
+    "control": "ComboBoxEditOrderType",
+    "hidden": false,
+    "y": 465,
+    "x": 874,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 465,
+    "x": 1036,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 465,
+    "x": 1198,
+    "showLabel": true
+   },
+   {
+    "label": "Add/Less",
+    "control": "TxtAddless2",
+    "hidden": false,
+    "y": 505,
+    "x": 710,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 505,
+    "x": 1037,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 505,
+    "x": 1199,
+    "showLabel": true
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 552,
+    "x": 549,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem21",
+    "control": "LblOthDis",
+    "hidden": false,
+    "y": 592,
+    "x": 603,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem24",
+    "control": "lblPartyAddress",
+    "hidden": false,
+    "y": 618,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem25",
+    "control": "lblDeliveryAddress",
+    "hidden": false,
+    "y": 635,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Delivery Party",
+    "control": "SearchLookUpEditDeliveryParty",
+    "hidden": true,
+    "y": 72,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Project Name",
+    "control": "ComboBoxEditProjectName",
+    "hidden": true,
+    "y": 72,
+    "x": 1401,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlCSTAgainst",
+    "control": "CheckEditAgaintCform",
+    "hidden": true,
+    "y": 505,
+    "x": 549,
+    "showLabel": false
+   },
+   {
+    "label": "No Of Services",
+    "control": "TxtNoService",
+    "hidden": true,
+    "y": 528,
+    "x": 549,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem20",
+    "control": "TextEdit1",
+    "hidden": true,
+    "y": 592,
+    "x": 549,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": []
+ },
+ "SaleOrder/BOK040  [PURCHASE ORDER (-1)]": {
+  "fields": [
+   {
+    "label": "Cost Center",
+    "control": "LookUpCostCenter",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 1029,
+    "showLabel": true
+   },
+   {
+    "label": "Ord Base",
+    "control": "cmbOrderBase",
+    "hidden": false,
+    "y": 0,
+    "x": 1400,
+    "showLabel": true
+   },
+   {
+    "label": "Ord Mode",
+    "control": "cmbOrdMode",
+    "hidden": false,
+    "y": 0,
+    "x": 1669,
+    "showLabel": true
+   },
+   {
+    "label": "P.Ord.No.",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "P.Ord.Date.",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 24,
+    "x": 642,
+    "showLabel": true
+   },
+   {
+    "label": "Broker",
+    "control": "LookUpArchitect",
+    "hidden": false,
+    "y": 24,
+    "x": 1029,
+    "showLabel": true
+   },
+   {
+    "label": "Brokerage (kgs)",
+    "control": "TxtBrokerage",
+    "hidden": false,
+    "y": 24,
+    "x": 1400,
+    "showLabel": true
+   },
+   {
+    "label": "Rs (%)",
+    "control": "TxtBrokrageRate",
+    "hidden": false,
+    "y": 24,
+    "x": 1669,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 48,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Party Group",
+    "control": "LookUpMistry",
+    "hidden": false,
+    "y": 48,
+    "x": 1029,
+    "showLabel": true
+   },
+   {
+    "label": "Ref Ord No",
+    "control": "txtRefOrdNo",
+    "hidden": false,
+    "y": 48,
+    "x": 1670,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "SearchLookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 72,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Credit Days",
+    "control": "TxtCrdays",
+    "hidden": false,
+    "y": 72,
+    "x": 1046,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem28",
+    "control": "LblDueDate",
+    "hidden": false,
+    "y": 72,
+    "x": 1347,
+    "showLabel": false
+   },
+   {
+    "label": "Priority",
+    "control": "cmbPriority",
+    "hidden": false,
+    "y": 72,
+    "x": 1533,
+    "showLabel": true
+   },
+   {
+    "label": "Supplier",
+    "control": "LookUpEditSupplier",
+    "hidden": false,
+    "y": 124,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpSalesPerson",
+    "hidden": false,
+    "y": 124,
+    "x": 642,
+    "showLabel": true
+   },
+   {
+    "label": "Exp. Delivery Days",
+    "control": "TxtExpDelDays",
+    "hidden": false,
+    "y": 124,
+    "x": 1029,
+    "showLabel": true
+   },
+   {
+    "label": "Exp. Delivery Date",
+    "control": "txtExpDeliveryDate",
+    "hidden": false,
+    "y": 124,
+    "x": 1214,
+    "showLabel": true
+   },
+   {
+    "label": "Process Type",
+    "control": "LookUpEditProcessType",
+    "hidden": false,
+    "y": 124,
+    "x": 1486,
+    "showLabel": true
+   },
+   {
+    "label": "Item Selection (Ctrl + Shift + C to Open Pending Ord For Selected Item)",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 148,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Discount Structure",
+    "control": "GridControl2",
+    "hidden": false,
+    "y": 396,
+    "x": 10,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 396,
+    "x": 214,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 396,
+    "x": 396,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft/Mt/Pieces",
+    "control": "TxtTotSqFt",
+    "hidden": false,
+    "y": 396,
+    "x": 653,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 396,
+    "x": 911,
+    "showLabel": true
+   },
+   {
+    "label": "Dis Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 396,
+    "x": 1167,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 396,
+    "x": 1425,
+    "showLabel": true
+   },
+   {
+    "label": "Gr. Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 396,
+    "x": 1681,
+    "showLabel": true
+   },
+   {
+    "label": "Transportation",
+    "control": "ComboBoxDelevered",
+    "hidden": false,
+    "y": 436,
+    "x": 396,
+    "showLabel": true
+   },
+   {
+    "label": "Order Type",
+    "control": "ComboBoxEditOrderType",
+    "hidden": false,
+    "y": 436,
+    "x": 910,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 436,
+    "x": 1167,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 436,
+    "x": 1425,
+    "showLabel": true
+   },
+   {
+    "label": "Add/Less",
+    "control": "TxtAddless2",
+    "hidden": false,
+    "y": 476,
+    "x": 503,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 476,
+    "x": 1169,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 476,
+    "x": 1426,
+    "showLabel": true
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 523,
+    "x": 396,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem21",
+    "control": "LblOthDis",
+    "hidden": false,
+    "y": 746,
+    "x": 525,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem24",
+    "control": "lblPartyAddress",
+    "hidden": false,
+    "y": 772,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem25",
+    "control": "lblDeliveryAddress",
+    "hidden": false,
+    "y": 789,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Project Name",
+    "control": "ComboBoxEditProjectName",
+    "hidden": true,
+    "y": 72,
+    "x": 1684,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Address",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 96,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlCSTAgainst",
+    "control": "CheckEditAgaintCform",
+    "hidden": true,
+    "y": 476,
+    "x": 396,
+    "showLabel": false
+   },
+   {
+    "label": "Link P.O.",
+    "control": "TxtLinkPurOrdNo",
+    "hidden": true,
+    "y": 499,
+    "x": 396,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem20",
+    "control": "TextEdit1",
+    "hidden": true,
+    "y": 746,
+    "x": 396,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Sals_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Sals_LotNo",
+    "sum": ""
+   },
+   {
+    "caption": "Pieces",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Grd Rmk",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Qty.",
+    "field": "QTY",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Freight (%)",
+    "field": "Sals_FreightPer",
+    "sum": ""
+   },
+   {
+    "caption": "Freight(Rs)",
+    "field": "Sals_FreightAmt",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(%)",
+    "field": "VATP",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(Rs)",
+    "field": "VATRS",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(%)",
+    "field": "ADTAXP",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(Rs)",
+    "field": "ADTAXRS",
+    "sum": ""
+   },
+   {
+    "caption": "Remark 1",
+    "field": "SalS_Rmk1",
+    "sum": ""
+   },
+   {
+    "caption": "Remark 2",
+    "field": "SalS_Rmk2",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "SalS_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Stock",
+    "field": "Pending_Stock",
+    "sum": ""
+   },
+   {
+    "caption": "Pending Pcs",
+    "field": "Pending_Pcs",
+    "sum": ""
+   },
+   {
+    "caption": "Pending Qty",
+    "field": "Pending_Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   },
+   {
+    "caption": "Status",
+    "field": "SalS_Status",
+    "sum": ""
+   },
+   {
+    "caption": "Stock",
+    "field": "Tara_Stock",
+    "sum": ""
+   }
+  ]
+ },
+ "SaleOrder/PartyList": {
+  "XtraGrid": [
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "GST No",
+    "field": "P_GSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Office No",
+    "field": "P_OTel",
+    "sum": ""
+   },
+   {
+    "caption": "Email",
+    "field": "P_Email",
+    "sum": ""
+   },
+   {
+    "caption": "Contact Person",
+    "field": "P_ContPerName",
+    "sum": ""
+   },
+   {
+    "caption": "Party Code",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Balance",
+    "field": "GridColumn8",
+    "sum": ""
+   },
+   {
+    "caption": "Group Name",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Days",
+    "field": "P_CrDay",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Limit",
+    "field": "P_CrLimit",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Pan No",
+    "field": "P_PANo",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CtName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "StName",
+    "sum": ""
+   },
+   {
+    "caption": "Area",
+    "field": "AreaName",
+    "sum": ""
+   },
+   {
+    "caption": "Company Name",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "Sales Person",
+    "field": "SALESPERSON",
+    "sum": ""
+   }
+  ]
+ },
+ "BillAdjustment/BANKREC/P0103": {
+  "XtraGrid": [
+   {
+    "caption": "..",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "BillDt",
+    "sum": ""
+   },
+   {
+    "caption": "Net Amt",
+    "field": "Sal_NetAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Paid Amt",
+    "field": "ReceivedAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Remain Amt",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Qty",
+    "field": "Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "BrokerName",
+    "sum": ""
+   },
+   {
+    "caption": "Int (%)",
+    "field": "IntrestPer",
+    "sum": ""
+   },
+   {
+    "caption": "Difference",
+    "field": "GridColumn40",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "BokName",
+    "sum": ""
+   },
+   {
+    "caption": "GridColumn42",
+    "field": "ArchitectCode",
+    "sum": ""
+   },
+   {
+    "caption": "Cal Dis(%)",
+    "field": "DisPerCal",
+    "sum": ""
+   },
+   {
+    "caption": "Cal Dis(Rs)",
+    "field": "GridColumn46",
+    "sum": ""
+   },
+   {
+    "caption": "Tot. Discount",
+    "field": "Sal_TotalDis",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Tot. Frieght",
+    "field": "Sal_TotFrieght",
+    "sum": ""
+   },
+   {
+    "caption": "Avg Rate",
+    "field": "Sal_AvgRate",
+    "sum": ""
+   },
+   {
+    "caption": "Adj Amount",
+    "field": "Ramt",
+    "sum": ""
+   },
+   {
+    "caption": "Add/Less",
+    "field": "Add_Less",
+    "sum": ""
+   },
+   {
+    "caption": "Cr.Days",
+    "field": "Sal_Crdays",
+    "sum": ""
+   },
+   {
+    "caption": "Diff.Days",
+    "field": "DiffDays",
+    "sum": ""
+   },
+   {
+    "caption": "Per Day Int",
+    "field": "GridColumn35",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Int.",
+    "field": "GridColumn36",
+    "sum": ""
+   },
+   {
+    "caption": "GST(%)",
+    "field": "GSTPER",
+    "sum": ""
+   },
+   {
+    "caption": "With GST Amt",
+    "field": "GridColumn39",
+    "sum": ""
+   }
+  ]
+ },
+ "BillAdjustment/BANKREC/P014952": {
+  "XtraGrid": [
+   {
+    "caption": "..",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "BillDt",
+    "sum": ""
+   },
+   {
+    "caption": "Net Amt",
+    "field": "Sal_NetAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Paid Amt",
+    "field": "ReceivedAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Remain Amt",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Qty",
+    "field": "Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "BrokerName",
+    "sum": ""
+   },
+   {
+    "caption": "Int (%)",
+    "field": "IntrestPer",
+    "sum": ""
+   },
+   {
+    "caption": "Difference",
+    "field": "GridColumn40",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "BokName",
+    "sum": ""
+   },
+   {
+    "caption": "Cal Dis(%)",
+    "field": "DisPerCal",
+    "sum": ""
+   },
+   {
+    "caption": "Cal Dis(Rs)",
+    "field": "GridColumn46",
+    "sum": ""
+   },
+   {
+    "caption": "Tot. Discount",
+    "field": "Sal_TotalDis",
+    "sum": ""
+   },
+   {
+    "caption": "Tot. Frieght",
+    "field": "Sal_TotFrieght",
+    "sum": ""
+   },
+   {
+    "caption": "Adj Amount",
+    "field": "Ramt",
+    "sum": ""
+   },
+   {
+    "caption": "Add/Less",
+    "field": "Add_Less",
+    "sum": ""
+   },
+   {
+    "caption": "Cr.Days",
+    "field": "Sal_Crdays",
+    "sum": ""
+   },
+   {
+    "caption": "Diff.Days",
+    "field": "DiffDays",
+    "sum": ""
+   },
+   {
+    "caption": "Per Day Int",
+    "field": "GridColumn35",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Int.",
+    "field": "GridColumn36",
+    "sum": ""
+   },
+   {
+    "caption": "GST(%)",
+    "field": "GSTPER",
+    "sum": ""
+   },
+   {
+    "caption": "With GST Amt",
+    "field": "GridColumn39",
+    "sum": ""
+   }
+  ]
+ },
+ "BillAdjustment/BANKREC/P013397": {
+  "XtraGrid": [
+   {
+    "caption": "..",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "BillDt",
+    "sum": ""
+   },
+   {
+    "caption": "Net Amt",
+    "field": "Sal_NetAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Paid Amt",
+    "field": "ReceivedAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Remain Amt",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Qty",
+    "field": "Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "BrokerName",
+    "sum": ""
+   },
+   {
+    "caption": "Int (%)",
+    "field": "IntrestPer",
+    "sum": ""
+   },
+   {
+    "caption": "Difference",
+    "field": "GridColumn40",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "BokName",
+    "sum": ""
+   },
+   {
+    "caption": "GridColumn42",
+    "field": "ArchitectCode",
+    "sum": ""
+   },
+   {
+    "caption": "Adj Amount",
+    "field": "Ramt",
+    "sum": ""
+   },
+   {
+    "caption": "Add/Less",
+    "field": "Add_Less",
+    "sum": ""
+   },
+   {
+    "caption": "Cr.Days",
+    "field": "Sal_Crdays",
+    "sum": ""
+   },
+   {
+    "caption": "Diff.Days",
+    "field": "DiffDays",
+    "sum": ""
+   },
+   {
+    "caption": "Per Day Int",
+    "field": "GridColumn35",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Int.",
+    "field": "GridColumn36",
+    "sum": ""
+   },
+   {
+    "caption": "GST(%)",
+    "field": "GSTPER",
+    "sum": ""
+   },
+   {
+    "caption": "With GST Amt",
+    "field": "GridColumn39",
+    "sum": ""
+   }
+  ]
+ },
+ "BillAdjustment/BANKPAY/P010721": {
+  "XtraGrid": [
+   {
+    "caption": "..",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "BillDt",
+    "sum": ""
+   },
+   {
+    "caption": "Net Amt",
+    "field": "Sal_NetAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Paid Amt",
+    "field": "ReceivedAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Remain Amt",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Qty",
+    "field": "Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "BrokerName",
+    "sum": ""
+   },
+   {
+    "caption": "Int (%)",
+    "field": "IntrestPer",
+    "sum": ""
+   },
+   {
+    "caption": "Difference",
+    "field": "GridColumn40",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "BokName",
+    "sum": ""
+   },
+   {
+    "caption": "GridColumn42",
+    "field": "ArchitectCode",
+    "sum": ""
+   },
+   {
+    "caption": "Cal Dis(%)",
+    "field": "DisPerCal",
+    "sum": ""
+   },
+   {
+    "caption": "Cal Dis(Rs)",
+    "field": "GridColumn46",
+    "sum": ""
+   },
+   {
+    "caption": "Adj Amount",
+    "field": "Ramt",
+    "sum": ""
+   },
+   {
+    "caption": "Add/Less",
+    "field": "Add_Less",
+    "sum": ""
+   },
+   {
+    "caption": "Cr.Days",
+    "field": "Sal_Crdays",
+    "sum": ""
+   },
+   {
+    "caption": "Diff.Days",
+    "field": "DiffDays",
+    "sum": ""
+   },
+   {
+    "caption": "Per Day Int",
+    "field": "GridColumn35",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Int.",
+    "field": "GridColumn36",
+    "sum": ""
+   },
+   {
+    "caption": "GST(%)",
+    "field": "GSTPER",
+    "sum": ""
+   },
+   {
+    "caption": "With GST Amt",
+    "field": "GridColumn39",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/PUR/BOK31  [YARN PURCHASE A/C NEW (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 980,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 1084,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 1220,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1345,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1467,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 738,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 615,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 615,
+    "x": 842,
+    "showLabel": true
+   }
+  ]
+ },
+ "ShowRecords/PUR/BOK31/ITEMWISE": {
+  "XtraGrid": [
+   {
+    "caption": "Select",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Entry No",
+    "field": "Pur_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Purchase Date",
+    "field": "Pur_Date",
+    "sum": ""
+   },
+   {
+    "caption": "Invoice No",
+    "field": "Pur_Invno",
+    "sum": ""
+   },
+   {
+    "caption": "GRN Inv No",
+    "field": "GRN_Invno",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Design",
+    "field": "Purs_DesignNo",
+    "sum": ""
+   },
+   {
+    "caption": "Shade",
+    "field": "Purs_Shade",
+    "sum": ""
+   },
+   {
+    "caption": "Hsn Code",
+    "field": "Purs_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Purs_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Purs_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "PurS_LotNo",
+    "sum": ""
+   },
+   {
+    "caption": "Order No",
+    "field": "OrdNo",
+    "sum": ""
+   },
+   {
+    "caption": "Order Dt",
+    "field": "OrdDt",
+    "sum": ""
+   },
+   {
+    "caption": "PCS",
+    "field": "PurS_SqMt_Ft",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Purs_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Meter",
+    "field": "PurS_Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "PurS_Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Item Amt",
+    "field": "I_Amount",
+    "sum": ""
+   },
+   {
+    "caption": "TaxableAmt",
+    "field": "Purs_Taxableamt",
+    "sum": ""
+   },
+   {
+    "caption": "Disper",
+    "field": "Purs_Disper",
+    "sum": ""
+   },
+   {
+    "caption": "DisAmt",
+    "field": "Purs_Disamt",
+    "sum": ""
+   },
+   {
+    "caption": "CgstPer",
+    "field": "Purs_VatPer",
+    "sum": ""
+   },
+   {
+    "caption": "CgstAmt",
+    "field": "Purs_VatAmt",
+    "sum": ""
+   },
+   {
+    "caption": "SgstPer",
+    "field": "Purs_AdPer",
+    "sum": ""
+   },
+   {
+    "caption": "SgstAmt",
+    "field": "Purs_AdAmt",
+    "sum": ""
+   },
+   {
+    "caption": "IgstPer",
+    "field": "Purs_ExPer",
+    "sum": ""
+   },
+   {
+    "caption": "IgstAmt",
+    "field": "Purs_ExAmt",
+    "sum": ""
+   },
+   {
+    "caption": "TcsPer",
+    "field": "Purs_TcsPer",
+    "sum": ""
+   },
+   {
+    "caption": "TcsAmt",
+    "field": "Purs_TcsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "FrightPer",
+    "field": "Purs_FrieghtPer",
+    "sum": ""
+   },
+   {
+    "caption": "FrightAmt",
+    "field": "Purs_FrieghtAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Net Amt",
+    "field": "Net_Amount",
+    "sum": ""
+   },
+   {
+    "caption": "Item Id",
+    "field": "I_ID",
+    "sum": ""
+   },
+   {
+    "caption": "Ref Ord No",
+    "field": "OrdRefNo",
+    "sum": ""
+   },
+   {
+    "caption": "Bok_Code",
+    "field": "Bok_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Pur_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Is Lock?",
+    "field": "Pur_LockCode",
+    "sum": ""
+   },
+   {
+    "caption": "Avg Rate",
+    "field": "Pur_AvgRate",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Purs_Rmk",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/BANKREC/P0103": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 980,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 1084,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 1220,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1345,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1467,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 738,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 615,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 615,
+    "x": 842,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Sel",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher No",
+    "field": "Rec_VchNo",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher Date",
+    "field": "Rec_VchDt",
+    "sum": ""
+   },
+   {
+    "caption": "Account Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile No",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Cheque No",
+    "field": "PCheckNo",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "RecS_BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "Amount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Narr_Text",
+    "sum": ""
+   },
+   {
+    "caption": "Main Remark",
+    "field": "Rec_Rmk",
+    "sum": ""
+   },
+   {
+    "caption": "Mode Of Payment",
+    "field": "ChequeMode",
+    "sum": ""
+   },
+   {
+    "caption": "Sms Sent?",
+    "field": "Rec_IsSmsSent",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/CRNT/BOK035  [CREDIT NOTE (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 980,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 1084,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 1220,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1345,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1467,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 738,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 615,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 615,
+    "x": 842,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Sel",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher No",
+    "field": "JV_VchNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "JV_VchDt",
+    "sum": ""
+   },
+   {
+    "caption": "Account Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Expense Name",
+    "field": "ExpAcc",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "Jv_BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Debit",
+    "field": "DebitAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Credit",
+    "field": "CreditAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Narr_Text",
+    "sum": ""
+   },
+   {
+    "caption": "Print",
+    "field": "PrintCount",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Jv_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/DBNT/BOK0117  [DEBIT NOTE (SRTD) (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 980,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 1084,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 1220,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1345,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1467,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 738,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 615,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 615,
+    "x": 842,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Sel",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher No",
+    "field": "JV_VchNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "JV_VchDt",
+    "sum": ""
+   },
+   {
+    "caption": "Account Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Expense Name",
+    "field": "ExpAcc",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "Jv_BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Debit",
+    "field": "DebitAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Credit",
+    "field": "CreditAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Narr_Text",
+    "sum": ""
+   },
+   {
+    "caption": "Print",
+    "field": "PrintCount",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Jv_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/DBNT/BOK075  [DEBIT NOTE (LLP) (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 980,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 1084,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 1220,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1345,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1467,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 738,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 615,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 615,
+    "x": 842,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Sel",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher No",
+    "field": "JV_VchNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "JV_VchDt",
+    "sum": ""
+   },
+   {
+    "caption": "Account Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Expense Name",
+    "field": "ExpAcc",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "Jv_BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Debit",
+    "field": "DebitAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Credit",
+    "field": "CreditAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Narr_Text",
+    "sum": ""
+   },
+   {
+    "caption": "Print",
+    "field": "PrintCount",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Jv_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/DBNT/BOK0192  [DEBIT NOTE LLP (TCS PAYABLE) (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 980,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 1084,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 1220,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1345,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1467,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 738,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 615,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 615,
+    "x": 842,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Sel",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher No",
+    "field": "JV_VchNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "JV_VchDt",
+    "sum": ""
+   },
+   {
+    "caption": "Account Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Expense Name",
+    "field": "ExpAcc",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "Jv_BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Debit",
+    "field": "DebitAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Credit",
+    "field": "CreditAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Narr_Text",
+    "sum": ""
+   },
+   {
+    "caption": "Print",
+    "field": "PrintCount",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Jv_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/DBNT/BOK037  [DEBIT NOTE (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 980,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 1084,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 1220,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1345,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1467,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 738,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 615,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 615,
+    "x": 842,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Sel",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher No",
+    "field": "JV_VchNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "JV_VchDt",
+    "sum": ""
+   },
+   {
+    "caption": "Account Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Expense Name",
+    "field": "ExpAcc",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "Jv_BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Debit",
+    "field": "DebitAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Credit",
+    "field": "CreditAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Narr_Text",
+    "sum": ""
+   },
+   {
+    "caption": "Print",
+    "field": "PrintCount",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Jv_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/SAL/BOK058  [YARN SALES TAX A/C (GANESH TEX) (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 27,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 604,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 740,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 865,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 987,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": true,
+    "y": 622,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 622,
+    "x": 604,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Select",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Sale No",
+    "field": "Sal_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "Sal_Date",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "PCS",
+    "field": "Sal_TotPCS",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Sal_TotWeight",
+    "sum": ""
+   },
+   {
+    "caption": "Meter",
+    "field": "Sal_TotQty",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "Amount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Sal_Rmk",
+    "sum": ""
+   },
+   {
+    "caption": "Avg. Rate",
+    "field": "Sal_AvgRate",
+    "sum": ""
+   },
+   {
+    "caption": "Print",
+    "field": "PrintCount",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/PARTYSHOW/'Party'": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": false,
+    "y": 516,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Branch",
+    "control": "CheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 723,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 827,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 963,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1088,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 1210,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box No History",
+    "control": "txtFindBoxNo",
+    "hidden": true,
+    "y": 27,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stock Status",
+    "control": "ComboBoxEditStockableStatus",
+    "hidden": true,
+    "y": 27,
+    "x": 626,
+    "showLabel": true
+   },
+   {
+    "label": "Party Item Name",
+    "control": "CheckedComboBoxEditPartyName",
+    "hidden": true,
+    "y": 27,
+    "x": 917,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 516,
+    "x": 713,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Select",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Party Code",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "GST No",
+    "field": "P_GSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "Group",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Office No",
+    "field": "P_OTel",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile No",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Contact Person",
+    "field": "P_ContPerName",
+    "sum": ""
+   },
+   {
+    "caption": "SALES PERSON",
+    "field": "SALESPERSON",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Name",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "E-Mail",
+    "field": "P_Email",
+    "sum": ""
+   },
+   {
+    "caption": "Interest %",
+    "field": "P_Intrest",
+    "sum": ""
+   },
+   {
+    "caption": "Legal Name",
+    "field": "P_LegName",
+    "sum": ""
+   },
+   {
+    "caption": "Rmk",
+    "field": "P_Rmk",
+    "sum": ""
+   },
+   {
+    "caption": "PayName",
+    "field": "P_PayMentName",
+    "sum": ""
+   },
+   {
+    "caption": "Village",
+    "field": "P_Village",
+    "sum": ""
+   },
+   {
+    "caption": "Samaj",
+    "field": "P_Samaj",
+    "sum": ""
+   },
+   {
+    "caption": "PanNo",
+    "field": "P_PANo",
+    "sum": ""
+   },
+   {
+    "caption": "Month",
+    "field": "Create_Month",
+    "sum": ""
+   },
+   {
+    "caption": "Other Rmk",
+    "field": "P_OthRmk",
+    "sum": ""
+   },
+   {
+    "caption": "Bank Name",
+    "field": "P_BankName",
+    "sum": ""
+   },
+   {
+    "caption": "Bank Branch",
+    "field": "P_BnkBraName",
+    "sum": ""
+   },
+   {
+    "caption": "IFSC Code",
+    "field": "P_BnkIFSCcode",
+    "sum": ""
+   },
+   {
+    "caption": "Tcs Req",
+    "field": "P_TCSReq",
+    "sum": ""
+   },
+   {
+    "caption": "Tds Req",
+    "field": "P_IsTdsReq",
+    "sum": ""
+   },
+   {
+    "caption": "CrDays",
+    "field": "P_CrDay",
+    "sum": ""
+   },
+   {
+    "caption": "CrLimit",
+    "field": "P_CrLimit",
+    "sum": ""
+   },
+   {
+    "caption": "DisPer",
+    "field": "P_DisPer",
+    "sum": ""
+   },
+   {
+    "caption": "Is Approve?",
+    "field": "P_Approved",
+    "sum": ""
+   },
+   {
+    "caption": "Pincode",
+    "field": "P_PINCODE",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CtName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "GstS_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Area",
+    "field": "AreaName",
+    "sum": ""
+   },
+   {
+    "caption": "Block Remark",
+    "field": "Blok_Rmk",
+    "sum": ""
+   },
+   {
+    "caption": "Lock Days",
+    "field": "P_LockDays",
+    "sum": ""
+   },
+   {
+    "caption": "MSME NO",
+    "field": "P_MSMENo",
+    "sum": ""
+   },
+   {
+    "caption": "Tan No",
+    "field": "P_CSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Transpoter Name",
+    "field": "TranspoterName",
+    "sum": ""
+   },
+   {
+    "caption": "Type Of Registration",
+    "field": "TypeOfReg",
+    "sum": ""
+   }
+  ]
+ },
+ "ShowRecords/COMPANYSHOW": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 27,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDynamicControl",
+    "control": "TemAddDisply",
+    "hidden": false,
+    "y": 517,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Company",
+    "control": "CheckedComboBoxEditCompany",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "chkComboCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 604,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": true,
+    "y": 0,
+    "x": 740,
+    "showLabel": true
+   },
+   {
+    "label": "From Date (F1)",
+    "control": "txtFromDate",
+    "hidden": true,
+    "y": 0,
+    "x": 865,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "txtToDate",
+    "hidden": true,
+    "y": 0,
+    "x": 987,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem2",
+    "control": "GridControl2",
+    "hidden": true,
+    "y": 517,
+    "x": 604,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Company Name",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "GST No",
+    "field": "VattinNo",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile No",
+    "field": "offmobileno",
+    "sum": ""
+   },
+   {
+    "caption": "Email Id",
+    "field": "offEmail",
+    "sum": ""
+   }
+  ]
+ },
+ "AgingWiseReport/8": {
+  "XtraGrid": [
+   {
+    "caption": "Collection Person",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Above 60 Days",
+    "field": "31Days",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group Name",
+    "field": "BRK_NAME",
+    "sum": ""
+   },
+   {
+    "caption": "Outstanding Balance",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Max/Min Outs",
+    "field": "K",
+    "sum": ""
+   }
+  ]
+ },
+ "AgingWiseReport/2": {
+  "fields": [
+   {
+    "label": "Company List",
+    "control": "CheckedComboBoxEditCompanyList",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDay1",
+    "control": "TxtDays1",
+    "hidden": false,
+    "y": 26,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDay2",
+    "control": "TxtDays2",
+    "hidden": false,
+    "y": 26,
+    "x": 61,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDay3",
+    "control": "TxtDays3",
+    "hidden": false,
+    "y": 26,
+    "x": 122,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDay4",
+    "control": "TxtDays4",
+    "hidden": false,
+    "y": 26,
+    "x": 183,
+    "showLabel": false
+   },
+   {
+    "label": "As On Date",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 26,
+    "x": 316,
+    "showLabel": true
+   },
+   {
+    "label": "Transaction Type",
+    "control": "CheckedComboBoxEditTransactionType",
+    "hidden": false,
+    "y": 26,
+    "x": 561,
+    "showLabel": true
+   },
+   {
+    "label": "Provisional Dbnt",
+    "control": "ComboBoxEditProvisionalDbnt",
+    "hidden": false,
+    "y": 26,
+    "x": 819,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemLessThenzero",
+    "control": "CheckEditMInusDataNotReq",
+    "hidden": false,
+    "y": 52,
+    "x": 819,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "CheckEditRange",
+    "hidden": false,
+    "y": 54,
+    "x": 316,
+    "showLabel": false
+   },
+   {
+    "label": "Report Type",
+    "control": "ComboBoxEditReportType",
+    "hidden": false,
+    "y": 54,
+    "x": 561,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem6",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 80,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Branch",
+    "control": "RepositoryItemCheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 561,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "CheckedComboBoxEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 841,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDay5",
+    "control": "TxtDays5",
+    "hidden": true,
+    "y": 26,
+    "x": 244,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemPackingStock",
+    "control": "GridControlPackingStock",
+    "hidden": true,
+    "y": 80,
+    "x": 675,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Address Details",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "0 To 30 Days",
+    "field": "30Days",
+    "sum": ""
+   },
+   {
+    "caption": "30 To 60 Days",
+    "field": "31Days",
+    "sum": ""
+   },
+   {
+    "caption": "60 To 90 Days",
+    "field": "61Days",
+    "sum": ""
+   },
+   {
+    "caption": "90 To 120 Days",
+    "field": "91Days",
+    "sum": ""
+   },
+   {
+    "caption": "Above 120Days",
+    "field": "120Days",
+    "sum": ""
+   },
+   {
+    "caption": "Outstanding Balance",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile No",
+    "field": "P_OMobile",
+    "sum": ""
+   }
+  ]
+ },
+ "AgingWiseReport/0": {
+  "fields": [
+   {
+    "label": "Company List",
+    "control": "CheckedComboBoxEditCompanyList",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Status",
+    "control": "cmbStatus",
+    "hidden": false,
+    "y": 24,
+    "x": 1067,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDay1",
+    "control": "TxtDays1",
+    "hidden": false,
+    "y": 26,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDay2",
+    "control": "TxtDays2",
+    "hidden": false,
+    "y": 26,
+    "x": 61,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDay3",
+    "control": "TxtDays3",
+    "hidden": false,
+    "y": 26,
+    "x": 122,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemDay4",
+    "control": "TxtDays4",
+    "hidden": false,
+    "y": 26,
+    "x": 183,
+    "showLabel": false
+   },
+   {
+    "label": "As On Date",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 26,
+    "x": 316,
+    "showLabel": true
+   },
+   {
+    "label": "Transaction Type",
+    "control": "CheckedComboBoxEditTransactionType",
+    "hidden": false,
+    "y": 26,
+    "x": 561,
+    "showLabel": true
+   },
+   {
+    "label": "Provisional Dbnt",
+    "control": "ComboBoxEditProvisionalDbnt",
+    "hidden": false,
+    "y": 26,
+    "x": 819,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemLessThenzero",
+    "control": "CheckEditMInusDataNotReq",
+    "hidden": false,
+    "y": 52,
+    "x": 819,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "CheckEditRange",
+    "hidden": false,
+    "y": 54,
+    "x": 316,
+    "showLabel": false
+   },
+   {
+    "label": "Report Type",
+    "control": "ComboBoxEditReportType",
+    "hidden": false,
+    "y": 54,
+    "x": 561,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem6",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 80,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Branch",
+    "control": "RepositoryItemCheckedComboBoxEditBranch",
+    "hidden": true,
+    "y": 0,
+    "x": 561,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "CheckedComboBoxEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 841,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemDay5",
+    "control": "TxtDays5",
+    "hidden": true,
+    "y": 26,
+    "x": 244,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItemPackingStock",
+    "control": "GridControlPackingStock",
+    "hidden": true,
+    "y": 80,
+    "x": 675,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Address Details",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile No",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Ledger Balance",
+    "field": "LedAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Outstanding Balance",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "DiffAmt",
+    "field": "DiffAmt",
+    "sum": ""
+   },
+   {
+    "caption": "0 To 30 Days",
+    "field": "30Days",
+    "sum": ""
+   },
+   {
+    "caption": "30 To 60 Days",
+    "field": "31Days",
+    "sum": ""
+   },
+   {
+    "caption": "60 To 90 Days",
+    "field": "61Days",
+    "sum": ""
+   },
+   {
+    "caption": "90 To 120 Days",
+    "field": "91Days",
+    "sum": ""
+   },
+   {
+    "caption": "Above 120Days",
+    "field": "120Days",
+    "sum": ""
+   },
+   {
+    "caption": "Company Name",
+    "field": "Company_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Group Name",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Msme Type",
+    "field": "P_InvType",
+    "sum": ""
+   },
+   {
+    "caption": "Area",
+    "field": "AreaName",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CityName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "StateName",
+    "sum": ""
+   }
+  ]
+ },
+ "EinvoiceEwayBillForm": {
+  "fields": [
+   {
+    "label": "From Date",
+    "control": "DateEditFrom",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 180,
+    "showLabel": true
+   },
+   {
+    "label": "Sub Type",
+    "control": "LookUpEditSubType",
+    "hidden": false,
+    "y": 0,
+    "x": 459,
+    "showLabel": true
+   },
+   {
+    "label": "Transaction",
+    "control": "LookUpEditTransactionType",
+    "hidden": false,
+    "y": 0,
+    "x": 657,
+    "showLabel": true
+   },
+   {
+    "label": "Tran Mode",
+    "control": "LookUpEditTranMode",
+    "hidden": false,
+    "y": 0,
+    "x": 849,
+    "showLabel": true
+   },
+   {
+    "label": "Supply Type",
+    "control": "RadioGroup1",
+    "hidden": false,
+    "y": 24,
+    "x": 180,
+    "showLabel": true
+   },
+   {
+    "label": "Doc Type",
+    "control": "LookUpEditDocType",
+    "hidden": false,
+    "y": 24,
+    "x": 459,
+    "showLabel": true
+   },
+   {
+    "label": "Vehical Type",
+    "control": "LookUpEditVehical",
+    "hidden": false,
+    "y": 24,
+    "x": 657,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem12",
+    "control": "CheckEditMakeEwayBillWithEinvoice",
+    "hidden": false,
+    "y": 26,
+    "x": 1150,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem11",
+    "control": "CheckEditDelAdd",
+    "hidden": false,
+    "y": 71,
+    "x": 459,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem16",
+    "control": "CheckEditTranpoter",
+    "hidden": false,
+    "y": 71,
+    "x": 641,
+    "showLabel": false
+   },
+   {
+    "label": "Type",
+    "control": "ComboBoxEditTranType",
+    "hidden": false,
+    "y": 94,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Manualy Update Eway Bill / Einvoice No In DB",
+    "control": "ButtonEdit1",
+    "hidden": false,
+    "y": 94,
+    "x": 459,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemGridControl",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 145,
+    "x": 0,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": []
+ },
+ "CrtDispatch/DISPACTH/BOK30  [SALES YARN A/C CHALLAN (umiya) (-1)]": {
+  "fields": [
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Lot No",
+    "control": "LookUpEditLot",
+    "hidden": false,
+    "y": 24,
+    "x": 883,
+    "showLabel": true
+   },
+   {
+    "label": "Grade",
+    "control": "LookUpEditGrade",
+    "hidden": false,
+    "y": 24,
+    "x": 1658,
+    "showLabel": true
+   },
+   {
+    "label": "Challan No",
+    "control": "TxtChallanNo",
+    "hidden": false,
+    "y": 48,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Challan Date",
+    "control": "DateEditChallan",
+    "hidden": false,
+    "y": 48,
+    "x": 504,
+    "showLabel": true
+   },
+   {
+    "label": "Item Name",
+    "control": "LookUpEditItem",
+    "hidden": false,
+    "y": 48,
+    "x": 883,
+    "showLabel": true
+   },
+   {
+    "label": "HSN Code",
+    "control": "txtHSNCode",
+    "hidden": false,
+    "y": 48,
+    "x": 1659,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 74,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Transporter",
+    "control": "LookUpEditTransport",
+    "hidden": false,
+    "y": 74,
+    "x": 883,
+    "showLabel": true
+   },
+   {
+    "label": "Trip",
+    "control": "SLookUpTrip",
+    "hidden": false,
+    "y": 74,
+    "x": 1460,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDelivery",
+    "hidden": false,
+    "y": 100,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "L.R. No",
+    "control": "TxtLrNo",
+    "hidden": false,
+    "y": 100,
+    "x": 883,
+    "showLabel": true
+   },
+   {
+    "label": "L.R. Date",
+    "control": "DateEditLrDate",
+    "hidden": false,
+    "y": 100,
+    "x": 1461,
+    "showLabel": true
+   },
+   {
+    "label": "Broker Name",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 124,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Vehical No",
+    "control": "LookUpVehicalNo",
+    "hidden": false,
+    "y": 124,
+    "x": 883,
+    "showLabel": true
+   },
+   {
+    "label": "Calculation Base",
+    "control": "cmbCalculationBase",
+    "hidden": false,
+    "y": 150,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Rate",
+    "control": "txtRate",
+    "hidden": false,
+    "y": 150,
+    "x": 274,
+    "showLabel": true
+   },
+   {
+    "label": "Basic Amt",
+    "control": "txtBasicAmt",
+    "hidden": false,
+    "y": 150,
+    "x": 429,
+    "showLabel": true
+   },
+   {
+    "label": "CGST (%)",
+    "control": "txtCGSTP",
+    "hidden": false,
+    "y": 150,
+    "x": 640,
+    "showLabel": true
+   },
+   {
+    "label": "Amt",
+    "control": "txtCGSTAmt",
+    "hidden": false,
+    "y": 150,
+    "x": 855,
+    "showLabel": true
+   },
+   {
+    "label": "SGST (%)",
+    "control": "txtSGSTP",
+    "hidden": false,
+    "y": 150,
+    "x": 1006,
+    "showLabel": true
+   },
+   {
+    "label": "Amt",
+    "control": "txtSGSTAmt",
+    "hidden": false,
+    "y": 150,
+    "x": 1218,
+    "showLabel": true
+   },
+   {
+    "label": "IGST (%)",
+    "control": "txtIGSTP",
+    "hidden": false,
+    "y": 150,
+    "x": 1369,
+    "showLabel": true
+   },
+   {
+    "label": "Amt",
+    "control": "txtIGSTAmt",
+    "hidden": false,
+    "y": 150,
+    "x": 1580,
+    "showLabel": true
+   },
+   {
+    "label": "Final Amt",
+    "control": "txtFinalAmt",
+    "hidden": false,
+    "y": 150,
+    "x": 1731,
+    "showLabel": true
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 174,
+    "x": 471,
+    "showLabel": true
+   },
+   {
+    "label": "Find Box",
+    "control": "TxtFindBox",
+    "hidden": false,
+    "y": 174,
+    "x": 835,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem16",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 202,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Total Boxes",
+    "control": "txtTotalBoxes",
+    "hidden": false,
+    "y": 615,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Total Weight",
+    "control": "txtTotalWeight",
+    "hidden": false,
+    "y": 615,
+    "x": 256,
+    "showLabel": true
+   },
+   {
+    "label": "E-WAY No",
+    "control": "txtEWayNo",
+    "hidden": false,
+    "y": 615,
+    "x": 559,
+    "showLabel": true
+   },
+   {
+    "label": "Bill No",
+    "control": "txtSalesBillNo",
+    "hidden": false,
+    "y": 615,
+    "x": 911,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem30",
+    "control": "lblPartyAddress",
+    "hidden": false,
+    "y": 641,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem31",
+    "control": "lblDeliveryAddress",
+    "hidden": false,
+    "y": 658,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Order No",
+    "control": "TxtOrderNo",
+    "hidden": true,
+    "y": 0,
+    "x": 883,
+    "showLabel": true
+   },
+   {
+    "label": "Sch No",
+    "control": "txtSchNo",
+    "hidden": true,
+    "y": 0,
+    "x": 1191,
+    "showLabel": true
+   },
+   {
+    "label": "Pack List No",
+    "control": "txtPackListNo",
+    "hidden": true,
+    "y": 0,
+    "x": 1380,
+    "showLabel": true
+   },
+   {
+    "label": "Order Date",
+    "control": "DateEditOrderdate",
+    "hidden": true,
+    "y": 0,
+    "x": 1625,
+    "showLabel": true
+   },
+   {
+    "label": "SAC Item",
+    "control": "txtSACItem",
+    "hidden": true,
+    "y": 48,
+    "x": 1418,
+    "showLabel": true
+   },
+   {
+    "label": "Ch Return Type",
+    "control": "cmbChRetType",
+    "hidden": true,
+    "y": 174,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Address",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 174,
+    "x": 1203,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/SalOrder_ShowList/BOK039  [SALES ORDER (-1)]": {
+  "fields": [
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 174,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/BOK040  [PURCHASE ORDER (-1)]": {
+  "fields": [
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 149,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/BOK039  [SALES ORDER (-1)]": {
+  "fields": [
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 194,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/DisSchChallan_PurchaseList/BOK066  [DISPATCH SCHEDULE (LLP) (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": true,
+    "y": 0,
+    "x": 1717,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/DisSchChallan_PurchaseList/BOK046  [DISPATCH SCHEDULE (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": true,
+    "y": 0,
+    "x": 1717,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/PurchaseStockList/BOK039  [SALES ORDER (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": true,
+    "y": 0,
+    "x": 1717,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/PurchaseStockList/BOK046  [DISPATCH SCHEDULE (-1)]": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": true,
+    "y": 0,
+    "x": 1717,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": []
+ },
+ "PendingOrder/PurOrder_ShowList/BOK040  [PURCHASE ORDER (-1)]": {
+  "fields": [
+   {
+    "label": "From",
+    "control": "DateEditFrom",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 192,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem1",
+    "control": "GridControlPendingOrder",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": false
+   }
+  ],
+  "XtraGrid": []
+ },
+ "JounralForm/PartyList": {
+  "XtraGrid": [
+   {
+    "caption": "Party Code",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Balance",
+    "field": "GridColumn8",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "GST No",
+    "field": "P_GSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Email",
+    "field": "P_Email",
+    "sum": ""
+   },
+   {
+    "caption": "Contact Person",
+    "field": "P_ContPerName",
+    "sum": ""
+   },
+   {
+    "caption": "Group Name",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Days",
+    "field": "P_CrDay",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Limit",
+    "field": "P_CrLimit",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Pan No",
+    "field": "P_PANo",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CtName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "StName",
+    "sum": ""
+   },
+   {
+    "caption": "Area",
+    "field": "AreaName",
+    "sum": ""
+   },
+   {
+    "caption": "Company Name",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "Sales Person",
+    "field": "SALESPERSON",
+    "sum": ""
+   }
+  ]
+ },
+ "JounralForm/BOK069  [JOURNAL VOUCHAR (-1)]": {
+  "ShowBillGrid": [
+   {
+    "caption": "Sel",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Voucher No",
+    "field": "JV_VchNo",
+    "sum": ""
+   },
+   {
+    "caption": "Date",
+    "field": "JV_VchDt",
+    "sum": ""
+   },
+   {
+    "caption": "Account Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Expense Name",
+    "field": "ExpAcc",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "Jv_BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Debit",
+    "field": "DebitAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Credit",
+    "field": "CreditAmount",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "Narr_Text",
+    "sum": ""
+   },
+   {
+    "caption": "Print",
+    "field": "PrintCount",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Jv_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   }
+  ]
+ },
+ "Counter": {
+  "WhatsUpEinvoiceCounter": []
+ },
+ "AutoDebiteForm/BOK075  [DEBIT NOTE (LLP) (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBookName",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "D.Note No",
+    "control": "TxtVouchNo",
+    "hidden": false,
+    "y": 0,
+    "x": 999,
+    "showLabel": true
+   },
+   {
+    "label": "D.Note Date",
+    "control": "DateEditVchDt",
+    "hidden": false,
+    "y": 0,
+    "x": 1179,
+    "showLabel": true
+   },
+   {
+    "label": "GST (%)",
+    "control": "TxtGSTPer",
+    "hidden": false,
+    "y": 0,
+    "x": 1357,
+    "showLabel": true
+   },
+   {
+    "label": "Int (%)",
+    "control": "TxtIntPer",
+    "hidden": false,
+    "y": 0,
+    "x": 1537,
+    "showLabel": true
+   },
+   {
+    "label": "Int Calc Days",
+    "control": "TxtIntDays",
+    "hidden": false,
+    "y": 0,
+    "x": 1715,
+    "showLabel": true
+   },
+   {
+    "label": "Total Taxable Amt",
+    "control": "TxtDbtTaxableAmt",
+    "hidden": false,
+    "y": 40,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Total Tax Amt",
+    "control": "TxtTotTaxAmt",
+    "hidden": false,
+    "y": 40,
+    "x": 178,
+    "showLabel": true
+   },
+   {
+    "label": "Total Tds Amt",
+    "control": "TxtTDSAmt",
+    "hidden": false,
+    "y": 40,
+    "x": 381,
+    "showLabel": true
+   },
+   {
+    "label": "Debit Note Amt",
+    "control": "TxtDbtAmount",
+    "hidden": false,
+    "y": 40,
+    "x": 560,
+    "showLabel": true
+   },
+   {
+    "label": "Interest Calc On",
+    "control": "RadioGroupIntrestCal",
+    "hidden": false,
+    "y": 40,
+    "x": 802,
+    "showLabel": true
+   },
+   {
+    "label": "Bill List On",
+    "control": "RadioGroupBillType",
+    "hidden": false,
+    "y": 40,
+    "x": 999,
+    "showLabel": true
+   },
+   {
+    "label": "Bill Status On",
+    "control": "RadioGroupBillStatusType",
+    "hidden": false,
+    "y": 40,
+    "x": 1257,
+    "showLabel": true
+   },
+   {
+    "label": "From Date",
+    "control": "DateEditFrom",
+    "hidden": false,
+    "y": 40,
+    "x": 1550,
+    "showLabel": true
+   },
+   {
+    "label": "To Date",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 40,
+    "x": 1730,
+    "showLabel": true
+   },
+   {
+    "label": "CGST",
+    "control": "TxtCGst",
+    "hidden": false,
+    "y": 86,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "SGST",
+    "control": "TxtSGST",
+    "hidden": false,
+    "y": 86,
+    "x": 178,
+    "showLabel": true
+   },
+   {
+    "label": "IGST",
+    "control": "TxtIGST",
+    "hidden": false,
+    "y": 86,
+    "x": 383,
+    "showLabel": true
+   },
+   {
+    "label": "HSN Code",
+    "control": "TxtHsnCode",
+    "hidden": false,
+    "y": 86,
+    "x": 708,
+    "showLabel": true
+   },
+   {
+    "label": "Party",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 86,
+    "x": 999,
+    "showLabel": true
+   },
+   {
+    "label": "LPC Account",
+    "control": "LookUpEditLPCAccount",
+    "hidden": false,
+    "y": 126,
+    "x": 999,
+    "showLabel": true
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 128,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Broker",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 128,
+    "x": 598,
+    "showLabel": true
+   },
+   {
+    "label": "Bill Detail",
+    "control": "GridControlBill",
+    "hidden": false,
+    "y": 170,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Select",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "BillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Bill Date",
+    "field": "BillDt",
+    "sum": ""
+   },
+   {
+    "caption": "Recv. Dt",
+    "field": "Rec_Date",
+    "sum": ""
+   },
+   {
+    "caption": "P Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_NAME",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Pcs",
+    "field": "Pcs",
+    "sum": ""
+   },
+   {
+    "caption": "Qty",
+    "field": "Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "GST Amt",
+    "field": "GstAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Net Amt",
+    "field": "Sal_NetAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Recv Opn",
+    "field": "RecOpening",
+    "sum": ""
+   },
+   {
+    "caption": "Rec Amt",
+    "field": "ReceivedAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Pending Amt",
+    "field": "PendingAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Ret Amt",
+    "field": "RetAmt",
+    "sum": ""
+   },
+   {
+    "caption": "TDS Amt",
+    "field": "TdsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis Amt",
+    "field": "DisAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Int Rec",
+    "field": "IntRec",
+    "sum": ""
+   },
+   {
+    "caption": "Tot Days",
+    "field": "TotDays",
+    "sum": ""
+   },
+   {
+    "caption": "Cr Days",
+    "field": "Sal_Crdays",
+    "sum": ""
+   },
+   {
+    "caption": "Diff Days",
+    "field": "DiffDays",
+    "sum": ""
+   },
+   {
+    "caption": "D.Note No",
+    "field": "DbntNo",
+    "sum": ""
+   },
+   {
+    "caption": "D.Note Date",
+    "field": "DbDate",
+    "sum": ""
+   },
+   {
+    "caption": "Book",
+    "field": "BookName",
+    "sum": ""
+   },
+   {
+    "caption": "Delivery Party",
+    "field": "DeliveryName",
+    "sum": ""
+   },
+   {
+    "caption": "Sales Person",
+    "field": "SalesPersonName",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Return Date",
+    "field": "RetDate",
+    "sum": ""
+   },
+   {
+    "caption": "Int Amt",
+    "field": "IntAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Brokrage(%)",
+    "field": "BrkPer",
+    "sum": ""
+   },
+   {
+    "caption": "Brokrage Amt",
+    "field": "BrkAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DisPer",
+    "sum": ""
+   },
+   {
+    "caption": "Dis Amt",
+    "field": "DisPer_Amt",
+    "sum": ""
+   },
+   {
+    "caption": "Final Amt",
+    "field": "FinalAmt",
+    "sum": ""
+   }
+  ]
+ },
+ "ItemForm": {
+  "fields": [
+   {
+    "label": "Item Id",
+    "control": "TxtId",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem20",
+    "control": "XtraTabControl1",
+    "hidden": false,
+    "y": 0,
+    "x": 489,
+    "showLabel": false
+   },
+   {
+    "label": "Description",
+    "control": "TxtDesc",
+    "hidden": false,
+    "y": 24,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Unit",
+    "control": "LookUpEditUnit",
+    "hidden": false,
+    "y": 48,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Item Group",
+    "control": "cmbItemGroup",
+    "hidden": false,
+    "y": 48,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Item Group",
+    "control": "LookUpEditItemMainGroup",
+    "hidden": false,
+    "y": 72,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "HSN Code",
+    "control": "TxtHsnCode",
+    "hidden": false,
+    "y": 96,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "S.GST",
+    "control": "TxtSGst",
+    "hidden": false,
+    "y": 120,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Item Sub Group",
+    "control": "cmbItemSubGroup",
+    "hidden": false,
+    "y": 120,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "C.GST",
+    "control": "TxtCGst",
+    "hidden": false,
+    "y": 144,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "I.GST",
+    "control": "TxtIGst",
+    "hidden": false,
+    "y": 168,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Purchase Rate",
+    "control": "TxtPurRate",
+    "hidden": false,
+    "y": 192,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Sale Rate",
+    "control": "TxtSaleRate",
+    "hidden": false,
+    "y": 216,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Opeing Qty",
+    "control": "TxtOpenQty",
+    "hidden": false,
+    "y": 240,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Stockable",
+    "control": "CmbBoxEditStockAble",
+    "hidden": false,
+    "y": 264,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Block",
+    "control": "CmbBoxEditBlock",
+    "hidden": false,
+    "y": 288,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Item Is Embriodary ?",
+    "control": "cmbItemIsEmb",
+    "hidden": false,
+    "y": 312,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Weight",
+    "control": "TxtWeight",
+    "hidden": false,
+    "y": 312,
+    "x": 518,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "SearchLookUpEditParty",
+    "hidden": false,
+    "y": 336,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Drawing No",
+    "control": "LookUpEditDrawingNo",
+    "hidden": false,
+    "y": 336,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Pcs Rate",
+    "control": "TxtPcsRate",
+    "hidden": false,
+    "y": 360,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Item Discount",
+    "control": "TxtItemDisCount",
+    "hidden": false,
+    "y": 432,
+    "x": 0,
+    "showLabel": true
+   }
+  ]
+ },
+ "BankCash/BOK033  [BANK RECEIPT THE SURAT PEOPLES CO OP BANK LTD. (-1)]": {
+  "fields": [
+   {
+    "label": "Bank Account",
+    "control": "LookUpEditBankAc",
+    "hidden": false,
+    "y": 0,
+    "x": 500,
+    "showLabel": true
+   },
+   {
+    "label": "Balance",
+    "control": "TxtAcBalance",
+    "hidden": false,
+    "y": 0,
+    "x": 1010,
+    "showLabel": true
+   },
+   {
+    "label": "Mode",
+    "control": "LookUpEditChequeMode",
+    "hidden": false,
+    "y": 0,
+    "x": 1193,
+    "showLabel": true
+   },
+   {
+    "label": "Coll Id",
+    "control": "TxtCollectionId",
+    "hidden": false,
+    "y": 0,
+    "x": 1312,
+    "showLabel": true
+   },
+   {
+    "label": "Voucher No",
+    "control": "TxtVoucherNo",
+    "hidden": false,
+    "y": 28,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Date",
+    "control": "DateEditEntry",
+    "hidden": false,
+    "y": 28,
+    "x": 437,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem14",
+    "control": "lblDaysName",
+    "hidden": false,
+    "y": 28,
+    "x": 596,
+    "showLabel": false
+   },
+   {
+    "label": "Slip No.",
+    "control": "TxtSlipNo",
+    "hidden": false,
+    "y": 28,
+    "x": 710,
+    "showLabel": true
+   },
+   {
+    "label": "Search Bill No",
+    "control": "TxtSearchBillNo",
+    "hidden": false,
+    "y": 28,
+    "x": 1006,
+    "showLabel": true
+   },
+   {
+    "label": "Daily CC Limit",
+    "control": "txtDailyCCLimitBal",
+    "hidden": false,
+    "y": 28,
+    "x": 1312,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem4",
+    "control": "GridControlAccount",
+    "hidden": false,
+    "y": 56,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "LayoutControlItem12",
+    "control": "LblDueDate",
+    "hidden": false,
+    "y": 416,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 436,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "C.C. Limit",
+    "control": "TxtCCLimit",
+    "hidden": true,
+    "y": 0,
+    "x": 1439,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem13",
+    "control": "TxtTotAmt",
+    "hidden": true,
+    "y": 561,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "T.D.S. Amount",
+    "control": "TxtTDSAmt",
+    "hidden": true,
+    "y": 561,
+    "x": 773,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [],
+  "ShowBillGrid": []
+ },
+ "BankCash/PartyList": {
+  "XtraGrid": [
+   {
+    "caption": "Party Code",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Balance",
+    "field": "GridColumn8",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "GST No",
+    "field": "P_GSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Email",
+    "field": "P_Email",
+    "sum": ""
+   },
+   {
+    "caption": "Contact Person",
+    "field": "P_ContPerName",
+    "sum": ""
+   },
+   {
+    "caption": "Group Name",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Days",
+    "field": "P_CrDay",
+    "sum": ""
+   },
+   {
+    "caption": "Credit Limit",
+    "field": "P_CrLimit",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Pan No",
+    "field": "P_PANo",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CtName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "StName",
+    "sum": ""
+   },
+   {
+    "caption": "Area",
+    "field": "AreaName",
+    "sum": ""
+   },
+   {
+    "caption": "Company Name",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "Sales Person",
+    "field": "SALESPERSON",
+    "sum": ""
+   }
+  ]
+ },
+ "TradingDashboard/TradingDashboard/XtraTabPageOrderHistory": {
+  "fields": [
+   {
+    "label": "Company Name",
+    "control": "ChkCmbCompany",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "From",
+    "control": "DateEditFromDate",
+    "hidden": false,
+    "y": 0,
+    "x": 404,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 585,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "ChkCostCenter",
+    "hidden": false,
+    "y": 47,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Report Format",
+    "control": "LookUpReportFormat",
+    "hidden": false,
+    "y": 47,
+    "x": 404,
+    "showLabel": true
+   },
+   {
+    "label": "Detail / Summary",
+    "control": "ComboBoxEditReportType",
+    "hidden": false,
+    "y": 47,
+    "x": 743,
+    "showLabel": true
+   },
+   {
+    "label": "Report File",
+    "control": "ButtonEdit1",
+    "hidden": false,
+    "y": 92,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem1",
+    "control": "XtraTabControl1",
+    "hidden": false,
+    "y": 118,
+    "x": 0,
+    "showLabel": false
+   }
+  ]
+ },
+ "TradingDashboard/TradingDashboard/XtraTabPageOrderHistory/245/DETAILS": {
+  "XtraGrid": [
+   {
+    "caption": "Order No",
+    "field": "Ord_No",
+    "sum": ""
+   },
+   {
+    "caption": "Order Date",
+    "field": "Sal_Date",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Party_Group",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "SuppName",
+    "field": "SuppName",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Broker",
+    "sum": ""
+   },
+   {
+    "caption": "SALEPERSON",
+    "field": "SALEPERSON",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Grade",
+    "sum": ""
+   },
+   {
+    "caption": "Ord_Qty",
+    "field": "Ord_Qty",
+    "sum": ""
+   },
+   {
+    "caption": "Ord Rate",
+    "field": "SalS_Rate",
+    "sum": ""
+   },
+   {
+    "caption": "PendingQty",
+    "field": "PendingQty",
+    "sum": ""
+   },
+   {
+    "caption": "Status",
+    "field": "Sals_Status",
+    "sum": ""
+   },
+   {
+    "caption": "Crdays",
+    "field": "Crdays",
+    "sum": ""
+   },
+   {
+    "caption": "Remarks",
+    "field": "Remarks",
+    "sum": ""
+   }
+  ]
+ },
+ "TradingDashboard/TradingDashboard/XtraTabPageOutstanding": {
+  "fields": [
+   {
+    "label": "Company Name",
+    "control": "ChkCmbCompany",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "From",
+    "control": "DateEditFromDate",
+    "hidden": false,
+    "y": 0,
+    "x": 413,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 598,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "ChkCostCenter",
+    "hidden": false,
+    "y": 47,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Report Format",
+    "control": "LookUpReportFormat",
+    "hidden": false,
+    "y": 47,
+    "x": 413,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem1",
+    "control": "XtraTabControl1",
+    "hidden": false,
+    "y": 92,
+    "x": 0,
+    "showLabel": false
+   }
+  ]
+ },
+ "TradingDashboard/TradingDashboard/XtraTabPageOutstanding/PartyGroup+Party Wise Summary": {
+  "XtraGrid": []
+ },
+ "TradingDashboard/TradingDashboard/XtraTabPageOrders": {
+  "fields": [
+   {
+    "label": "LayoutControlItem1",
+    "control": "XtraTabControl1",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": false
+   }
+  ]
+ },
+ "TradingDashboard/TradingDashboard/XtraTabPageBills": {
+  "fields": [
+   {
+    "label": "Company Name",
+    "control": "ChkCmbCompany",
+    "hidden": false,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "From",
+    "control": "DateEditFromDate",
+    "hidden": false,
+    "y": 0,
+    "x": 404,
+    "showLabel": true
+   },
+   {
+    "label": "To",
+    "control": "DateEditTo",
+    "hidden": false,
+    "y": 0,
+    "x": 585,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "ChkCostCenter",
+    "hidden": false,
+    "y": 47,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Report Format",
+    "control": "LookUpReportFormat",
+    "hidden": false,
+    "y": 47,
+    "x": 404,
+    "showLabel": true
+   },
+   {
+    "label": "Detail / Summary",
+    "control": "ComboBoxEditReportType",
+    "hidden": false,
+    "y": 47,
+    "x": 743,
+    "showLabel": true
+   },
+   {
+    "label": "Report File",
+    "control": "ButtonEdit1",
+    "hidden": false,
+    "y": 92,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem1",
+    "control": "XtraTabControl1",
+    "hidden": false,
+    "y": 118,
+    "x": 0,
+    "showLabel": false
+   }
+  ]
+ },
+ "TradingDashboard/TradingDashboard/XtraTabPageBills/237/DETAILS": {
+  "XtraGrid": [
+   {
+    "caption": "CompanyName",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "CostCenter",
+    "field": "CostCenter",
+    "sum": ""
+   },
+   {
+    "caption": "Bill Date",
+    "field": "Sal_Date",
+    "sum": ""
+   },
+   {
+    "caption": "Bill No",
+    "field": "Sal_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item",
+    "field": "I_NAME",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Desc_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Qty",
+    "field": "SalS_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "SalS_Rate",
+    "sum": ""
+   },
+   {
+    "caption": "PartyGroup",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "SalesPerson",
+    "field": "SalesPerson",
+    "sum": ""
+   },
+   {
+    "caption": "Party",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "DisPer",
+    "field": "DisPer",
+    "sum": ""
+   },
+   {
+    "caption": "DisAmt",
+    "field": "DisAmt",
+    "sum": ""
+   },
+   {
+    "caption": "PalletDisPer",
+    "field": "PalletDisPer",
+    "sum": ""
+   },
+   {
+    "caption": "PalletDisAmt",
+    "field": "PalletDisAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Diskgs",
+    "field": "Diskgs",
+    "sum": ""
+   },
+   {
+    "caption": "DiskgsAmt",
+    "field": "DiskgsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "SalS_GrossAmt",
+    "sum": ""
+   },
+   {
+    "caption": "PartyBalance",
+    "field": "PartyBalance",
+    "sum": ""
+   }
+  ]
+ },
+ "FollowUpList": {
+  "XtraGrid": [
+   {
+    "caption": "Company Name",
+    "field": "CompanyName",
+    "sum": ""
+   },
+   {
+    "caption": "Party Id",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group",
+    "field": "Mistry",
+    "sum": ""
+   },
+   {
+    "caption": "Broker",
+    "field": "Architect",
+    "sum": ""
+   },
+   {
+    "caption": "Collection Person",
+    "field": "CollectionName",
+    "sum": ""
+   },
+   {
+    "caption": "Sales Person",
+    "field": "SALESPERSON",
+    "sum": ""
+   },
+   {
+    "caption": "Cr Days",
+    "field": "Map_PCrDay",
+    "sum": ""
+   },
+   {
+    "caption": "Cr. Limit",
+    "field": "Map_PCrLimit",
+    "sum": ""
+   },
+   {
+    "caption": "Lock Days",
+    "field": "Map_PLockDays",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile No",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "GST NO",
+    "field": "P_GSTNo",
+    "sum": ""
+   },
+   {
+    "caption": "Leg. Bal.",
+    "field": "LegBal",
+    "sum": ""
+   },
+   {
+    "caption": "Last Followup Dt",
+    "field": "LastFolloUpDt",
+    "sum": ""
+   },
+   {
+    "caption": "Last Followup Desc",
+    "field": "LastFolloUpDesc",
+    "sum": ""
+   },
+   {
+    "caption": "Next Folloup Dt.",
+    "field": "NextFolloUpDt",
+    "sum": ""
+   },
+   {
+    "caption": "Due Days",
+    "field": "DiffDays",
+    "sum": ""
+   },
+   {
+    "caption": "Account Head",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Party Os. Bal.",
+    "field": "OsBal",
+    "sum": ""
+   },
+   {
+    "caption": "Party Group Os. Bal.",
+    "field": "OsBal1",
+    "sum": ""
+   }
+  ]
+ },
+ "PurchaseForm": {
+  "XtraGridForDebitAccount": [],
+  "XtraGridForDebitAccount1": [
+   {
+    "caption": "P Code",
+    "field": "P_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "Name",
+    "sum": ""
+   },
+   {
+    "caption": "Gst No",
+    "field": "P_GSTNO",
+    "sum": ""
+   },
+   {
+    "caption": "Address",
+    "field": "P_OAdd",
+    "sum": ""
+   },
+   {
+    "caption": "City",
+    "field": "CtName",
+    "sum": ""
+   },
+   {
+    "caption": "State",
+    "field": "StName",
+    "sum": ""
+   },
+   {
+    "caption": "Mobile No",
+    "field": "P_OMobile",
+    "sum": ""
+   },
+   {
+    "caption": "Telephone No",
+    "field": "P_OTel",
+    "sum": ""
+   },
+   {
+    "caption": "Email Id",
+    "field": "P_Email",
+    "sum": ""
+   },
+   {
+    "caption": "GridColumn76",
+    "field": "Gname",
+    "sum": ""
+   },
+   {
+    "caption": "Pan No",
+    "field": "P_PANo",
+    "sum": ""
+   }
+  ]
+ },
+ "PurchaseForm/BOK047  [YARN OTHER PURCHASE A/C NEW (LLP) (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 376,
+    "showLabel": true
+   },
+   {
+    "label": "TCS Applicability",
+    "control": "txtTCSApplicability",
+    "hidden": false,
+    "y": 0,
+    "x": 937,
+    "showLabel": true
+   },
+   {
+    "label": "Entry No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 30,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Rec. Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 30,
+    "x": 237,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 30,
+    "x": 378,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 30,
+    "x": 681,
+    "showLabel": true
+   },
+   {
+    "label": "D.O. No",
+    "control": "TxtDoNo",
+    "hidden": false,
+    "y": 30,
+    "x": 940,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Inv No",
+    "control": "TxtInvNo",
+    "hidden": false,
+    "y": 54,
+    "x": 346,
+    "showLabel": true
+   },
+   {
+    "label": "Inv. Dt.",
+    "control": "DateEditInvDt",
+    "hidden": false,
+    "y": 54,
+    "x": 491,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpEditSalesPerson",
+    "hidden": false,
+    "y": 54,
+    "x": 612,
+    "showLabel": true
+   },
+   {
+    "label": "Cr. Days",
+    "control": "TxtCrDays",
+    "hidden": false,
+    "y": 54,
+    "x": 866,
+    "showLabel": true
+   },
+   {
+    "label": "Due Date",
+    "control": "DateEditDueDt",
+    "hidden": false,
+    "y": 54,
+    "x": 988,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 82,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 302,
+    "x": 41,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 302,
+    "x": 178,
+    "showLabel": true
+   },
+   {
+    "label": "Other Details",
+    "control": "VGridControl1",
+    "hidden": false,
+    "y": 302,
+    "x": 375,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 302,
+    "x": 584,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 302,
+    "x": 727,
+    "showLabel": true
+   },
+   {
+    "label": "Dis.Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 302,
+    "x": 834,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 302,
+    "x": 914,
+    "showLabel": true
+   },
+   {
+    "label": "Grand Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 302,
+    "x": 985,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 352,
+    "x": 812,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 352,
+    "x": 947,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 395,
+    "x": 812,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 395,
+    "x": 947,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Advance Settings",
+    "control": "ComboBoxEditAdvSettings",
+    "hidden": true,
+    "y": 0,
+    "x": 731,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft.",
+    "control": "TxtTotSqFt",
+    "hidden": true,
+    "y": 302,
+    "x": 655,
+    "showLabel": true
+   },
+   {
+    "label": "Debit Account",
+    "control": "LookUpEditDebitAccount",
+    "hidden": true,
+    "y": 438,
+    "x": 570,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Add.",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 578,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Code",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Purs_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Purs_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "PurS_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "L.R. No.",
+    "field": "Purs_LrNo",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Challna No",
+    "field": "THKNESS",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Purs_ChDate",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Thik_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Cartoon",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Size_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Purs_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Amt",
+    "field": "PurS_BasicAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DISP",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(Rs)",
+    "field": "DISRS",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(%)",
+    "field": "Purs_FrieghtPer",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(Rs)",
+    "field": "Purs_FrieghtAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "PurS_TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "IGST(%)",
+    "field": "EXP",
+    "sum": ""
+   },
+   {
+    "caption": "IGST(Rs)",
+    "field": "EXRS",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(%)",
+    "field": "VATP",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(Rs)",
+    "field": "VATRS",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(%)",
+    "field": "ADTAXP",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(Rs)",
+    "field": "ADTAXRS",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(%)",
+    "field": "Purs_TcsPer",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(Rs)",
+    "field": "Purs_TcsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(%)",
+    "field": "Purs_CessPer",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(Rs)",
+    "field": "Purs_CessAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Detention",
+    "field": "Purs_Detention",
+    "sum": ""
+   },
+   {
+    "caption": "Other Charges",
+    "field": "Purs_OtherChrg",
+    "sum": ""
+   },
+   {
+    "caption": "Calculate On",
+    "field": "PurS_CalOn",
+    "sum": ""
+   },
+   {
+    "caption": "Box/Pallet",
+    "field": "Purs_Boxtype",
+    "sum": ""
+   },
+   {
+    "caption": "Order Id",
+    "field": "Purs_OrderId",
+    "sum": ""
+   },
+   {
+    "caption": "Order Rate",
+    "field": "Purs_OrderRate",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ],
+  "VXtraGrid": [],
+  "XtraGridForDebitAccount": [],
+  "ShowBillGrid": []
+ },
+ "PurchaseForm/BOK24  [PURCHASEYARN RETURN (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 401,
+    "showLabel": true
+   },
+   {
+    "label": "TCS Applicability",
+    "control": "txtTCSApplicability",
+    "hidden": false,
+    "y": 0,
+    "x": 999,
+    "showLabel": true
+   },
+   {
+    "label": "Entry No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 30,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Rec. Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 30,
+    "x": 251,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 30,
+    "x": 402,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 30,
+    "x": 726,
+    "showLabel": true
+   },
+   {
+    "label": "D.O. No",
+    "control": "TxtDoNo",
+    "hidden": false,
+    "y": 30,
+    "x": 1002,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Inv No",
+    "control": "TxtInvNo",
+    "hidden": false,
+    "y": 54,
+    "x": 369,
+    "showLabel": true
+   },
+   {
+    "label": "Inv. Dt.",
+    "control": "DateEditInvDt",
+    "hidden": false,
+    "y": 54,
+    "x": 514,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpEditSalesPerson",
+    "hidden": false,
+    "y": 54,
+    "x": 644,
+    "showLabel": true
+   },
+   {
+    "label": "Cr. Days",
+    "control": "TxtCrDays",
+    "hidden": false,
+    "y": 54,
+    "x": 919,
+    "showLabel": true
+   },
+   {
+    "label": "Due Date",
+    "control": "DateEditDueDt",
+    "hidden": false,
+    "y": 54,
+    "x": 1041,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 82,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 309,
+    "x": 44,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 309,
+    "x": 191,
+    "showLabel": true
+   },
+   {
+    "label": "Other Details",
+    "control": "VGridControl1",
+    "hidden": false,
+    "y": 309,
+    "x": 462,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 309,
+    "x": 752,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 309,
+    "x": 868,
+    "showLabel": true
+   },
+   {
+    "label": "Dis.Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 309,
+    "x": 956,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 309,
+    "x": 1021,
+    "showLabel": true
+   },
+   {
+    "label": "Grand Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 309,
+    "x": 1079,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 359,
+    "x": 936,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 359,
+    "x": 1043,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 402,
+    "x": 936,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 402,
+    "x": 1043,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Advance Settings",
+    "control": "ComboBoxEditAdvSettings",
+    "hidden": true,
+    "y": 0,
+    "x": 778,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft.",
+    "control": "TxtTotSqFt",
+    "hidden": true,
+    "y": 309,
+    "x": 810,
+    "showLabel": true
+   },
+   {
+    "label": "Debit Account",
+    "control": "LookUpEditDebitAccount",
+    "hidden": true,
+    "y": 445,
+    "x": 742,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Add.",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 558,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Code",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Purs_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Purs_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "PurS_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "L.R. No.",
+    "field": "Purs_LrNo",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Challna No",
+    "field": "THKNESS",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Purs_ChDate",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Thik_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Cartoon",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Size_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Purs_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Amt",
+    "field": "PurS_BasicAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DISP",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(Rs)",
+    "field": "DISRS",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(%)",
+    "field": "Purs_FrieghtPer",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(Rs)",
+    "field": "Purs_FrieghtAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "PurS_TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(%)",
+    "field": "VATP",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(Rs)",
+    "field": "VATRS",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(%)",
+    "field": "ADTAXP",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(Rs)",
+    "field": "ADTAXRS",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(%)",
+    "field": "Purs_CessPer",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(Rs)",
+    "field": "Purs_CessAmt",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(%)",
+    "field": "Purs_TcsPer",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(Rs)",
+    "field": "Purs_TcsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Detention",
+    "field": "Purs_Detention",
+    "sum": ""
+   },
+   {
+    "caption": "Other Charges",
+    "field": "Purs_OtherChrg",
+    "sum": ""
+   },
+   {
+    "caption": "Order Id",
+    "field": "Purs_OrderId",
+    "sum": ""
+   },
+   {
+    "caption": "Order Rate",
+    "field": "Purs_OrderRate",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ],
+  "VXtraGrid": []
+ },
+ "PurchaseForm/BOK0288  [YARN PURCHASE A/C CHAINA (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 376,
+    "showLabel": true
+   },
+   {
+    "label": "TCS Applicability",
+    "control": "txtTCSApplicability",
+    "hidden": false,
+    "y": 0,
+    "x": 937,
+    "showLabel": true
+   },
+   {
+    "label": "Entry No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 30,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Rec. Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 30,
+    "x": 237,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 30,
+    "x": 378,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 30,
+    "x": 681,
+    "showLabel": true
+   },
+   {
+    "label": "D.O. No",
+    "control": "TxtDoNo",
+    "hidden": false,
+    "y": 30,
+    "x": 940,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Inv No",
+    "control": "TxtInvNo",
+    "hidden": false,
+    "y": 54,
+    "x": 346,
+    "showLabel": true
+   },
+   {
+    "label": "Inv. Dt.",
+    "control": "DateEditInvDt",
+    "hidden": false,
+    "y": 54,
+    "x": 491,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpEditSalesPerson",
+    "hidden": false,
+    "y": 54,
+    "x": 612,
+    "showLabel": true
+   },
+   {
+    "label": "Cr. Days",
+    "control": "TxtCrDays",
+    "hidden": false,
+    "y": 54,
+    "x": 866,
+    "showLabel": true
+   },
+   {
+    "label": "Due Date",
+    "control": "DateEditDueDt",
+    "hidden": false,
+    "y": 54,
+    "x": 988,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 82,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 302,
+    "x": 41,
+    "showLabel": true
+   },
+   {
+    "label": "Other Details",
+    "control": "VGridControl1",
+    "hidden": false,
+    "y": 302,
+    "x": 375,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 302,
+    "x": 640,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 302,
+    "x": 769,
+    "showLabel": true
+   },
+   {
+    "label": "Dis.Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 302,
+    "x": 865,
+    "showLabel": true
+   },
+   {
+    "label": "Grand Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 302,
+    "x": 1001,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 395,
+    "x": 845,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 395,
+    "x": 967,
+    "showLabel": true
+   },
+   {
+    "label": "Collection Person",
+    "control": "LookUpEditCollectionPerson",
+    "hidden": false,
+    "y": 462,
+    "x": 627,
+    "showLabel": true
+   },
+   {
+    "label": "Currency",
+    "control": "LookUpEditCurrecny",
+    "hidden": false,
+    "y": 462,
+    "x": 888,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemAmountInWord",
+    "control": "LblAmountInWord",
+    "hidden": false,
+    "y": 486,
+    "x": 627,
+    "showLabel": false
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Advance Settings",
+    "control": "ComboBoxEditAdvSettings",
+    "hidden": true,
+    "y": 0,
+    "x": 731,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": true,
+    "y": 302,
+    "x": 178,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft.",
+    "control": "TxtTotSqFt",
+    "hidden": true,
+    "y": 302,
+    "x": 704,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": true,
+    "y": 302,
+    "x": 937,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": true,
+    "y": 352,
+    "x": 845,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": true,
+    "y": 352,
+    "x": 967,
+    "showLabel": true
+   },
+   {
+    "label": "Credit Account",
+    "control": "LookUpEditDebitAccount",
+    "hidden": true,
+    "y": 438,
+    "x": 627,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Add.",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 578,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Code",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Purs_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Purs_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "L.R. No.",
+    "field": "Purs_LrNo",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Challna No",
+    "field": "THKNESS",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Purs_ChDate",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Thik_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Cartoon",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Size_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Purs_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Amt",
+    "field": "PurS_BasicAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DISP",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(Rs)",
+    "field": "DISRS",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(%)",
+    "field": "Purs_FrieghtPer",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(Rs)",
+    "field": "Purs_FrieghtAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "PurS_TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(%)",
+    "field": "Purs_TcsPer",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(Rs)",
+    "field": "Purs_TcsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(%)",
+    "field": "Purs_CessPer",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(Rs)",
+    "field": "Purs_CessAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Detention",
+    "field": "Purs_Detention",
+    "sum": ""
+   },
+   {
+    "caption": "Other Charges",
+    "field": "Purs_OtherChrg",
+    "sum": ""
+   },
+   {
+    "caption": "Calculate On",
+    "field": "PurS_CalOn",
+    "sum": ""
+   },
+   {
+    "caption": "Box/Pallet",
+    "field": "Purs_Boxtype",
+    "sum": ""
+   },
+   {
+    "caption": "Order Id",
+    "field": "Purs_OrderId",
+    "sum": ""
+   },
+   {
+    "caption": "Order Rate",
+    "field": "Purs_OrderRate",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance(%)",
+    "field": "Purs_InsuPer",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance Amt",
+    "field": "Purs_InsuAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ],
+  "VXtraGrid": [],
+  "ShowBillGrid": []
+ },
+ "PurchaseForm/BOK067  [GENRAL PURCHASE (UMIYA) (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 376,
+    "showLabel": true
+   },
+   {
+    "label": "Advance Settings",
+    "control": "ComboBoxEditAdvSettings",
+    "hidden": false,
+    "y": 0,
+    "x": 731,
+    "showLabel": true
+   },
+   {
+    "label": "TCS Applicability",
+    "control": "txtTCSApplicability",
+    "hidden": false,
+    "y": 0,
+    "x": 937,
+    "showLabel": true
+   },
+   {
+    "label": "Entry No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 30,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Rec. Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 30,
+    "x": 237,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 30,
+    "x": 378,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 30,
+    "x": 681,
+    "showLabel": true
+   },
+   {
+    "label": "D.O. No",
+    "control": "TxtDoNo",
+    "hidden": false,
+    "y": 30,
+    "x": 940,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Inv No",
+    "control": "TxtInvNo",
+    "hidden": false,
+    "y": 54,
+    "x": 346,
+    "showLabel": true
+   },
+   {
+    "label": "Inv. Dt.",
+    "control": "DateEditInvDt",
+    "hidden": false,
+    "y": 54,
+    "x": 491,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpEditSalesPerson",
+    "hidden": false,
+    "y": 54,
+    "x": 612,
+    "showLabel": true
+   },
+   {
+    "label": "Cr. Days",
+    "control": "TxtCrDays",
+    "hidden": false,
+    "y": 54,
+    "x": 866,
+    "showLabel": true
+   },
+   {
+    "label": "Due Date",
+    "control": "DateEditDueDt",
+    "hidden": false,
+    "y": 54,
+    "x": 988,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 82,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 302,
+    "x": 41,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 302,
+    "x": 178,
+    "showLabel": true
+   },
+   {
+    "label": "Other Details",
+    "control": "VGridControl1",
+    "hidden": false,
+    "y": 302,
+    "x": 375,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 302,
+    "x": 584,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 302,
+    "x": 727,
+    "showLabel": true
+   },
+   {
+    "label": "Dis.Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 302,
+    "x": 834,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 302,
+    "x": 914,
+    "showLabel": true
+   },
+   {
+    "label": "Grand Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 302,
+    "x": 985,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 352,
+    "x": 812,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 352,
+    "x": 947,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 395,
+    "x": 812,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 395,
+    "x": 947,
+    "showLabel": true
+   },
+   {
+    "label": "Debit Account",
+    "control": "LookUpEditDebitAccount",
+    "hidden": false,
+    "y": 438,
+    "x": 570,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft.",
+    "control": "TxtTotSqFt",
+    "hidden": true,
+    "y": 302,
+    "x": 655,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Add.",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 578,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Code",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Purs_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Purs_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "PurS_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "L.R. No.",
+    "field": "Purs_LrNo",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Challna No",
+    "field": "THKNESS",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Purs_ChDate",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Thik_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Cartoon",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Size_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Qty.",
+    "field": "QTY",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Purs_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Amt",
+    "field": "PurS_BasicAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DISP",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(Rs)",
+    "field": "DISRS",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(%)",
+    "field": "Purs_FrieghtPer",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(Rs)",
+    "field": "Purs_FrieghtAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "PurS_TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(%)",
+    "field": "VATP",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(Rs)",
+    "field": "VATRS",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(%)",
+    "field": "ADTAXP",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(Rs)",
+    "field": "ADTAXRS",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(%)",
+    "field": "Purs_TcsPer",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(Rs)",
+    "field": "Purs_TcsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(%)",
+    "field": "Purs_CessPer",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(Rs)",
+    "field": "Purs_CessAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Detention",
+    "field": "Purs_Detention",
+    "sum": ""
+   },
+   {
+    "caption": "Other Charges",
+    "field": "Purs_OtherChrg",
+    "sum": ""
+   },
+   {
+    "caption": "Calculate On",
+    "field": "PurS_CalOn",
+    "sum": ""
+   },
+   {
+    "caption": "Box/Pallet",
+    "field": "Purs_Boxtype",
+    "sum": ""
+   },
+   {
+    "caption": "Order Id",
+    "field": "Purs_OrderId",
+    "sum": ""
+   },
+   {
+    "caption": "Order Rate",
+    "field": "Purs_OrderRate",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ],
+  "VXtraGrid": [],
+  "XtraGridForDebitAccount": [],
+  "ShowBillGrid": []
+ },
+ "PurchaseForm/BOK070  [YARN  PURCHASE A/C NEW (LLP) (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 376,
+    "showLabel": true
+   },
+   {
+    "label": "TCS Applicability",
+    "control": "txtTCSApplicability",
+    "hidden": false,
+    "y": 0,
+    "x": 937,
+    "showLabel": true
+   },
+   {
+    "label": "Entry No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 30,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Rec. Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 30,
+    "x": 237,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 30,
+    "x": 378,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 30,
+    "x": 681,
+    "showLabel": true
+   },
+   {
+    "label": "D.O. No",
+    "control": "TxtDoNo",
+    "hidden": false,
+    "y": 30,
+    "x": 940,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Inv No",
+    "control": "TxtInvNo",
+    "hidden": false,
+    "y": 54,
+    "x": 346,
+    "showLabel": true
+   },
+   {
+    "label": "Inv. Dt.",
+    "control": "DateEditInvDt",
+    "hidden": false,
+    "y": 54,
+    "x": 491,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpEditSalesPerson",
+    "hidden": false,
+    "y": 54,
+    "x": 612,
+    "showLabel": true
+   },
+   {
+    "label": "Cr. Days",
+    "control": "TxtCrDays",
+    "hidden": false,
+    "y": 54,
+    "x": 866,
+    "showLabel": true
+   },
+   {
+    "label": "Due Date",
+    "control": "DateEditDueDt",
+    "hidden": false,
+    "y": 54,
+    "x": 988,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 82,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 302,
+    "x": 41,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 302,
+    "x": 178,
+    "showLabel": true
+   },
+   {
+    "label": "Other Details",
+    "control": "VGridControl1",
+    "hidden": false,
+    "y": 302,
+    "x": 375,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 302,
+    "x": 584,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 302,
+    "x": 727,
+    "showLabel": true
+   },
+   {
+    "label": "Dis.Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 302,
+    "x": 834,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 302,
+    "x": 914,
+    "showLabel": true
+   },
+   {
+    "label": "Grand Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 302,
+    "x": 985,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 352,
+    "x": 812,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 352,
+    "x": 947,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 395,
+    "x": 812,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 395,
+    "x": 947,
+    "showLabel": true
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Advance Settings",
+    "control": "ComboBoxEditAdvSettings",
+    "hidden": true,
+    "y": 0,
+    "x": 731,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft.",
+    "control": "TxtTotSqFt",
+    "hidden": true,
+    "y": 302,
+    "x": 655,
+    "showLabel": true
+   },
+   {
+    "label": "Debit Account",
+    "control": "LookUpEditDebitAccount",
+    "hidden": true,
+    "y": 438,
+    "x": 570,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Add.",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 578,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Code",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Purs_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Purs_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "PurS_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "L.R. No.",
+    "field": "Purs_LrNo",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Challna No",
+    "field": "THKNESS",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Purs_ChDate",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Thik_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Cartoon",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Size_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Purs_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Amt",
+    "field": "PurS_BasicAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DISP",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(Rs)",
+    "field": "DISRS",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(%)",
+    "field": "Purs_FrieghtPer",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(Rs)",
+    "field": "Purs_FrieghtAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance(%)",
+    "field": "Purs_InsuPer",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance Amt",
+    "field": "Purs_InsuAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "PurS_TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "IGST(%)",
+    "field": "EXP",
+    "sum": ""
+   },
+   {
+    "caption": "IGST(Rs)",
+    "field": "EXRS",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(%)",
+    "field": "VATP",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(Rs)",
+    "field": "VATRS",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(%)",
+    "field": "ADTAXP",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(Rs)",
+    "field": "ADTAXRS",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(%)",
+    "field": "Purs_TcsPer",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(Rs)",
+    "field": "Purs_TcsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(%)",
+    "field": "Purs_CessPer",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(Rs)",
+    "field": "Purs_CessAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Detention",
+    "field": "Purs_Detention",
+    "sum": ""
+   },
+   {
+    "caption": "Other Charges",
+    "field": "Purs_OtherChrg",
+    "sum": ""
+   },
+   {
+    "caption": "Calculate On",
+    "field": "PurS_CalOn",
+    "sum": ""
+   },
+   {
+    "caption": "Box/Pallet",
+    "field": "Purs_Boxtype",
+    "sum": ""
+   },
+   {
+    "caption": "Order Id",
+    "field": "Purs_OrderId",
+    "sum": ""
+   },
+   {
+    "caption": "Order Rate",
+    "field": "Purs_OrderRate",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ],
+  "VXtraGrid": [],
+  "XtraGridForDebitAccount": [],
+  "ShowBillGrid": []
+ },
+ "PurchaseForm/BOK31  [YARN PURCHASE A/C NEW (-1)]": {
+  "fields": [
+   {
+    "label": "Book Name",
+    "control": "LookUpEditBook",
+    "hidden": false,
+    "y": 0,
+    "x": 376,
+    "showLabel": true
+   },
+   {
+    "label": "TCS Applicability",
+    "control": "txtTCSApplicability",
+    "hidden": false,
+    "y": 0,
+    "x": 937,
+    "showLabel": true
+   },
+   {
+    "label": "Entry No",
+    "control": "TxtBillNo",
+    "hidden": false,
+    "y": 30,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Rec. Date",
+    "control": "DateEditBillDt",
+    "hidden": false,
+    "y": 30,
+    "x": 237,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Party",
+    "control": "LookUpEditDeliveryParty",
+    "hidden": false,
+    "y": 30,
+    "x": 378,
+    "showLabel": true
+   },
+   {
+    "label": "Agent",
+    "control": "LookUpEditBroker",
+    "hidden": false,
+    "y": 30,
+    "x": 681,
+    "showLabel": true
+   },
+   {
+    "label": "D.O. No",
+    "control": "TxtDoNo",
+    "hidden": false,
+    "y": 30,
+    "x": 940,
+    "showLabel": true
+   },
+   {
+    "label": "Party Name",
+    "control": "LookUpEditParty",
+    "hidden": false,
+    "y": 54,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Inv No",
+    "control": "TxtInvNo",
+    "hidden": false,
+    "y": 54,
+    "x": 346,
+    "showLabel": true
+   },
+   {
+    "label": "Inv. Dt.",
+    "control": "DateEditInvDt",
+    "hidden": false,
+    "y": 54,
+    "x": 491,
+    "showLabel": true
+   },
+   {
+    "label": "Sales Person",
+    "control": "LookUpEditSalesPerson",
+    "hidden": false,
+    "y": 54,
+    "x": 612,
+    "showLabel": true
+   },
+   {
+    "label": "Cr. Days",
+    "control": "TxtCrDays",
+    "hidden": false,
+    "y": 54,
+    "x": 866,
+    "showLabel": true
+   },
+   {
+    "label": "Due Date",
+    "control": "DateEditDueDt",
+    "hidden": false,
+    "y": 54,
+    "x": 988,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItem8",
+    "control": "GridControl1",
+    "hidden": false,
+    "y": 82,
+    "x": 0,
+    "showLabel": false
+   },
+   {
+    "label": "Remark",
+    "control": "TxtRmk",
+    "hidden": false,
+    "y": 302,
+    "x": 41,
+    "showLabel": true
+   },
+   {
+    "label": "Tax Summary",
+    "control": "GridControl3",
+    "hidden": false,
+    "y": 302,
+    "x": 178,
+    "showLabel": true
+   },
+   {
+    "label": "Other Details",
+    "control": "VGridControl1",
+    "hidden": false,
+    "y": 302,
+    "x": 375,
+    "showLabel": true
+   },
+   {
+    "label": "Qty.",
+    "control": "TxtTotQty",
+    "hidden": false,
+    "y": 302,
+    "x": 640,
+    "showLabel": true
+   },
+   {
+    "label": "Gross. Amt",
+    "control": "TxtAmt",
+    "hidden": false,
+    "y": 302,
+    "x": 769,
+    "showLabel": true
+   },
+   {
+    "label": "Dis.Amt",
+    "control": "TxtTotDisc",
+    "hidden": false,
+    "y": 302,
+    "x": 865,
+    "showLabel": true
+   },
+   {
+    "label": "Excise",
+    "control": "TxtTotExcise",
+    "hidden": false,
+    "y": 302,
+    "x": 937,
+    "showLabel": true
+   },
+   {
+    "label": "Grand Total",
+    "control": "TxtGrandTotal",
+    "hidden": false,
+    "y": 302,
+    "x": 1001,
+    "showLabel": true
+   },
+   {
+    "label": "Amt.(Add To Net Vat)",
+    "control": "TxtVatAddless",
+    "hidden": false,
+    "y": 352,
+    "x": 845,
+    "showLabel": true
+   },
+   {
+    "label": "Net Vat Amt",
+    "control": "TxtNetVat",
+    "hidden": false,
+    "y": 352,
+    "x": 967,
+    "showLabel": true
+   },
+   {
+    "label": "Amount.(+)(-)",
+    "control": "TxtAddless",
+    "hidden": false,
+    "y": 395,
+    "x": 845,
+    "showLabel": true
+   },
+   {
+    "label": "Net Amount",
+    "control": "TxtNetAmt",
+    "hidden": false,
+    "y": 395,
+    "x": 967,
+    "showLabel": true
+   },
+   {
+    "label": "Collection Person",
+    "control": "LookUpEditCollectionPerson",
+    "hidden": false,
+    "y": 462,
+    "x": 627,
+    "showLabel": true
+   },
+   {
+    "label": "Currency",
+    "control": "LookUpEditCurrecny",
+    "hidden": false,
+    "y": 462,
+    "x": 888,
+    "showLabel": true
+   },
+   {
+    "label": "LayoutControlItemAmountInWord",
+    "control": "LblAmountInWord",
+    "hidden": false,
+    "y": 486,
+    "x": 627,
+    "showLabel": false
+   },
+   {
+    "label": "Cost Center",
+    "control": "LookUpEditCostCenter",
+    "hidden": true,
+    "y": 0,
+    "x": 0,
+    "showLabel": true
+   },
+   {
+    "label": "Advance Settings",
+    "control": "ComboBoxEditAdvSettings",
+    "hidden": true,
+    "y": 0,
+    "x": 731,
+    "showLabel": true
+   },
+   {
+    "label": "Sq.Ft.",
+    "control": "TxtTotSqFt",
+    "hidden": true,
+    "y": 302,
+    "x": 704,
+    "showLabel": true
+   },
+   {
+    "label": "Credit Account",
+    "control": "LookUpEditDebitAccount",
+    "hidden": true,
+    "y": 438,
+    "x": 627,
+    "showLabel": true
+   },
+   {
+    "label": "Delivery Add.",
+    "control": "ComboBoxEditDeliveryAdd",
+    "hidden": true,
+    "y": 578,
+    "x": 0,
+    "showLabel": true
+   }
+  ],
+  "XtraGrid": [
+   {
+    "caption": "Item Code",
+    "field": "I_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Item Name",
+    "field": "I_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Brand",
+    "field": "Purs_Brand",
+    "sum": ""
+   },
+   {
+    "caption": "Grade",
+    "field": "Purs_Grade",
+    "sum": ""
+   },
+   {
+    "caption": "HSN Code",
+    "field": "PurS_HsnCode",
+    "sum": ""
+   },
+   {
+    "caption": "Unit",
+    "field": "Unit_Type",
+    "sum": ""
+   },
+   {
+    "caption": "L.R. No.",
+    "field": "Purs_LrNo",
+    "sum": ""
+   },
+   {
+    "caption": "Remark",
+    "field": "RMK",
+    "sum": ""
+   },
+   {
+    "caption": "Challna No",
+    "field": "THKNESS",
+    "sum": ""
+   },
+   {
+    "caption": "Challan Date",
+    "field": "Purs_ChDate",
+    "sum": ""
+   },
+   {
+    "caption": "Lot No",
+    "field": "Thik_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Cartoon",
+    "field": "SQ_FM",
+    "sum": ""
+   },
+   {
+    "caption": "Cops",
+    "field": "Size_Code",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Purs_Weight",
+    "sum": ""
+   },
+   {
+    "caption": "Rate",
+    "field": "Rate",
+    "sum": ""
+   },
+   {
+    "caption": "Basic Amt",
+    "field": "PurS_BasicAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(%)",
+    "field": "DISP",
+    "sum": ""
+   },
+   {
+    "caption": "Dis(Rs)",
+    "field": "DISRS",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(%)",
+    "field": "Purs_FrieghtPer",
+    "sum": ""
+   },
+   {
+    "caption": "Frieght(Rs)",
+    "field": "Purs_FrieghtAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance(%)",
+    "field": "Purs_InsuPer",
+    "sum": ""
+   },
+   {
+    "caption": "Insurance Amt",
+    "field": "Purs_InsuAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Taxable Amt",
+    "field": "PurS_TaxableAmt",
+    "sum": ""
+   },
+   {
+    "caption": "IGST(%)",
+    "field": "EXP",
+    "sum": ""
+   },
+   {
+    "caption": "IGST(Rs)",
+    "field": "EXRS",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(%)",
+    "field": "VATP",
+    "sum": ""
+   },
+   {
+    "caption": "CGST(Rs)",
+    "field": "VATRS",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(%)",
+    "field": "ADTAXP",
+    "sum": ""
+   },
+   {
+    "caption": "SGST(Rs)",
+    "field": "ADTAXRS",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(%)",
+    "field": "Purs_TcsPer",
+    "sum": ""
+   },
+   {
+    "caption": "TCS(Rs)",
+    "field": "Purs_TcsAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(%)",
+    "field": "Purs_CessPer",
+    "sum": ""
+   },
+   {
+    "caption": "Cess(Rs)",
+    "field": "Purs_CessAmt",
+    "sum": ""
+   },
+   {
+    "caption": "Detention",
+    "field": "Purs_Detention",
+    "sum": ""
+   },
+   {
+    "caption": "Other Charges",
+    "field": "Purs_OtherChrg",
+    "sum": ""
+   },
+   {
+    "caption": "Calculate On",
+    "field": "PurS_CalOn",
+    "sum": ""
+   },
+   {
+    "caption": "Box/Pallet",
+    "field": "Purs_Boxtype",
+    "sum": ""
+   },
+   {
+    "caption": "Order Id",
+    "field": "Purs_OrderId",
+    "sum": ""
+   },
+   {
+    "caption": "Order Rate",
+    "field": "Purs_OrderRate",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "AMT",
+    "sum": ""
+   }
+  ],
+  "VXtraGrid": [],
+  "ShowBillGrid": [
+   {
+    "caption": "Select",
+    "field": "Chk",
+    "sum": ""
+   },
+   {
+    "caption": "Entry No",
+    "field": "Pur_Id",
+    "sum": ""
+   },
+   {
+    "caption": "Purchase Date",
+    "field": "Pur_Date",
+    "sum": ""
+   },
+   {
+    "caption": "Invoice No",
+    "field": "Pur_Invno",
+    "sum": ""
+   },
+   {
+    "caption": "Party Name",
+    "field": "P_Name",
+    "sum": ""
+   },
+   {
+    "caption": "PCS",
+    "field": "Pur_TotPCS",
+    "sum": ""
+   },
+   {
+    "caption": "Weight",
+    "field": "Pur_TotWeight",
+    "sum": ""
+   },
+   {
+    "caption": "Meter",
+    "field": "Pur_TotQty",
+    "sum": ""
+   },
+   {
+    "caption": "Amount",
+    "field": "Amount",
+    "sum": ""
+   },
+   {
+    "caption": "Status",
+    "field": "Status",
+    "sum": ""
+   },
+   {
+    "caption": "RCM",
+    "field": "RCM",
+    "sum": ""
+   },
+   {
+    "caption": "Document List",
+    "field": "DocumentList",
+    "sum": ""
+   },
+   {
+    "caption": "Booking No",
+    "field": "Lr_BookingNo",
+    "sum": ""
+   },
+   {
+    "caption": "Supp Ord No",
+    "field": "Pur_SuppPONo",
+    "sum": ""
+   },
+   {
+    "caption": "Supp Ord Dt",
+    "field": "Pur_SuppPODate",
+    "sum": ""
+   },
+   {
+    "caption": "Adj Bill No",
+    "field": "Pur_adjBillNo",
+    "sum": ""
+   },
+   {
+    "caption": "Adj Bill Dt",
+    "field": "Pur_adjBillDt",
+    "sum": ""
+   },
+   {
+    "caption": "Book Name",
+    "field": "Bok_Name",
+    "sum": ""
+   },
+   {
+    "caption": "Is E-Invoice Cancle?",
+    "field": "Pur_IsCancleEinv",
+    "sum": ""
+   },
+   {
+    "caption": "Is Lock?",
+    "field": "Pur_LockCode",
+    "sum": ""
+   },
+   {
+    "caption": "Delivery Add",
+    "field": "Pur_DelAdd",
+    "sum": ""
+   },
+   {
+    "caption": "Gst No",
+    "field": "P_GSTNo",
+    "sum": ""
+   }
+  ]
+ }
+}

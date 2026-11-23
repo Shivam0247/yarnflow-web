@@ -1,0 +1,10462 @@
+{
+ "SalesMst": {
+  "rows": 156459,
+  "cols": 137,
+  "used": [
+   {
+    "col": "Sal_Code",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "SAL0364108",
+     "SAL0317707",
+     "SAL0349026"
+    ]
+   },
+   {
+    "col": "Sal_Bkcode",
+    "filled": 156093,
+    "pct": 99.8,
+    "top": [
+     "BOK32",
+     "BOK11",
+     "BOK062"
+    ]
+   },
+   {
+    "col": "Sal_Id",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "DBT08",
+     "DBT04",
+     "DBT02"
+    ]
+   },
+   {
+    "col": "Sal_Date",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "2024-05-28 00:00:00.000",
+     "2026-01-12 00:00:00.000",
+     "2026-09-07 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_Pcode",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "P010494",
+     "P04949",
+     "P01505"
+    ]
+   },
+   {
+    "col": "Sal_Rmk",
+    "filled": 1592,
+    "pct": 1.0,
+    "top": [
+     "\r\n",
+     "SELF DELIVERY",
+     "FLOOD AAVVATHI GOODS NI DELEVA"
+    ]
+   },
+   {
+    "col": "Sal_NetVat",
+    "filled": 155659,
+    "pct": 99.5,
+    "top": [
+     "3483.42",
+     "3918.84",
+     "21777.64"
+    ]
+   },
+   {
+    "col": "Sal_TotalDis",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "50"
+    ]
+   },
+   {
+    "col": "Sal_NetAmt",
+    "filled": 156276,
+    "pct": 99.9,
+    "top": [
+     "73152",
+     "82296",
+     "457330"
+    ]
+   },
+   {
+    "col": "Sal_VatAmt_char",
+    "filled": 155615,
+    "pct": 99.5,
+    "top": [
+     "1741.71",
+     "1959.42",
+     "10888.82"
+    ]
+   },
+   {
+    "col": "Sal_AddAmt_Ek",
+    "filled": 155615,
+    "pct": 99.5,
+    "top": [
+     "1741.71",
+     "1959.42",
+     "10888.82"
+    ]
+   },
+   {
+    "col": "Sal_VatAmt_Bar",
+    "filled": 44,
+    "pct": 0.0,
+    "top": [
+     "2090.97",
+     "3925.12",
+     "5241.88"
+    ]
+   },
+   {
+    "col": "Sal_Mistry",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "BRK3870",
+     "BRK4297",
+     "BRK07335"
+    ]
+   },
+   {
+    "col": "Sal_Architect",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "BRK7096",
+     "BRK7001",
+     "BRK7120"
+    ]
+   },
+   {
+    "col": "Sal_Crdays",
+    "filled": 155878,
+    "pct": 99.6,
+    "top": [
+     "1",
+     "15",
+     "4"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "EMP04",
+     "EMP09",
+     "EMP07"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 155554,
+    "pct": 99.4,
+    "top": [
+     "2025-03-24 16:25:27.000",
+     "2025-02-19 16:08:26.000",
+     "2025-01-09 15:35:25.000"
+    ]
+   },
+   {
+    "col": "Sal_Type",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "SAL",
+     "SALRTN"
+    ]
+   },
+   {
+    "col": "UCreatename",
+    "filled": 155554,
+    "pct": 99.4,
+    "top": [
+     "EMP04",
+     "EMP09",
+     "EMP07"
+    ]
+   },
+   {
+    "col": "UCreatedt",
+    "filled": 155554,
+    "pct": 99.4,
+    "top": [
+     "2025-03-24 16:25:27.000",
+     "2025-02-19 16:08:26.000",
+     "2025-01-09 15:35:25.000"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Sal_DeleVedBy",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "P022565",
+     "P021520",
+     "P07059"
+    ]
+   },
+   {
+    "col": "Sal_CashCusAdd",
+    "filled": 4806,
+    "pct": 3.1,
+    "top": [
+     "DURGA",
+     "RELIANCE",
+     "WELLKNOWN "
+    ]
+   },
+   {
+    "col": "Sal_BfrVat4_1_Sum",
+    "filled": 155554,
+    "pct": 99.4,
+    "top": [
+     "69668.35",
+     "78376.9",
+     "435552.77"
+    ]
+   },
+   {
+    "col": "Sal_GstTranType",
+    "filled": 155554,
+    "pct": 99.4,
+    "top": [
+     "B2B"
+    ]
+   },
+   {
+    "col": "Sal_Transpoter",
+    "filled": 149333,
+    "pct": 95.4,
+    "top": [
+     "P010799",
+     "P022414",
+     "P010730"
+    ]
+   },
+   {
+    "col": "Sal_LrNo",
+    "filled": 29584,
+    "pct": 18.9,
+    "top": [
+     "648",
+     "576",
+     "0000000606"
+    ]
+   },
+   {
+    "col": "Sal_LrDate",
+    "filled": 30880,
+    "pct": 19.7,
+    "top": [
+     "2024-06-20 00:00:00.000",
+     "2024-08-23 00:00:00.000",
+     "2024-06-18 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_DriverName",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "PORTER"
+    ]
+   },
+   {
+    "col": "Sal_SuppPONo",
+    "filled": 154316,
+    "pct": 98.6,
+    "top": [
+     "SAL03994/24-25",
+     "SAL09967/24-25",
+     "SAL12254/25-26"
+    ]
+   },
+   {
+    "col": "Sal_SuppPODate",
+    "filled": 154316,
+    "pct": 98.6,
+    "top": [
+     "2024-08-29 00:00:00.000",
+     "2024-05-17 00:00:00.000",
+     "2024-08-28 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_EwayBillNo",
+    "filled": 154165,
+    "pct": 98.5,
+    "top": [
+     "612156412123",
+     "682213007173",
+     "602156391142"
+    ]
+   },
+   {
+    "col": "Sal_VehicleNo",
+    "filled": 94297,
+    "pct": 60.3,
+    "top": [
+     "11666",
+     "12223",
+     "12016"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_OpPaidAmt",
+    "filled": 348,
+    "pct": 0.2,
+    "top": [
+     "100000",
+     "40000",
+     "50000"
+    ]
+   },
+   {
+    "col": "Sal_GstJvVoucherNo",
+    "filled": 155554,
+    "pct": 99.4,
+    "top": [
+     "5",
+     "24",
+     "15"
+    ]
+   },
+   {
+    "col": "Sal_GstJvCode",
+    "filled": 155554,
+    "pct": 99.4,
+    "top": [
+     "799368",
+     "877777",
+     "995721"
+    ]
+   },
+   {
+    "col": "Sal_SRL",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "209126",
+     "128726",
+     "284082"
+    ]
+   },
+   {
+    "col": "Sal_IsLastYearEntry",
+    "filled": 5719,
+    "pct": 3.7,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_TranDocNo",
+    "filled": 2,
+    "pct": 0.0,
+    "top": [
+     "RPL"
+    ]
+   },
+   {
+    "col": "Sal_TranDocDate",
+    "filled": 67,
+    "pct": 0.0,
+    "top": [
+     "2026-10-16 00:00:00.000",
+     "2024-11-16 00:00:00.000",
+     "2026-06-29 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_TotQty",
+    "filled": 171,
+    "pct": 0.1,
+    "top": [
+     "3001.5",
+     "3003",
+     "48"
+    ]
+   },
+   {
+    "col": "Sal_TotPCS",
+    "filled": 155173,
+    "pct": 99.2,
+    "top": [
+     "24",
+     "12",
+     "16"
+    ]
+   },
+   {
+    "col": "Sal_TotWeight",
+    "filled": 156224,
+    "pct": 99.8,
+    "top": [
+     "500",
+     "648",
+     "576"
+    ]
+   },
+   {
+    "col": "Sal_AdjBillNo",
+    "filled": 1164,
+    "pct": 0.7,
+    "top": [
+     "GU23225/24-25",
+     "GU07767/25-26",
+     "GL16903/24-25"
+    ]
+   },
+   {
+    "col": "Sal_AdjBillDt",
+    "filled": 1181,
+    "pct": 0.8,
+    "top": [
+     "2025-11-23 00:00:00.000",
+     "2025-11-22 00:00:00.000",
+     "2026-08-03 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_Supplier",
+    "filled": 155520,
+    "pct": 99.4,
+    "top": [
+     "P0769",
+     "P017188",
+     "P0243"
+    ]
+   },
+   {
+    "col": "Sal_AvgRate",
+    "filled": 156141,
+    "pct": 99.8,
+    "top": [
+     "126",
+     "128",
+     "125"
+    ]
+   },
+   {
+    "col": "Sal_UnitCode",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2"
+    ]
+   },
+   {
+    "col": "Sal_CollectionPerson",
+    "filled": 156447,
+    "pct": 100.0,
+    "top": [
+     "BRK07873",
+     "BRK5",
+     "BRK12"
+    ]
+   },
+   {
+    "col": "Sal_SalesPerson",
+    "filled": 155508,
+    "pct": 99.4,
+    "top": [
+     "BRK01",
+     "BRK08463",
+     "BRK08464"
+    ]
+   },
+   {
+    "col": "Sal_AutoSyncCode",
+    "filled": 942,
+    "pct": 0.6,
+    "top": [
+     "SAL01002",
+     "SAL01003",
+     "SAL01000"
+    ]
+   },
+   {
+    "col": "Sal_TCSAmt",
+    "filled": 3586,
+    "pct": 2.3,
+    "top": [
+     "126",
+     "63",
+     "124"
+    ]
+   },
+   {
+    "col": "Sal_IRN_No",
+    "filled": 155300,
+    "pct": 99.3,
+    "top": [
+     "36b7f7bf8ffb9ca6afc0f2a55ecdf2",
+     "39dc9c643b0d56d61f147304af65ca",
+     "c49e6ef1734f87d6840b3477a6eec9"
+    ]
+   },
+   {
+    "col": "Sal_ACK_No",
+    "filled": 155297,
+    "pct": 99.3,
+    "top": [
+     "162625479596970",
+     "162625479209728",
+     "162625479209588"
+    ]
+   },
+   {
+    "col": "Sal_ACK_Date",
+    "filled": 155274,
+    "pct": 99.2,
+    "top": [
+     "2024-04-02 00:00:00.000",
+     "2025-01-01 00:00:00.000",
+     "2026-09-14 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_YearCode",
+    "filled": 156459,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   {
+    "col": "Sal_RtnPurCode",
+    "filled": 1218,
+    "pct": 0.8,
+    "top": [
+     "PUR0139614",
+     "PUR0140944",
+     "PUR0105634"
+    ]
+   },
+   {
+    "col": "Sal_IsSmsSent",
+    "filled": 156454,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_IsSignCopyRec",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_SignCopyRecDate",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "2024-09-26 10:31:48.000"
+    ]
+   },
+   {
+    "col": "Sal_SignCopyRecUser",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "EMP010"
+    ]
+   },
+   {
+    "col": "Sal_Godown",
+    "filled": 9876,
+    "pct": 6.3,
+    "top": [
+     "BRK08754",
+     "BRK08798",
+     "BRK08781"
+    ]
+   },
+   {
+    "col": "Sal_SuppPOCode",
+    "filled": 154316,
+    "pct": 98.6,
+    "top": [
+     "SAL0107669",
+     "SAL0114545",
+     "SAL0144451"
+    ]
+   },
+   {
+    "col": "Sal_P_Area",
+    "filled": 1374,
+    "pct": 0.9,
+    "top": [
+     "9584",
+     "9601",
+     "9642"
+    ]
+   },
+   {
+    "col": "Sal_IsEntryStatusForTranLock",
+    "filled": 412,
+    "pct": 0.3,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_TotFrieght",
+    "filled": 1116,
+    "pct": 0.7,
+    "top": [
+     "900",
+     "600",
+     "720"
+    ]
+   },
+   {
+    "col": "Sal_CurrencyCode",
+    "filled": 281,
+    "pct": 0.2,
+    "top": [
+     "11082"
+    ]
+   }
+  ],
+  "unused": [
+   "Sal_AddLess_Vat",
+   "Sal_AddLess_VatAmt",
+   "Sal_AddLess",
+   "Sal_AddAmt_ADHI",
+   "Sal_Dis1Per",
+   "Sal_Dis1Amt",
+   "Sal_Dis2Per",
+   "Sal_Dis2Amt",
+   "Sal_Dis3Per",
+   "Sal_Dis3Amt",
+   "Sal_CForm",
+   "Sal_CashCusName",
+   "Sal_BfrVat12_2_Sum",
+   "Sal_BfrALVat_Per",
+   "Sal_BfrALAddTax_Per",
+   "Sal_BfrALAMT",
+   "Sal_BfrALVatAmt",
+   "Sal_BfrALAddTaxAmt",
+   "Sal_NoService",
+   "Sal_AddLess2",
+   "Sal_PointPer",
+   "Sal_CommApprov",
+   "Sal_NoParcel",
+   "Sal_DriverLicenseNo",
+   "Sal_RefNo",
+   "Sal_STaxAmt",
+   "Sal_STaxPer",
+   "Sal_KKCAmt",
+   "Sal_KKCPer",
+   "Sal_SBCAmt",
+   "Sal_SBCPer",
+   "Sal_RtnRefNo",
+   "Sal_RtnRefDate",
+   "Sal_Tax",
+   "Sal_PONo",
+   "Sal_DelAddress",
+   "Sal_QtyNotInGst",
+   "Sal_OpportuniteCode",
+   "Sal_Approve",
+   "Sal_CodeEx",
+   "Sal_ShortNameEx",
+   "Sal_OpportuniteId",
+   "Sal_TDSAmt",
+   "Sal_TDSPer",
+   "Sal_TDSAccount",
+   "Sal_TDSSection",
+   "Sal_TDSSurchrg",
+   "Sal_TDSCess",
+   "Sal_GRNo",
+   "Sal_GRDt",
+   "Sal_FOB",
+   "Sal_InsuranceExp",
+   "Sal_FrieghtExp",
+   "Sal_CFI",
+   "Sal_TFreightAmt",
+   "Sal_TLoadAmt",
+   "Sal_TUnLoadAmt",
+   "Sal_IsCancleEinv",
+   "Sal_OpPaidUSDAmt",
+   "Sal_Haste",
+   "Sal_ParceLNo",
+   "Sal_StockTransferCode",
+   "Sal_InsPolicyCode",
+   "Sal_ReasonCode",
+   "Sal_ReasonRmk",
+   "Sal_TranExpenAmt",
+   "Sal_EwbCloserDt",
+   "Sal_EwbCloserRmk"
+  ]
+ },
+ "SalesSubMst": {
+  "rows": 177146,
+  "cols": 93,
+  "used": [
+   {
+    "col": "SalS_Code",
+    "filled": 177146,
+    "pct": 100.0,
+    "top": [
+     "SAL0298880",
+     "SAL0298877",
+     "SAL0298881"
+    ]
+   },
+   {
+    "col": "SalS_Auto",
+    "filled": 177146,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "SalS_Icode",
+    "filled": 177146,
+    "pct": 100.0,
+    "top": [
+     "I0261",
+     "I0263",
+     "I0279"
+    ]
+   },
+   {
+    "col": "SalS_Com",
+    "filled": 177113,
+    "pct": 100.0,
+    "top": [
+     "IMPORTPUR0002/25-26",
+     "IMPORTPUR0001/25-26",
+     "PURPL1705/24-25"
+    ]
+   },
+   {
+    "col": "SalS_Rmk",
+    "filled": 536,
+    "pct": 0.3,
+    "top": [
+     "BOK11",
+     "BOK13",
+     "BOK058"
+    ]
+   },
+   {
+    "col": "SalS_Ucode",
+    "filled": 176241,
+    "pct": 99.5,
+    "top": [
+     "1",
+     "2"
+    ]
+   },
+   {
+    "col": "SalS_SqMt_Ft",
+    "filled": 175827,
+    "pct": 99.3,
+    "top": [
+     "24",
+     "9",
+     "12"
+    ]
+   },
+   {
+    "col": "SalS_Qty",
+    "filled": 290,
+    "pct": 0.2,
+    "top": [
+     "1366",
+     "48",
+     "125"
+    ]
+   },
+   {
+    "col": "SalS_Rate",
+    "filled": 176241,
+    "pct": 99.5,
+    "top": [
+     "114.286",
+     "112.5",
+     "111.607"
+    ]
+   },
+   {
+    "col": "SalS_DisAmt",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "50"
+    ]
+   },
+   {
+    "col": "SalS_ExPer",
+    "filled": 47,
+    "pct": 0.0,
+    "top": [
+     "5",
+     "12",
+     "18"
+    ]
+   },
+   {
+    "col": "SalS_ExAmt",
+    "filled": 144,
+    "pct": 0.1,
+    "top": [
+     "1853.74",
+     "237.23",
+     "3925.119"
+    ]
+   },
+   {
+    "col": "SalS_VatPer",
+    "filled": 176299,
+    "pct": 99.5,
+    "top": [
+     "6",
+     "2.5",
+     "9"
+    ]
+   },
+   {
+    "col": "SalS_VatAmt",
+    "filled": 176299,
+    "pct": 99.5,
+    "top": [
+     "1990.283",
+     "1959.422",
+     "1741.709"
+    ]
+   },
+   {
+    "col": "SalS_AdPer",
+    "filled": 176299,
+    "pct": 99.5,
+    "top": [
+     "6",
+     "2.5",
+     "9"
+    ]
+   },
+   {
+    "col": "SalS_AdAmt",
+    "filled": 176299,
+    "pct": 99.5,
+    "top": [
+     "1990.283",
+     "1959.422",
+     "1741.709"
+    ]
+   },
+   {
+    "col": "SalS_Amt",
+    "filled": 177146,
+    "pct": 100.0,
+    "top": [
+     "82295.74",
+     "83591.902",
+     "73151.77"
+    ]
+   },
+   {
+    "col": "SalS_GrossAmt",
+    "filled": 176241,
+    "pct": 99.5,
+    "top": [
+     "79611.336",
+     "78376.896",
+     "69668.352"
+    ]
+   },
+   {
+    "col": "SalS_Type",
+    "filled": 177146,
+    "pct": 100.0,
+    "top": [
+     "SAL",
+     "SALRTN"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 177146,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Sals_ArPer",
+    "filled": 175,
+    "pct": 0.1,
+    "top": [
+     "150",
+     "3.6319612590799",
+     "2.04545454545455"
+    ]
+   },
+   {
+    "col": "Sals_ArAmt",
+    "filled": 1130,
+    "pct": 0.6,
+    "top": [
+     "900",
+     "600",
+     "720"
+    ]
+   },
+   {
+    "col": "Sals_MPer",
+    "filled": 4532,
+    "pct": 2.6,
+    "top": [
+     "0.1",
+     "0.075"
+    ]
+   },
+   {
+    "col": "Sals_MAmt",
+    "filled": 4532,
+    "pct": 2.6,
+    "top": [
+     "125.75",
+     "123.511",
+     "120.102"
+    ]
+   },
+   {
+    "col": "SalS_To",
+    "filled": 176207,
+    "pct": 99.5,
+    "top": [
+     "TKCI2563356-4",
+     "TKCI2563356-1",
+     "RV0020001242"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 177144,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 177146,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sals_HsnCode",
+    "filled": 176237,
+    "pct": 99.5,
+    "top": [
+     "54024700",
+     "54023300",
+     "54071019"
+    ]
+   },
+   {
+    "col": "Sals_BasicAmt",
+    "filled": 176241,
+    "pct": 99.5,
+    "top": [
+     "79611.336",
+     "78376.896",
+     "69668.352"
+    ]
+   },
+   {
+    "col": "Sals_TaxableAmt",
+    "filled": 176241,
+    "pct": 99.5,
+    "top": [
+     "79611.336",
+     "78376.896",
+     "69668.352"
+    ]
+   },
+   {
+    "col": "Sals_Challano",
+    "filled": 177135,
+    "pct": 100.0,
+    "top": [
+     "DBT08",
+     "DBT04",
+     "DBT02"
+    ]
+   },
+   {
+    "col": "Sals_LotNo",
+    "filled": 174299,
+    "pct": 98.4,
+    "top": [
+     "10",
+     "10621",
+     "6"
+    ]
+   },
+   {
+    "col": "Sals_Cops",
+    "filled": 62755,
+    "pct": 35.4,
+    "top": [
+     "54",
+     "144",
+     "96"
+    ]
+   },
+   {
+    "col": "SalS_Dispt_Code",
+    "filled": 174861,
+    "pct": 98.7,
+    "top": [
+     "166584",
+     "2862",
+     "163773"
+    ]
+   },
+   {
+    "col": "SalS_Grade",
+    "filled": 176232,
+    "pct": 99.5,
+    "top": [
+     "3744",
+     "9687",
+     "12790"
+    ]
+   },
+   {
+    "col": "SalS_Weight",
+    "filled": 176911,
+    "pct": 99.9,
+    "top": [
+     "500",
+     "648",
+     "576"
+    ]
+   },
+   {
+    "col": "Sals_ChDate",
+    "filled": 176236,
+    "pct": 99.5,
+    "top": [
+     "2024-12-05 00:00:00.000",
+     "2024-06-27 00:00:00.000",
+     "2024-08-23 00:00:00.000"
+    ]
+   },
+   {
+    "col": "SalS_BookeOn",
+    "filled": 174774,
+    "pct": 98.7,
+    "top": [
+     "TKCI2563356-4",
+     "TKCI2563356-4.",
+     "TKCI2563356-1"
+    ]
+   },
+   {
+    "col": "Sals_Brand",
+    "filled": 176232,
+    "pct": 99.5,
+    "top": [
+     "9713",
+     "9702",
+     "10911"
+    ]
+   },
+   {
+    "col": "Sals_PurCode",
+    "filled": 176207,
+    "pct": 99.5,
+    "top": [
+     "PUR0298589",
+     "PUR0296079",
+     "PUR0204213"
+    ]
+   },
+   {
+    "col": "Sals_OrderCode",
+    "filled": 169238,
+    "pct": 95.5,
+    "top": [
+     "SAL0121036",
+     "SAL0109376",
+     "SAL0107669"
+    ]
+   },
+   {
+    "col": "Sals_OrderId",
+    "filled": 169238,
+    "pct": 95.5,
+    "top": [
+     "SAL15418/24-25",
+     "SAL05495/24-25",
+     "SAL03994/24-25"
+    ]
+   },
+   {
+    "col": "Sals_Imp_PurCode",
+    "filled": 3558,
+    "pct": 2.0,
+    "top": [
+     "CLEAR",
+     "PUR0234247",
+     "PUR0234251"
+    ]
+   },
+   {
+    "col": "Sals_Imp_PurId",
+    "filled": 2586,
+    "pct": 1.5,
+    "top": [
+     "PURISRT0053/24-25",
+     "PURISRT0056/24-25",
+     "PURISRT0057/24-25"
+    ]
+   },
+   {
+    "col": "SalS_LrNo",
+    "filled": 44125,
+    "pct": 24.9,
+    "top": [
+     "648",
+     "576",
+     "0000000606"
+    ]
+   },
+   {
+    "col": "Sals_PurCodeMain",
+    "filled": 175971,
+    "pct": 99.3,
+    "top": [
+     "PUR0298589",
+     "PUR0296079",
+     "PUR0204213"
+    ]
+   },
+   {
+    "col": "SalS_JobHsn",
+    "filled": 175968,
+    "pct": 99.3,
+    "top": [
+     "54024700",
+     "54023300",
+     "54071019"
+    ]
+   },
+   {
+    "col": "Sals_Boxtype",
+    "filled": 35851,
+    "pct": 20.2,
+    "top": [
+     "CARTTON"
+    ]
+   },
+   {
+    "col": "SalS_BomId",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "RIL"
+    ]
+   },
+   {
+    "col": "SalS_BrkRagePer",
+    "filled": 53015,
+    "pct": 29.9,
+    "top": [
+     "0.5",
+     "0.25",
+     "0.05"
+    ]
+   }
+  ],
+  "unused": [
+   "SalS_DisPer",
+   "SalS_Godown",
+   "SalS_Metter",
+   "SalS_DesignNo",
+   "Sals_RefNo",
+   "SalS_Name",
+   "SalS_From",
+   "SalS_DtOfJouy",
+   "SalS_Flight",
+   "Sals_InsuranceAmt",
+   "Sals_InsurancePer",
+   "Sals_DisAmt_Per",
+   "Sals_DisAmt_Amt",
+   "SalLr_Lolo",
+   "SalLr_Detention",
+   "SalLr_OtherChrg",
+   "SalS_FoldPer",
+   "SalS_FoldAmt",
+   "SalS_Thk",
+   "SalS_Height",
+   "SalS_Lenght",
+   "Sals_DisPallet_Amt",
+   "Sals_DisPallet_Per",
+   "SalS_Shade",
+   "SalS_ActMtr",
+   "SalS_USDPerUnit",
+   "SalS_ExchangeRate",
+   "SalS_AmountInUSD",
+   "SalS_OthDbSalCode",
+   "SalS_OthDbSalId",
+   "SalS_OthDbSalDt",
+   "SalS_AvgRate",
+   "SalS_AvgRateGst",
+   "SalS_ContainerCode",
+   "SalS_ActChallanNo",
+   "SalS_ActChallanDt",
+   "SalS_OrdAutoNo",
+   "SalS_BomCode",
+   "SalS_ItemAlias",
+   "SalS_ProcessTypeReq",
+   "SalS_SizeCode",
+   "SalS_Rmk1",
+   "SalS_Rmk2"
+  ]
+ },
+ "PurchaseMst": {
+  "rows": 195610,
+  "cols": 127,
+  "used": [
+   {
+    "col": "Pur_Code",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "PUR0177382",
+     "PUR052924",
+     "PUR0173080"
+    ]
+   },
+   {
+    "col": "Pur_Bkcode",
+    "filled": 195586,
+    "pct": 100.0,
+    "top": [
+     "BOK31",
+     "BOK070",
+     "BOK063"
+    ]
+   },
+   {
+    "col": "Pur_Id",
+    "filled": 195607,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "INTPRLLP01\\22-23"
+    ]
+   },
+   {
+    "col": "Pur_Date",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "2023-05-27 00:00:00.000",
+     "2023-05-28 00:00:00.000",
+     "2023-05-29 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Pur_Pcode",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P017188",
+     "P0148"
+    ]
+   },
+   {
+    "col": "Pur_Invno",
+    "filled": 195607,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "4"
+    ]
+   },
+   {
+    "col": "Pur_InvDt",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "2023-05-27 00:00:00.000",
+     "2023-05-28 00:00:00.000",
+     "2023-05-29 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Pur_Rmk",
+    "filled": 908,
+    "pct": 0.5,
+    "top": [
+     "\r\n",
+     "FLOOD AAVVATHI GOODS NI DELEVA",
+     "01/10/2025 TO 31/12/2025"
+    ]
+   },
+   {
+    "col": "Pur_NetVat",
+    "filled": 192509,
+    "pct": 98.4,
+    "top": [
+     "5400",
+     "3375",
+     "3420"
+    ]
+   },
+   {
+    "col": "Pur_NetAmt",
+    "filled": 195575,
+    "pct": 100.0,
+    "top": [
+     "35400",
+     "22125",
+     "11210"
+    ]
+   },
+   {
+    "col": "Pur_VatAmt_char",
+    "filled": 168803,
+    "pct": 86.3,
+    "top": [
+     "2700",
+     "1687.5",
+     "1710"
+    ]
+   },
+   {
+    "col": "Pur_AddAmt_Ek",
+    "filled": 168803,
+    "pct": 86.3,
+    "top": [
+     "2700",
+     "1687.5",
+     "1710"
+    ]
+   },
+   {
+    "col": "Pur_VatAmt_Bar",
+    "filled": 23675,
+    "pct": 12.1,
+    "top": [
+     "13455.62",
+     "13470.5",
+     "13914.79"
+    ]
+   },
+   {
+    "col": "Pur_Crdays",
+    "filled": 185397,
+    "pct": 94.8,
+    "top": [
+     "1",
+     "10",
+     "7"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "EMP04",
+     "EMP09",
+     "EMP012"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 194293,
+    "pct": 99.3,
+    "top": [
+     "2020-06-20 12:23:47.000",
+     "2026-11-22 09:36:33.000",
+     "2026-11-21 13:12:44.000"
+    ]
+   },
+   {
+    "col": "Pur_Type",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "PUR",
+     "GENPUR",
+     "AUTPUR"
+    ]
+   },
+   {
+    "col": "UCreatename",
+    "filled": 194293,
+    "pct": 99.3,
+    "top": [
+     "EMP09",
+     "EMP012",
+     "EMP04"
+    ]
+   },
+   {
+    "col": "UCreatedt",
+    "filled": 194293,
+    "pct": 99.3,
+    "top": [
+     "2024-04-02 12:03:31.000",
+     "2024-04-02 12:03:29.000",
+     "2024-04-08 12:48:59.000"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Pur_BfrVat4_1_Sum",
+    "filled": 192748,
+    "pct": 98.5,
+    "top": [
+     "30000",
+     "18750",
+     "9500"
+    ]
+   },
+   {
+    "col": "Pur_GstTranType",
+    "filled": 193095,
+    "pct": 98.7,
+    "top": [
+     "B2B",
+     "RCM"
+    ]
+   },
+   {
+    "col": "Pur_AdvSettings",
+    "filled": 2,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_TDSAmt",
+    "filled": 174499,
+    "pct": 89.2,
+    "top": [
+     "56",
+     "112",
+     "55"
+    ]
+   },
+   {
+    "col": "Pur_TDSPer",
+    "filled": 174499,
+    "pct": 89.2,
+    "top": [
+     "0.1",
+     "0.01",
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_Transpoter",
+    "filled": 187813,
+    "pct": 96.0,
+    "top": [
+     "P010799",
+     "P022414",
+     "P020053"
+    ]
+   },
+   {
+    "col": "Pur_LrNo",
+    "filled": 16202,
+    "pct": 8.3,
+    "top": [
+     "0000000627",
+     "0000000581",
+     "0000000583"
+    ]
+   },
+   {
+    "col": "Pur_LrDate",
+    "filled": 162804,
+    "pct": 83.2,
+    "top": [
+     "2023-05-27 00:00:00.000",
+     "2023-05-28 00:00:00.000",
+     "2023-05-29 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Pur_EwayBillNo",
+    "filled": 4,
+    "pct": 0.0,
+    "top": [
+     "631747192190",
+     "651719574575",
+     "671719902248"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_TDSAccount",
+    "filled": 174499,
+    "pct": 89.2,
+    "top": [
+     "P013276",
+     "P010671",
+     "P010670"
+    ]
+   },
+   {
+    "col": "Pur_TDSSection",
+    "filled": 174499,
+    "pct": 89.2,
+    "top": [
+     "5",
+     "2",
+     "6"
+    ]
+   },
+   {
+    "col": "Pur_OpPaidAmt",
+    "filled": 58534,
+    "pct": 29.9,
+    "top": [
+     "63",
+     "64",
+     "113"
+    ]
+   },
+   {
+    "col": "Pur_Architect",
+    "filled": 187935,
+    "pct": 96.1,
+    "top": [
+     "BRK7001",
+     "BRK7008",
+     "BRK08715"
+    ]
+   },
+   {
+    "col": "Pur_DeleVedBy",
+    "filled": 195600,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P017188",
+     "P0148"
+    ]
+   },
+   {
+    "col": "Pur_GstJvCode",
+    "filled": 193095,
+    "pct": 98.7,
+    "top": [
+     "640093",
+     "639938",
+     "647120"
+    ]
+   },
+   {
+    "col": "Pur_GstJvVoucherNo",
+    "filled": 193095,
+    "pct": 98.7,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "Pur_SRL",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "228173",
+     "12377",
+     "330304"
+    ]
+   },
+   {
+    "col": "Pur_IsLastYearEntry",
+    "filled": 60630,
+    "pct": 31.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_TotQty",
+    "filled": 2438,
+    "pct": 1.2,
+    "top": [
+     "1",
+     "2",
+     "30000"
+    ]
+   },
+   {
+    "col": "Pur_TotPCS",
+    "filled": 193030,
+    "pct": 98.7,
+    "top": [
+     "24",
+     "12",
+     "36"
+    ]
+   },
+   {
+    "col": "Pur_TotWeight",
+    "filled": 194184,
+    "pct": 99.3,
+    "top": [
+     "501.94",
+     "501.86",
+     "1001.36"
+    ]
+   },
+   {
+    "col": "Pur_AdjBillNo",
+    "filled": 195,
+    "pct": 0.1,
+    "top": [
+     "DO2611061705",
+     "DO2611058063",
+     "DO2616010856"
+    ]
+   },
+   {
+    "col": "Pur_AdjBillDt",
+    "filled": 194,
+    "pct": 0.1,
+    "top": [
+     "2026-09-15 00:00:00.000",
+     "2026-09-07 00:00:00.000",
+     "2026-07-17 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Pur_SupplierCode",
+    "filled": 2,
+    "pct": 0.0,
+    "top": [
+     "P0769"
+    ]
+   },
+   {
+    "col": "Pur_VehicalNo",
+    "filled": 189729,
+    "pct": 97.0,
+    "top": [
+     "9947",
+     "9803",
+     "11666"
+    ]
+   },
+   {
+    "col": "Pur_IsStock",
+    "filled": 2559,
+    "pct": 1.3,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_IsApporval",
+    "filled": 193346,
+    "pct": 98.8,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_SalesPerson",
+    "filled": 189887,
+    "pct": 97.1,
+    "top": [
+     "BRK01",
+     "BRK08039",
+     "BRK07408"
+    ]
+   },
+   {
+    "col": "Pur_AvgRate",
+    "filled": 189813,
+    "pct": 97.0,
+    "top": [
+     "125.09",
+     "126.08",
+     "130.02"
+    ]
+   },
+   {
+    "col": "Pur_AutoSyncCode",
+    "filled": 9639,
+    "pct": 4.9,
+    "top": [
+     "PUR033132",
+     "PUR033130",
+     "PUR016702"
+    ]
+   },
+   {
+    "col": "Pur_TCSAmt",
+    "filled": 8026,
+    "pct": 4.1,
+    "top": [
+     "66",
+     "67",
+     "134"
+    ]
+   },
+   {
+    "col": "Pur_YearCode",
+    "filled": 195610,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "7",
+     "5"
+    ]
+   },
+   {
+    "col": "Pur_IRN_No",
+    "filled": 439,
+    "pct": 0.2,
+    "top": [
+     "006f53a16797ebc3742a0e1523f6a4",
+     "007c7279b5f8af6b01837914c3744e",
+     "000ad01d309426c8e2ece555fbdaab"
+    ]
+   },
+   {
+    "col": "Pur_ACK_No",
+    "filled": 438,
+    "pct": 0.2,
+    "top": [
+     "162212110204929",
+     "162212110211770",
+     "162212011621311"
+    ]
+   },
+   {
+    "col": "Pur_ACK_Date",
+    "filled": 438,
+    "pct": 0.2,
+    "top": [
+     "2026-03-31 00:00:00.000",
+     "2026-04-07 00:00:00.000",
+     "2026-09-30 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Pur_DoNo",
+    "filled": 1299,
+    "pct": 0.7,
+    "top": [
+     "2424107849",
+     "GL01870/22-23",
+     "GL07605/22-23"
+    ]
+   },
+   {
+    "col": "Pur_DueDt",
+    "filled": 184719,
+    "pct": 94.4,
+    "top": [
+     "2023-05-30 00:00:00.000",
+     "2024-03-22 00:00:00.000",
+     "2023-05-24 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Pur_LockCode",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_GoDownCom",
+    "filled": 24,
+    "pct": 0.0,
+    "top": [
+     "BRK08223",
+     "BRK08220"
+    ]
+   },
+   {
+    "col": "Pur_TotCops",
+    "filled": 45198,
+    "pct": 23.1,
+    "top": [
+     "144",
+     "72",
+     "124"
+    ]
+   },
+   {
+    "col": "Pur_IsEntryStatusForTranLock",
+    "filled": 7,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Pur_TotFrieght",
+    "filled": 55035,
+    "pct": 28.1,
+    "top": [
+     "900",
+     "600",
+     "720"
+    ]
+   },
+   {
+    "col": "Pur_CurrencyCode",
+    "filled": 9816,
+    "pct": 5.0,
+    "top": [
+     "11082"
+    ]
+   }
+  ],
+  "unused": [
+   "Pur_AddLess_Vat",
+   "Pur_AddLess_VatAmt",
+   "Pur_AddLess",
+   "Pur_TotalDis",
+   "Pur_AddAmt_ADHI",
+   "Pur_Dis1Per",
+   "Pur_Dis1Amt",
+   "Pur_Dis2Per",
+   "Pur_Dis2Amt",
+   "Pur_Dis3Per",
+   "Pur_Dis3Amt",
+   "Pur_BfrVat12_2_Sum",
+   "Pur_BfrALVat_Per",
+   "Pur_BfrALAddTax_Per",
+   "Pur_BfrALAMT",
+   "Pur_BfrALVatAmt",
+   "Pur_BfrALAddTaxAmt",
+   "Pur_ChNo",
+   "Pur_NoParcel",
+   "Pur_DriverName",
+   "Pur_DriverLicenseNo",
+   "Pur_SuppPONo",
+   "Pur_SuppPODate",
+   "Pur_TDSSurchrg",
+   "Pur_TDSCess",
+   "Pur_RefNo",
+   "Pur_RtnRefNo",
+   "Pur_RtnRefDate",
+   "Pur_Reco",
+   "Pur_RecoDt",
+   "Pur_RecoCode",
+   "Pur_CessAmt",
+   "Pur_ContainerNo",
+   "Pur_BENo",
+   "Pur_ExRate",
+   "Pur_ImportExDuty",
+   "Pur_GSTRecoInvNo",
+   "Pur_GSTRecoInvDate",
+   "Pur_GSTRecoStatus",
+   "Pur_DelAdd",
+   "Pur_CodeEx",
+   "Pur_IntCode",
+   "Pur_DbNtDt",
+   "Pur_DbNtNo",
+   "Pur_IsCancleEinv",
+   "Pur_TotECessAmt",
+   "Pur_TotBEDAmt",
+   "Pur_TotUsdAmount",
+   "Pur_OpPaidUSDAmt",
+   "Pur_IsExpenseEntry",
+   "Pur_InvestmentCode",
+   "Pur_PortCode",
+   "Pur_BEDt",
+   "Pur_StockTransferCode",
+   "Pur_RefInvNo",
+   "Pur_RefInvDt",
+   "Pur_DCPINo",
+   "Pur_ReasonCode",
+   "Pur_ReasonRmk",
+   "Pur_EwbCloserDt",
+   "Pur_EwbCloserRmk",
+   "Pur_TranExpenAmt"
+  ]
+ },
+ "PurchaseSubMst": {
+  "rows": 235527,
+  "cols": 105,
+  "used": [
+   {
+    "col": "PurS_Code",
+    "filled": 235527,
+    "pct": 100.0,
+    "top": [
+     "PUR0259190",
+     "PUR0238103",
+     "PUR0322590"
+    ]
+   },
+   {
+    "col": "PurS_Auto",
+    "filled": 235527,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "PurS_Icode",
+    "filled": 235527,
+    "pct": 100.0,
+    "top": [
+     "I0261",
+     "I0263",
+     "I0279"
+    ]
+   },
+   {
+    "col": "PurS_Com",
+    "filled": 1469,
+    "pct": 0.6,
+    "top": [
+     "P09279",
+     "PURPL3006/26-27",
+     "PURPL1705/24-25"
+    ]
+   },
+   {
+    "col": "PurS_Rmk",
+    "filled": 158891,
+    "pct": 67.5,
+    "top": [
+     "1123006585",
+     "1124007336",
+     "1124000351"
+    ]
+   },
+   {
+    "col": "PurS_Ucode",
+    "filled": 235465,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "3",
+     "2"
+    ]
+   },
+   {
+    "col": "PurS_SqMt_Ft",
+    "filled": 232677,
+    "pct": 98.8,
+    "top": [
+     "24",
+     "12",
+     "9"
+    ]
+   },
+   {
+    "col": "PurS_Qty",
+    "filled": 3621,
+    "pct": 1.5,
+    "top": [
+     "1",
+     "2",
+     "30000"
+    ]
+   },
+   {
+    "col": "PurS_Rate",
+    "filled": 235442,
+    "pct": 100.0,
+    "top": [
+     "111.69",
+     "114",
+     "115"
+    ]
+   },
+   {
+    "col": "PurS_DisPer",
+    "filled": 35807,
+    "pct": 15.2,
+    "top": [
+     "1",
+     "1.50",
+     "1.5"
+    ]
+   },
+   {
+    "col": "PurS_DisAmt",
+    "filled": 38450,
+    "pct": 16.3,
+    "top": [
+     "892.87",
+     "492.41",
+     "885.19"
+    ]
+   },
+   {
+    "col": "PurS_ExPer",
+    "filled": 49237,
+    "pct": 20.9,
+    "top": [
+     "12",
+     "5",
+     "18"
+    ]
+   },
+   {
+    "col": "PurS_ExAmt",
+    "filled": 49159,
+    "pct": 20.9,
+    "top": [
+     "6212.506",
+     "5963.882",
+     "5553.696"
+    ]
+   },
+   {
+    "col": "PurS_VatPer",
+    "filled": 183167,
+    "pct": 77.8,
+    "top": [
+     "6",
+     "2.5",
+     "9"
+    ]
+   },
+   {
+    "col": "PurS_VatAmt",
+    "filled": 182159,
+    "pct": 77.3,
+    "top": [
+     "2700",
+     "1687.5",
+     "855"
+    ]
+   },
+   {
+    "col": "PurS_AdPer",
+    "filled": 183167,
+    "pct": 77.8,
+    "top": [
+     "6",
+     "2.5",
+     "9"
+    ]
+   },
+   {
+    "col": "PurS_AdAmt",
+    "filled": 182159,
+    "pct": 77.3,
+    "top": [
+     "2700",
+     "1687.5",
+     "855"
+    ]
+   },
+   {
+    "col": "PurS_Amt",
+    "filled": 234003,
+    "pct": 99.4,
+    "top": [
+     "35400",
+     "22125",
+     "11210"
+    ]
+   },
+   {
+    "col": "Pur_GrossAmt",
+    "filled": 232917,
+    "pct": 98.9,
+    "top": [
+     "30000",
+     "18750",
+     "9500"
+    ]
+   },
+   {
+    "col": "Purs_Godown",
+    "filled": 19,
+    "pct": 0.0,
+    "top": [
+     "1",
+     "3",
+     "2"
+    ]
+   },
+   {
+    "col": "PurS_Type",
+    "filled": 235527,
+    "pct": 100.0,
+    "top": [
+     "PUR",
+     "GENPUR",
+     "AUTPUR"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 235527,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Purs_Pcode",
+    "filled": 4912,
+    "pct": 2.1,
+    "top": [
+     "P0380",
+     "P01596",
+     "P03693"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 235527,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 235527,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "PurS_HsnCode",
+    "filled": 233594,
+    "pct": 99.2,
+    "top": [
+     "54024700",
+     "54023300",
+     "996111"
+    ]
+   },
+   {
+    "col": "PurS_BasicAmt",
+    "filled": 232917,
+    "pct": 98.9,
+    "top": [
+     "30000",
+     "18750",
+     "9500"
+    ]
+   },
+   {
+    "col": "PurS_TaxableAmt",
+    "filled": 234328,
+    "pct": 99.5,
+    "top": [
+     "30000",
+     "18750",
+     "9500"
+    ]
+   },
+   {
+    "col": "PurS_Challano",
+    "filled": 235368,
+    "pct": 99.9,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "PurS_LotNo",
+    "filled": 231110,
+    "pct": 98.1,
+    "top": [
+     "10",
+     "6",
+     "10621"
+    ]
+   },
+   {
+    "col": "PurS_Cops",
+    "filled": 80088,
+    "pct": 34.0,
+    "top": [
+     "54",
+     "144",
+     "48"
+    ]
+   },
+   {
+    "col": "Purs_FrieghtPer",
+    "filled": 77207,
+    "pct": 32.8,
+    "top": [
+     "1",
+     "2.15",
+     "1.1"
+    ]
+   },
+   {
+    "col": "Purs_FrieghtAmt",
+    "filled": 77219,
+    "pct": 32.8,
+    "top": [
+     "900",
+     "600",
+     "720"
+    ]
+   },
+   {
+    "col": "Purs_TcsPer",
+    "filled": 9705,
+    "pct": 4.1,
+    "top": [
+     "0.075",
+     "0.1",
+     "0.07"
+    ]
+   },
+   {
+    "col": "Purs_TcsAmt",
+    "filled": 9707,
+    "pct": 4.1,
+    "top": [
+     "66.2",
+     "66.26",
+     "66.32"
+    ]
+   },
+   {
+    "col": "Purs_Grade",
+    "filled": 232891,
+    "pct": 98.9,
+    "top": [
+     "9687",
+     "3744",
+     "12790"
+    ]
+   },
+   {
+    "col": "Purs_Weight",
+    "filled": 234035,
+    "pct": 99.4,
+    "top": [
+     "501.94",
+     "501.32",
+     "501.86"
+    ]
+   },
+   {
+    "col": "Purs_ChDate",
+    "filled": 235463,
+    "pct": 100.0,
+    "top": [
+     "2024-12-05 00:00:00.000",
+     "2024-08-23 00:00:00.000",
+     "2024-05-20 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Purs_Brand",
+    "filled": 232823,
+    "pct": 98.9,
+    "top": [
+     "9713",
+     "9702",
+     "10911"
+    ]
+   },
+   {
+    "col": "Purs_OrderCode",
+    "filled": 161530,
+    "pct": 68.6,
+    "top": [
+     "SAL0111930",
+     "SAL0119333",
+     "SAL0143644"
+    ]
+   },
+   {
+    "col": "Purs_OrderId",
+    "filled": 161530,
+    "pct": 68.6,
+    "top": [
+     "PUR1227/24-25",
+     "PUR2352/24-25",
+     "PUR2332/25-26"
+    ]
+   },
+   {
+    "col": "Purs_OrderRate",
+    "filled": 219418,
+    "pct": 93.2,
+    "top": [
+     "128",
+     "108",
+     "132"
+    ]
+   },
+   {
+    "col": "Purs_LrNo",
+    "filled": 50584,
+    "pct": 21.5,
+    "top": [
+     "0000000606",
+     "0000000039",
+     "0000012788"
+    ]
+   },
+   {
+    "col": "Purs_CessPer",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "9"
+    ]
+   },
+   {
+    "col": "Purs_StockClear",
+    "filled": 67739,
+    "pct": 28.8,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Purs_SalS_Code",
+    "filled": 4350,
+    "pct": 1.8,
+    "top": [
+     "SAL0298877",
+     "SAL0298880",
+     "SAL0298881"
+    ]
+   },
+   {
+    "col": "Purs_OtherChrg",
+    "filled": 47,
+    "pct": 0.0,
+    "top": [
+     "102.86",
+     "113.34",
+     "113.47"
+    ]
+   },
+   {
+    "col": "PurS_PurRtn_Code",
+    "filled": 609,
+    "pct": 0.3,
+    "top": [
+     "PUR0167722",
+     "PUR0156285",
+     "PUR0116224"
+    ]
+   },
+   {
+    "col": "PurS_PurCodeMain",
+    "filled": 1528,
+    "pct": 0.6,
+    "top": [
+     "PUR0320812",
+     "PUR0314962",
+     "PUR0204213"
+    ]
+   },
+   {
+    "col": "Purs_Boxtype",
+    "filled": 35976,
+    "pct": 15.3,
+    "top": [
+     "CARTTON"
+    ]
+   },
+   {
+    "col": "Purs_Stk_PurCode",
+    "filled": 292,
+    "pct": 0.1,
+    "top": [
+     "PUR0332212",
+     "PUR0332213",
+     "PUR0291672"
+    ]
+   },
+   {
+    "col": "Purs_Stk_PurId",
+    "filled": 292,
+    "pct": 0.1,
+    "top": [
+     "R00208/26-27",
+     "R00209/26-27",
+     "R00080/26-27"
+    ]
+   },
+   {
+    "col": "PurS_Status",
+    "filled": 213516,
+    "pct": 90.7,
+    "top": [
+     "PENDING"
+    ]
+   },
+   {
+    "col": "Purs_SalRtn_Code",
+    "filled": 1425,
+    "pct": 0.6,
+    "top": [
+     "SAL0388364",
+     "SAL0403644",
+     "SAL0405534"
+    ]
+   },
+   {
+    "col": "Purs_SalRtn_PCode",
+    "filled": 1396,
+    "pct": 0.6,
+    "top": [
+     "P09241",
+     "P010494",
+     "P022565"
+    ]
+   },
+   {
+    "col": "PurS_AvgRateGst",
+    "filled": 193864,
+    "pct": 82.3,
+    "top": [
+     "125.093",
+     "129.035",
+     "126.078"
+    ]
+   },
+   {
+    "col": "PurS_AvgRate",
+    "filled": 193859,
+    "pct": 82.3,
+    "top": [
+     "111.69",
+     "115.21",
+     "112.57"
+    ]
+   },
+   {
+    "col": "Purs_InsuPer",
+    "filled": 35944,
+    "pct": 15.3,
+    "top": [
+     "0.05",
+     "0.1",
+     "0.07"
+    ]
+   },
+   {
+    "col": "Purs_InsuAmt",
+    "filled": 35929,
+    "pct": 15.3,
+    "top": [
+     "19.01",
+     "19.02",
+     "19.03"
+    ]
+   },
+   {
+    "col": "PurS_GenPurCode",
+    "filled": 1838,
+    "pct": 0.8,
+    "top": [
+     "PUR0259190",
+     "PUR0238103",
+     "PUR0220012"
+    ]
+   },
+   {
+    "col": "PurS_GenPurId",
+    "filled": 1838,
+    "pct": 0.8,
+    "top": [
+     "GENLLP00012/25-26",
+     "GENU00287/24-25",
+     "GENU00123/24-25"
+    ]
+   },
+   {
+    "col": "PurS_OrdAutoNo",
+    "filled": 379,
+    "pct": 0.2,
+    "top": [
+     "1"
+    ]
+   }
+  ],
+  "unused": [
+   "DsptS_itemName",
+   "DsptS_FoldMtr",
+   "DsptS_SMtr",
+   "DsptS_VarMtr",
+   "Purs_GrnCode",
+   "Purs_DesignNo",
+   "Purs_RefNo",
+   "Purs_CessAmt",
+   "Purs_Lolo",
+   "PurS_RefOrdDt",
+   "PurS_RefOrdNo",
+   "PurS_Detention",
+   "Purs_AdvCash",
+   "Purs_AdvPump",
+   "PurS_IntMonth",
+   "PurS_IntPer",
+   "PurS_IntAmt",
+   "PurS_CalOn",
+   "PurS_OthDbPurCode",
+   "PurS_OthDbPurId",
+   "PurS_OthDbPurDt",
+   "PurS_CloseDt",
+   "Purs_SalS_Id",
+   "Purs_SalS_PCode",
+   "PurS_SalRtn_Auto",
+   "Purs_Shade",
+   "PurS_USDPerUnit",
+   "PurS_ExchangeRate",
+   "PurS_AmountInUSD",
+   "PurS_BEDPer",
+   "PurS_BEDAmt",
+   "PurS_ECessPer",
+   "PurS_ECessAmt",
+   "PurS_ContainerCode",
+   "PurS_ContainerSize",
+   "Purs_Lock",
+   "PurS_ClearMode",
+   "PurS_ClearNo",
+   "Purs_BrPer",
+   "Purs_BrAmt",
+   "PurS_CBM",
+   "Purs_Imp_PurCode",
+   "Purs_Imp_PurId"
+  ]
+ },
+ "QuotationMst": {
+  "rows": 67775,
+  "cols": 130,
+  "used": [
+   {
+    "col": "Sal_Code",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "SAL0148172",
+     "SAL0169832",
+     "SAL0156743"
+    ]
+   },
+   {
+    "col": "Sal_Bkcode",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "BOK039",
+     "BOK040"
+    ]
+   },
+   {
+    "col": "Sal_Id",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "SAL09068/26-27",
+     "SAL16685/24-25",
+     "SAL07418/26-27"
+    ]
+   },
+   {
+    "col": "Sal_Date",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "2024-05-17 00:00:00.000",
+     "2024-08-29 00:00:00.000",
+     "2024-08-28 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_Pcode",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P0243",
+     "P0148"
+    ]
+   },
+   {
+    "col": "Sal_Rmk",
+    "filled": 32013,
+    "pct": 47.2,
+    "top": [
+     "READY DELIVERY ",
+     "READY DELIVERY",
+     "BILLING AND DELIVERY MATE NAME"
+    ]
+   },
+   {
+    "col": "Sal_NetVat",
+    "filled": 64620,
+    "pct": 95.3,
+    "top": [
+     "15624",
+     "16128",
+     "15750"
+    ]
+   },
+   {
+    "col": "Sal_NetAmt",
+    "filled": 67761,
+    "pct": 100.0,
+    "top": [
+     "145824",
+     "141120",
+     "147000"
+    ]
+   },
+   {
+    "col": "Sal_VatAmt_char",
+    "filled": 8094,
+    "pct": 11.9,
+    "top": [
+     "6720",
+     "6300",
+     "6900"
+    ]
+   },
+   {
+    "col": "Sal_AddAmt_Ek",
+    "filled": 8094,
+    "pct": 11.9,
+    "top": [
+     "6720",
+     "6300",
+     "6900"
+    ]
+   },
+   {
+    "col": "Sal_VatAmt_Bar",
+    "filled": 3120,
+    "pct": 4.6,
+    "top": [
+     "82800",
+     "41040",
+     "68400"
+    ]
+   },
+   {
+    "col": "Sal_Mistry",
+    "filled": 67772,
+    "pct": 100.0,
+    "top": [
+     "BRK6193",
+     "BRK6850",
+     "BRK07935"
+    ]
+   },
+   {
+    "col": "Sal_Architect",
+    "filled": 67694,
+    "pct": 99.9,
+    "top": [
+     "BRK7001",
+     "BRK7096",
+     "BRK7120"
+    ]
+   },
+   {
+    "col": "Sal_Crdays",
+    "filled": 67663,
+    "pct": 99.8,
+    "top": [
+     "1",
+     "15",
+     "4"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "EMP014",
+     "EMP07",
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "2024-09-09 16:17:58.000",
+     "2024-08-13 15:53:04.000",
+     "2025-09-22 17:51:53.000"
+    ]
+   },
+   {
+    "col": "Sal_Type",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "SalOrder",
+     "PurOrder"
+    ]
+   },
+   {
+    "col": "UCreatename",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "EMP014",
+     "EMP07",
+     "EMP04"
+    ]
+   },
+   {
+    "col": "UCreatedt",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "2025-05-16 15:37:23.000",
+     "2024-09-09 16:17:58.000",
+     "2024-08-15 17:34:03.000"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Sal_DeleVedBy",
+    "filled": 57,
+    "pct": 0.1,
+    "top": [
+     "P010432",
+     "P010799",
+     "P010692"
+    ]
+   },
+   {
+    "col": "Sal_BfrVat4_1_Sum",
+    "filled": 11213,
+    "pct": 16.5,
+    "top": [
+     "216000",
+     "112000",
+     "108000"
+    ]
+   },
+   {
+    "col": "Sal_NoService",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P0243",
+     "P0148"
+    ]
+   },
+   {
+    "col": "Sal_ApproveQuatation",
+    "filled": 67764,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_PurOrderCode",
+    "filled": 167,
+    "pct": 0.2,
+    "top": [
+     "PUR0303078",
+     "PUR0199140",
+     "PUR0190928"
+    ]
+   },
+   {
+    "col": "Sal_CostCenter",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "Sal_SalesOrderCode",
+    "filled": 55479,
+    "pct": 81.9,
+    "top": [
+     "77544",
+     "102666",
+     "93264"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_TermDly",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "1",
+     "152.25++",
+     "MANY"
+    ]
+   },
+   {
+    "col": "Sal_SupplierCode",
+    "filled": 67774,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P017188",
+     "P0148"
+    ]
+   },
+   {
+    "col": "Sal_OrderType",
+    "filled": 916,
+    "pct": 1.4,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_BrkPerRate",
+    "filled": 19,
+    "pct": 0.0,
+    "top": [
+     "0.5",
+     "1",
+     "3"
+    ]
+   },
+   {
+    "col": "Sal_BrkKgs",
+    "filled": 42757,
+    "pct": 63.1,
+    "top": [
+     "0.5",
+     "0.25",
+     "0.1"
+    ]
+   },
+   {
+    "col": "Sal_SalesPersonCode",
+    "filled": 67758,
+    "pct": 100.0,
+    "top": [
+     "BRK01",
+     "BRK08463",
+     "BRK08464"
+    ]
+   },
+   {
+    "col": "Sal_AutoSyncCode",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "SAL0148172",
+     "SAL0169832",
+     "SAL0156743"
+    ]
+   },
+   {
+    "col": "Sal_RefOrdNo",
+    "filled": 742,
+    "pct": 1.1,
+    "top": [
+     "1",
+     "AVI",
+     "28166099"
+    ]
+   },
+   {
+    "col": "Sal_ExpDlyDate",
+    "filled": 67769,
+    "pct": 100.0,
+    "top": [
+     "2025-09-23 00:00:00.000",
+     "2025-09-24 00:00:00.000",
+     "2026-08-19 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Sal_YearCode",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   {
+    "col": "Sal_IsSmsSend",
+    "filled": 66919,
+    "pct": 98.7,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_DeliveryAddress",
+    "filled": 5,
+    "pct": 0.0,
+    "top": [
+     "3RD FLOOR, PLOT NO. 47, JALBHU",
+     "138-HARIOM SMALL SCALE IND SOC",
+     "A-20-GOVINDJI TEXTILE PARK-1, "
+    ]
+   },
+   {
+    "col": "Sal_MainCode",
+    "filled": 25,
+    "pct": 0.0,
+    "top": [
+     "SAL016283",
+     "SAL017287",
+     "SAL011008"
+    ]
+   },
+   {
+    "col": "Sal_MainId",
+    "filled": 25,
+    "pct": 0.0,
+    "top": [
+     "SAL14022/20-21",
+     "SAL14908/20-21",
+     "SAL03699/21-22"
+    ]
+   },
+   {
+    "col": "Sal_QutType",
+    "filled": 25,
+    "pct": 0.0,
+    "top": [
+     "New"
+    ]
+   },
+   {
+    "col": "Sal_ApproveDt",
+    "filled": 20070,
+    "pct": 29.6,
+    "top": [
+     "2021-02-25 00:00:00.000",
+     "2020-11-11 00:00:00.000",
+     "2026-09-21 13:16:36.890"
+    ]
+   },
+   {
+    "col": "Sal_OrdBase",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "Direct"
+    ]
+   },
+   {
+    "col": "Sal_Priority",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "A",
+     "B"
+    ]
+   },
+   {
+    "col": "Sal_ExpDelDays",
+    "filled": 2,
+    "pct": 0.0,
+    "top": [
+     "1",
+     "8"
+    ]
+   },
+   {
+    "col": "Sal_ReffName",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sal_FollowUpStatus",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "NO"
+    ]
+   },
+   {
+    "col": "Sal_ApproveUserCode",
+    "filled": 20045,
+    "pct": 29.6,
+    "top": [
+     "EMP01",
+     "EMP04",
+     "EMP09"
+    ]
+   },
+   {
+    "col": "Sal_LastLockDt",
+    "filled": 67757,
+    "pct": 100.0,
+    "top": [
+     "2024-05-17 00:00:00.000",
+     "2024-08-29 00:00:00.000",
+     "2024-08-28 00:00:00.000"
+    ]
+   }
+  ],
+  "unused": [
+   "Sal_AddLess_Vat",
+   "Sal_AddLess_VatAmt",
+   "Sal_AddLess",
+   "Sal_TotalDis",
+   "Sal_AddAmt_ADHI",
+   "Sal_Dis1Per",
+   "Sal_Dis1Amt",
+   "Sal_Dis2Per",
+   "Sal_Dis2Amt",
+   "Sal_Dis3Per",
+   "Sal_Dis3Amt",
+   "Sal_CForm",
+   "Sal_CashCusName",
+   "Sal_CashCusAdd",
+   "Sal_BfrVat12_2_Sum",
+   "Sal_BfrALVat_Per",
+   "Sal_BfrALAddTax_Per",
+   "Sal_BfrALAMT",
+   "Sal_BfrALVatAmt",
+   "Sal_BfrALAddTaxAmt",
+   "Sal_AddLess2",
+   "Sal_IndentCode",
+   "Sal_PointPer",
+   "CostcenterCode",
+   "Sal_TermPay",
+   "Sal_TermDis",
+   "Sal_TermCondi",
+   "Sal_TermOther",
+   "Sal_Location",
+   "Sal_ProjectName",
+   "Sal_ProcType",
+   "Sal_AllShade",
+   "Sal_IsFromAndroid",
+   "Sal_OpportuniteCode",
+   "Sal_OpportuniteId",
+   "Sal_compadd",
+   "Sal_CommAgent",
+   "Sal_MarkNos",
+   "Sal_Terms1",
+   "Sal_Terms2",
+   "Sal_BuyerDt",
+   "Sal_OrgGoodscont",
+   "Sal_ConFinalDestination",
+   "Sal_BankCode",
+   "Sal_Consinee",
+   "Sal_Currency",
+   "Sal_PackInst",
+   "Sal_CIF",
+   "Sal_FwdCost",
+   "Sal_freight",
+   "Sal_IsCancle",
+   "Sal_IsCancleRmk",
+   "POD",
+   "Sal_Discrepancy",
+   "Sal_PODFILE",
+   "Sal_BuyerAdd",
+   "Sal_PACKING",
+   "Sal_ConsineeAdd",
+   "Sal_BuyerNo",
+   "Sal_PortOfLoading",
+   "Sal_PortOfDischarge",
+   "Sal_FinalDestination",
+   "Sal_Carriage",
+   "Sal_Terms",
+   "Sal_Paymentterms",
+   "Sal_PackingCode",
+   "Sal_PickUpAddress",
+   "Sal_DispatchInfo",
+   "Sal_ModeOfShipp",
+   "Sal_ReffDt",
+   "Sal_PONo",
+   "Sal_PODt",
+   "Sal_AddPayDt",
+   "Sal_BalancePayDt",
+   "Sal_SalOrdId",
+   "Sal_FinishItemCode",
+   "Sal_FinishComCode",
+   "Sal_FollowUpRemark",
+   "Sal_Cost"
+  ]
+ },
+ "QuotationSubMst": {
+  "rows": 67776,
+  "cols": 103,
+  "used": [
+   {
+    "col": "SalS_Code",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "SAL0148172",
+     "SAL0169832",
+     "SAL0156743"
+    ]
+   },
+   {
+    "col": "SalS_Auto",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "SalS_Icode",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "I0261",
+     "I0279",
+     "I0263"
+    ]
+   },
+   {
+    "col": "SalS_Rmk",
+    "filled": 67103,
+    "pct": 99.0,
+    "top": [
+     "1ST",
+     "F1",
+     "A+"
+    ]
+   },
+   {
+    "col": "SalS_Ucode",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2"
+    ]
+   },
+   {
+    "col": "SalS_SqMt_Ft",
+    "filled": 218,
+    "pct": 0.3,
+    "top": [
+     "-24",
+     "-36",
+     "-48"
+    ]
+   },
+   {
+    "col": "SalS_Qty",
+    "filled": 67775,
+    "pct": 100.0,
+    "top": [
+     "1050",
+     "2050",
+     "550"
+    ]
+   },
+   {
+    "col": "SalS_Rate",
+    "filled": 67762,
+    "pct": 100.0,
+    "top": [
+     "128",
+     "126",
+     "124"
+    ]
+   },
+   {
+    "col": "SalS_ExPer",
+    "filled": 3144,
+    "pct": 4.6,
+    "top": [
+     "12",
+     "5"
+    ]
+   },
+   {
+    "col": "SalS_ExAmt",
+    "filled": 3139,
+    "pct": 4.6,
+    "top": [
+     "82800",
+     "41040",
+     "68400"
+    ]
+   },
+   {
+    "col": "SalS_VatPer",
+    "filled": 64630,
+    "pct": 95.4,
+    "top": [
+     "6",
+     "2.5"
+    ]
+   },
+   {
+    "col": "SalS_VatAmt",
+    "filled": 64621,
+    "pct": 95.3,
+    "top": [
+     "7812",
+     "8064",
+     "7875"
+    ]
+   },
+   {
+    "col": "SalS_AdPer",
+    "filled": 64630,
+    "pct": 95.4,
+    "top": [
+     "6",
+     "2.5"
+    ]
+   },
+   {
+    "col": "SalS_AdAmt",
+    "filled": 64621,
+    "pct": 95.3,
+    "top": [
+     "7812",
+     "8064",
+     "7875"
+    ]
+   },
+   {
+    "col": "SalS_Amt",
+    "filled": 67762,
+    "pct": 100.0,
+    "top": [
+     "145824",
+     "141120",
+     "147000"
+    ]
+   },
+   {
+    "col": "SalS_GrossAmt",
+    "filled": 67762,
+    "pct": 100.0,
+    "top": [
+     "130200",
+     "136500",
+     "134400"
+    ]
+   },
+   {
+    "col": "SalS_Type",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "SalOrder",
+     "PurOrder"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Sals_LotNo",
+    "filled": 67686,
+    "pct": 99.9,
+    "top": [
+     "10",
+     "6",
+     "10621"
+    ]
+   },
+   {
+    "col": "Sals_Grade",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "3744",
+     "9687",
+     "12790"
+    ]
+   },
+   {
+    "col": "Sals_Status",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "CLOSE",
+     "CANCEL",
+     "PENDING"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Sals_PStatus",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "PENDING"
+    ]
+   },
+   {
+    "col": "SalS_SpIns",
+    "filled": 81,
+    "pct": 0.1,
+    "top": [
+     "F1",
+     "A1",
+     "1ST"
+    ]
+   },
+   {
+    "col": "Sals_FreightPer",
+    "filled": 6,
+    "pct": 0.0,
+    "top": [
+     "150",
+     "800"
+    ]
+   },
+   {
+    "col": "Sals_FreightAmt",
+    "filled": 483,
+    "pct": 0.7,
+    "top": [
+     "150",
+     "180",
+     "650"
+    ]
+   },
+   {
+    "col": "Sals_PurStatus",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "PENDING"
+    ]
+   },
+   {
+    "col": "Sals_Brand",
+    "filled": 67776,
+    "pct": 100.0,
+    "top": [
+     "9713",
+     "10911",
+     "9720"
+    ]
+   },
+   {
+    "col": "Sals_CloDate",
+    "filled": 64183,
+    "pct": 94.7,
+    "top": [
+     "2026-10-17 22:33:20.000",
+     "2025-02-25 13:38:48.000",
+     "2025-03-10 12:38:05.000"
+    ]
+   },
+   {
+    "col": "SalS_HsnCode",
+    "filled": 67750,
+    "pct": 100.0,
+    "top": [
+     "54024700",
+     "54023300",
+     "55101110"
+    ]
+   },
+   {
+    "col": "Sals_DyingStatus",
+    "filled": 67750,
+    "pct": 100.0,
+    "top": [
+     "PENDING"
+    ]
+   },
+   {
+    "col": "Sals_NetRate",
+    "filled": 67736,
+    "pct": 99.9,
+    "top": [
+     "143.36",
+     "138.88",
+     "140"
+    ]
+   },
+   {
+    "col": "Sals_JobCardStatus",
+    "filled": 67750,
+    "pct": 100.0,
+    "top": [
+     "PENDING"
+    ]
+   },
+   {
+    "col": "SalS_FreeQty",
+    "filled": 22756,
+    "pct": 33.6,
+    "top": [
+     "NO"
+    ]
+   },
+   {
+    "col": "SalS_TaxableAmt",
+    "filled": 4548,
+    "pct": 6.7,
+    "top": [
+     "154500",
+     "154000",
+     "156500"
+    ]
+   },
+   {
+    "col": "SalS_LastRate",
+    "filled": 1998,
+    "pct": 2.9,
+    "top": [
+     "156.5",
+     "154.5",
+     "150"
+    ]
+   },
+   {
+    "col": "SalS_AvgRate",
+    "filled": 1596,
+    "pct": 2.4,
+    "top": [
+     "147.143",
+     "142.857",
+     "146.667"
+    ]
+   },
+   {
+    "col": "SalS_AvgRateGst",
+    "filled": 1596,
+    "pct": 2.4,
+    "top": [
+     "154.5",
+     "150",
+     "154"
+    ]
+   }
+  ],
+  "unused": [
+   "SalS_Com",
+   "SalS_DisPer",
+   "SalS_DisAmt",
+   "SalS_Godown",
+   "Sals_ShadeNo",
+   "Sals_DesigNo",
+   "Sals_ArPer",
+   "Sals_ArAmt",
+   "Sals_MPer",
+   "Sals_MAmt",
+   "CostcenterCode",
+   "SalS_GSize",
+   "SalS_Cut",
+   "Sals_LinkStatus",
+   "Sals_LinkCloDate",
+   "SalS_Rmk1",
+   "SalS_Rmk2",
+   "SalS_NRate",
+   "SalS_NAmount",
+   "SalS_UQCode",
+   "SalS_UWCode",
+   "Sals_Addless",
+   "SalS_ProdCode",
+   "SalS_Micron",
+   "SalS_Length",
+   "SalS_CoreId",
+   "SalS_Width",
+   "SalS_RollNo",
+   "Sals_DyingCloDate",
+   "Sals_IndentCode",
+   "Sals_IndentNo",
+   "SalS_OrdAutoNo",
+   "Sals_JobCardCloDate",
+   "SalS_CarttonType",
+   "SalS_PackingType",
+   "Sel_Img",
+   "Sals_Style",
+   "Sals_FabType",
+   "Sals_AvgMtr",
+   "Sals_FabReq",
+   "Sals_ShortMuPerc",
+   "Sals_ShortMtr",
+   "Sals_WastagePerc",
+   "Sals_WastageMtr",
+   "Sals_OrdQtyWithPerc",
+   "Sals_WorkType",
+   "Sals_Ends",
+   "SalS_DisRPer",
+   "SalS_DisRAmt",
+   "SalS_CessPer",
+   "SalS_CessAmt",
+   "Sals_PCode",
+   "SalS_UsdRate",
+   "SalS_ExchageRate",
+   "SalS_CommPer",
+   "SalS_CommAmt",
+   "SalS_CommKg",
+   "SalS_CommKgAmt",
+   "SalS_CusDutyPer",
+   "SalS_CusDutyAmt",
+   "SalS_CusDutyClrPer",
+   "SalS_CusDutyClrAmt",
+   "SalS_TotUsd",
+   "SalS_CusExRate",
+   "SalS_CusExAmt"
+  ]
+ },
+ "DispatchMst": {
+  "rows": 169241,
+  "cols": 124,
+  "used": [
+   {
+    "col": "Dspt_Code",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "12377",
+     "148146",
+     "128726"
+    ]
+   },
+   {
+    "col": "Dspt_CostCenter",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "Dspt_BookName",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "BOK046",
+     "BOK066",
+     "BOK0127"
+    ]
+   },
+   {
+    "col": "Dspt_ChallNo",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "JSM3\\22-23",
+     "JSM12\\22-23",
+     "JSM2\\22-23"
+    ]
+   },
+   {
+    "col": "Dspt_ChallDate",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "2024-12-05 00:00:00.000",
+     "2024-06-27 00:00:00.000",
+     "2024-08-23 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Dspt_PCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "P010494",
+     "P04949",
+     "P09241"
+    ]
+   },
+   {
+    "col": "Dspt_DelCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "P0469",
+     "P013735",
+     "P022565"
+    ]
+   },
+   {
+    "col": "Dspt_BrokerCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "BRK7096",
+     "BRK7001",
+     "BRK7120"
+    ]
+   },
+   {
+    "col": "Dspt_OrderNo",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "SAL0121036",
+     "SAL0109376",
+     "SAL0107669"
+    ]
+   },
+   {
+    "col": "Dspt_OrderDate",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "2024-08-29 00:00:00.000",
+     "2024-05-17 00:00:00.000",
+     "2024-08-28 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Dspt_LotNo",
+    "filled": 167407,
+    "pct": 98.9,
+    "top": [
+     "10",
+     "10621",
+     "6"
+    ]
+   },
+   {
+    "col": "Dspt_ItemName",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "I0261",
+     "I0263",
+     "I0279"
+    ]
+   },
+   {
+    "col": "Dspt_Lrno",
+    "filled": 42201,
+    "pct": 24.9,
+    "top": [
+     "648",
+     "576",
+     "0000000606"
+    ]
+   },
+   {
+    "col": "Dspt_VehicalNo",
+    "filled": 165247,
+    "pct": 97.6,
+    "top": [
+     "9947",
+     "11666",
+     "10930"
+    ]
+   },
+   {
+    "col": "Dspt_Transpoter",
+    "filled": 163475,
+    "pct": 96.6,
+    "top": [
+     "P010799",
+     "P022414",
+     "P010730"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "EMP09",
+     "EMP04",
+     "EMP07"
+    ]
+   },
+   {
+    "col": "UDatetime",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "2026-02-14 12:48:48.000",
+     "2024-07-16 16:14:21.000",
+     "2024-04-10 11:41:05.000"
+    ]
+   },
+   {
+    "col": "CUname",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "EMP09",
+     "EMP04",
+     "EMP07"
+    ]
+   },
+   {
+    "col": "CUDatetime",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "2026-02-14 12:48:48.000",
+     "2024-07-16 16:14:21.000",
+     "2024-04-10 11:41:05.000"
+    ]
+   },
+   {
+    "col": "CompCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Dspt_TotBoxes",
+    "filled": 168852,
+    "pct": 99.8,
+    "top": [
+     "24",
+     "9",
+     "12"
+    ]
+   },
+   {
+    "col": "Dspt_TotQty",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "500",
+     "648",
+     "576"
+    ]
+   },
+   {
+    "col": "Dspt_Rate",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "128",
+     "126",
+     "125"
+    ]
+   },
+   {
+    "col": "Dspt_Remarks",
+    "filled": 98,
+    "pct": 0.1,
+    "top": [
+     "1",
+     "SHUBH TEXTILES-55-SHIV IND OSC",
+     "04"
+    ]
+   },
+   {
+    "col": "Dspt_Type",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "DisSchChallan"
+    ]
+   },
+   {
+    "col": "Dspt_SalCode",
+    "filled": 169234,
+    "pct": 100.0,
+    "top": [
+     "SAL0298880",
+     "SAL0298877",
+     "SAL0298881"
+    ]
+   },
+   {
+    "col": "Dspt_SalId",
+    "filled": 169234,
+    "pct": 100.0,
+    "top": [
+     "GU28777/24-25",
+     "GU28776/24-25",
+     "GU28773/24-25"
+    ]
+   },
+   {
+    "col": "Dspt_HSNCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "54024700",
+     "54023300",
+     "54071019"
+    ]
+   },
+   {
+    "col": "Dspt_FinalAmt",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "83592",
+     "82296",
+     "61056"
+    ]
+   },
+   {
+    "col": "Dispt_OrdQty",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "1050",
+     "2050",
+     "5050"
+    ]
+   },
+   {
+    "col": "Dispt_Unit",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2"
+    ]
+   },
+   {
+    "col": "Dispt_OrderCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "SAL15418/24-25",
+     "SAL05495/24-25",
+     "SAL03994/24-25"
+    ]
+   },
+   {
+    "col": "Dispt_SupplierCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P0243",
+     "P017188"
+    ]
+   },
+   {
+    "col": "Dispt_GradeCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "3744",
+     "9687",
+     "12790"
+    ]
+   },
+   {
+    "col": "Dispt_CrDays",
+    "filled": 169100,
+    "pct": 99.9,
+    "top": [
+     "1",
+     "15",
+     "4"
+    ]
+   },
+   {
+    "col": "Dispt_PurCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "PUR0298589",
+     "PUR0296079",
+     "PUR0327208"
+    ]
+   },
+   {
+    "col": "Dispt_PurID",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "IMPORTPUR0002/25-26",
+     "IMPORTPUR0001/25-26",
+     "PUR19151/26-27"
+    ]
+   },
+   {
+    "col": "Dispt_PurChDt",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "2024-12-05 00:00:00.000",
+     "2024-08-23 00:00:00.000",
+     "2024-05-20 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Dispt_PurChNo",
+    "filled": 169226,
+    "pct": 100.0,
+    "top": [
+     "TKCI2563356-4",
+     "TKCI2563356-4.",
+     "TKCI2563356-1"
+    ]
+   },
+   {
+    "col": "Dispt_Brand",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "9713",
+     "9702",
+     "10911"
+    ]
+   },
+   {
+    "col": "Dispt_InvNo",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "TKCI2563356-4",
+     "TKCI2563356-1",
+     "RV0010068901"
+    ]
+   },
+   {
+    "col": "Dspt_AutoSyncCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "12377",
+     "148146",
+     "128726"
+    ]
+   },
+   {
+    "col": "dspt_yearCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   {
+    "col": "Dspt_SalesPersonCode",
+    "filled": 169197,
+    "pct": 100.0,
+    "top": [
+     "BRK01",
+     "BRK08463",
+     "BRK08464"
+    ]
+   },
+   {
+    "col": "Dspt_IsSmsSend",
+    "filled": 158675,
+    "pct": 93.8,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Dispt_PurCodeMain",
+    "filled": 169211,
+    "pct": 100.0,
+    "top": [
+     "PUR0298589",
+     "PUR0296079",
+     "PUR0204213"
+    ]
+   },
+   {
+    "col": "Dspt_Boxtype",
+    "filled": 34625,
+    "pct": 20.5,
+    "top": [
+     "CARTTON"
+    ]
+   },
+   {
+    "col": "Dspt_Cops",
+    "filled": 59769,
+    "pct": 35.3,
+    "top": [
+     "54",
+     "144",
+     "96"
+    ]
+   },
+   {
+    "col": "Dspt_IsApproved",
+    "filled": 169241,
+    "pct": 100.0,
+    "top": [
+     "APPROVED"
+    ]
+   }
+  ],
+  "unused": [
+   "Dspt_LrDate",
+   "Dspt_TotCops",
+   "Dspt_Pchno",
+   "Dspt_AvgWt",
+   "Dspt_PLotno",
+   "Dspt_Wt",
+   "Dspt_ActWt",
+   "Pur_Code",
+   "Dspt_GpID",
+   "Dspt_GpNo",
+   "Dspt_GpDate",
+   "Dspt_CGSTP",
+   "Dspt_SGSTP",
+   "Dspt_IGSTP",
+   "Dspt_CGSTAmt",
+   "Dspt_SGSTAmt",
+   "Dspt_IGSTAmt",
+   "Dspt_CalcBase",
+   "Dspt_BasicAmt",
+   "Dspt_ChRetType",
+   "Dspt_TripCode",
+   "Dspt_TranLrDate",
+   "Dspt_ProcType",
+   "Dspt_DeliveryAddress",
+   "Dspt_SACICode",
+   "Dspt_IsSignCopyRec",
+   "Dspt_SignCopyRecDate",
+   "Dspt_SignCopyRecUser",
+   "Dspt_EwayBillNo",
+   "Dspt_IRN_No",
+   "Dspt_ACK_No",
+   "Dspt_ACK_Date",
+   "Dspt_BatchYN",
+   "Dspt_BatchCode",
+   "Dspt_CashCusAddress",
+   "Dspt_DeliveryBy",
+   "Dspt_CashCusName",
+   "Dspt_SareeChNo",
+   "Dspt_SareeChCode",
+   "Dspt_SareeChDt",
+   "Dspt_Remarks1",
+   "Dspt_EwayBillItem",
+   "Dspt_PartyChNo",
+   "Dspt_ShadeCode",
+   "Dspt_ProcessStatus",
+   "Dspt_SchCode",
+   "Dspt_SchId",
+   "Dspt_PackListCode",
+   "Dspt_PackListId",
+   "Dspt_ApprovedBy",
+   "Dspt_ApprovedDt",
+   "Dspt_FrDeptCode",
+   "Dspt_ToDeptCode",
+   "Dspt_ContainerCode",
+   "Dspt_IsCartoonDetailAdd",
+   "Dspt_ActChallanNo",
+   "Dspt_ActChallanDt",
+   "Dspt_GrnCode",
+   "Dspt_GrnBookCode",
+   "Dspt_GrnId",
+   "Dspt_GrnDt",
+   "Dspt_RollSalcode",
+   "Dspt_RollSalId",
+   "Dspt_RollSalDate",
+   "Dspt_RollSalStatus",
+   "Dspt_EwbCloserDt",
+   "Dspt_EwbCloserRmk",
+   "Dspt_C1",
+   "Dspt_C2",
+   "Dspt_C3",
+   "Dspt_C4",
+   "Dspt_C5",
+   "Dspt_C6",
+   "Dspt_Cut"
+  ]
+ },
+ "RecMst": {
+  "rows": 114406,
+  "cols": 32,
+  "used": [
+   {
+    "col": "Rec_Code",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "REC0218886",
+     "REC0260001",
+     "REC0176534"
+    ]
+   },
+   {
+    "col": "Rec_VchNo",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "Rec_VchDt",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "2026-01-01 00:00:00.000",
+     "2025-10-18 00:00:00.000",
+     "2024-10-30 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Rec_BnkAc",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "P0103",
+     "P014952",
+     "P012711"
+    ]
+   },
+   {
+    "col": "Rec_Rmk",
+    "filled": 32623,
+    "pct": 28.5,
+    "top": [
+     "RTGS",
+     "\r\n",
+     "RTGS\r\n\r\n"
+    ]
+   },
+   {
+    "col": "Rec_Slip",
+    "filled": 114403,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "4"
+    ]
+   },
+   {
+    "col": "Rec_NetAmt",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "-1",
+     "-118",
+     "-47.2"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "EMP06",
+     "EMP03",
+     "EMP017"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "2022-07-19 14:52:36.000",
+     "2024-03-22 17:48:47.000",
+     "2024-03-30 14:26:07.000"
+    ]
+   },
+   {
+    "col": "Rec_Type",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "BANKREC",
+     "BANKPAY",
+     "BANKPAYON"
+    ]
+   },
+   {
+    "col": "Rec_DC",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "CR",
+     "DB"
+    ]
+   },
+   {
+    "col": "Rec_JvReff",
+    "filled": 23951,
+    "pct": 20.9,
+    "top": [
+     "1000037",
+     "1000054",
+     "1000008"
+    ]
+   },
+   {
+    "col": "UCreatename",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "EMP06",
+     "EMP03",
+     "EMP017"
+    ]
+   },
+   {
+    "col": "UCreatedt",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "2024-04-01 13:19:49.000",
+     "2022-07-19 14:52:36.000",
+     "2024-03-22 17:48:47.000"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Rec_AutoSyncCode",
+    "filled": 310,
+    "pct": 0.3,
+    "top": [
+     "REC010173",
+     "REC010196",
+     "REC010099"
+    ]
+   },
+   {
+    "col": "Rec_YearCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   {
+    "col": "Rec_IsSmsSent",
+    "filled": 113230,
+    "pct": 99.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Rec_CheqMode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "11091",
+     "11093",
+     "11121"
+    ]
+   },
+   {
+    "col": "Rec_BookCode",
+    "filled": 111034,
+    "pct": 97.1,
+    "top": [
+     "BOK033",
+     "BOK0499",
+     "BOK034"
+    ]
+   },
+   {
+    "col": "Rec_IsEntryStatusForTranLock",
+    "filled": 144,
+    "pct": 0.1,
+    "top": [
+     "1"
+    ]
+   }
+  ],
+  "unused": [
+   "Rec_CollId",
+   "Rec_CollCode",
+   "Rec_CodeEx",
+   "Rec_GSTRecoStatus",
+   "Rec_GSTRecoInvNo",
+   "Rec_GSTRecoInvDate",
+   "Rec_NetUSD",
+   "Rec_ReasonCode",
+   "Rec_ReasonRmk"
+  ]
+ },
+ "RecSubMst": {
+  "rows": 114406,
+  "cols": 48,
+  "used": [
+   {
+    "col": "RecS_Code",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "REC0176534",
+     "REC0260001",
+     "REC0218886"
+    ]
+   },
+   {
+    "col": "RecS_Auto",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "RecS_Pcode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "P02192",
+     "P0481",
+     "P0769"
+    ]
+   },
+   {
+    "col": "RecS_PbnkAc",
+    "filled": 90031,
+    "pct": 78.7,
+    "top": [
+     "9461",
+     "9480",
+     "9452"
+    ]
+   },
+   {
+    "col": "RecS_Chkno",
+    "filled": 79606,
+    "pct": 69.6,
+    "top": [
+     "1",
+     "2",
+     "000005"
+    ]
+   },
+   {
+    "col": "RecS_Amount",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "-1",
+     "-118",
+     "-47.2"
+    ]
+   },
+   {
+    "col": "RecS_Rmk",
+    "filled": 67970,
+    "pct": 59.4,
+    "top": [
+     "3",
+     "1",
+     "2"
+    ]
+   },
+   {
+    "col": "RecS_BillNo",
+    "filled": 98083,
+    "pct": 85.7,
+    "top": [
+     "INV38660/18,INV39174/18",
+     "1",
+     "2"
+    ]
+   },
+   {
+    "col": "Rec_Type",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "BANKREC",
+     "BANKPAY",
+     "BANKPAYON"
+    ]
+   },
+   {
+    "col": "Rec_DC",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "DB",
+     "CR"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Clr_Dt",
+    "filled": 106495,
+    "pct": 93.1,
+    "top": [
+     "2026-01-01 00:00:00.000",
+     "2024-10-29 00:00:00.000",
+     "2024-04-02 00:00:00.000"
+    ]
+   },
+   {
+    "col": "RecS_BillCode",
+    "filled": 98408,
+    "pct": 86.0,
+    "top": [
+     "SAL05623,SAL05626",
+     "PUR0184288",
+     "SAL0292691"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Clr_YN",
+    "filled": 106495,
+    "pct": 93.1,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "RecS_YearCode",
+    "filled": 114406,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   {
+    "col": "RecS_Currency",
+    "filled": 16449,
+    "pct": 14.4,
+    "top": [
+     "11082"
+    ]
+   }
+  ],
+  "unused": [
+   "Rec_RtnCode",
+   "Rec_ChkAmount",
+   "Rec_ChkDate",
+   "Rec_ClrDate",
+   "Rec_TotDays",
+   "Rec_Interest",
+   "Rec_CdAmount",
+   "RecS_Icode",
+   "Recs_HsnCode",
+   "RecS_CGstPer",
+   "RecS_CGstAmt",
+   "RecS_SGstPer",
+   "RecS_SGstAmt",
+   "RecS_IGstPer",
+   "RecS_IGstAmt",
+   "RecS_TaxableAmt",
+   "RecS_VehicalNo",
+   "RecS_TDSAccount",
+   "RecS_TDSSection",
+   "RecS_TDSPer",
+   "RecS_TDSAmt",
+   "RecS_TDSSurchrg",
+   "RecS_TDSCess",
+   "RecS_GrossAmount",
+   "RecS_OthDbCode",
+   "RecS_OthDbVchNo",
+   "RecS_OthDbVchDdt",
+   "RecS_PerUSDRate",
+   "RecS_USDAmount",
+   "RecS_ReffNo"
+  ]
+ },
+ "JVMst": {
+  "rows": 793533,
+  "cols": 85,
+  "used": [
+   {
+    "col": "JV_Code",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "1116264",
+     "1020148",
+     "1116258"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "JV_Auto",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "Jv_Type",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "CGST",
+     "SGST",
+     "TDS"
+    ]
+   },
+   {
+    "col": "JV_VchNo",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "JV_VchDt",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "2025-03-31 00:00:00.000",
+     "2026-03-31 00:00:00.000",
+     "2024-11-29 00:00:00.000"
+    ]
+   },
+   {
+    "col": "JV_Pcode",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "P08592",
+     "P08593",
+     "P013276"
+    ]
+   },
+   {
+    "col": "Jv_BillNo",
+    "filled": 786793,
+    "pct": 99.2,
+    "top": [
+     "1",
+     "GU08318/26-27",
+     "GU26200/25-26"
+    ]
+   },
+   {
+    "col": "JV_Amt",
+    "filled": 793524,
+    "pct": 100.0,
+    "top": [
+     "56",
+     "116",
+     "57"
+    ]
+   },
+   {
+    "col": "JV_MainRmk",
+    "filled": 789001,
+    "pct": 99.4,
+    "top": [
+     "SHREE DURGA SYNTEX PVT.LTD. - ",
+     "RELIANCE POLYESTER LIMITED - P",
+     "GARDEN SILK MILLS PRIVATE LIMI"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "EMP04",
+     "EMP09",
+     "EMP07"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "2026-09-24 15:19:21.000",
+     "2026-11-07 15:04:20.000",
+     "2026-09-28 17:54:28.000"
+    ]
+   },
+   {
+    "col": "Jv_DC",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "DB",
+     "CR"
+    ]
+   },
+   {
+    "col": "JV_Reff",
+    "filled": 781803,
+    "pct": 98.5,
+    "top": [
+     "OTH026",
+     "REC0201135",
+     "REC0196672"
+    ]
+   },
+   {
+    "col": "UCreatename",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "EMP04",
+     "EMP09",
+     "EMP07"
+    ]
+   },
+   {
+    "col": "UCreatedt",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "2026-09-24 15:19:21.000",
+     "2026-11-07 15:04:20.000",
+     "2026-09-28 17:54:28.000"
+    ]
+   },
+   {
+    "col": "JvvatPer",
+    "filled": 212793,
+    "pct": 26.8,
+    "top": [
+     "0.1",
+     "6",
+     "2.5"
+    ]
+   },
+   {
+    "col": "JvvatTaxSlab",
+    "filled": 134771,
+    "pct": 17.0,
+    "top": [
+     "5",
+     "1",
+     "15"
+    ]
+   },
+   {
+    "col": "JvBeforeTax",
+    "filled": 57118,
+    "pct": 7.2,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "Jv_IGst",
+    "filled": 183,
+    "pct": 0.0,
+    "top": [
+     "89.33",
+     "105.75",
+     "10422.38"
+    ]
+   },
+   {
+    "col": "Jv_CGst",
+    "filled": 28282,
+    "pct": 3.6,
+    "top": [
+     "1906.78",
+     "0.02",
+     "0.05"
+    ]
+   },
+   {
+    "col": "Jv_SGst",
+    "filled": 28282,
+    "pct": 3.6,
+    "top": [
+     "1906.78",
+     "0.02",
+     "0.05"
+    ]
+   },
+   {
+    "col": "Jv_IGstPer",
+    "filled": 197,
+    "pct": 0.0,
+    "top": [
+     "12",
+     "5",
+     "18"
+    ]
+   },
+   {
+    "col": "Jv_CGstPer",
+    "filled": 28284,
+    "pct": 3.6,
+    "top": [
+     "6",
+     "2.5",
+     "9"
+    ]
+   },
+   {
+    "col": "Jv_SGstPer",
+    "filled": 28284,
+    "pct": 3.6,
+    "top": [
+     "6",
+     "2.5",
+     "9"
+    ]
+   },
+   {
+    "col": "Jv_GstTranType",
+    "filled": 237648,
+    "pct": 29.9,
+    "top": [
+     "B2B",
+     "CDNR",
+     "CDNUR"
+    ]
+   },
+   {
+    "col": "Jv_TDSAmt",
+    "filled": 3600,
+    "pct": 0.5,
+    "top": [
+     "61",
+     "164",
+     "121"
+    ]
+   },
+   {
+    "col": "Jv_TDSAccount",
+    "filled": 3600,
+    "pct": 0.5,
+    "top": [
+     "P010670",
+     "P010671",
+     "P013276"
+    ]
+   },
+   {
+    "col": "Jv_TDSSection",
+    "filled": 3600,
+    "pct": 0.5,
+    "top": [
+     "1",
+     "2",
+     "5"
+    ]
+   },
+   {
+    "col": "Jv_TDSPer",
+    "filled": 3600,
+    "pct": 0.5,
+    "top": [
+     "10",
+     "1",
+     "7.5"
+    ]
+   },
+   {
+    "col": "Jv_BkCode",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "BOK0222",
+     "BOK0223",
+     "BOK037"
+    ]
+   },
+   {
+    "col": "Jv_SecndPcode",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "BOK32",
+     "BOK31",
+     "BOK11"
+    ]
+   },
+   {
+    "col": "Jv_AdBillNo",
+    "filled": 51522,
+    "pct": 6.5,
+    "top": [
+     "RV0010111386",
+     "RV0010124494",
+     "153/24-25"
+    ]
+   },
+   {
+    "col": "Jv_AdBillDt",
+    "filled": 51520,
+    "pct": 6.5,
+    "top": [
+     "2025-10-14 00:00:00.000",
+     "2026-03-30 00:00:00.000",
+     "2025-10-18 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Jv_AdChNo",
+    "filled": 18160,
+    "pct": 2.3,
+    "top": [
+     "000003",
+     "000508",
+     "000013"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Jv_TdsGrossAmt",
+    "filled": 131878,
+    "pct": 16.6,
+    "top": [
+     "30000",
+     "56582.185",
+     "56525.9"
+    ]
+   },
+   {
+    "col": "Jv_AutoSyncCode",
+    "filled": 45,
+    "pct": 0.0,
+    "top": [
+     "14225",
+     "14226",
+     "11568"
+    ]
+   },
+   {
+    "col": "JV_YearCode",
+    "filled": 793533,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   {
+    "col": "JV_IRN_No",
+    "filled": 80082,
+    "pct": 10.1,
+    "top": [
+     "2f07576d247cc5b75de52933b5082f",
+     "c23b00b5eb2a1fcccca639ad15fd10",
+     "72d72858daee9b153caf352ec230d4"
+    ]
+   },
+   {
+    "col": "JV_ACK_No",
+    "filled": 80082,
+    "pct": 10.1,
+    "top": [
+     "162520257613806",
+     "162624456916149",
+     "162624456916413"
+    ]
+   },
+   {
+    "col": "Jv_ACK_Date",
+    "filled": 80082,
+    "pct": 10.1,
+    "top": [
+     "2024-10-30 00:00:00.000",
+     "2025-11-29 00:00:00.000",
+     "2026-04-30 00:00:00.000"
+    ]
+   },
+   {
+    "col": "JV_HsnCode",
+    "filled": 53136,
+    "pct": 6.7,
+    "top": [
+     "54033100",
+     "54024700",
+     "54023300"
+    ]
+   },
+   {
+    "col": "Jv_IsAutoDebiteNote",
+    "filled": 23637,
+    "pct": 3.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Jv_IsLastYear",
+    "filled": 2498,
+    "pct": 0.3,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Jv_BrokerCode",
+    "filled": 52995,
+    "pct": 6.7,
+    "top": [
+     "BRK7096",
+     "BRK7001",
+     "BRK7120"
+    ]
+   },
+   {
+    "col": "Jv_IsNotOnAccount",
+    "filled": 89,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Jv_ICode",
+    "filled": 51154,
+    "pct": 6.4,
+    "top": [
+     "I0261",
+     "I0279",
+     "I0263"
+    ]
+   },
+   {
+    "col": "Jv_SalePerCode",
+    "filled": 51156,
+    "pct": 6.4,
+    "top": [
+     "BRK01",
+     "BRK08463",
+     "BRK08464"
+    ]
+   },
+   {
+    "col": "Jv_InvNo",
+    "filled": 246214,
+    "pct": 31.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "Jv_IsSmsSent",
+    "filled": 746490,
+    "pct": 94.1,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Jv_IsEntryStatusForTranLock",
+    "filled": 99,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Jv_CrDays",
+    "filled": 19,
+    "pct": 0.0,
+    "top": [
+     "10",
+     "1",
+     "15"
+    ]
+   }
+  ],
+  "unused": [
+   "JV_PRmk",
+   "JV_Per",
+   "JV_Qty",
+   "Jv_TDSSurchrg",
+   "Jv_TDSCess",
+   "Jv_CodeX",
+   "Jv_TcsPer",
+   "Jv_TcsAmt",
+   "Jv_LrCode",
+   "JV_TdsChCode",
+   "Jv_PartyDbNote",
+   "Jv_PartyDbNoteDt",
+   "Jv_IsProvisionalDebitNt",
+   "Jv_OtherDbCode",
+   "Jv_OtherDbVchNo",
+   "Jv_OtherDbVchDt",
+   "Jv_IsCancleEinv",
+   "Jv_FstRmk",
+   "Jv_GSTRecoStatus",
+   "Jv_GSTRecoInvNo",
+   "Jv_GSTRecoInvDate",
+   "JV_PerUsdRate",
+   "JV_UsdAmt",
+   "Jv_PrvDbCode",
+   "Jv_PrvDbVchNo",
+   "Jv_AutoCrCode",
+   "Jv_AutoCrBkCode",
+   "Jv_AutoCrPCode",
+   "Jv_ReasonCode",
+   "Jv_ReasonRmk",
+   "Jv_CurrencyCode"
+  ]
+ },
+ "PartyMst": {
+  "rows": 24697,
+  "cols": 118,
+  "used": [
+   {
+    "col": "P_Code",
+    "filled": 24697,
+    "pct": 100.0,
+    "top": [
+     "P021327",
+     "P07504",
+     "P015379"
+    ]
+   },
+   {
+    "col": "P_Id",
+    "filled": 24697,
+    "pct": 100.0,
+    "top": [
+     "22209",
+     "7266",
+     "3956"
+    ]
+   },
+   {
+    "col": "P_Name",
+    "filled": 24696,
+    "pct": 100.0,
+    "top": [
+     "SHREE BHATHIJI SILK MILLS (56)",
+     "UMA ENTERPRISE (77)",
+     "ANKIT TEXTILES(431-432)"
+    ]
+   },
+   {
+    "col": "P_GrCode",
+    "filled": 24641,
+    "pct": 99.8,
+    "top": [
+     "27",
+     "36",
+     "51"
+    ]
+   },
+   {
+    "col": "P_MtryCode",
+    "filled": 23632,
+    "pct": 95.7,
+    "top": [
+     "BRK07124",
+     "BRK3500",
+     "BRK3623"
+    ]
+   },
+   {
+    "col": "P_BrCode",
+    "filled": 22338,
+    "pct": 90.4,
+    "top": [
+     "BRK7001",
+     "BRK7096",
+     "BRK7016"
+    ]
+   },
+   {
+    "col": "P_DorC",
+    "filled": 22926,
+    "pct": 92.8,
+    "top": [
+     "DB",
+     "D",
+     "CR"
+    ]
+   },
+   {
+    "col": "P_InvType",
+    "filled": 19662,
+    "pct": 79.6,
+    "top": [
+     "Party",
+     "DIRECT",
+     "BROKER"
+    ]
+   },
+   {
+    "col": "P_PANo",
+    "filled": 9092,
+    "pct": 36.8,
+    "top": [
+     "AAACR5055K",
+     "A",
+     "AJIPP2863K"
+    ]
+   },
+   {
+    "col": "P_GSTNo",
+    "filled": 9262,
+    "pct": 37.5,
+    "top": [
+     "26AAACR5055K1Z9",
+     "24AIUPP9925H1ZJ",
+     "24AAJCR6686B1Z8"
+    ]
+   },
+   {
+    "col": "P_CSTNo",
+    "filled": 3965,
+    "pct": 16.1,
+    "top": [
+     "UMIYA TEXTILES",
+     "JAY AMBEY TEXTILES",
+     "SHIV TEXTILES"
+    ]
+   },
+   {
+    "col": "P_CenExNo",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "ANUSHTHAN TRANSPORT"
+    ]
+   },
+   {
+    "col": "P_CrDay",
+    "filled": 95,
+    "pct": 0.4,
+    "top": [
+     "10",
+     "30",
+     "1"
+    ]
+   },
+   {
+    "col": "P_CrLimit",
+    "filled": 22786,
+    "pct": 92.3,
+    "top": [
+     "1000000",
+     "2500000",
+     "1500000"
+    ]
+   },
+   {
+    "col": "P_Rmk",
+    "filled": 4146,
+    "pct": 16.8,
+    "top": [
+     "SURAT",
+     "DEALER",
+     "700"
+    ]
+   },
+   {
+    "col": "P_ContPerName",
+    "filled": 10317,
+    "pct": 41.8,
+    "top": [
+     "BHARATBHAI",
+     "RAMESHBHAI",
+     "JITUBHAI"
+    ]
+   },
+   {
+    "col": "P_BnkACNo",
+    "filled": 6880,
+    "pct": 27.9,
+    "top": [
+     "304001329517",
+     "0127201004502",
+     "40085459728"
+    ]
+   },
+   {
+    "col": "P_BankName",
+    "filled": 769,
+    "pct": 3.1,
+    "top": [
+     "HDFC BANK LTD",
+     "ICICI BANK",
+     "BANK OF BARODA"
+    ]
+   },
+   {
+    "col": "P_BnkBraName",
+    "filled": 671,
+    "pct": 2.7,
+    "top": [
+     "RING ROAD,SURAT",
+     "U M ROAD,SURAT.",
+     "ALTHAN"
+    ]
+   },
+   {
+    "col": "P_Collector",
+    "filled": 15969,
+    "pct": 64.7,
+    "top": [
+     "BRK07125",
+     "BRK12",
+     "BRK10"
+    ]
+   },
+   {
+    "col": "P_SalePerson",
+    "filled": 23298,
+    "pct": 94.3,
+    "top": [
+     "BRK01",
+     "BRK08463",
+     "BRK02"
+    ]
+   },
+   {
+    "col": "P_DiscGroup",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "A"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 20528,
+    "pct": 83.1,
+    "top": [
+     "EMP07",
+     "EMP014",
+     "EMP04"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 20528,
+    "pct": 83.1,
+    "top": [
+     "2022-03-30 17:34:32.000",
+     "2022-03-23 14:46:42.000",
+     "2023-06-19 13:03:29.000"
+    ]
+   },
+   {
+    "col": "UCreatename",
+    "filled": 13984,
+    "pct": 56.6,
+    "top": [
+     "EMP07",
+     "EMP014",
+     "EMP04"
+    ]
+   },
+   {
+    "col": "UCreateDt",
+    "filled": 13984,
+    "pct": 56.6,
+    "top": [
+     "2022-12-16 15:00:39.000",
+     "2023-08-26 16:49:30.000",
+     "2022-11-15 12:50:10.000"
+    ]
+   },
+   {
+    "col": "P_GstState",
+    "filled": 19495,
+    "pct": 78.9,
+    "top": [
+     "24",
+     "27",
+     "26"
+    ]
+   },
+   {
+    "col": "P_GstDate",
+    "filled": 7385,
+    "pct": 29.9,
+    "top": [
+     "2017-07-01 00:00:00.000",
+     "2017-06-26 00:00:00.000",
+     "2017-06-25 00:00:00.000"
+    ]
+   },
+   {
+    "col": "P_TypeOfReg",
+    "filled": 14662,
+    "pct": 59.4,
+    "top": [
+     "2",
+     "-1",
+     "3"
+    ]
+   },
+   {
+    "col": "P_TypeOfComp",
+    "filled": 14631,
+    "pct": 59.2,
+    "top": [
+     "-1",
+     "8",
+     "9"
+    ]
+   },
+   {
+    "col": "P_LegName",
+    "filled": 9135,
+    "pct": 37.0,
+    "top": [
+     "RELIANCE INDUSTRIES LIMITED",
+     "Ankita Prashant Kakadiya",
+     "NILESHKUMAR JAYANTILAL PATEL"
+    ]
+   },
+   {
+    "col": "P_NatureOfBuss",
+    "filled": 9463,
+    "pct": 38.3,
+    "top": [
+     "LOOMS",
+     "Factory / Manufacturing",
+     "Factory / Manufacturing\r\n"
+    ]
+   },
+   {
+    "col": "P_Type",
+    "filled": 24694,
+    "pct": 100.0,
+    "top": [
+     "Party",
+     "TranParty",
+     "DelParty"
+    ]
+   },
+   {
+    "col": "P_BnkIFSCcode",
+    "filled": 6882,
+    "pct": 27.9,
+    "top": [
+     "CUSTOMER",
+     "LIABILITIES",
+     "ASSETS"
+    ]
+   },
+   {
+    "col": "P_PINCODE",
+    "filled": 19198,
+    "pct": 77.7,
+    "top": [
+     "394210",
+     "394221",
+     "395023"
+    ]
+   },
+   {
+    "col": "P_GSTKM",
+    "filled": 18873,
+    "pct": 76.4,
+    "top": [
+     "12",
+     "10",
+     "7"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 24697,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "P_TdsType",
+    "filled": 28,
+    "pct": 0.1,
+    "top": [
+     "4",
+     "5",
+     "2"
+    ]
+   },
+   {
+    "col": "P_PayMentName",
+    "filled": 15238,
+    "pct": 61.7,
+    "top": [
+     "SHREE GANESH TEXTILES",
+     "SHIVAM TEXTILES ",
+     "SHIVAM TEXTILES"
+    ]
+   },
+   {
+    "col": "P_CodeEx",
+    "filled": 10601,
+    "pct": 42.9,
+    "top": [
+     "108789940",
+     "150306070",
+     "109010303"
+    ]
+   },
+   {
+    "col": "P_ColName",
+    "filled": 9432,
+    "pct": 38.2,
+    "top": [
+     "SHAILESHBHAI :- 7211113402",
+     "JAY :- 7211113404",
+     "YOGESH :- 7211113401"
+    ]
+   },
+   {
+    "col": "P_RefPerson",
+    "filled": 8468,
+    "pct": 34.3,
+    "top": [
+     "OMKAR FILAMENT",
+     "MANOJBHAI 9909032432",
+     "MANOJBHAI-9909032432"
+    ]
+   },
+   {
+    "col": "P_OffDay",
+    "filled": 2191,
+    "pct": 8.9,
+    "top": [
+     "Friday",
+     "Monday",
+     "Sunday"
+    ]
+   },
+   {
+    "col": "P_LockDays",
+    "filled": 16534,
+    "pct": 66.9,
+    "top": [
+     "30",
+     "15",
+     "5"
+    ]
+   },
+   {
+    "col": "P_TCSReq",
+    "filled": 193,
+    "pct": 0.8,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "P_BRecoFormat",
+    "filled": 99,
+    "pct": 0.4,
+    "top": [
+     "None",
+     "BOB"
+    ]
+   },
+   {
+    "col": "P_Alias",
+    "filled": 131,
+    "pct": 0.5,
+    "top": [
+     "D",
+     "ICICI",
+     "OD"
+    ]
+   },
+   {
+    "col": "P_Brand",
+    "filled": 246,
+    "pct": 1.0,
+    "top": [
+     "9744",
+     "9702",
+     "9713"
+    ]
+   },
+   {
+    "col": "P_Transpoter",
+    "filled": 71,
+    "pct": 0.3,
+    "top": [
+     "P010799",
+     "P010692",
+     "P010432"
+    ]
+   },
+   {
+    "col": "P_Aadhar",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "BANDHAN FILAMENT"
+    ]
+   },
+   {
+    "col": "P_Mobile",
+    "filled": 7846,
+    "pct": 31.8,
+    "top": [
+     "9824196380",
+     "9377330003",
+     "9909432862"
+    ]
+   },
+   {
+    "col": "P_JoinDt",
+    "filled": 19236,
+    "pct": 77.9,
+    "top": [
+     "2022-03-10 00:00:00.000",
+     "2021-07-16 00:00:00.000",
+     "2021-07-17 00:00:00.000"
+    ]
+   },
+   {
+    "col": "P_LeaveDt",
+    "filled": 19236,
+    "pct": 77.9,
+    "top": [
+     "2022-03-10 00:00:00.000",
+     "2021-07-16 00:00:00.000",
+     "2021-07-17 00:00:00.000"
+    ]
+   },
+   {
+    "col": "P_PartyCompName",
+    "filled": 30,
+    "pct": 0.1,
+    "top": [
+     "1",
+     "10",
+     "16"
+    ]
+   },
+   {
+    "col": "P_OthRmk",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "PARTY GST BANDH KAREL CHE",
+     "28",
+     "250 / RENIYAL / LIYON"
+    ]
+   },
+   {
+    "col": "P_IsTdsReq",
+    "filled": 189,
+    "pct": 0.8,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "P_IsSmsSent",
+    "filled": 24610,
+    "pct": 99.6,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "P_Currency",
+    "filled": 13334,
+    "pct": 54.0,
+    "top": [
+     "11082"
+    ]
+   },
+   {
+    "col": "P_Village",
+    "filled": 1106,
+    "pct": 4.5,
+    "top": [
+     "BHUNAV",
+     "DENAP",
+     "KAMLI"
+    ]
+   },
+   {
+    "col": "P_Samaj",
+    "filled": 1083,
+    "pct": 4.4,
+    "top": [
+     "MOTA 52/22",
+     "NANO 52/22",
+     "42"
+    ]
+   },
+   {
+    "col": "P_ResidentAddr",
+    "filled": 977,
+    "pct": 4.0,
+    "top": [
+     "GIRDHAR DWAR",
+     "SARDAR PARK",
+     "UMIYA BUNGLOWS"
+    ]
+   },
+   {
+    "col": "P_LicenceNo",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "RJ30 20250006447"
+    ]
+   },
+   {
+    "col": "P_Gradation",
+    "filled": 2236,
+    "pct": 9.1,
+    "top": [
+     "A",
+     "B",
+     "C"
+    ]
+   },
+   {
+    "col": "P_DepIncTaxAct",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "100"
+    ]
+   },
+   {
+    "col": "P_Approved",
+    "filled": 24652,
+    "pct": 99.8,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "P_IsInOsBrokrageRpt",
+    "filled": 24697,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "P_Designation",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "3678"
+    ]
+   },
+   {
+    "col": "P_Block",
+    "filled": 20,
+    "pct": 0.1,
+    "top": [
+     "NO",
+     "YES"
+    ]
+   }
+  ],
+  "unused": [
+   "P_Opening",
+   "P_Balance",
+   "P_VATNo",
+   "P_DOB",
+   "P_AnneDt",
+   "P_Intrest",
+   "P_BankLimit",
+   "P_DisPer",
+   "P_ChkDailyCC",
+   "P_GrCodeEx",
+   "P_DriverLicenseNo",
+   "P_RCMReq",
+   "P_IsSez",
+   "P_PlyPartyGroup",
+   "APP_ISACTIVE",
+   "APP_BASPATH",
+   "APP_APICALLURL",
+   "APP_UNIQUECODE",
+   "APP_NAME",
+   "APP_COMPANYLOGO",
+   "P_ComCodeEx",
+   "P_SwiftCode",
+   "P_AdCode",
+   "P_BookCode",
+   "APP_COMPANYAPPCOLOR1",
+   "APP_COMPANYAPPCOLOR2",
+   "P_MarketHead",
+   "P_CertificateNo",
+   "P_MSMENo",
+   "P_IsMSME",
+   "P_DepComAct",
+   "P_PlyCommRatio",
+   "P_BoxPrefix",
+   "P_BoxNumber",
+   "P_BoxPostfix",
+   "P_PayMode",
+   "P_BankAcType",
+   "P_BankMICRCode",
+   "P_FamilyGroup",
+   "P_Gender",
+   "P_MaratialStatus",
+   "P_BirthPlace",
+   "P_SpouseName",
+   "P_FatherName",
+   "P_MotherName",
+   "P_Occupation",
+   "P_Relation",
+   "P_DepCode",
+   "P_WhGroup",
+   "P_ZoneCode"
+  ]
+ },
+ "Party_ContactMst": {
+  "rows": 24586,
+  "cols": 13,
+  "used": [
+   {
+    "col": "Ps_Auto",
+    "filled": 24586,
+    "pct": 100.0,
+    "top": [
+     "2571",
+     "121673",
+     "117087"
+    ]
+   },
+   {
+    "col": "PS_Code",
+    "filled": 24586,
+    "pct": 100.0,
+    "top": [
+     "P07504",
+     "P021327",
+     "P015379"
+    ]
+   },
+   {
+    "col": "P_OAdd",
+    "filled": 22986,
+    "pct": 93.5,
+    "top": [
+     "A.K.ROAD",
+     "\r\n",
+     "BAMROLI"
+    ]
+   },
+   {
+    "col": "P_OCity",
+    "filled": 22071,
+    "pct": 89.8,
+    "top": [
+     "9756",
+     "9773",
+     "9665"
+    ]
+   },
+   {
+    "col": "P_OState",
+    "filled": 19658,
+    "pct": 80.0,
+    "top": [
+     "1002",
+     "24",
+     "1005"
+    ]
+   },
+   {
+    "col": "P_OTel",
+    "filled": 6447,
+    "pct": 26.2,
+    "top": [
+     "                              ",
+     "GST",
+     "9825561574"
+    ]
+   },
+   {
+    "col": "P_FTel",
+    "filled": 4,
+    "pct": 0.0,
+    "top": [
+     "8866558962",
+     "9824046794",
+     "0261-2891048"
+    ]
+   },
+   {
+    "col": "P_FaxNo",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "99741-55557"
+    ]
+   },
+   {
+    "col": "P_OMobile",
+    "filled": 11475,
+    "pct": 46.7,
+    "top": [
+     "7211113409",
+     "9879705453",
+     "9824196380"
+    ]
+   },
+   {
+    "col": "P_Email",
+    "filled": 12477,
+    "pct": 50.7,
+    "top": [
+     "107999586",
+     "SACHINPATEL@GMAIL.COM",
+     "rkshine14@gmail.com"
+    ]
+   },
+   {
+    "col": "P_Area",
+    "filled": 19590,
+    "pct": 79.7,
+    "top": [
+     "9584",
+     "9601",
+     "9798"
+    ]
+   },
+   {
+    "col": "P_Country",
+    "filled": 24581,
+    "pct": 100.0,
+    "top": [
+     "11081"
+    ]
+   }
+  ],
+  "unused": [
+   "P_Web"
+  ]
+ },
+ "PartyDevAddMst": {
+  "rows": 22619,
+  "cols": 11,
+  "used": [
+   {
+    "col": "P_Sno",
+    "filled": 22619,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "3226",
+     "3542"
+    ]
+   },
+   {
+    "col": "P_Code",
+    "filled": 22619,
+    "pct": 100.0,
+    "top": [
+     "P020386",
+     "P017989",
+     "P017408"
+    ]
+   },
+   {
+    "col": "P_DAddress",
+    "filled": 22619,
+    "pct": 100.0,
+    "top": [
+     "A.K.ROAD",
+     "\r\n",
+     "90,HARIOM IND.SOCIETY-1 VADOD "
+    ]
+   },
+   {
+    "col": "P_Mobileno",
+    "filled": 9632,
+    "pct": 42.6,
+    "top": [
+     "9377330003",
+     "9825981319",
+     "9879705453"
+    ]
+   },
+   {
+    "col": "P_Type",
+    "filled": 22619,
+    "pct": 100.0,
+    "top": [
+     "DELADD",
+     "CONTACT",
+     "TERMS"
+    ]
+   },
+   {
+    "col": "P_DCity",
+    "filled": 21628,
+    "pct": 95.6,
+    "top": [
+     "9756",
+     "9773",
+     "10755"
+    ]
+   },
+   {
+    "col": "P_DPerson",
+    "filled": 7542,
+    "pct": 33.3,
+    "top": [
+     "RAMESHBHAI",
+     "BHARATBHAI",
+     "MAHESHBHAI"
+    ]
+   },
+   {
+    "col": "P_DGSTNo",
+    "filled": 8618,
+    "pct": 38.1,
+    "top": [
+     "26AAACR5055K1Z9",
+     "24AIUPP9925H1ZJ",
+     "24AJIPP2863K1ZV"
+    ]
+   },
+   {
+    "col": "P_DPinCode",
+    "filled": 18557,
+    "pct": 82.0,
+    "top": [
+     "394210",
+     "394221",
+     "395023"
+    ]
+   },
+   {
+    "col": "P_DDistance",
+    "filled": 18262,
+    "pct": 80.7,
+    "top": [
+     "12",
+     "10",
+     "7"
+    ]
+   },
+   {
+    "col": "P_DState",
+    "filled": 21776,
+    "pct": 96.3,
+    "top": [
+     "24",
+     "35",
+     "27"
+    ]
+   }
+  ],
+  "unused": []
+ },
+ "BrokerMst": {
+  "rows": 5060,
+  "cols": 35,
+  "used": [
+   {
+    "col": "Brk_Code",
+    "filled": 5060,
+    "pct": 100.0,
+    "top": [
+     "BRK08847",
+     "BRK7009",
+     "BRK4291"
+    ]
+   },
+   {
+    "col": "Brk_Name",
+    "filled": 5060,
+    "pct": 100.0,
+    "top": [
+     "DIRECT",
+     "AVI M PATEL",
+     "."
+    ]
+   },
+   {
+    "col": "Brk_Phone",
+    "filled": 2989,
+    "pct": 59.1,
+    "top": [
+     "7211113400",
+     "9106348534",
+     "9376433310"
+    ]
+   },
+   {
+    "col": "Brk_ADD1",
+    "filled": 1601,
+    "pct": 31.6,
+    "top": [
+     "WATSUP NUMBER OK",
+     "82-83-HARIOM IND SOC-2",
+     "110 SAI DHAM SOCIETY, PUNA KUM"
+    ]
+   },
+   {
+    "col": "Brk_ADD2",
+    "filled": 376,
+    "pct": 7.4,
+    "top": [
+     "WATSUP NUMBER OK",
+     "STAGRING NATHI",
+     "MONDAY STAGRING"
+    ]
+   },
+   {
+    "col": "Brk_REMARK",
+    "filled": 392,
+    "pct": 7.7,
+    "top": [
+     "RAMESHKAKA",
+     "STAGRING NATHI",
+     "LATE PAY CHARGE+12% GST ADD KA"
+    ]
+   },
+   {
+    "col": "Brk_Type",
+    "filled": 5060,
+    "pct": 100.0,
+    "top": [
+     "Mistry",
+     "Architect",
+     "GODOWN"
+    ]
+   },
+   {
+    "col": "Brk_EmailId",
+    "filled": 3673,
+    "pct": 72.6,
+    "top": [
+     "khodapatel6162@gmail.com",
+     "shyamjanwa97@gmail.com",
+     "nitinviratia99np@gmail.com"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 3542,
+    "pct": 70.0,
+    "top": [
+     "EMP07",
+     "EMP01",
+     "EMP010"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 3542,
+    "pct": 70.0,
+    "top": [
+     "2021-06-03 17:43:27.000",
+     "2026-06-17 16:12:37.000",
+     "2026-05-14 12:27:35.000"
+    ]
+   },
+   {
+    "col": "Brk_CrLimit",
+    "filled": 4265,
+    "pct": 84.3,
+    "top": [
+     "1000000",
+     "1500000",
+     "2500000"
+    ]
+   },
+   {
+    "col": "Brk_CrDays",
+    "filled": 11,
+    "pct": 0.2,
+    "top": [
+     "1",
+     "10",
+     "15"
+    ]
+   },
+   {
+    "col": "Brk_ColPerson",
+    "filled": 3229,
+    "pct": 63.8,
+    "top": [
+     "BRK10",
+     "BRK07125",
+     "BRK15"
+    ]
+   },
+   {
+    "col": "Brk_BlockRmk",
+    "filled": 338,
+    "pct": 6.7,
+    "top": [
+     "PARTY NU OLD PAYMENT BAKI HOVA",
+     "PARTY NU PAYMENT GANU LATE HOV",
+     "AA PARTY NE MAL AAPVO NAHI BLO"
+    ]
+   },
+   {
+    "col": "Brk_Block",
+    "filled": 274,
+    "pct": 5.4,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Brk_ContactPerson",
+    "filled": 2505,
+    "pct": 49.5,
+    "top": [
+     "BHARATBHAI",
+     "RAJUBHAI",
+     "MUKESHBHAI"
+    ]
+   },
+   {
+    "col": "Brk_LockDays",
+    "filled": 4230,
+    "pct": 83.6,
+    "top": [
+     "30",
+     "15",
+     "5"
+    ]
+   },
+   {
+    "col": "Brk_PanNo",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "9023328179"
+    ]
+   },
+   {
+    "col": "Brk_City",
+    "filled": 1627,
+    "pct": 32.2,
+    "top": [
+     "9756",
+     "9669",
+     "12352"
+    ]
+   },
+   {
+    "col": "Brk_Country",
+    "filled": 707,
+    "pct": 14.0,
+    "top": [
+     "11081"
+    ]
+   },
+   {
+    "col": "Brk_State",
+    "filled": 1224,
+    "pct": 24.2,
+    "top": [
+     "24",
+     "1002",
+     "30"
+    ]
+   },
+   {
+    "col": "Brk_Pincode",
+    "filled": 665,
+    "pct": 13.1,
+    "top": [
+     "394210",
+     "394110",
+     "394130"
+    ]
+   },
+   {
+    "col": "Brk_Gradation",
+    "filled": 287,
+    "pct": 5.7,
+    "top": [
+     "B",
+     "A",
+     "C"
+    ]
+   },
+   {
+    "col": "Brk_ShortName",
+    "filled": 216,
+    "pct": 4.3,
+    "top": [
+     "VE P4",
+     "SRYT 701",
+     "DT 29"
+    ]
+   },
+   {
+    "col": "Brk_TotalLoom",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "48-bhada nu khatu chey"
+    ]
+   }
+  ],
+  "unused": [
+   "Brk_Rate",
+   "Brk_CodeEx",
+   "Brk_RefCompany",
+   "Brk_ComCodeEx",
+   "Brk_DesignationId",
+   "Brk_PayMode",
+   "Brk_TotalConsum",
+   "Brk_WhGroup",
+   "Brk_AdharNo",
+   "Brk_RefType"
+  ]
+ },
+ "ItemMst": {
+  "rows": 739,
+  "cols": 112,
+  "used": [
+   {
+    "col": "I_CODE",
+    "filled": 739,
+    "pct": 100.0,
+    "top": [
+     "I0376",
+     "I0954",
+     "I0716"
+    ]
+   },
+   {
+    "col": "I_ID",
+    "filled": 739,
+    "pct": 100.0,
+    "top": [
+     "497-I",
+     "471-I",
+     "464-I"
+    ]
+   },
+   {
+    "col": "I_NAME",
+    "filled": 739,
+    "pct": 100.0,
+    "top": [
+     "WASTAGE",
+     "COMPUTER",
+     "80/108 ROTO HIM"
+    ]
+   },
+   {
+    "col": "I_OQty",
+    "filled": 1,
+    "pct": 0.1,
+    "top": [
+     "7458.5"
+    ]
+   },
+   {
+    "col": "I_UOM",
+    "filled": 739,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "3",
+     "2"
+    ]
+   },
+   {
+    "col": "I_Group",
+    "filled": 739,
+    "pct": 100.0,
+    "top": [
+     "5",
+     "4",
+     "1"
+    ]
+   },
+   {
+    "col": "I_Com",
+    "filled": 16,
+    "pct": 2.2,
+    "top": [
+     "75/34 FDY",
+     "LEAGAL FEE",
+     "210-BRIGHT"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 502,
+    "pct": 67.9,
+    "top": [
+     "EMP012",
+     "EMP04",
+     "EMP07"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 502,
+    "pct": 67.9,
+    "top": [
+     "2024-06-04 15:35:27.000",
+     "2021-05-29 16:09:05.000",
+     "2023-06-17 17:21:52.000"
+    ]
+   },
+   {
+    "col": "UCreatename",
+    "filled": 482,
+    "pct": 65.2,
+    "top": [
+     "EMP012",
+     "EMP07",
+     "EMP04"
+    ]
+   },
+   {
+    "col": "UCreatedt",
+    "filled": 482,
+    "pct": 65.2,
+    "top": [
+     "2024-06-04 15:35:27.000",
+     "2021-05-29 16:09:05.000",
+     "2023-06-17 17:21:52.000"
+    ]
+   },
+   {
+    "col": "I_IGST",
+    "filled": 727,
+    "pct": 98.4,
+    "top": [
+     "5",
+     "12",
+     "18"
+    ]
+   },
+   {
+    "col": "I_SGST",
+    "filled": 728,
+    "pct": 98.5,
+    "top": [
+     "2.5",
+     "6",
+     "9"
+    ]
+   },
+   {
+    "col": "I_CGST",
+    "filled": 728,
+    "pct": 98.5,
+    "top": [
+     "2.5",
+     "6",
+     "9"
+    ]
+   },
+   {
+    "col": "I_HSNCODE",
+    "filled": 731,
+    "pct": 98.9,
+    "top": [
+     "54023300",
+     "54024700",
+     "55101110"
+    ]
+   },
+   {
+    "col": "I_ISTOCK",
+    "filled": 739,
+    "pct": 100.0,
+    "top": [
+     "YES",
+     "NO"
+    ]
+   },
+   {
+    "col": "I_BLOCK",
+    "filled": 739,
+    "pct": 100.0,
+    "top": [
+     "NO"
+    ]
+   },
+   {
+    "col": "I_IsEmb",
+    "filled": 502,
+    "pct": 67.9,
+    "top": [
+     "NO"
+    ]
+   },
+   {
+    "col": "I_AvgRate",
+    "filled": 13,
+    "pct": 1.8,
+    "top": [
+     "1",
+     "10000",
+     "1.36"
+    ]
+   },
+   {
+    "col": "I_ShortCode",
+    "filled": 25,
+    "pct": 3.4,
+    "top": [
+     "414",
+     "377",
+     "84"
+    ]
+   },
+   {
+    "col": "I_ScreenName",
+    "filled": 450,
+    "pct": 60.9,
+    "top": [
+     "60 ATY",
+     "88/48 CRIMP",
+     "2/150/48 SD HIM"
+    ]
+   },
+   {
+    "col": "CompanyCode",
+    "filled": 460,
+    "pct": 62.2,
+    "top": [
+     "1",
+     "2",
+     "12"
+    ]
+   },
+   {
+    "col": "YearCode",
+    "filled": 460,
+    "pct": 62.2,
+    "top": [
+     "8",
+     "7",
+     "6"
+    ]
+   },
+   {
+    "col": "CostCenter",
+    "filled": 460,
+    "pct": 62.2,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 460,
+    "pct": 62.2,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "I_TaxCode",
+    "filled": 730,
+    "pct": 98.8,
+    "top": [
+     "12",
+     "15",
+     "40"
+    ]
+   }
+  ],
+  "unused": [
+   "I_SRate",
+   "I_PRate",
+   "I_ClsQty",
+   "I_Thk",
+   "I_Size",
+   "I_Desc",
+   "I_MainGp",
+   "I_AcType",
+   "I_TotSqFt",
+   "I_TotSqMt",
+   "I_CodeEx",
+   "I_Weight",
+   "I_PCode",
+   "I_DesignNo",
+   "I_PcsRate",
+   "I_PtyDesignNo",
+   "I_Cut",
+   "I_Discount",
+   "I_IGroup",
+   "I_ISubGroup",
+   "I_EmpRate",
+   "I_PurPcsRate",
+   "I_ComCodeEx",
+   "I_IsAndroid",
+   "I_ImgByte",
+   "I_Width",
+   "I_InGstConsiAs",
+   "I_Denier",
+   "I_Count",
+   "I_Tkt",
+   "I_Tex",
+   "I_Meter",
+   "I_NetWt",
+   "I_ConesPerBox",
+   "I_ConeColor",
+   "I_StikerSize",
+   "I_BoxSize",
+   "I_BrokragePer",
+   "I_PlasticTube",
+   "I_PaperTube",
+   "I_LabelMaster",
+   "I_BoxMaster",
+   "I_TopStiker",
+   "I_SideStiker",
+   "I_OilConsumPerGram",
+   "I_MinimumStockQty",
+   "I_MaximumStockQty",
+   "I_ActDenier",
+   "I_WarperRate",
+   "I_PasramniRate",
+   "I_DrawerRate",
+   "I_GetterRate",
+   "I_BEDPer",
+   "I_ECESSPer",
+   "I_ImgFileName",
+   "I_GSM",
+   "I_Width2",
+   "I_EPI",
+   "I_PPI",
+   "I_Panna",
+   "I_Rmk",
+   "I_Ends",
+   "I_ManualId",
+   "I_Brand",
+   "I_SndUnitCode",
+   "I_ConvRate",
+   "I_FinishRawType",
+   "I_FGCode",
+   "I_FGvariant",
+   "I_FGType",
+   "I_FGSpecification",
+   "I_ReOrderQty",
+   "I_Length",
+   "I_BarCode",
+   "I_Pulp",
+   "I_Filament",
+   "I_DenierFilament",
+   "I_LUSTER",
+   "I_DisplayCountForParty",
+   "I_TPMRate",
+   "I_SizingRate",
+   "I_DyedRate",
+   "I_RFDRate",
+   "I_CostingSizingDenier",
+   "I_AvgWt",
+   "I_MRP"
+  ]
+ },
+ "LotMst": {
+  "rows": 3424,
+  "cols": 32,
+  "used": [
+   {
+    "col": "LOT_CODE",
+    "filled": 3424,
+    "pct": 100.0,
+    "top": [
+     "12471",
+     "11270",
+     "11972"
+    ]
+   },
+   {
+    "col": "LOT_NMBR",
+    "filled": 3420,
+    "pct": 99.9,
+    "top": [
+     "ARSB0113",
+     "TXO042014",
+     "7M68X89"
+    ]
+   },
+   {
+    "col": "FIN_I_CODE",
+    "filled": 3411,
+    "pct": 99.6,
+    "top": [
+     "I0261",
+     "I0282",
+     "I0436"
+    ]
+   },
+   {
+    "col": "P_CODE",
+    "filled": 1308,
+    "pct": 38.2,
+    "top": [
+     "P0243",
+     "P0769",
+     "P017188"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 2687,
+    "pct": 78.5,
+    "top": [
+     "EMP07",
+     "EMP012",
+     "EMP014"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 2687,
+    "pct": 78.5,
+    "top": [
+     "2023-10-03 14:56:34.000",
+     "2023-09-20 12:00:35.000",
+     "2025-12-11 16:51:42.000"
+    ]
+   },
+   {
+    "col": "CUname",
+    "filled": 2687,
+    "pct": 78.5,
+    "top": [
+     "EMP07",
+     "EMP012",
+     "EMP014"
+    ]
+   },
+   {
+    "col": "CUdatetime",
+    "filled": 2687,
+    "pct": 78.5,
+    "top": [
+     "2023-10-03 14:56:34.000",
+     "2023-09-20 12:00:35.000",
+     "2025-12-11 16:51:42.000"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 2687,
+    "pct": 78.5,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Shade_code",
+    "filled": 20,
+    "pct": 0.6,
+    "top": [
+     "9759"
+    ]
+   },
+   {
+    "col": "Lot_Brand",
+    "filled": 3046,
+    "pct": 89.0,
+    "top": [
+     "10911",
+     "9702",
+     "9720"
+    ]
+   },
+   {
+    "col": "Lot_DisplayName",
+    "filled": 1966,
+    "pct": 57.4,
+    "top": [
+     "123",
+     "..-",
+     "DI2809"
+    ]
+   },
+   {
+    "col": "Lot_Auto",
+    "filled": 3424,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Lot_IsActive",
+    "filled": 3424,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Lot_MapCostCenter",
+    "filled": 362,
+    "pct": 10.6,
+    "top": [
+     "1319"
+    ]
+   }
+  ],
+  "unused": [
+   "MRG_CODE",
+   "I_CODE",
+   "Mrg_Perc",
+   "Lot_Ftype",
+   "Lot_JobCardCode",
+   "Lot_PaperTube",
+   "Lot_PBag",
+   "Lot_Status",
+   "Lot_FormType",
+   "Lot_ProdOrdCode",
+   "Lot_ProdOrdNo",
+   "LOT_EntryNo",
+   "LOT_EntryDt",
+   "LOT_FinishType",
+   "Lot_ShadeGroup",
+   "Lot_Remark",
+   "Lot_Block"
+  ]
+ },
+ "BookMst": {
+  "rows": 1109,
+  "cols": 113,
+  "used": [
+   {
+    "col": "Bok_Code",
+    "filled": 1109,
+    "pct": 100.0,
+    "top": [
+     "BOK0480",
+     "BOK0180",
+     "BOK0860"
+    ]
+   },
+   {
+    "col": "Bok_Name",
+    "filled": 1109,
+    "pct": 100.0,
+    "top": [
+     "AUTO JOURNAL",
+     "AUTO PURCHASE",
+     "STATE BAK OF INDIA (AVI CCAC)A"
+    ]
+   },
+   {
+    "col": "Bok_TraType",
+    "filled": 1073,
+    "pct": 96.8,
+    "top": [
+     "24",
+     "26",
+     "25"
+    ]
+   },
+   {
+    "col": "Bok_NumType",
+    "filled": 992,
+    "pct": 89.4,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_Type",
+    "filled": 1109,
+    "pct": 100.0,
+    "top": [
+     "-1"
+    ]
+   },
+   {
+    "col": "Bok_Gcode",
+    "filled": 1079,
+    "pct": 97.3,
+    "top": [
+     "1",
+     "19",
+     "2"
+    ]
+   },
+   {
+    "col": "Bok_VatFlg",
+    "filled": 313,
+    "pct": 28.2,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 1103,
+    "pct": 99.5,
+    "top": [
+     "EMP03",
+     "EMP01",
+     "EMP010"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 1103,
+    "pct": 99.5,
+    "top": [
+     "2024-10-10 15:17:01.000",
+     "2024-10-10 15:17:00.000",
+     "2025-12-11 16:45:22.000"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 1109,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "12",
+     "9"
+    ]
+   },
+   {
+    "col": "Bok_RptFile",
+    "filled": 193,
+    "pct": 17.4,
+    "top": [
+     "CHEQUE_SPCB.RPT",
+     "CHEQUE_SBI.RPT",
+     "CHEQUE_SBI.rpt"
+    ]
+   },
+   {
+    "col": "Bok_CostCenter",
+    "filled": 1095,
+    "pct": 98.7,
+    "top": [
+     "1319",
+     "1319, 1319, 1319, 1319, 1319, ",
+     "12762"
+    ]
+   },
+   {
+    "col": "Bok_Branch",
+    "filled": 1101,
+    "pct": 99.3,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_PackingBase",
+    "filled": 311,
+    "pct": 28.0,
+    "top": [
+     "191",
+     "209",
+     "941"
+    ]
+   },
+   {
+    "col": "Bok_GreyType",
+    "filled": 132,
+    "pct": 11.9,
+    "top": [
+     "150306906",
+     "108378731",
+     "500177"
+    ]
+   },
+   {
+    "col": "Bok_CarttonDetail",
+    "filled": 769,
+    "pct": 69.3,
+    "top": [
+     "None",
+     "YarnWise",
+     "GerPurWise"
+    ]
+   },
+   {
+    "col": "Bok_BankAccount",
+    "filled": 677,
+    "pct": 61.0,
+    "top": [
+     "P013519",
+     "P014371",
+     "P023865"
+    ]
+   },
+   {
+    "col": "Bok_IsTds",
+    "filled": 69,
+    "pct": 6.2,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_BankSlip",
+    "filled": 363,
+    "pct": 32.7,
+    "top": [
+     "BANK_SLIP.RPT"
+    ]
+   },
+   {
+    "col": "Bok_OrdReq",
+    "filled": 22,
+    "pct": 2.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_OrdReqOn",
+    "filled": 1,
+    "pct": 0.1,
+    "top": [
+     "Express"
+    ]
+   },
+   {
+    "col": "Bok_FocusOn",
+    "filled": 715,
+    "pct": 64.5,
+    "top": [
+     "NONE",
+     "ORDER_NO"
+    ]
+   },
+   {
+    "col": "Bok_LotNoReq",
+    "filled": 2,
+    "pct": 0.2,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_GrnListReq",
+    "filled": 22,
+    "pct": 2.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_SaleRateExReq",
+    "filled": 712,
+    "pct": 64.2,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_UpdateLayout",
+    "filled": 74,
+    "pct": 6.7,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_OBC",
+    "filled": 2,
+    "pct": 0.2,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_OrderType",
+    "filled": 630,
+    "pct": 56.8,
+    "top": [
+     "0, 1, 2, 3, 4, 5, 6, 7, 8, 9",
+     "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "
+    ]
+   },
+   {
+    "col": "Bok_TdsSection",
+    "filled": 21,
+    "pct": 1.9,
+    "top": [
+     "5"
+    ]
+   },
+   {
+    "col": "Bok_TdsAccount",
+    "filled": 21,
+    "pct": 1.9,
+    "top": [
+     "P013276"
+    ]
+   },
+   {
+    "col": "Bok_SalRtnBasedOn",
+    "filled": 14,
+    "pct": 1.3,
+    "top": [
+     "BILL"
+    ]
+   },
+   {
+    "col": "Bok_IsProvisionalDebitNt",
+    "filled": 17,
+    "pct": 1.5,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_ChequePrintA4Req",
+    "filled": 1,
+    "pct": 0.1,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Bok_Alias",
+    "filled": 7,
+    "pct": 0.6,
+    "top": [
+     "SITR"
+    ]
+   },
+   {
+    "col": "Bok_DefaultPrinter",
+    "filled": 1,
+    "pct": 0.1,
+    "top": [
+     "HP LaserJet 1020"
+    ]
+   }
+  ],
+  "unused": [
+   "Bok_DirectPrint",
+   "Bok_DeptCode",
+   "Bok_IssBook",
+   "Bok_EmbProType",
+   "Bok_CostOrdBase",
+   "Bok_CutReq",
+   "Bok_IsStockTrf",
+   "Bok_ChallLink",
+   "Bok_IsDisplay",
+   "Bok_PChReq",
+   "Bok_CodeEx",
+   "Bok_DispBaseSale_AutoReq",
+   "Bok_DispBaseSale_SlBkCode",
+   "Bok_CommonOrd",
+   "Bok_CrtStkNotReq",
+   "Bok_ItemWiseWeight",
+   "Bok_PartyWiseItem",
+   "Bok_MultipleOrderSelect",
+   "Bok_SlipNoReset",
+   "Bok_PartyWiseDisc",
+   "Bok_OrdReqItemShade",
+   "Bok_OrdAutoApproveReq",
+   "Bok_ItemRateGroupPly",
+   "Bok_CrtSeriesAutoReq",
+   "Bok_PurImportPly",
+   "Bok_PlyCashTransaction",
+   "Bok_ChlnInvSeriesSame",
+   "Bok_IsCrDbBook",
+   "Bok_IsNoAddedInStock",
+   "Bok_UpdateCostFromGRN",
+   "Bok_IsMeterZero",
+   "Bok_PurOrderLinkReq",
+   "Bok_GRNListPartyGroupwise",
+   "Bok_WOJobIssNo",
+   "Bok_SaleOrdLinkReq",
+   "Bok_PartyClearReq",
+   "Bok_AutoInsertProcessMst",
+   "Bok_NotReqInGatePass",
+   "Bok_TakaEntryInSal",
+   "Bok_CashAdjAgainstPur",
+   "Bok_IsProcessBook",
+   "Bok_Unit",
+   "Bok_OpportunitesListReq",
+   "Bok_OnlySelfParty",
+   "Bok_ComCodeEx",
+   "Bok_IsNagativeBalance",
+   "Bok_AutoCreatePoOnSoAppv",
+   "Bok_AutoCreatePoBookForSo",
+   "Bok_IsGstReqExportParty",
+   "Bok_CarttonListReqWithoutLot",
+   "Bok_IssuReqWithoutStock",
+   "Bok_CarttonListReqFromDepWise",
+   "Bok_LotBasePartyAutoReq",
+   "Bok_IntCalEnableInGenPur",
+   "Bok_BatchDetailRequired",
+   "Bok_ShadeReqInYarnWiseQry",
+   "Bok_CrtListReqWithoutCostCenter",
+   "Bok_ReplacePcsCalWithWeight",
+   "Bok_WeightReqFromWeighingScale",
+   "Bok_UseBookUnitInsteadOfBill",
+   "Bok_JobHsnInSale",
+   "Bok_DispatchSchduleRequired",
+   "Bok_PackingListRequired",
+   "Bok_RemarkReq",
+   "Bok_SumReqForSareeQry",
+   "Bok_PallateDetailReq",
+   "Bok_DesignShadewiseStockReq",
+   "Bok_QcDetailReq",
+   "Bok_Grades",
+   "Bok_ImportExpReq",
+   "Bok_LinkGoDown",
+   "Bok_EmbBooks",
+   "Bok_IsQdBook",
+   "Bok_ProcessTypeReq",
+   "Bok_SalPolicyCode",
+   "Bok_CountryCode",
+   "Bok_GradeReqInGreyWise",
+   "Bok_ItemCode"
+  ]
+ },
+ "GodownMst": {
+  "rows": 4,
+  "cols": 5,
+  "used": [
+   {
+    "col": "Godn_Code",
+    "filled": 4,
+    "pct": 100.0,
+    "top": [
+     "2",
+     "4",
+     "3"
+    ]
+   },
+   {
+    "col": "Godn_Name",
+    "filled": 4,
+    "pct": 100.0,
+    "top": [
+     "HP",
+     "A/A1",
+     "A/A2"
+    ]
+   },
+   {
+    "col": "Godn_Seprator",
+    "filled": 4,
+    "pct": 100.0,
+    "top": [
+     "HP",
+     "A,A1",
+     "A,A3"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 4,
+    "pct": 100.0,
+    "top": [
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 4,
+    "pct": 100.0,
+    "top": [
+     "2014-03-08 13:07:46.000",
+     "2014-03-09 12:27:29.000",
+     "2015-04-09 12:21:09.000"
+    ]
+   }
+  ],
+  "unused": []
+ },
+ "AutoDebitNoteMst": {
+  "rows": 23637,
+  "cols": 29,
+  "used": [
+   {
+    "col": "AutoDbt_Code",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "731683",
+     "747415",
+     "753117"
+    ]
+   },
+   {
+    "col": "AutoDbt_Id",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "DBT1082/24-25",
+     "DBT902/25-26",
+     "DBT108/26-27"
+    ]
+   },
+   {
+    "col": "AutoDbt_Date",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "2025-10-18 00:00:00.000",
+     "2024-10-30 00:00:00.000",
+     "2026-04-24 00:00:00.000"
+    ]
+   },
+   {
+    "col": "AutoDbt_CostCenter",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "AutoDbt_ComCode",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "AutoDbt_BookCode",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "BOK037",
+     "BOK075",
+     "BOK0117"
+    ]
+   },
+   {
+    "col": "AutoDbt_BillType",
+    "filled": 2,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "AutoDbt_IntPer",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "18"
+    ]
+   },
+   {
+    "col": "AutoDbt_IntDays",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "365"
+    ]
+   },
+   {
+    "col": "AutoDbt_GSTPer",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "12",
+     "5"
+    ]
+   },
+   {
+    "col": "AutoDbt_LpcCode",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "P0122",
+     "P0238"
+    ]
+   },
+   {
+    "col": "AutoDbt_HsnCode",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "54033100"
+    ]
+   },
+   {
+    "col": "AutoDbt_UName",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "EMP06",
+     "EMP01",
+     "EMP017"
+    ]
+   },
+   {
+    "col": "AutoDbt_UDateTime",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "2026-08-15 13:03:14.000",
+     "2026-08-31 13:28:11.000",
+     "2026-04-25 10:47:22.000"
+    ]
+   },
+   {
+    "col": "AutoDbt_CName",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "EMP06",
+     "EMP01",
+     "EMP017"
+    ]
+   },
+   {
+    "col": "AutoDbt_CDateTime",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "2026-08-15 13:03:14.000",
+     "2026-08-31 13:28:11.000",
+     "2026-04-25 10:47:22.000"
+    ]
+   },
+   {
+    "col": "AutoDbt_Amount",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "283",
+     "356",
+     "359"
+    ]
+   },
+   {
+    "col": "AutoDbt_IGst",
+    "filled": 7,
+    "pct": 0.0,
+    "top": [
+     "333.48",
+     "419.19",
+     "322.41"
+    ]
+   },
+   {
+    "col": "AutoDbt_SGst",
+    "filled": 23630,
+    "pct": 100.0,
+    "top": [
+     "10.69",
+     "11.33",
+     "14.73"
+    ]
+   },
+   {
+    "col": "AutoDbt_CGst",
+    "filled": 23630,
+    "pct": 100.0,
+    "top": [
+     "10.69",
+     "11.33",
+     "14.73"
+    ]
+   },
+   {
+    "col": "AutoDbt_PCode",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "P01505",
+     "P010494",
+     "P08828"
+    ]
+   },
+   {
+    "col": "AutoDbt_Branch",
+    "filled": 23637,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "AutoDbt_TDSAmt",
+    "filled": 3327,
+    "pct": 14.1,
+    "top": [
+     "164",
+     "61",
+     "106"
+    ]
+   },
+   {
+    "col": "AutoDbt_TDSAccount",
+    "filled": 3327,
+    "pct": 14.1,
+    "top": [
+     "P010670",
+     "P010671",
+     "P013276"
+    ]
+   },
+   {
+    "col": "AutoDbt_TDSSection",
+    "filled": 3327,
+    "pct": 14.1,
+    "top": [
+     "1",
+     "2",
+     "5"
+    ]
+   },
+   {
+    "col": "AutoDbt_TDSPer",
+    "filled": 3327,
+    "pct": 14.1,
+    "top": [
+     "10",
+     "11",
+     "7.51"
+    ]
+   }
+  ],
+  "unused": [
+   "AutoDbt_IsProvisionalDebitNt",
+   "AutoDbt_TDSSurchrg",
+   "AutoDbt_TDSCess"
+  ]
+ },
+ "AutoDebitNoteSubMst": {
+  "rows": 53839,
+  "cols": 28,
+  "used": [
+   {
+    "col": "AutoDbtS_Code",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "952047",
+     "1039161",
+     "950151"
+    ]
+   },
+   {
+    "col": "AutoDbtS_BillCode",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "SAL0387989",
+     "SAL075169",
+     "SAL0351372"
+    ]
+   },
+   {
+    "col": "AutoDbtS_BillNo",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "GU08318/26-27",
+     "GU08657/21-22",
+     "GU26200/25-26"
+    ]
+   },
+   {
+    "col": "AutoDbtS_BillDt",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "2025-09-20 00:00:00.000",
+     "2025-09-27 00:00:00.000",
+     "2026-01-12 00:00:00.000"
+    ]
+   },
+   {
+    "col": "AutoDbtS_PCode",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "P010494",
+     "P01505",
+     "P010489"
+    ]
+   },
+   {
+    "col": "AutoDbtS_ICode",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "I0261",
+     "I0263",
+     "I0279"
+    ]
+   },
+   {
+    "col": "AutoDbtS_Pcs",
+    "filled": 53732,
+    "pct": 99.8,
+    "top": [
+     "24",
+     "12",
+     "16"
+    ]
+   },
+   {
+    "col": "AutoDbtS_Qty",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "500",
+     "512.04",
+     "1002.36"
+    ]
+   },
+   {
+    "col": "AutoDbtS_BookCode",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "BOK32",
+     "BOK11",
+     "BOK062"
+    ]
+   },
+   {
+    "col": "AutoDbtS_SalNetAmt",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "67676",
+     "68823",
+     "59500"
+    ]
+   },
+   {
+    "col": "AutoDbtS_RecAmt",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "100000",
+     "446"
+    ]
+   },
+   {
+    "col": "AutoDbtS_CrDays",
+    "filled": 53838,
+    "pct": 100.0,
+    "top": [
+     "19",
+     "17",
+     "18"
+    ]
+   },
+   {
+    "col": "AutoDbtS_DiffDays",
+    "filled": 53828,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "5",
+     "4"
+    ]
+   },
+   {
+    "col": "AutoDbtS_IntAmt",
+    "filled": 53827,
+    "pct": 100.0,
+    "top": [
+     "0.22",
+     "0.44",
+     "0.01"
+    ]
+   },
+   {
+    "col": "AutoDbtS_FinalAmt",
+    "filled": 53827,
+    "pct": 100.0,
+    "top": [
+     "0.22",
+     "0.44",
+     "0.01"
+    ]
+   },
+   {
+    "col": "AutoDbtS_DbntNo",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "DBSRT149/25-26",
+     "DBT401/26-27",
+     "DBT3827/25-26"
+    ]
+   },
+   {
+    "col": "AutoDbtS_CollPer",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "BRK07873",
+     "BRK12",
+     "BRK15"
+    ]
+   },
+   {
+    "col": "AutoDbtS_Ftype",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "SAL"
+    ]
+   },
+   {
+    "col": "AutoDbtS_RecDate",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "2025-10-18 00:00:00.000",
+     "2025-03-29 00:00:00.000",
+     "2024-10-30 00:00:00.000"
+    ]
+   },
+   {
+    "col": "AutoDbtS_Broker",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "BRK7096",
+     "BRK7001",
+     "BRK7120"
+    ]
+   },
+   {
+    "col": "AutoDbtS_AutoNo",
+    "filled": 53839,
+    "pct": 100.0,
+    "top": [
+     "12377",
+     "53623",
+     "2571"
+    ]
+   },
+   {
+    "col": "AutoDbtS_BillCrDays",
+    "filled": 30259,
+    "pct": 56.2,
+    "top": [
+     "15",
+     "1",
+     "10"
+    ]
+   }
+  ],
+  "unused": [
+   "AutoDbtS_BrkPer",
+   "AutoDbtS_BrkAmt",
+   "AutoDbtS_DisPer",
+   "AutoDbtS_DisPer_Amt",
+   "AutoDbtS_SalRtn",
+   "AutoDbtS_SalRtnDT"
+  ]
+ },
+ "PendingAdjustmentMst": {
+  "rows": 174,
+  "cols": 18,
+  "used": [
+   {
+    "col": "Oth_Code",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "OTH068",
+     "OTH0113",
+     "OTH0150"
+    ]
+   },
+   {
+    "col": "Oth_Id",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "71/24-25",
+     "28/24-25",
+     "LLP14/23-24"
+    ]
+   },
+   {
+    "col": "Oth_Date",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "2024-04-01 00:00:00.000",
+     "2024-10-14 00:00:00.000",
+     "2024-04-27 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Oth_BkCode",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "BOK0713",
+     "BOK0727",
+     "BOK0731"
+    ]
+   },
+   {
+    "col": "Oth_PCode",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "P011235",
+     "P09374",
+     "P011726"
+    ]
+   },
+   {
+    "col": "Oth_Rmk",
+    "filled": 1,
+    "pct": 0.6,
+    "top": [
+     "TDS"
+    ]
+   },
+   {
+    "col": "Oth_Type",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "DBNT",
+     "CRNT",
+     "GENSAL"
+    ]
+   },
+   {
+    "col": "Oth_Amount",
+    "filled": 173,
+    "pct": 99.4,
+    "top": [
+     "337",
+     "207",
+     "164"
+    ]
+   },
+   {
+    "col": "Oth_AdBillNo",
+    "filled": 160,
+    "pct": 92.0,
+    "top": [
+     "DBT123/21-22",
+     "DBT1402/23-24,DBT2691/23-24",
+     "DBTL812/23-24,DBTL951/23-24"
+    ]
+   },
+   {
+    "col": "Oth_CostCenterCode",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "Oth_CompanyCode",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Oth_BranchCode",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Oth_YearCode",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "6"
+    ]
+   },
+   {
+    "col": "Oth_UName",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "EMP03",
+     "EMP05",
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Oth_UDateTime",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "2024-10-07 16:10:24.530",
+     "2024-12-28 15:41:47.223",
+     "2024-10-11 17:21:30.133"
+    ]
+   },
+   {
+    "col": "Oth_UCName",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "EMP03",
+     "EMP05",
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Oth_UCDateTime",
+    "filled": 174,
+    "pct": 100.0,
+    "top": [
+     "2024-10-07 16:10:24.530",
+     "2024-12-28 15:41:47.223",
+     "2024-10-11 17:21:30.133"
+    ]
+   }
+  ],
+  "unused": [
+   "Oth_BasedOn"
+  ]
+ },
+ "PendingAdjustmentSubMst": {
+  "rows": 228,
+  "cols": 16,
+  "used": [
+   {
+    "col": "OthS_Code",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "OTH026",
+     "OTH0111",
+     "OTH0112"
+    ]
+   },
+   {
+    "col": "OthS_PCode",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "P011235",
+     "P016096",
+     "P03753"
+    ]
+   },
+   {
+    "col": "OthS_BillCode",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "633060",
+     "474145",
+     "525346"
+    ]
+   },
+   {
+    "col": "OthS_Type",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "DBNT"
+    ]
+   },
+   {
+    "col": "OthS_Amount",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "164",
+     "215",
+     "376"
+    ]
+   },
+   {
+    "col": "OthS_BillId",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "D29/23-24",
+     "DBT6000/23-24",
+     "DBT123/21-22"
+    ]
+   },
+   {
+    "col": "OthS_BillDate",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "2023-12-01 00:00:00.000",
+     "2023-12-15 00:00:00.000",
+     "2023-12-18 00:00:00.000"
+    ]
+   },
+   {
+    "col": "OthS_BillBkCode",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "BOK037",
+     "BOK075",
+     "BOK0117"
+    ]
+   },
+   {
+    "col": "OthS_Id",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "LLP14/23-24",
+     "36/24-25",
+     "LLP49/23-24"
+    ]
+   },
+   {
+    "col": "OthS_Date",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "2024-04-01 00:00:00.000",
+     "2024-05-01 00:00:00.000",
+     "2024-04-24 00:00:00.000"
+    ]
+   },
+   {
+    "col": "OthS_ComCode",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "OthS_CostCenterCode",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "OthS_BranchCode",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "OthS_YearCode",
+    "filled": 228,
+    "pct": 100.0,
+    "top": [
+     "6"
+    ]
+   }
+  ],
+  "unused": [
+   "OthS_RecUSDExRate",
+   "OthS_BillRecUSDAmt"
+  ]
+ },
+ "TaxMst": {
+  "rows": 60,
+  "cols": 16,
+  "used": [
+   {
+    "col": "Tax_Code",
+    "filled": 60,
+    "pct": 100.0,
+    "top": [
+     "28",
+     "39",
+     "13"
+    ]
+   },
+   {
+    "col": "Tax_Name",
+    "filled": 59,
+    "pct": 98.3,
+    "top": [
+     "482030",
+     "996511",
+     "481960"
+    ]
+   },
+   {
+    "col": "Tax_Category",
+    "filled": 11,
+    "pct": 18.3,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Tax_CGST",
+    "filled": 8,
+    "pct": 13.3,
+    "top": [
+     "9",
+     "6",
+     "14"
+    ]
+   },
+   {
+    "col": "Tax_SGST",
+    "filled": 8,
+    "pct": 13.3,
+    "top": [
+     "9",
+     "6",
+     "14"
+    ]
+   },
+   {
+    "col": "Tax_IGST",
+    "filled": 8,
+    "pct": 13.3,
+    "top": [
+     "18",
+     "12",
+     "28"
+    ]
+   },
+   {
+    "col": "UName",
+    "filled": 60,
+    "pct": 100.0,
+    "top": [
+     "EMP03",
+     "EMP01",
+     "EMP010"
+    ]
+   },
+   {
+    "col": "UDatetime",
+    "filled": 60,
+    "pct": 100.0,
+    "top": [
+     "2021-12-27 09:31:04.707",
+     "2022-08-02 14:24:14.000",
+     "2024-12-30 13:30:09.000"
+    ]
+   },
+   {
+    "col": "UCName",
+    "filled": 60,
+    "pct": 100.0,
+    "top": [
+     "EMP01",
+     "EMP03",
+     "EMP012"
+    ]
+   },
+   {
+    "col": "UCDateTime",
+    "filled": 60,
+    "pct": 100.0,
+    "top": [
+     "2021-12-27 09:31:04.707",
+     "2026-10-28 17:42:28.000",
+     "2026-11-04 10:44:31.000"
+    ]
+   },
+   {
+    "col": "Tax_Desc",
+    "filled": 53,
+    "pct": 88.3,
+    "top": [
+     "05 GST SLAB",
+     "18 GST SLAB",
+     "997212"
+    ]
+   },
+   {
+    "col": "Tax_Type",
+    "filled": 54,
+    "pct": 90.0,
+    "top": [
+     "1"
+    ]
+   }
+  ],
+  "unused": [
+   "Tax_CESS",
+   "Tax_CodeEx",
+   "Tax_ComCodeEx",
+   "Tax_HsnGstType"
+  ]
+ },
+ "CapitalRationMst": {
+  "rows": 487,
+  "cols": 5,
+  "used": [
+   {
+    "col": "P_Code",
+    "filled": 487,
+    "pct": 100.0,
+    "top": [
+     "P01430",
+     "P013766",
+     "P01530"
+    ]
+   },
+   {
+    "col": "CompanyCode",
+    "filled": 487,
+    "pct": 100.0,
+    "top": [
+     "8",
+     "12",
+     "10"
+    ]
+   },
+   {
+    "col": "Ration_Per",
+    "filled": 16,
+    "pct": 3.3,
+    "top": [
+     "100",
+     "50"
+    ]
+   },
+   {
+    "col": "CostCenterCode",
+    "filled": 487,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   }
+  ],
+  "unused": [
+   "BranchCode"
+  ]
+ },
+ "BlockPartyMst": {
+  "rows": 1408,
+  "cols": 6,
+  "used": [
+   {
+    "col": "Blok_PCode",
+    "filled": 1407,
+    "pct": 99.9,
+    "top": [
+     "P010307",
+     "P04163",
+     "P05292"
+    ]
+   },
+   {
+    "col": "Blok_Rmk",
+    "filled": 1400,
+    "pct": 99.4,
+    "top": [
+     "PARTY NU OLD PAYMENT BAKI HOVA",
+     "AA PARTY RED ALERT CHET AAMNI ",
+     "PARTY NU PAYMENT GANU LATE HOV"
+    ]
+   },
+   {
+    "col": "Blok_PGroupCode",
+    "filled": 1386,
+    "pct": 98.4,
+    "top": [
+     "BRK07770",
+     "BRK07342",
+     "BRK4400"
+    ]
+   },
+   {
+    "col": "Blok_Type",
+    "filled": 1408,
+    "pct": 100.0,
+    "top": [
+     "PARTY"
+    ]
+   },
+   {
+    "col": "Blok_Uname",
+    "filled": 3,
+    "pct": 0.2,
+    "top": [
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Blok_UDatetime",
+    "filled": 3,
+    "pct": 0.2,
+    "top": [
+     "2026-09-12 19:01:27.713",
+     "2026-09-12 19:01:42.473",
+     "2026-09-12 19:01:56.240"
+    ]
+   }
+  ],
+  "unused": []
+ },
+ "DescriptionMst": {
+  "rows": 4363,
+  "cols": 67,
+  "used": [
+   {
+    "col": "Desc_Code",
+    "filled": 4363,
+    "pct": 100.0,
+    "top": [
+     "12377",
+     "13655",
+     "12533"
+    ]
+   },
+   {
+    "col": "Desc_Name",
+    "filled": 4360,
+    "pct": 99.9,
+    "top": [
+     "SURAT",
+     "KIM",
+     "U.M.ROAD"
+    ]
+   },
+   {
+    "col": "Desc_Relation",
+    "filled": 212,
+    "pct": 4.9,
+    "top": [
+     "9756",
+     "11081",
+     "9669"
+    ]
+   },
+   {
+    "col": "Desc_type",
+    "filled": 4362,
+    "pct": 100.0,
+    "top": [
+     "Vehical",
+     "AREA",
+     "Brand"
+    ]
+   },
+   {
+    "col": "Desc_GroupCodes",
+    "filled": 45,
+    "pct": 1.0,
+    "top": [
+     "9669",
+     "9756",
+     "1002"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 2235,
+    "pct": 51.2,
+    "top": [
+     "EMP04",
+     "EMP012",
+     "EMP08"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 2235,
+    "pct": 51.2,
+    "top": [
+     "2021-04-19 13:09:01.000",
+     "2023-08-12 17:40:33.000",
+     "2024-07-09 12:35:50.000"
+    ]
+   },
+   {
+    "col": "UCname",
+    "filled": 2172,
+    "pct": 49.8,
+    "top": [
+     "EMP04",
+     "EMP012",
+     "EMP08"
+    ]
+   },
+   {
+    "col": "UCdatetime",
+    "filled": 2172,
+    "pct": 49.8,
+    "top": [
+     "2021-04-19 13:09:01.000",
+     "2023-08-12 17:40:33.000",
+     "2024-07-09 12:35:50.000"
+    ]
+   },
+   {
+    "col": "Desc_Address",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "P06768"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 2119,
+    "pct": 48.6,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "Desc_CostCenter",
+    "filled": 2,
+    "pct": 0.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "Desc_Pincode",
+    "filled": 6,
+    "pct": 0.1,
+    "top": [
+     "PORTER",
+     "VINODBHAI",
+     "GOPIBHAI"
+    ]
+   },
+   {
+    "col": "Desc_SoftMode",
+    "filled": 2,
+    "pct": 0.0,
+    "top": [
+     "TRADDING"
+    ]
+   },
+   {
+    "col": "Desc_Mobile",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "6351242900"
+    ]
+   },
+   {
+    "col": "Desc_Transpoter",
+    "filled": 29,
+    "pct": 0.7,
+    "top": [
+     "P020843",
+     "P020953",
+     "P05445"
+    ]
+   }
+  ],
+  "unused": [
+   "Desc_TotWstPerc",
+   "Desc_CoreWstPerc",
+   "Desc_SickPerSqFtKg",
+   "Desc_FaliWstPerc",
+   "Desc_CommonInv",
+   "Desc_ICode",
+   "Desc_BokCode",
+   "Desc_DriverMobNo",
+   "Desc_SDate",
+   "Desc_EDate",
+   "Desc_Status",
+   "Desc_Reason",
+   "Desc_BankName",
+   "Desc_BankAddress",
+   "Desc_AccountNo",
+   "Desc_MicrCode",
+   "Desc_IFSCCode",
+   "Desc_AccountType",
+   "Desc_Branch",
+   "Desc_McType",
+   "Desc_ImgPath",
+   "Desc_LoadRate",
+   "Desc_UnLoadRate",
+   "Desc_Alias",
+   "BranchCode",
+   "Desc_IGCode",
+   "Desc_FabType",
+   "Desc_DesignNo",
+   "Desc_PattenCode",
+   "Desc_EmpRate",
+   "Desc_MinQty",
+   "Desc_MaxQty",
+   "Desc_ReQty",
+   "Desc_NoOfBeam",
+   "Desc_Description",
+   "YearCode",
+   "Desc_I_ImgByte",
+   "Desc_Rmk",
+   "Desc_Block",
+   "Desc_ImgFileName",
+   "Desc_DesignGrp",
+   "Desc_SaleRate",
+   "Desc_MatchingNo",
+   "Desc_MapCompany",
+   "Desc_MapCostCenter",
+   "Desc_StockFrDt",
+   "Desc_DeptCode",
+   "Desc_BrandCode",
+   "Desc_StyleCode",
+   "Desc_IsMainMeter",
+   "Desc_ButtaCuttingReq"
+  ]
+ },
+ "GroupMst": {
+  "rows": 75,
+  "cols": 13,
+  "used": [
+   {
+    "col": "Gr_Code",
+    "filled": 75,
+    "pct": 100.0,
+    "top": [
+     "26",
+     "84",
+     "16"
+    ]
+   },
+   {
+    "col": "Gr_Name",
+    "filled": 75,
+    "pct": 100.0,
+    "top": [
+     "STAFF ACCOUNTS",
+     "CREDITOTRS FOR OTHERS",
+     "PROVISION FOR EXPENSES"
+    ]
+   },
+   {
+    "col": "Gr_DefType",
+    "filled": 75,
+    "pct": 100.0,
+    "top": [
+     "D",
+     "C"
+    ]
+   },
+   {
+    "col": "Gr_MainGroup",
+    "filled": 75,
+    "pct": 100.0,
+    "top": [
+     "6",
+     "5",
+     "21"
+    ]
+   },
+   {
+    "col": "GR_GPNP",
+    "filled": 59,
+    "pct": 78.7,
+    "top": [
+     "BALANCE SHEET",
+     "NET EXPENSE",
+     "GROSS INCOME"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 16,
+    "pct": 21.3,
+    "top": [
+     "EMP03",
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 16,
+    "pct": 21.3,
+    "top": [
+     "2021-08-14 14:49:34.000",
+     "2021-08-14 14:52:50.000",
+     "2020-12-14 13:33:54.000"
+    ]
+   },
+   {
+    "col": "GR_Position",
+    "filled": 15,
+    "pct": 20.0,
+    "top": [
+     "3",
+     "2",
+     "1"
+    ]
+   }
+  ],
+  "unused": [
+   "Gr_ClsBal",
+   "GR_Opn",
+   "Gr_CodeEx",
+   "Gr_ComCodeEx",
+   "Gr_SubGroupCode"
+  ]
+ },
+ "CompanyMst": {
+  "rows": 22,
+  "cols": 67,
+  "used": [
+   {
+    "col": "CompId",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "9",
+     "4",
+     "1"
+    ]
+   },
+   {
+    "col": "CompanyName",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "AVI TEXTILES",
+     "NIV TEXTILES",
+     "MIHIR TEXTILES"
+    ]
+   },
+   {
+    "col": "From",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "2020-04-01 00:00:00.000",
+     "2021-04-01 00:00:00.000",
+     "2024-04-01 00:00:00.000"
+    ]
+   },
+   {
+    "col": "To",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "2021-03-31 00:00:00.000",
+     "2022-03-31 00:00:00.000",
+     "2025-03-31 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Active",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "VattinNo",
+    "filled": 19,
+    "pct": 86.4,
+    "top": [
+     "24AAVPP7326F1ZC",
+     "24ASEPP0872B1Z3",
+     "24BCDPP9726N1Z0 "
+    ]
+   },
+   {
+    "col": "CsttinNo",
+    "filled": 1,
+    "pct": 4.5,
+    "top": [
+     "U17120GJ2010PTC060595"
+    ]
+   },
+   {
+    "col": "panNo",
+    "filled": 2,
+    "pct": 9.1,
+    "top": [
+     "AANHP9616A",
+     "AASHP3655C"
+    ]
+   },
+   {
+    "col": "CentralExNo",
+    "filled": 1,
+    "pct": 4.5,
+    "top": [
+     "GJ-22-0219836"
+    ]
+   },
+   {
+    "col": "OffAdd",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "41/610,SHASTRI NAGAR SOCIETY,K",
+     "187,HALPATIVAS,VANKANEDA ROAD,",
+     "PLOT NO 191 AKASH IND ESTATE,V"
+    ]
+   },
+   {
+    "col": "OffState",
+    "filled": 21,
+    "pct": 95.5,
+    "top": [
+     "24"
+    ]
+   },
+   {
+    "col": "OffCity",
+    "filled": 21,
+    "pct": 95.5,
+    "top": [
+     "9756"
+    ]
+   },
+   {
+    "col": "offPinCode",
+    "filled": 21,
+    "pct": 95.5,
+    "top": [
+     "395007",
+     "395023",
+     "394221"
+    ]
+   },
+   {
+    "col": "offmobileno",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "9099077151",
+     "9909032432",
+     "90990 77151"
+    ]
+   },
+   {
+    "col": "offEmail",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "umiyayarn@yahoo.in",
+     "UMIYAYARN@YAHOO.IN",
+     "umiyayarn@yahoo.in\n"
+    ]
+   },
+   {
+    "col": "offContactPer",
+    "filled": 4,
+    "pct": 18.2,
+    "top": [
+     "MANOJBHAI",
+     "RAJESHBHAI"
+    ]
+   },
+   {
+    "col": "FactAdd",
+    "filled": 11,
+    "pct": 50.0,
+    "top": [
+     "SURAT"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "EMP03",
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Utime",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "2026-06-05",
+     "2026-07-27",
+     "2026-05-14"
+    ]
+   },
+   {
+    "col": "ServName",
+    "filled": 11,
+    "pct": 50.0,
+    "top": [
+     "UMIYA20"
+    ]
+   },
+   {
+    "col": "Comp_ImgPath",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "\\\\192.168.0.254\\e\\Creatives\\CR"
+    ]
+   },
+   {
+    "col": "BANKNAME",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "THE SURAT PEOPLES CO OP BANK L",
+     "THE SURAT PEOPLES CO OP BANK L",
+     "ICICI BANK"
+    ]
+   },
+   {
+    "col": "BANKNAMEADD",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "KHATODARA,SURAT.",
+     "KHATODARA",
+     "ALTHAN"
+    ]
+   },
+   {
+    "col": "ACCOUNTNO",
+    "filled": 21,
+    "pct": 95.5,
+    "top": [
+     "304014483032",
+     "41053420950",
+     "304018093467"
+    ]
+   },
+   {
+    "col": "MICRCODE",
+    "filled": 1,
+    "pct": 4.5,
+    "top": [
+     "395251027"
+    ]
+   },
+   {
+    "col": "IFSCCODE",
+    "filled": 21,
+    "pct": 95.5,
+    "top": [
+     "SPCB0251006",
+     "SPCB0251030",
+     "SBIN0063749"
+    ]
+   },
+   {
+    "col": "ACCOUNTTYPE",
+    "filled": 20,
+    "pct": 90.9,
+    "top": [
+     "CA",
+     "304001329517",
+     "41053420950"
+    ]
+   },
+   {
+    "col": "COSTCENTER",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "1319",
+     "12762"
+    ]
+   },
+   {
+    "col": "EwayBillUserName",
+    "filled": 19,
+    "pct": 86.4,
+    "top": [
+     "24AJHPP9048D1Z4",
+     "API_UMIYAPOLLYYARN",
+     "API_AVITEXTILE"
+    ]
+   },
+   {
+    "col": "EwayBillUserPassword",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "91ednGwgV3PDj4DxpqxiWg==",
+     "OWJuo0IYz0TE5PXEu7psxA==",
+     "RVHEMaA7kfCB4L+5egB26g=="
+    ]
+   },
+   {
+    "col": "Com_Short",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "SSGT",
+     "AVI",
+     "SSKI"
+    ]
+   },
+   {
+    "col": "Creative_CompCode",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "P09"
+    ]
+   },
+   {
+    "col": "Comp_IsEinvoice",
+    "filled": 9,
+    "pct": 40.9,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Comp_TCSReq",
+    "filled": 12,
+    "pct": 54.5,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Comp_SmsUser",
+    "filled": 11,
+    "pct": 50.0,
+    "top": [
+     "API_UMIYAPOLLYYARN",
+     "API_SJSNAVNEET",
+     "API_AVITEXTILE"
+    ]
+   },
+   {
+    "col": "Comp_SmsPass",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "91ednGwgV3PDj4DxpqxiWg==",
+     "E0TqkCZDAZ3TExc6zbx9Ew==",
+     "RVHEMaA7kfCB4L+5egB26g=="
+    ]
+   },
+   {
+    "col": "Comp_AndReportPath",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "\\\\192.168.0.254\\e\\Creatives\\CR"
+    ]
+   },
+   {
+    "col": "Comp_SelectedBranch",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Comp_SmsMobileNo",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "9099077151,9624041800"
+    ]
+   },
+   {
+    "col": "Comp_FtpPass",
+    "filled": 22,
+    "pct": 100.0,
+    "top": [
+     "91ednGwgV3PDj4DxpqxiWg=="
+    ]
+   },
+   {
+    "col": "Comp_MSMENo",
+    "filled": 9,
+    "pct": 40.9,
+    "top": [
+     "GJ-22-0341107",
+     "GJ-22-0332214",
+     "GJ-22-0332235"
+    ]
+   },
+   {
+    "col": "Comp_MSMEType",
+    "filled": 10,
+    "pct": 45.5,
+    "top": [
+     "SMALL ENTERPRISE",
+     "MICRO ENTERPRISE",
+     "NONE"
+    ]
+   },
+   {
+    "col": "IsWhatsUpReq",
+    "filled": 21,
+    "pct": 95.5,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "IsEmailReq",
+    "filled": 5,
+    "pct": 22.7,
+    "top": [
+     "1"
+    ]
+   }
+  ],
+  "unused": [
+   "offgroup",
+   "offlandline",
+   "offfaxno",
+   "FactCity",
+   "FactRemark",
+   "FactTexDed",
+   "Factlandline",
+   "factmobile",
+   "factfax",
+   "FactEmail",
+   "FactConPer",
+   "CompTrfServer",
+   "CompTrfDBName",
+   "Comp_API",
+   "Comp_IsTaxable",
+   "Comp_Logo",
+   "Comp_WaterMark",
+   "Comp_WebSite",
+   "Comp_Einv2Fac",
+   "Comp_EinvSubUser",
+   "Comp_FtpLink",
+   "Comp_FtpUser",
+   "Comp_HttpLink"
+  ]
+ },
+ "ItemGroupMst": {
+  "rows": 27,
+  "cols": 25,
+  "used": [
+   {
+    "col": "IG_Code",
+    "filled": 27,
+    "pct": 100.0,
+    "top": [
+     "108794886",
+     "108794882",
+     "108794887"
+    ]
+   },
+   {
+    "col": "IG_Name",
+    "filled": 27,
+    "pct": 100.0,
+    "top": [
+     "YARN                          ",
+     "DYED YARN",
+     "PV YARN"
+    ]
+   },
+   {
+    "col": "IG_VatTax",
+    "filled": 19,
+    "pct": 70.4,
+    "top": [
+     "6",
+     "2.5"
+    ]
+   },
+   {
+    "col": "IG_AddTax",
+    "filled": 19,
+    "pct": 70.4,
+    "top": [
+     "6",
+     "2.5"
+    ]
+   },
+   {
+    "col": "IG_Unit",
+    "filled": 11,
+    "pct": 40.7,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 11,
+    "pct": 40.7,
+    "top": [
+     "EMP01",
+     "EMP012",
+     "EMP03"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 11,
+    "pct": 40.7,
+    "top": [
+     "2021-03-17 15:49:54.000",
+     "2024-10-01 16:59:36.000",
+     "2022-12-19 14:41:58.000"
+    ]
+   },
+   {
+    "col": "IG_IGST",
+    "filled": 19,
+    "pct": 70.4,
+    "top": [
+     "12",
+     "5"
+    ]
+   },
+   {
+    "col": "IG_HSNCODE",
+    "filled": 16,
+    "pct": 59.3,
+    "top": [
+     "54024700",
+     "54023300",
+     "54024500"
+    ]
+   },
+   {
+    "col": "IG_ItemSelection",
+    "filled": 11,
+    "pct": 40.7,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "IG_IsServiceGrp",
+    "filled": 1,
+    "pct": 3.7,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "IG_TaxCode",
+    "filled": 15,
+    "pct": 55.6,
+    "top": [
+     "15",
+     "12",
+     "34"
+    ]
+   },
+   {
+    "col": "IG_InAndroidReq",
+    "filled": 27,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   }
+  ],
+  "unused": [
+   "IG_GodownRequire",
+   "IG_DisQtyWise",
+   "IG_Per",
+   "IG_Prefix",
+   "IG_IsIncludeTax",
+   "IG_CodeEx",
+   "IG_ComCodeEx",
+   "IG_CommiReq",
+   "IG_SqFReadOnly",
+   "IG_SalProfitPer",
+   "IG_DenierReq",
+   "IG_Block"
+  ]
+ },
+ "RecSubBilladjustMst": {
+  "rows": 307439,
+  "cols": 30,
+  "used": [
+   {
+    "col": "RecSS_Code",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "REC0266581",
+     "REC0248619",
+     "REC0186355"
+    ]
+   },
+   {
+    "col": "RecSS_Auto",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "RecSS_Pcode",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P017188",
+     "P0148"
+    ]
+   },
+   {
+    "col": "RecSS_BillCode",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "SAL05626",
+     "SAL05623",
+     "PUR0184288"
+    ]
+   },
+   {
+    "col": "RecSS_BillRecAmt",
+    "filled": 307437,
+    "pct": 100.0,
+    "top": [
+     "100000",
+     "1",
+     "35400"
+    ]
+   },
+   {
+    "col": "RecSS_DiffDays",
+    "filled": 228829,
+    "pct": 74.4,
+    "top": [
+     "2",
+     "1",
+     "3"
+    ]
+   },
+   {
+    "col": "Rec_Type",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "BANKREC",
+     "BANKPAY",
+     "BANKRECRTN"
+    ]
+   },
+   {
+    "col": "Rec_DC",
+    "filled": 307438,
+    "pct": 100.0,
+    "top": [
+     "DB",
+     "CR"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Rec_TDSAmt",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "1193",
+     "283",
+     "96"
+    ]
+   },
+   {
+    "col": "Rec_TDSAccount",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "P010671"
+    ]
+   },
+   {
+    "col": "Rec_TDSSection",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Rec_TDSPer",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "10"
+    ]
+   },
+   {
+    "col": "Rec_GrossAmount",
+    "filled": 3,
+    "pct": 0.0,
+    "top": [
+     "11929",
+     "2826",
+     "978"
+    ]
+   },
+   {
+    "col": "RecSS_ChkNo",
+    "filled": 244871,
+    "pct": 79.6,
+    "top": [
+     "324979",
+     "424115",
+     "706247"
+    ]
+   },
+   {
+    "col": "RecSS_RecDate",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "2026-04-24 00:00:00.000",
+     "2025-03-31 00:00:00.000",
+     "2025-11-21 00:00:00.000"
+    ]
+   },
+   {
+    "col": "RecSS_BillId",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "2",
+     "1",
+     "INV39174/18"
+    ]
+   },
+   {
+    "col": "RecSS_BillDate",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "2024-11-29 00:00:00.000",
+     "2025-03-31 00:00:00.000",
+     "2024-08-23 00:00:00.000"
+    ]
+   },
+   {
+    "col": "RecSS_TranType",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "SAL",
+     "PUR",
+     "DBNT"
+    ]
+   },
+   {
+    "col": "RecSS_VchNo",
+    "filled": 307439,
+    "pct": 100.0,
+    "top": [
+     "SPC0228/26-27",
+     "NEWP654\\25-26",
+     "SPC0546/24-25"
+    ]
+   },
+   {
+    "col": "RecSS_BillTaxableAmt",
+    "filled": 305877,
+    "pct": 99.5,
+    "top": [
+     "-1",
+     "-95238",
+     "-48"
+    ]
+   }
+  ],
+  "unused": [
+   "RecSS_Intrest",
+   "RecSS_AddLess",
+   "Rec_TDSSurchrg",
+   "Rec_TDSCess",
+   "RecSS_BillRecUSDAmt",
+   "RecSS_RecUSDExRate",
+   "RecSS_BillUSDExRate"
+  ]
+ },
+ "JVBillAdustMst": {
+  "rows": 161809,
+  "cols": 23,
+  "used": [
+   {
+    "col": "JVS_Code",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "1056595",
+     "1108174",
+     "941186"
+    ]
+   },
+   {
+    "col": "JVS_Pcode",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "P0769",
+     "P017188",
+     "P0148"
+    ]
+   },
+   {
+    "col": "JVS_BillCode",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "OTH026",
+     "PUR0230735",
+     "PUR0235017"
+    ]
+   },
+   {
+    "col": "JVS_BillRecAmt",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "56",
+     "116",
+     "57"
+    ]
+   },
+   {
+    "col": "JVS_Type",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "PUR",
+     "BANKREC",
+     "DBNT"
+    ]
+   },
+   {
+    "col": "JVS_DC",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "DB",
+     "CR"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "JVS_IsTds",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "TDS",
+     "CRNT",
+     "DBNT"
+    ]
+   },
+   {
+    "col": "RecSS_ChkNo",
+    "filled": 14930,
+    "pct": 9.2,
+    "top": [
+     "000030",
+     "000568",
+     "000508"
+    ]
+   },
+   {
+    "col": "RecSS_RecDate",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "2026-03-31 00:00:00.000",
+     "2025-03-31 00:00:00.000",
+     "2024-11-30 00:00:00.000"
+    ]
+   },
+   {
+    "col": "RecSS_BillId",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "RV0010111386"
+    ]
+   },
+   {
+    "col": "RecSS_BillDate",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "2024-04-01 00:00:00.000",
+     "2024-11-28 00:00:00.000",
+     "2024-05-11 00:00:00.000"
+    ]
+   },
+   {
+    "col": "RecSS_VchNo",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "JOULLP0008/26-27",
+     "PLD101/26-27",
+     "JOU0188/25-26"
+    ]
+   },
+   {
+    "col": "Jvs_Auto",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "128726",
+     "228173",
+     "330304"
+    ]
+   },
+   {
+    "col": "Jvs_SecondPcode",
+    "filled": 161809,
+    "pct": 100.0,
+    "top": [
+     "P013276",
+     "P0242",
+     "P013341"
+    ]
+   },
+   {
+    "col": "Jv_IsSameJvAdj",
+    "filled": 3454,
+    "pct": 2.1,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Jvs_IsOtherBillAdj",
+    "filled": 228,
+    "pct": 0.1,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "JVS_BillTaxableAmt",
+    "filled": 9063,
+    "pct": 5.6,
+    "top": [
+     "104",
+     "106",
+     "105"
+    ]
+   }
+  ],
+  "unused": [
+   "JVS_BillRecUSDAmt",
+   "JVS_RecUSDExRate",
+   "JVS_BillUSDExRate"
+  ]
+ },
+ "SalPurBillAdustMst": {
+  "rows": 2786,
+  "cols": 23,
+  "used": [
+   {
+    "col": "Adj_Code",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "SAL0403644",
+     "SAL0405534",
+     "SAL0388364"
+    ]
+   },
+   {
+    "col": "Adj_Auto",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "22753",
+     "2679",
+     "18782"
+    ]
+   },
+   {
+    "col": "Adj_Pcode",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "P022927",
+     "P09241",
+     "P022565"
+    ]
+   },
+   {
+    "col": "Adj_BillCode",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "PUR0327170",
+     "PUR0325847",
+     "PUR0320812"
+    ]
+   },
+   {
+    "col": "Adj_BillRecAmt",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "-152690",
+     "152690",
+     "-2896"
+    ]
+   },
+   {
+    "col": "Adj_Type",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "SALRTN",
+     "PURRTN"
+    ]
+   },
+   {
+    "col": "Adj_DC",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "CR"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Adj_IsTds",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "SALRTN",
+     "SAL",
+     "PURRTN"
+    ]
+   },
+   {
+    "col": "Adj_RecDate",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "2026-10-30 00:00:00.000",
+     "2025-11-23 00:00:00.000",
+     "2026-07-25 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Adj_BillId",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "DO2611061705",
+     "DO2611058063",
+     "DO2616010856"
+    ]
+   },
+   {
+    "col": "Adj_BillDate",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "2026-09-15 00:00:00.000",
+     "2026-09-07 00:00:00.000",
+     "2025-11-23 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Adj_VchNo",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "R00172/26-27",
+     "SALRA1/26-27",
+     "R00184/26-27"
+    ]
+   },
+   {
+    "col": "Adj_SecondPcode",
+    "filled": 2786,
+    "pct": 100.0,
+    "top": [
+     "P022927",
+     "P09241",
+     "P022565"
+    ]
+   },
+   {
+    "col": "Adj_TaxableAmt",
+    "filled": 2668,
+    "pct": 95.8,
+    "top": [
+     "-136330",
+     "136330",
+     "-31386"
+    ]
+   }
+  ],
+  "unused": [
+   "Adj_IsOtherBillAdj",
+   "Adj_BillRecUSDAmt",
+   "Adj_RecUSDExRate",
+   "Adj_BillUSDExRate",
+   "Adj_GrNo",
+   "Adj_GrDT"
+  ]
+ },
+ "RecJVMst": {
+  "rows": 25035,
+  "cols": 21,
+  "used": [
+   {
+    "col": "RecJV_Code",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "REC0201135",
+     "REC0196672",
+     "REC0235773"
+    ]
+   },
+   {
+    "col": "RecJV_Pcode",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "P010494",
+     "P04949",
+     "P09241"
+    ]
+   },
+   {
+    "col": "RecJV_BillCode",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "821649",
+     "849405",
+     "SAL0262335"
+    ]
+   },
+   {
+    "col": "RecJV_AcCode",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "P0242",
+     "P013341",
+     "P0238"
+    ]
+   },
+   {
+    "col": "RecJV_Amt",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   {
+    "col": "RecJV_DCType",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "C",
+     "D"
+    ]
+   },
+   {
+    "col": "Rec_JV",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "914382",
+     "756476",
+     "1117774"
+    ]
+   },
+   {
+    "col": "Rec_Bill",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "DBT2369/24-25",
+     "DBT3430/25-26",
+     "GL03801/24-25"
+    ]
+   },
+   {
+    "col": "ComCode",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "2",
+     "9"
+    ]
+   },
+   {
+    "col": "RecJV_GstSlab",
+    "filled": 1891,
+    "pct": 7.6,
+    "top": [
+     "12",
+     "5",
+     "6"
+    ]
+   },
+   {
+    "col": "RecJV_BillDt",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "2025-10-18 00:00:00.000",
+     "2026-04-24 00:00:00.000",
+     "2026-03-30 00:00:00.000"
+    ]
+   },
+   {
+    "col": "CostcenterCode",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "BranchCode",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "RecJV_BrokerCode",
+    "filled": 24990,
+    "pct": 99.8,
+    "top": [
+     "BRK7096",
+     "BRK7001",
+     "BRK7120"
+    ]
+   },
+   {
+    "col": "RecJv_IsOnAccount",
+    "filled": 25035,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   }
+  ],
+  "unused": [
+   "RecJV_Per",
+   "RecJV_Qty",
+   "RecJV_P",
+   "RecJV_UsdAmt",
+   "RecJV_RecUsdExRate",
+   "RecJV_BillUsdExRate"
+  ]
+ },
+ "OpeningBalMst": {
+  "rows": 457790,
+  "cols": 12,
+  "used": [
+   {
+    "col": "Opn_PCode",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "P07504",
+     "P015379",
+     "P017302"
+    ]
+   },
+   {
+    "col": "Opn_Bal",
+    "filled": 2865,
+    "pct": 0.6,
+    "top": [
+     "100000",
+     "10000",
+     "200000"
+    ]
+   },
+   {
+    "col": "Opn_D_C",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "CR",
+     "DB"
+    ]
+   },
+   {
+    "col": "Opn_ComCode",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "1",
+     "20",
+     "16"
+    ]
+   },
+   {
+    "col": "Opn_Date",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "2024-03-31 00:00:00.000",
+     "2025-03-31 00:00:00.000",
+     "2026-03-31 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Opn_CrDays",
+    "filled": 1860,
+    "pct": 0.4,
+    "top": [
+     "10",
+     "30",
+     "1"
+    ]
+   },
+   {
+    "col": "Opn_CrLimit",
+    "filled": 425345,
+    "pct": 92.9,
+    "top": [
+     "1000000",
+     "2500000",
+     "5000000"
+    ]
+   },
+   {
+    "col": "Opn_GroupCode",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "27",
+     "36",
+     "51"
+    ]
+   },
+   {
+    "col": "Opn_Uname",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "EMP03",
+     "EMP01",
+     "EMP010"
+    ]
+   },
+   {
+    "col": "Opn_Udatetime",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "2024-04-01 20:16:25.240",
+     "2026-06-06 16:09:59.487",
+     "2025-12-25 15:01:44.840"
+    ]
+   },
+   {
+    "col": "Opn_CostCenterCode",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "1319"
+    ]
+   },
+   {
+    "col": "Opn_BranchCode",
+    "filled": 457790,
+    "pct": 100.0,
+    "top": [
+     "1"
+    ]
+   }
+  ],
+  "unused": []
+ },
+ "TdsMst": {
+  "rows": 5,
+  "cols": 14,
+  "used": [
+   {
+    "col": "Tds_Code",
+    "filled": 5,
+    "pct": 100.0,
+    "top": [
+     "2",
+     "4",
+     "6"
+    ]
+   },
+   {
+    "col": "Tds_Type",
+    "filled": 1,
+    "pct": 20.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "Tds_Section",
+    "filled": 5,
+    "pct": 100.0,
+    "top": [
+     "94C",
+     "206C(1H)",
+     "94H"
+    ]
+   },
+   {
+    "col": "Tds_Desc",
+    "filled": 4,
+    "pct": 80.0,
+    "top": [
+     "TDS On Purchase Bill",
+     "tcs",
+     "TDS ON TRANSPORT"
+    ]
+   },
+   {
+    "col": "Tds_Per",
+    "filled": 5,
+    "pct": 100.0,
+    "top": [
+     "0.1",
+     "2",
+     "7.5"
+    ]
+   },
+   {
+    "col": "Tds_Surcharges",
+    "filled": 1,
+    "pct": 20.0,
+    "top": [
+     "5000000"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 5,
+    "pct": 100.0,
+    "top": [
+     "EMP03",
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 5,
+    "pct": 100.0,
+    "top": [
+     "2020-07-08 18:44:57.000",
+     "2024-05-24 15:57:18.000",
+     "2024-04-05 20:15:34.000"
+    ]
+   },
+   {
+    "col": "UCName",
+    "filled": 5,
+    "pct": 100.0,
+    "top": [
+     "EMP03",
+     "EMP01"
+    ]
+   },
+   {
+    "col": "UCdatetime",
+    "filled": 5,
+    "pct": 100.0,
+    "top": [
+     "2020-07-08 18:44:57.000",
+     "2021-04-02 15:29:28.000",
+     "2020-08-05 16:13:31.000"
+    ]
+   },
+   {
+    "col": "Tds_FrDt",
+    "filled": 1,
+    "pct": 20.0,
+    "top": [
+     "2024-04-01 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Tds_ToDt",
+    "filled": 1,
+    "pct": 20.0,
+    "top": [
+     "2025-03-31 00:00:00.000"
+    ]
+   },
+   {
+    "col": "Tds_PopUpLimit",
+    "filled": 1,
+    "pct": 20.0,
+    "top": [
+     "4500000"
+    ]
+   }
+  ],
+  "unused": [
+   "Tds_EdCess"
+  ]
+ },
+ "UnitMst": {
+  "rows": 3,
+  "cols": 6,
+  "used": [
+   {
+    "col": "Unit_Code",
+    "filled": 3,
+    "pct": 100.0,
+    "top": [
+     "2",
+     "3",
+     "1"
+    ]
+   },
+   {
+    "col": "Unit_Name",
+    "filled": 3,
+    "pct": 100.0,
+    "top": [
+     "KGS",
+     "PCS",
+     "MTR"
+    ]
+   },
+   {
+    "col": "Uname",
+    "filled": 2,
+    "pct": 66.7,
+    "top": [
+     "EMP01"
+    ]
+   },
+   {
+    "col": "Udatetime",
+    "filled": 2,
+    "pct": 66.7,
+    "top": [
+     "2020-05-28 15:01:28.000",
+     "2020-05-28 15:01:32.000"
+    ]
+   }
+  ],
+  "unused": [
+   "Unit_CodeEx",
+   "Unit_ComCodeEx"
+  ]
+ },
+ "QuotationSubSMst": {
+  "rows": 86890,
+  "cols": 27,
+  "used": [
+   {
+    "col": "SalSS_Code",
+    "filled": 86890,
+    "pct": 100.0,
+    "top": [
+     "SAL0121076",
+     "SAL0121042",
+     "SAL0131212"
+    ]
+   },
+   {
+    "col": "SalSS_Grade",
+    "filled": 86890,
+    "pct": 100.0,
+    "top": [
+     "3744",
+     "9687",
+     "9690"
+    ]
+   },
+   {
+    "col": "SalSS_Rate",
+    "filled": 86845,
+    "pct": 99.9,
+    "top": [
+     "128",
+     "126",
+     "124"
+    ]
+   },
+   {
+    "col": "SalSS_RD",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "3"
+    ]
+   },
+   {
+    "col": "SalSS_Type",
+    "filled": 86890,
+    "pct": 100.0,
+    "top": [
+     "SalOrder",
+     "PurOrder"
+    ]
+   },
+   {
+    "col": "SalSS_CD",
+    "filled": 1,
+    "pct": 0.0,
+    "top": [
+     "1"
+    ]
+   },
+   {
+    "col": "SalSS_AutoNo",
+    "filled": 86890,
+    "pct": 100.0,
+    "top": [
+     "48181",
+     "128726",
+     "2571"
+    ]
+   }
+  ],
+  "unused": [
+   "SalSS_QD",
+   "SalSS_Qty",
+   "SalSS_QDDisPer",
+   "SalSS_ICode",
+   "SalSS_UsdRate",
+   "SalSS_CalType",
+   "SalSS_ItemRate",
+   "SalSS_LoadPer",
+   "SalSS_LoadAmt",
+   "SalSS_PerLoadPerg",
+   "SalSS_PerLoadAmt",
+   "SalSS_CfPer",
+   "SalSS_CfAmt",
+   "SalSS_CdPer",
+   "SalSS_CdAmt",
+   "SalSS_SpaPer",
+   "SalSS_SpaAmt",
+   "SalSS_DisPer",
+   "SalSS_DisAmt",
+   "SalSS_ItemAutoNo"
+  ]
+ }
+}
