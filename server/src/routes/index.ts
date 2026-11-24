@@ -11,6 +11,7 @@ import {
 import { badRequest, notFound } from '../lib/errors.js';
 import * as admin from '../services/admin.js';
 import { requireRole } from '../services/context.js';
+import * as bankreco from '../services/bankreco.js';
 import * as docs from '../services/documents.js';
 import * as eway from '../services/eway.js';
 import { MASTERS, createMaster, deleteMaster, getMaster, listMaster, updateMaster } from '../services/masters.js';
@@ -188,6 +189,8 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.post('/api/eway-bills/:id/einvoice', write((ctx, req) => eway.generateEinvoice(ctx, idParam(req))));
 
   /* ------------------------------------------------------------ accounts */
+  app.get('/api/bank-reco', read((ctx, req) => bankreco.bankEntries(ctx, q(req) as never)));
+  app.put('/api/bank-reco', write((ctx, req) => bankreco.setCleared(ctx, req.body)));
   app.get('/api/accounts/:id/open-bills', read((ctx, req) => {
     const side = q(req).side === 'payable' ? 'payable' : 'receivable';
     return docs.openBills(ctx, idParam(req), side, Number(q(req).exclude) || undefined, { settled: q(req).settled === '1' });

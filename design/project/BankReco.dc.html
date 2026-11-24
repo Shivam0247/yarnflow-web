@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Bank reconciliation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+</helmet>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;--pop:#1E1E1E;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;--pop:#FFFFFF;color-scheme:light}
+.app{display:flex;height:100vh;overflow:hidden;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:0 0 236px;height:100%;overflow-y:auto;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:1 1 auto;min-width:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.main>*{flex:none}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.bc .m{color:var(--t3)}
+.bc a.m{cursor:pointer;border-radius:6px;padding:3px 6px;margin:0 -2px 0 -6px}
+.bc a.m:hover{color:var(--t1);background:var(--s2);text-decoration:underline;text-underline-offset:3px}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)}
+.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.btn.ok{background:#16A34A;color:#fff}
+.inp{height:32px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:6px;font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--s2);color:var(--t2)}
+.t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-blue{background:rgba(59,130,246,.16);color:#60A5FA}.t-gray{background:var(--s2);color:var(--t2)}.t-purple{background:rgba(168,85,247,.16);color:#C084FC}
+.light .t-green{color:#15803D}.light .t-orange{color:#C2410C}.light .t-red{color:#B91C1C}.light .t-blue{color:#1D4ED8}.light .t-purple{color:#7E22CE}
+.tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none}
+.tab{display:flex;align-items:center;gap:8px;padding:9px 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--t1)}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2);font-variant-numeric:tabular-nums}
+.dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)}
+.fbar{display:flex;align-items:center;gap:8px;padding:8px 20px;flex-wrap:wrap}
+.bulk{display:flex;align-items:center;gap:8px;padding:6px 20px;background:rgba(59,130,246,.10);border-top:1px solid rgba(59,130,246,.25);border-bottom:1px solid rgba(59,130,246,.25);flex-wrap:wrap;font-size:13.5px}
+.okbar{display:flex;align-items:center;gap:10px;margin:0 20px 8px;padding:8px 12px;border-radius:8px;background:rgba(34,197,94,.12);color:#4ADE80;font-size:13.5px}
+.light .okbar{color:#15803D}
+.okbar button{margin-left:auto;border:0;background:transparent;color:inherit;cursor:pointer}
+.reg{flex:1 1 auto!important;min-height:0;overflow:auto;margin:0 20px 12px;border:1px solid var(--bd);border-radius:10px}
+table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0}
+.reg>table.cft{min-height:100%}
+thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:0 9px;white-space:nowrap;border-bottom:1px solid var(--bd)}
+td{padding:0 9px;border-bottom:1px solid var(--bd);white-space:nowrap}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.cbx{width:15px;height:15px;margin:0;accent-color:#3B82F6;vertical-align:middle;cursor:pointer}
+.reg tbody tr:nth-child(even)>td{background:rgba(255,255,255,.04)}
+.light .reg tbody tr:nth-child(even)>td{background:#F6F7F9}
+.reg tbody tr:hover>td{background:var(--s2)}
+.reg tbody tr.sel>td{background:rgba(59,130,246,.22)!important}
+.light .reg tbody tr.sel>td{background:#DBEAFE!important}
+.reg tbody tr.sel>td:first-child{box-shadow:inset 3px 0 0 #3B82F6}
+.cft tbody tr:not(.fillr):not(.more){cursor:pointer;user-select:none}
+.cft tbody tr.fillr>td{height:auto!important;padding:0!important;border:0!important;background:transparent!important}
+.cft tbody tr.more>td{height:40px!important;text-align:center;color:var(--t3);font-size:13px;background:transparent!important}
+.cft tfoot td{position:sticky;bottom:0;z-index:4;background:var(--s2);font-weight:600;border-top:1px solid var(--bd2);border-bottom:0;white-space:nowrap}
+.cft td.lnk{color:var(--t1);font-weight:500;text-decoration:underline;text-decoration-color:var(--bd2);text-underline-offset:3px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--bd2);border-top-color:#3B82F6;border-radius:50%;animation:sp .8s linear infinite;margin-right:8px;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.aiw{flex:none;height:100vh}
+@media (max-width:760px){.aiw{display:none}.sbw{display:none}}
+
+/* gen17: one table size across the app */
+table{font-size:13.5px;line-height:18px}
+thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px}
+tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px}
+tbody td .sub{font-size:11.5px;line-height:14px}
+tfoot td{height:38px}
+table .tag{height:20px;font-size:11.5px;padding:0 7px}
+table .btn.sm{height:26px;padding:0 9px;font-size:12.5px}
+table .cin,table .inp{height:28px;font-size:13.5px}
+
+.ent{flex:1 1 auto!important;min-height:0;display:flex;flex-direction:column;overflow:auto}
+.ent>*{flex:none}
+.sec{padding:10px 20px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:8px}
+.sh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.sh h2{margin:0;font-size:15px;font-weight:600;white-space:nowrap}
+.props{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.pg{display:flex;flex-direction:column;padding:4px 0 6px;min-width:0}
+.pg+.pg{border-left:1px solid var(--bd)}
+.pgt{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);padding:5px 14px 1px}
+.pr{display:grid;grid-template-columns:112px minmax(0,1fr) auto;align-items:center;gap:6px;padding:0 10px 0 14px;min-height:28px}
+.pr:hover{background:var(--s1)}
+.pr label{font-size:12.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv{height:26px;border:1px solid transparent;border-radius:7px;background:transparent;padding:0 8px;font-size:13.5px;color:var(--t1);width:100%;min-width:0}
+.pv:hover{background:var(--s2)}.pv:focus{outline:0;border-color:#3B82F6;background:var(--bg)}
+.pv[readonly]{color:var(--t2)}.pv[readonly]:hover{background:transparent}
+.pv::placeholder{color:var(--t3)}
+select.pv{cursor:pointer}
+.pr .unit{font-size:12px;color:var(--t3);white-space:nowrap}
+.sec.items{flex:1 1 auto!important;min-height:250px}
+.tw{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--bd);border-radius:10px}
+.it thead th{position:sticky;top:0;z-index:2}
+.it tbody td{height:36px}
+.it tfoot td{position:sticky;bottom:0;background:var(--s2);font-weight:600;height:38px;border-top:1px solid var(--bd2);border-bottom:0;white-space:nowrap}
+.it td.n{color:var(--t3);width:34px}
+.it td.nm{font-weight:500}
+.cin{height:28px;border:1px solid var(--bd2);border-radius:6px;background:transparent;padding:0 7px;font-size:13.5px;color:var(--t1);width:100%;min-width:64px}
+.cin:focus{outline:0;border-color:#3B82F6}
+.cin::placeholder{color:var(--t3)}
+.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.box{border:1px solid var(--bd);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.box h3{margin:0 0 3px;font-size:13px;font-weight:600}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;line-height:20px;font-variant-numeric:tabular-nums}
+.kv span:first-child{color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.kv span:last-child{white-space:nowrap}
+.kv.big{border-top:1px dashed var(--bd2);padding-top:6px;margin-top:3px}.kv.big span:first-child{color:var(--t1);font-weight:600}.kv.big span:last-child{font-size:18px;font-weight:600}
+.flg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 14px}
+.fl{display:flex;flex-direction:column;gap:1px;min-width:0}
+.fl label{font-size:12.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fl .inp{height:28px;font-size:13px;width:100%;padding:0 8px}
+.fl label{font-size:11.5px}
+.actbar{display:flex;align-items:center;gap:6px;padding:10px 20px;border-top:1px solid var(--bd);flex-wrap:wrap}
+.actbar .btn{height:32px}
+.actbar select.inp{width:110px;height:32px}
+@media (max-width:1180px){.props,.cols3{grid-template-columns:repeat(2,minmax(0,1fr))}.pg:nth-child(3){grid-column:1 / -1;border-left:0;border-top:1px solid var(--bd)}}
+
+/* gen19: breadcrumb parent is a clear link back */
+.bc a.m{cursor:pointer;text-decoration:none;border-radius:6px;padding:3px 6px;margin:0 -2px 0 -6px;transition:background .12s,color .12s}
+.bc a.m:hover{color:var(--t1);background:var(--s2);text-decoration:underline;text-underline-offset:3px}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+</style>
+
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="breco" hint-size="236px,1000px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span class="m">Bank &amp; Cash</span><span class="m">/</span><span>Bank reconciliation</span></div>
+<button class="btn" type="button" onClick="{{print}}">Print</button>
+<button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveL}}</button>
+</header>
+<div class="ent">
+<section class="sec">
+<div class="sh"><h2>Bank entries</h2><span class="{{noteCls}}" style="font-size: 13px" role="status">{{note}}</span></div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 280px"><label class="muted" style="font-size: 12.5px">Bank</label><select class="inp" aria-label="Bank" value="{{f.bankId}}" onChange="{{set.bankId}}"><sc-for list="{{banks}}" as="o" hint-placeholder-count="2"><option value="{{o.v}}">{{o.l}}</option></sc-for></select></div>
+<div style="display: flex; flex-direction: column; gap: 4px; width: 130px"><label class="muted" style="font-size: 12.5px">From</label><input class="inp" type="text" aria-label="From" value="{{f.from}}" onChange="{{set.from}}" placeholder="dd-mm-yyyy"></div>
+<div style="display: flex; flex-direction: column; gap: 4px; width: 130px"><label class="muted" style="font-size: 12.5px">To</label><input class="inp" type="text" aria-label="To" value="{{f.to}}" onChange="{{set.to}}" placeholder="dd-mm-yyyy"></div>
+<div style="display: flex; flex-direction: column; gap: 4px; width: 170px"><label class="muted" style="font-size: 12.5px">Show</label><select class="inp" aria-label="Show" value="{{f.show}}" onChange="{{set.show}}"><option value="pending">Not cleared</option><option value="all">All entries</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 4px; width: 150px"><label class="muted" style="font-size: 12.5px">Clearing date (F11)</label><input class="inp" type="text" aria-label="Clearing date for ticked entries" value="{{f.cd}}" onChange="{{set.cd}}" placeholder="dd-mm-yyyy"></div>
+<button class="btn" type="button" onClick="{{applyCd}}">Set on ticked</button>
+<button class="btn" type="button" onClick="{{show}}">Show (F5)</button>
+</div>
+<div class="tw"><table class="it">
+<thead><tr><th><input type="checkbox" aria-label="Select all" checked="{{allOn}}" onChange="{{togAll}}"></th><th>Date</th><th>Voucher no.</th><th>Description</th><th>Bank name</th><th>Cheque no.</th><th>Clearing date</th><th>Slip no.</th><th>Type</th><th class="r">Deposit</th><th class="r">Withdrawal</th><th>Remark</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="8"><tr><td><input type="checkbox" aria-label="Select" checked="{{x.on}}" onChange="{{x.tog}}"></td><td class="t2">{{x.dt}}</td><td>{{x.no}}</td><td>{{x.desc}}</td><td class="t2">{{x.pb}}</td><td class="t2">{{x.chq}}</td><td><input class="cin" type="text" aria-label="Clearing date" value="{{x.cd}}" onChange="{{x.setCd}}" placeholder="dd-mm-yyyy" style="width: 104px"></td><td class="t2">{{x.slip}}</td><td class="t2">{{x.type}}</td><td class="r">{{x.dep}}</td><td class="r">{{x.wd}}</td><td class="t2">{{x.rmk}}</td></tr></sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}"><tr><td colspan="12" class="muted" style="text-align: center; padding: 18px">{{emptyL}}</td></tr></sc-if>
+</tbody>
+<tfoot><tr><td></td><td colspan="8">{{count}} · Slip total of ticked: ₹ {{slipTot}}</td><td class="r">{{tot.dep}}</td><td class="r">{{tot.wd}}</td><td></td></tr></tfoot>
+</table></div>
+</section>
+<section class="sec">
+<div class="cols3">
+<div class="box"><h3>Balance on {{toL}}</h3><sc-for list="{{bal}}" as="k" hint-placeholder-count="4"><div class="{{k.c}}"><span>{{k.a}}</span><span>{{k.b}}</span></div></sc-for></div>
+<div class="box"><h3>How it works</h3><div class="muted" style="font-size: 13px; line-height: 1.6">Tick the entries that appear in the bank statement, put the date the bank cleared them and press Save (F2). Balance as per bank = balance as per books − deposits not yet cleared + withdrawals not yet cleared, as on the To date. Nothing in the accounts changes.</div></div>
+</div>
+</section>
+</div>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="pay" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { f: { bankId: '', from: '', to: '', show: 'pending', cd: '' }, data: null, cd: {}, on: {}, note: '', err: false, busy: false }; }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  dmy(iso) { return iso ? String(iso).slice(0, 10).split('-').reverse().join('-') : ''; }
+  iso(d) { const m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(String(d || '').trim()); return m ? m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0') : null; }
+  componentDidMount() {
+    this.init();
+    this._key = (e) => { if (e.key === 'F2') { e.preventDefault(); this.save(); } if (e.key === 'F5') { e.preventDefault(); this.load(); } };
+    try { window.addEventListener('keydown', this._key); } catch (e) {}
+  }
+  componentWillUnmount() { try { window.removeEventListener('keydown', this._key); } catch (e) {} }
+  async init() {
+    const api = this.api(); if (!api) return;
+    try {
+      const lk = await api.lookups(); const t = new Date(); const z = (n) => String(n).padStart(2, '0');
+      const first = '01-' + z(t.getMonth() + 1) + '-' + t.getFullYear(); const today = z(t.getDate()) + '-' + z(t.getMonth() + 1) + '-' + t.getFullYear();
+      const banks = (lk.banks || []).filter((b) => b.kind === 'BANK' || !b.kind);
+      // start with the bank the latest receipt went into
+      let bid = banks[0] ? banks[0].id : null;
+      try { const last = await api.get('/vouchers/receipts', { pageSize: 1 }); if (last.data && last.data[0]) { const d = await api.get('/vouchers/receipts/' + last.data[0].id); if (d.bankAccountId) bid = d.bankAccountId; } } catch (e) {}
+      this.setState({ lk, f: { ...this.state.f, bankId: bid ? String(bid) : '', from: first, to: today } }, () => this.load());
+    } catch (e) { this.setState({ note: api.message(e), err: true }); }
+  }
+  async load() {
+    const api = this.api(); if (!api) return; const f = this.state.f;
+    if (!f.bankId) return;
+    this.setState({ busy: true, note: 'Loading…', err: false });
+    try {
+      const data = await api.get('/bank-reco', { bankId: f.bankId, from: this.iso(f.from), to: this.iso(f.to), show: f.show });
+      this.setState({ data, cd: {}, on: {}, busy: false, note: '' });
+    } catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
+  }
+  async save() {
+    const api = this.api(); const st = this.state; if (!api || !st.data) return;
+    const entries = Object.keys(st.cd).map((id) => ({ id: Number(id), clearedDate: String(st.cd[id] || '').trim() || null }));
+    if (!entries.length) { this.setState({ note: 'Nothing changed', err: false }); return; }
+    const bad = entries.find((e) => e.clearedDate && !this.iso(e.clearedDate)); if (bad) { this.setState({ note: 'Clearing date must be dd-mm-yyyy', err: true }); return; }
+    this.setState({ busy: true, note: 'Saving…' });
+    try { const r = await api.put('/bank-reco', { entries }); await this.load(); this.setState({ note: '✓ Saved ' + r.updated + ' entries', err: false }); }
+    catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
+  }
+  renderVals() {
+    const st = this.state; const theme = this.props.theme ?? 'dark'; const live = !!this.api() && !!st.lk; const lk = st.lk || {};
+    const inr = (n, d) => { const v = Number(n) || 0; const s = Math.abs(v).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (v < 0 ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
+    const set = {}; ['bankId', 'from', 'to', 'show', 'cd'].forEach((k) => { set[k] = (e) => { const v = e.target.value; this.setState({ f: { ...this.state.f, [k]: v } }, () => { if (k === 'bankId' || k === 'show') this.load(); }); }; });
+    const T = { RECEIPT: 'Receipt', PAYMENT: 'Payment', RECEIPT_RETURN: 'Rec. return', PAYMENT_RETURN: 'Pay. return', CONTRA: 'Contra', JOURNAL: 'Journal', DEBIT_NOTE: 'Debit note', CREDIT_NOTE: 'Credit note' };
+    const src = live && st.data ? st.data.rows : [
+      { id: 1, number: 'SRC14142/26-27', date: '2026-11-30', party: 'SAINATH ENTERPRISE(274)', partyBank: 'SURAT MERCANTILE COOP BANK', chequeNo: '000767', clearedDate: '', slipNo: '1898', type: 'RECEIPT', deposit: 159778, withdrawal: 0, remark: '' },
+      { id: 2, number: 'SPC2340/26-27', date: '2026-11-23', party: 'CHINCO TEXTILE INDUSTRIES', partyBank: '', chequeNo: '2311261', clearedDate: '', slipNo: '772', type: 'PAYMENT', deposit: 0, withdrawal: 319816, remark: '' }];
+    const rows = src.map((r) => { const cd = st.cd[r.id] !== undefined ? st.cd[r.id] : (r.clearedDate || ''); const on = !!st.on[r.id];
+      return { dt: this.dmy(r.date), no: r.number, desc: r.party || r.remark || '—', pb: r.partyBank || '—', chq: r.chequeNo || '—', cd, slip: r.slipNo || '—', type: T[r.type] || r.type, dep: r.deposit ? inr(r.deposit, 2) : '', wd: r.withdrawal ? inr(r.withdrawal, 2) : '', rmk: r.remark || '', on,
+        tog: () => this.setState({ on: { ...this.state.on, [r.id]: !on } }), setCd: (e) => this.setState({ cd: { ...this.state.cd, [r.id]: e.target.value } }) }; });
+    const ticked = src.filter((r) => st.on[r.id]);
+    const b = live && st.data ? st.data.balance : { book: 2364512.4, unclearedDeposits: 159778, unclearedWithdrawals: 319816, bank: 2524550.4 };
+    const tot = live && st.data ? st.data.totals : { deposit: 159778, withdrawal: 319816 };
+    return {
+      theme, f: st.f, set, banks: live ? (lk.banks || []).map((a) => ({ v: String(a.id), l: a.name })) : [{ v: '', l: 'THE SURAT PEOPLES CO OP BANK LTD.' }], rows, empty: rows.length === 0, emptyL: st.busy ? 'Loading…' : 'Every entry in this period is cleared',
+      allOn: rows.length > 0 && ticked.length === rows.length, togAll: () => { const on = {}; if (ticked.length !== rows.length) src.forEach((r) => { on[r.id] = true; }); this.setState({ on }); },
+      applyCd: () => { const d = String(st.f.cd || '').trim(); if (d && !this.iso(d)) { this.setState({ note: 'Clearing date must be dd-mm-yyyy', err: true }); return; } const cd = { ...st.cd }; ticked.forEach((r) => { cd[r.id] = d; }); this.setState({ cd, note: ticked.length ? ticked.length + ' entries set — press Save (F2)' : 'Tick the entries first', err: !ticked.length }); },
+      show: () => this.load(), save: () => this.save(), print: () => { try { window.print(); } catch (e) {} }, busy: !!st.busy, saveL: st.busy ? 'Saving…' : 'Save (F2)',
+      count: rows.length + ' entries', slipTot: inr(ticked.reduce((a, r) => a + r.deposit - r.withdrawal, 0), 2), tot: { dep: inr(tot.deposit, 2), wd: inr(tot.withdrawal, 2) },
+      toL: st.f.to || '—', bal: [{ c: 'kv', a: 'Balance as per books', b: '₹ ' + inr(Math.abs(b.book), 2) + (b.book < 0 ? ' Cr' : ' Dr') }, { c: 'kv', a: 'Deposits not yet cleared', b: '− ₹ ' + inr(b.unclearedDeposits, 2) }, { c: 'kv', a: 'Withdrawals not yet cleared', b: '+ ₹ ' + inr(b.unclearedWithdrawals, 2) }, { c: 'kv big', a: 'Balance as per bank (clearing balance)', b: '₹ ' + inr(Math.abs(b.bank), 2) + (b.bank < 0 ? ' Cr' : ' Dr') }],
+      note: st.note, noteCls: st.err ? 'tag t-red' : 'muted'
+    };
+  }
+}
+</script>
+</body>
+</html>

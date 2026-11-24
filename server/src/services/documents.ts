@@ -136,7 +136,7 @@ export const docSchema = z.object({
 export type DocIn = z.infer<typeof docSchema>;
 
 /* ---------------------------------------------------------------- helpers */
-async function audit(ctx: Ctx, entity: string, entityId: number, action: string, summary: string, data?: unknown) {
+export async function audit(ctx: Ctx, entity: string, entityId: number, action: string, summary: string, data?: unknown) {
   await ctx.db.insert(auditLogs).values({ companyId: ctx.companyId, userId: ctx.userId, entity, entityId, action, summary, data: (data ?? null) as never });
 }
 

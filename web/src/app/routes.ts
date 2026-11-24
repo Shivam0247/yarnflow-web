@@ -39,6 +39,7 @@ export const ROUTES: Record<string, string> = {
   "ReceiptRegister": "/accounts/receipts",
   "PaymentRegister": "/accounts/payments/register",
   "ReceiptReturnRegister": "/accounts/receipt-returns",
+  "BankReco": "/accounts/bank-reconciliation",
   "DebitNoteList": "/accounts/debit-notes",
   "DebitNoteEntry": "/accounts/debit-notes/new",
   "DebitNoteView": "/accounts/debit-notes/view",
@@ -62,6 +63,7 @@ export const ROUTES: Record<string, string> = {
 export const PAGES: { path: string; Component: React.LazyExoticComponent<React.ComponentType> }[] = [
   { path: ROUTES.AccountMaster, Component: lazy(() => import('@/screens/AccountMaster/AccountMaster')) },
   { path: ROUTES.Approvals, Component: lazy(() => import('@/screens/Approvals/Approvals')) },
+  { path: ROUTES.BankReco, Component: lazy(() => import('@/screens/BankReco/BankReco')) },
   { path: ROUTES.CreditNoteEntry, Component: lazy(() => import('@/screens/CreditNoteEntry/CreditNoteEntry')) },
   { path: ROUTES.CreditNoteList, Component: lazy(() => import('@/screens/CreditNoteList/CreditNoteList')) },
   { path: ROUTES.CreditNoteView, Component: lazy(() => import('@/screens/CreditNoteView/CreditNoteView')) },
