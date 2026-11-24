@@ -11,7 +11,7 @@ interface Bill { id: number; com: string; companyId: number; date: string; numbe
 interface Party { id: number; name: string; contact: string | null; mobile: string | null; address: string | null; collector: string | null; balance: number }
 interface Data { title: string; by: string; kind: string; from: string; to: string; company: { name: string; address: string }; companies: { id: number; short: string; name: string; on: boolean }[]; bills: Bill[]; parties: Record<string, Party> }
 
-const GROUP_LABEL: Record<string, string> = { group: 'Group :', collector: 'Coll. Person :', broker: 'Broker :', salesperson: 'Sales Person :' };
+const GROUP_LABEL: Record<string, string> = { group: 'Group :', collector: 'Coll. Person :', broker: 'Broker :', salesperson: 'Sales Person :', 'broker+party': 'Broker :', 'broker+group': 'Broker / Group :', 'collector+party': 'Coll. Person :', 'collector+group': 'Coll. P / Group :', 'salesperson+party': 'Sales Person :', 'state+party': 'State :', 'city+party': 'City :' };
 const slash = (d: string) => { const [y, m, dd] = d.slice(0, 10).split('-'); return `${dd}/${m}/${y}`; };
 const short = (d: string) => { const [y, m, dd] = d.slice(0, 10).split('-'); return `${dd}/${m}/${y.slice(2)}`; };
 const int = (n: number) => String(Math.round(n));
@@ -74,11 +74,12 @@ export default function OutstandingPrint() {
 
   useEffect(() => {
     setBusy(true); setErr('');
-    YF_API.get<Data>('/outstanding-print', { by, kind, to, from: from || undefined, companies: companies || undefined })
+    const extra: Record<string, string> = {}; sp.forEach((v, k) => { if (!['by', 'kind', 'to', 'from', 'only', 'companies'].includes(k)) extra[k] = v; });
+    YF_API.get<Data>('/outstanding-print', { ...extra, by, kind, to, from: from || undefined, companies: companies || undefined })
       .then((d) => { setData(d); document.title = d.title; })
       .catch((e) => setErr(YF_API.message(e)))
       .finally(() => setBusy(false));
-  }, [by, kind, to, from, companies]);
+  }, [by, kind, to, from, companies, sp]);
   const set = (k: string, v: string) => { const n = new URLSearchParams(sp); if (v) n.set(k, v); else n.delete(k); setSp(n); };
 
   const groups = useMemo(() => [...new Set((data?.bills ?? []).map((b) => b.group))].sort((a, b) => a.localeCompare(b)), [data]);
@@ -91,7 +92,7 @@ export default function OutstandingPrint() {
     const lines: Line[] = [];
     let gq = 0, gn = 0, go = 0;
     for (const g of [...byGroup.keys()].sort((a, b) => a.localeCompare(b))) {
-      lines.push({ k: 'group', name: g });
+      if (data.by !== 'party') lines.push({ k: 'group', name: g });
       const gb = byGroup.get(g)!;
       const byParty = new Map<number, Bill[]>();
       for (const b of gb) (byParty.get(b.partyId) ?? byParty.set(b.partyId, []).get(b.partyId)!).push(b);
@@ -106,7 +107,7 @@ export default function OutstandingPrint() {
         lines.push({ k: 'ptotal', qty: q, net: n, os: o });
         tq += q; tn += n; to2 += o;
       }
-      lines.push({ k: 'gtotal', qty: tq, net: tn, rec: tr, os: to2 });
+      if (data.by !== 'party') lines.push({ k: 'gtotal', qty: tq, net: tn, rec: tr, os: to2 });
       gq += tq; gn += tn; go += to2;
     }
     if (lines.length) lines.push({ k: 'grand', qty: gq, net: gn, os: go });
@@ -114,11 +115,12 @@ export default function OutstandingPrint() {
     let y = Y0;
     for (const l of lines) {
       const h = H[l.k];
-      if (y + h > LIMIT && out[out.length - 1].length) { out.push([]); y = Y0; }
+      const brk = sp.get('pergroup') === '1' && l.k === 'group';
+      if ((y + h > LIMIT || brk) && out[out.length - 1].length) { out.push([]); y = Y0; }
       out[out.length - 1].push(l); y += h;
     }
     return out;
-  }, [data, only]);
+  }, [data, only, sp]);
 
   const comp = data?.companies ?? [];
   const toggleCo = (id: number) => {

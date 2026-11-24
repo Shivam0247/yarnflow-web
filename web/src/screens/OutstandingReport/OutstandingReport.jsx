@@ -1,0 +1,488 @@
+/* eslint-disable */
+// OutstandingReport — converted 1:1 from the YarnFlow design (OutstandingReport.dc.html).
+// Markup, styles, sample data and behaviour are identical to the design.
+import { Fragment } from 'react';
+import { DCLogic, useTheme } from '@/dc/runtime';
+import Assistant from '@/components/Assistant/Assistant';
+import Sidebar from '@/components/Sidebar/Sidebar';
+
+
+
+/* ----- screen logic (same as the design) ----- */
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { f: { choice: 'pending', mode: 'DETAIL', rtype: 'FIXED', format: 'pw', from: '', to: '', types: ['SAL'], by: 'group', recFrom: '', recTo: '', recWise: false, due: false }, sel: {}, not: {}, q: {}, tab: 'acc', paras: [], paraOpen: false, expOpen: false, optOpen: false, note: '', err: false };
+  }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  iso(d) { const m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(String(d || '').trim()); return m ? m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0') : null; }
+  componentDidMount() {
+    this.init();
+    this._key = (e) => { if (e.key === 'F5') { e.preventDefault(); this.preview(); } };
+    try { window.addEventListener('keydown', this._key); } catch (e) {}
+  }
+  componentWillUnmount() { try { window.removeEventListener('keydown', this._key); } catch (e) {} }
+  async init() {
+    const api = this.api(); if (!api) return;
+    try {
+      const [lk, fl, designs] = await Promise.all([api.lookups(), api.get('/outstanding-print/filters'), api.get('/report-designs').catch(() => [])]);
+      const t = new Date(); const z = (n) => String(n).padStart(2, '0');
+      const fyStart = (t.getMonth() >= 3 ? t.getFullYear() : t.getFullYear() - 1);
+      let f = { ...this.state.f, from: '01-04-' + fyStart, to: z(t.getDate()) + '-' + z(t.getMonth() + 1) + '-' + t.getFullYear() };
+      let sel = {}, not = {};
+      try { const d = JSON.parse(localStorage.getItem('yf-osr-default') || 'null'); if (d) { f = { ...f, ...d.f, from: f.from, to: f.to }; sel = d.sel || {}; not = d.not || {}; } } catch (e) {}
+      this.setState({ lk, fl, designs: (designs || []).filter((d) => d.type === 'Outstanding'), f, sel, not });
+    } catch (e) { this.setState({ note: api.message(e), err: true }); }
+  }
+  /** every tick-list the old Report Selection had, per tab */
+  listDefs() {
+    const lk = this.state.lk || {}, fl = this.state.fl || {};
+    const P = (a, code) => (a || []).map((x) => ({ id: x.id, code: code ? code(x) : (x.code || ''), name: x.name }));
+    const S = (a) => (a || []).map((x) => ({ id: x, code: '', name: x }));
+    return {
+      company: { tab: 'co', title: 'Company', rows: P(fl.companies), noNot: true },
+      book: { tab: 'acc', title: 'Book', rows: P((lk.books || []).filter((b) => ['SALE_BILL', 'GENERAL_SALE', 'DEBIT_NOTE'].includes(b.voucherType))), noNot: true },
+      group: { tab: 'acc', title: 'Group (Account Head)', rows: P(fl.groups), noNot: true },
+      party: { tab: 'acc', title: 'Account', rows: P(lk.customers), big: true },
+      state: { tab: 'place', title: 'State', rows: S(fl.states) },
+      city: { tab: 'place', title: 'City', rows: S(fl.cities) },
+      area: { tab: 'place', title: 'Area', rows: S(fl.areas) },
+      item: { tab: 'item', title: 'Items', rows: P(lk.items) },
+      brand: { tab: 'item', title: 'Brand', rows: (lk.brands || []).map((b) => ({ id: b.name, code: '', name: b.name })), noNot: true },
+      broker: { tab: 'brk', title: 'Broker', rows: P(lk.brokers) },
+      pgroup: { tab: 'brk', title: 'PartyGroup', rows: P(lk.partyGroups) },
+      sales: { tab: 'oth', title: 'Sales Person', rows: P(lk.salesPersons) },
+      trans: { tab: 'oth', title: 'Transporter', rows: P(lk.transporters, (x) => x.legacyCode || ''), noNot: true },
+      coll: { tab: 'emp', title: 'Collection Person', rows: P(lk.collectionPersons) }
+    };
+  }
+  query() {
+    const st = this.state, f = st.f, L = this.listDefs();
+    const ids = (k) => Object.keys(st.sel[k] || {}).filter((x) => st.sel[k][x]);
+    const p = { from: this.iso(f.from) || '', to: this.iso(f.to) || '', choice: f.choice, by: f.by, types: f.types.join(',') };
+    const map = { company: 'companies', book: 'books', group: 'groups', party: 'parties', item: 'items', broker: 'brokers', pgroup: 'partyGroups', sales: 'salesPersons', trans: 'transporters', coll: 'collectors' };
+    const nots = { party: 'notParties', item: 'notItems', broker: 'notBrokers', pgroup: 'notPartyGroups', sales: 'notSalesPersons', coll: 'notCollectors', state: 'notStates', city: 'notCities', area: 'notAreas' };
+    Object.keys(map).forEach((k) => { const v = ids(k); if (v.length) p[map[k]] = v.join(','); });
+    ['state', 'city', 'area', 'brand'].forEach((k) => { const v = ids(k); if (v.length) p[{ state: 'states', city: 'cities', area: 'areas', brand: 'brands' }[k]] = v.join('|'); });
+    Object.keys(nots).forEach((k) => { if (st.not[k] && ids(k).length) p[nots[k]] = '1'; });
+    if (f.recWise && (f.recFrom || f.recTo)) { if (this.iso(f.recFrom)) p.recFrom = this.iso(f.recFrom); if (this.iso(f.recTo)) p.recTo = this.iso(f.recTo); }
+    if (f.due) p.due = '1';
+    const para = st.paras.filter((x) => x.a !== '' && !isNaN(Number(x.a))).map((x) => ({ f: x.f, op: x.op, a: Number(x.a), b: x.b === '' ? undefined : Number(x.b) }));
+    if (para.length) p.para = JSON.stringify(para);
+    return p;
+  }
+  open(extra) {
+    const p = { ...this.query(), ...(extra || {}) };
+    if (!p.from || !p.to) { this.setState({ note: 'Dates must be dd-mm-yyyy', err: true }); return; }
+    const qs = Object.keys(p).filter((k) => p[k] !== undefined && p[k] !== '').map((k) => k + '=' + encodeURIComponent(p[k])).join('&');
+    try { window.open('/print/outstanding?' + qs, '_blank'); } catch (e) {}
+  }
+  preview() {
+    const f = this.state.f;
+    if (f.rtype === 'DYNAMIC') { const id = f.format.replace('d', ''); try { window.open('/print/report/' + id + '?asOn=' + (this.iso(f.to) || ''), '_blank'); } catch (e) {} return; }
+    const fmt = FORMATS.find((x) => x.v === f.format) || FORMATS[0];
+    if (!fmt.ready) { this.setState({ note: '"' + fmt.l + '" needs one sample PDF from the old software to be made the same — send it and it will be added', err: true }); return; }
+    this.setState({ note: '', err: false });
+    this.open(fmt.q);
+  }
+  renderVals() {
+    const st = this.state; const theme = this.props.theme ?? 'dark'; const f = st.f; const live = !!this.api() && !!st.lk;
+    const setF = (k, v) => this.setState({ f: { ...this.state.f, [k]: v } });
+    const set = {}; ['format', 'from', 'to', 'by', 'recFrom', 'recTo'].forEach((k) => { set[k] = (e) => setF(k, e.target.value); });
+    const tog = { recWise: () => setF('recWise', !f.recWise), due: () => setF('due', !f.due) };
+    const segs = (k, opts) => opts.map(([v, l]) => ({ l, c: f[k] === v ? 'on' : '', go: () => setF(k, v) }));
+    const formats = f.rtype === 'DYNAMIC' ? (st.designs || []).map((d) => ({ v: 'd' + d.regId, l: d.title })) : FORMATS.map((x) => ({ v: x.v, l: x.l + (x.ready ? '' : '  (needs sample)') }));
+    const L = this.listDefs(); const tab = st.tab;
+    const TABS = [['co', 'Company+Cost Center Master'], ['acc', 'Book+Group+Account'], ['place', 'Area + City + State'], ['item', 'ItemGroup+Items'], ['brk', 'Broker+PartyGroup'], ['oth', 'Vehical / Sales Person'], ['emp', 'Employees / Workers / Collection Person']];
+    const cnt = (k) => Object.values(st.sel[k] || {}).filter(Boolean).length;
+    const tabs = TABS.map(([v, l]) => { const n = Object.keys(L).filter((k) => L[k].tab === v).reduce((a, k) => a + cnt(k), 0); return { l, n: n ? String(n) : '', c: 'tab' + (tab === v ? ' on' : ''), go: () => this.setState({ tab: v }) }; });
+    const lists = Object.keys(L).filter((k) => L[k].tab === tab).map((k) => {
+      const d = L[k]; const q = String(st.q[k] || '').toLowerCase(); const sel = st.sel[k] || {};
+      const hit = d.rows.filter((r) => !q || String(r.name).toLowerCase().includes(q) || String(r.code).toLowerCase().includes(q));
+      const chosen = hit.filter((r) => sel[r.id]); const rest = hit.filter((r) => !sel[r.id]);
+      const shown = chosen.concat(rest).slice(0, 400);
+      const put = (ids, on) => { const s = { ...(this.state.sel[k] || {}) }; ids.forEach((id) => { s[id] = on; }); this.setState({ sel: { ...this.state.sel, [k]: s } }); };
+      return { title: d.title, count: cnt(k) ? cnt(k) + ' of ' + d.rows.length + ' selected' : d.rows.length + '', q: st.q[k] || '', setQ: (e) => this.setState({ q: { ...this.state.q, [k]: e.target.value } }),
+        rows: shown.map((r) => ({ code: r.code, name: r.name, on: !!sel[r.id], tog: () => put([r.id], !sel[r.id]) })), more: hit.length > 400 ? (hit.length - 400) + ' more — type to search' : '',
+        all: () => put(hit.map((r) => r.id), true), none: () => this.setState({ sel: { ...this.state.sel, [k]: {} } }), canNot: !d.noNot, not: !!st.not[k], togNot: () => this.setState({ not: { ...this.state.not, [k]: !this.state.not[k] } }) };
+    });
+    const ttypes = [['SAL', 'SAL'], ['GENSAL', 'GENSAL'], ['DBNT', 'DBNT']].map(([v, l]) => ({ l, on: f.types.includes(v), tog: () => setF('types', f.types.includes(v) ? f.types.filter((x) => x !== v) : f.types.concat(v)) }));
+    const paras = st.paras.map((x, i) => { const up = (k) => (e) => { const a = this.state.paras.slice(); a[i] = { ...a[i], [k]: e.target.value }; this.setState({ paras: a }); };
+      return { ...x, setF: up('f'), setOp: up('op'), setA: up('a'), setB: up('b'), del: () => this.setState({ paras: this.state.paras.filter((_, j) => j !== i) }) }; });
+    const exports = EXPORTS.map(([by, l]) => ({ l, go: () => { this.setState({ expOpen: false }); this.open({ by, pergroup: '1' }); } }));
+    return {
+      theme, f, set, tog, choices: segs('choice', [['all', 'All'], ['clear', 'Clear'], ['pending', 'Pending']]), modes: segs('mode', [['DETAIL', 'Detail'], ['SUMMARY', 'Summary']]),
+      rtypes: segs('rtype', [['FIXED', 'Fixed'], ['DYNAMIC', 'Dynamic']]).map((o, i) => ({ ...o, go: () => this.setState({ f: { ...this.state.f, rtype: i ? 'DYNAMIC' : 'FIXED', format: i ? 'd' + ((st.designs || [])[0] || {}).regId : 'pw' } }) })),
+      formats, ttypes, bys: BYS.map(([v, l]) => ({ v, l })), tabs, lists, paras, paraN: st.paras.length ? ' (' + st.paras.length + ')' : '', paraOpen: st.paraOpen,
+      paraTog: () => this.setState({ paraOpen: !st.paraOpen, paras: !st.paraOpen && !st.paras.length ? [{ f: 'Outstanding', op: '>', a: '', b: '' }] : st.paras }),
+      paraAdd: () => this.setState({ paras: st.paras.concat({ f: 'Outstanding', op: '>', a: '', b: '' }) }), paraFields: PARA_FIELDS.map(([v, l]) => ({ v, l })), paraOps: OPS.map((o) => ({ v: o, l: o === 'between' ? 'Between' : o })),
+      exports, expOpen: st.expOpen, expTog: () => this.setState({ expOpen: !st.expOpen, optOpen: false }), optOpen: st.optOpen, optTog: () => this.setState({ optOpen: !st.optOpen, expOpen: false }),
+      setDefault: () => { try { localStorage.setItem('yf-osr-default', JSON.stringify({ f: { ...f, from: undefined, to: undefined }, sel: st.sel, not: st.not })); } catch (e) {} this.setState({ optOpen: false, note: '✓ Saved as default', err: false }); },
+      clearDefault: () => { try { localStorage.removeItem('yf-osr-default'); } catch (e) {} this.setState({ optOpen: false, note: 'Default cleared', err: false }); },
+      preview: () => this.preview(), note: st.note || (live ? '' : 'Loading…'), noteCls: st.err ? 'tag t-red' : 'muted'
+    };
+  }
+}
+const FORMATS = [
+  { v: 'pw', l: 'Party Wise Outstanding', ready: true, q: {} },
+  { v: 'pwdue', l: 'Party Wise DueDate Outstanding', ready: true, q: { due: '1' } },
+  { v: 'bpw', l: 'Broker+Party Wise Outstanding', ready: true, q: { by: 'broker+party' } },
+  { v: 'spw', l: 'SalePerson Wise Outstanding', ready: true, q: { by: 'salesperson' } },
+  { v: 'app', l: 'Party Wise Outstanding App', ready: false },
+  { v: 'aging', l: 'Aging Wise Outstanding', ready: false },
+  { v: 'brkg', l: 'Brokerage Report', ready: false },
+  { v: 'int', l: 'InterestBase Outstanding Report', ready: false },
+  { v: 'pgsum', l: 'PartyGroupwise Outstanding Summary Report', ready: false },
+  { v: 'bwsm', l: 'BrokerWiseOutstandingSummary(Monthly)', ready: false },
+  { v: 'drr', l: 'Daily Receipt Register', ready: false }
+];
+const BYS = [['group', 'Party Group'], ['party', 'Party'], ['collector', 'Collection Person'], ['broker', 'Broker'], ['salesperson', 'Sales Person'], ['broker+party', 'Broker + Party'], ['broker+group', 'Broker + Party Group'], ['collector+party', 'Collection Person + Party'], ['collector+group', 'Collection Person + Party Group'], ['salesperson+party', 'Sales Person + Party'], ['state+party', 'State + Party'], ['city+party', 'City + Party']];
+const EXPORTS = [['broker+party', 'Broker + Party Wise Export Pdf'], ['broker+group', 'Broker + Party Group Wise Export Pdf'], ['group', 'Party Group Wise Export Pdf'], ['collector', 'Collection Persosn Wise Export Pdf'], ['collector+party', 'Collection Person + Party Wise Export Pdf'], ['collector+group', 'Collection Person + Party Group Wise Export Pdf'], ['salesperson', 'Sales Person Wise Export Pdf'], ['salesperson+party', 'Sales Person + Party Wise Export Pdf'], ['party', 'Party Wise Export Pdf'], ['state+party', 'State + Party Wise Export Pdf'], ['city+party', 'City + Party Wise Export Pdf']];
+const PARA_FIELDS = [['Sal_NetAmt', 'Bill Amount'], ['Sal_AvgRate', 'Rate'], ['Outstanding', 'Outstanding'], ['Sal_Crdays', 'Bill Days'], ['BillDays', 'Diff Days'], ['PartyGroupOs', 'Party Group OS'], ['BrokerOs', 'Broker OS'], ['PartyOs', 'Party OS']];
+const OPS = ['>', '>=', '<', '<=', '=', '<>', 'between'];
+
+/* ----- view ----- */
+class OutstandingReportView extends Component {
+  render() {
+    const v = this.renderVals() || {};
+    return (
+      <>
+        
+      <style>
+        {"*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased} .dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;--pop:#1E1E1E;color-scheme:dark} .light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;--pop:#FFFFFF;color-scheme:light} .app{display:flex;height:100vh;overflow:hidden;background:var(--bg);color:var(--t1)} a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit;color:inherit} .sbw{flex:0 0 236px;height:100%;overflow-y:auto;background:var(--sb);border-right:1px solid var(--bd)} .main{flex:1 1 auto;min-width:0;height:100%;display:flex;flex-direction:column;overflow:hidden} .main>*{flex:none} .hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap} .bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap} .bc .m{color:var(--t3)} .bc a.m{cursor:pointer;border-radius:6px;padding:3px 6px;margin:0 -2px 0 -6px} .bc a.m:hover{color:var(--t1);background:var(--s2);text-decoration:underline;text-underline-offset:3px} .btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)} .btn:hover{background:var(--s3)} .btn.pr{background:var(--ib);color:var(--it)} .btn.sm{height:30px;padding:0 10px;font-size:13px} .btn.gh{background:transparent}.btn.gh:hover{background:var(--s2)} .btn.no{background:rgba(239,68,68,.14);color:#F87171} .btn.ok{background:#16A34A;color:#fff} .inp{height:32px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0} .inp::placeholder{color:var(--t3)} .muted{color:var(--t3)}.t2{color:var(--t2)} .tag{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:6px;font-size:11.5px;font-weight:500;white-space:nowrap;background:var(--s2);color:var(--t2)} .t-green{background:rgba(34,197,94,.14);color:#4ADE80}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-blue{background:rgba(59,130,246,.16);color:#60A5FA}.t-gray{background:var(--s2);color:var(--t2)}.t-purple{background:rgba(168,85,247,.16);color:#C084FC} .light .t-green{color:#15803D}.light .t-orange{color:#C2410C}.light .t-red{color:#B91C1C}.light .t-blue{color:#1D4ED8}.light .t-purple{color:#7E22CE} .tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none} .tab{display:flex;align-items:center;gap:8px;padding:9px 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap} .tab:hover{color:var(--t1)} .tab.on{color:var(--t1);border-bottom-color:var(--t1)} .tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2);font-variant-numeric:tabular-nums} .dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.dot::before{content:\"\";width:8px;height:8px;border-radius:50%;background:var(--c,#8F8F8F)} .fbar{display:flex;align-items:center;gap:8px;padding:8px 20px;flex-wrap:wrap} .bulk{display:flex;align-items:center;gap:8px;padding:6px 20px;background:rgba(59,130,246,.10);border-top:1px solid rgba(59,130,246,.25);border-bottom:1px solid rgba(59,130,246,.25);flex-wrap:wrap;font-size:13.5px} .okbar{display:flex;align-items:center;gap:10px;margin:0 20px 8px;padding:8px 12px;border-radius:8px;background:rgba(34,197,94,.12);color:#4ADE80;font-size:13.5px} .light .okbar{color:#15803D} .okbar button{margin-left:auto;border:0;background:transparent;color:inherit;cursor:pointer} .reg{flex:1 1 auto!important;min-height:0;overflow:auto;margin:0 20px 12px;border:1px solid var(--bd);border-radius:10px} table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0} .reg>table.cft{min-height:100%} thead th{background:var(--s1);color:var(--t3);font-weight:400;text-align:left;padding:0 9px;white-space:nowrap;border-bottom:1px solid var(--bd)} td{padding:0 9px;border-bottom:1px solid var(--bd);white-space:nowrap} .r{text-align:right;font-variant-numeric:tabular-nums} .cbx{width:15px;height:15px;margin:0;accent-color:#3B82F6;vertical-align:middle;cursor:pointer} .reg tbody tr:nth-child(even)>td{background:rgba(255,255,255,.04)} .light .reg tbody tr:nth-child(even)>td{background:#F6F7F9} .reg tbody tr:hover>td{background:var(--s2)} .reg tbody tr.sel>td{background:rgba(59,130,246,.22)!important} .light .reg tbody tr.sel>td{background:#DBEAFE!important} .reg tbody tr.sel>td:first-child{box-shadow:inset 3px 0 0 #3B82F6} .cft tbody tr:not(.fillr):not(.more){cursor:pointer;user-select:none} .cft tbody tr.fillr>td{height:auto!important;padding:0!important;border:0!important;background:transparent!important} .cft tbody tr.more>td{height:40px!important;text-align:center;color:var(--t3);font-size:13px;background:transparent!important} .cft tfoot td{position:sticky;bottom:0;z-index:4;background:var(--s2);font-weight:600;border-top:1px solid var(--bd2);border-bottom:0;white-space:nowrap} .cft td.lnk{color:var(--t1);font-weight:500;text-decoration:underline;text-decoration-color:var(--bd2);text-underline-offset:3px} .spin{display:inline-block;width:12px;height:12px;border:2px solid var(--bd2);border-top-color:#3B82F6;border-radius:50%;animation:sp .8s linear infinite;margin-right:8px;vertical-align:-2px} @keyframes sp{to{transform:rotate(360deg)}} .aiw{flex:none;height:100vh} @media (max-width:760px){.aiw{display:none}.sbw{display:none}} /* gen17: one table size across the app */ table{font-size:13.5px;line-height:18px} thead th{font-size:13px;padding-top:7px;padding-bottom:7px;height:34px} tbody tr>td{height:36px!important;padding-top:3px;padding-bottom:3px} tbody td .sub{font-size:11.5px;line-height:14px} tfoot td{height:38px} table .tag{height:20px;font-size:11.5px;padding:0 7px} table .btn.sm{height:26px;padding:0 9px;font-size:12.5px} table .cin,table .inp{height:28px;font-size:13.5px} .ent{flex:1 1 auto!important;min-height:0;display:flex;flex-direction:column;overflow:auto} .ent>*{flex:none} .sec{padding:10px 20px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:8px} .sh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.sh h2{margin:0;font-size:15px;font-weight:600;white-space:nowrap} .props{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--bd);border-radius:12px;overflow:hidden} .pg{display:flex;flex-direction:column;padding:4px 0 6px;min-width:0} .pg+.pg{border-left:1px solid var(--bd)} .pgt{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);padding:5px 14px 1px} .pr{display:grid;grid-template-columns:112px minmax(0,1fr) auto;align-items:center;gap:6px;padding:0 10px 0 14px;min-height:28px} .pr:hover{background:var(--s1)} .pr label{font-size:12.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .pv{height:26px;border:1px solid transparent;border-radius:7px;background:transparent;padding:0 8px;font-size:13.5px;color:var(--t1);width:100%;min-width:0} .pv:hover{background:var(--s2)}.pv:focus{outline:0;border-color:#3B82F6;background:var(--bg)} .pv[readonly]{color:var(--t2)}.pv[readonly]:hover{background:transparent} .pv::placeholder{color:var(--t3)} select.pv{cursor:pointer} .pr .unit{font-size:12px;color:var(--t3);white-space:nowrap} .sec.items{flex:1 1 auto!important;min-height:250px} .tw{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--bd);border-radius:10px} .it thead th{position:sticky;top:0;z-index:2} .it tbody td{height:36px} .it tfoot td{position:sticky;bottom:0;background:var(--s2);font-weight:600;height:38px;border-top:1px solid var(--bd2);border-bottom:0;white-space:nowrap} .it td.n{color:var(--t3);width:34px} .it td.nm{font-weight:500} .cin{height:28px;border:1px solid var(--bd2);border-radius:6px;background:transparent;padding:0 7px;font-size:13.5px;color:var(--t1);width:100%;min-width:64px} .cin:focus{outline:0;border-color:#3B82F6} .cin::placeholder{color:var(--t3)} .cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px} .box{border:1px solid var(--bd);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;min-width:0} .box h3{margin:0 0 3px;font-size:13px;font-weight:600} .kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;line-height:20px;font-variant-numeric:tabular-nums} .kv span:first-child{color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0} .kv span:last-child{white-space:nowrap} .kv.big{border-top:1px dashed var(--bd2);padding-top:6px;margin-top:3px}.kv.big span:first-child{color:var(--t1);font-weight:600}.kv.big span:last-child{font-size:18px;font-weight:600} .flg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 14px} .fl{display:flex;flex-direction:column;gap:1px;min-width:0} .fl label{font-size:12.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .fl .inp{height:28px;font-size:13px;width:100%;padding:0 8px} .fl label{font-size:11.5px} .actbar{display:flex;align-items:center;gap:6px;padding:10px 20px;border-top:1px solid var(--bd);flex-wrap:wrap} .actbar .btn{height:32px} .actbar select.inp{width:110px;height:32px} @media (max-width:1180px){.props,.cols3{grid-template-columns:repeat(2,minmax(0,1fr))}.pg:nth-child(3){grid-column:1 / -1;border-left:0;border-top:1px solid var(--bd)}} /* gen19: breadcrumb parent is a clear link back */ .bc a.m{cursor:pointer;text-decoration:none;border-radius:6px;padding:3px 6px;margin:0 -2px 0 -6px;transition:background .12s,color .12s} .bc a.m:hover{color:var(--t1);background:var(--s2);text-decoration:underline;text-underline-offset:3px} /* gen27: collapsible sidebar */ .sbw{transition:flex-basis .18s ease,width .18s ease} .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important} /* report selection (old \"Report Selection\" screen) */ .rs{flex:1 1 auto!important;min-height:0;display:flex;flex-direction:column;overflow:auto;padding:12px 20px;gap:10px} .rs>*{flex:none} .rrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap} .rf{display:flex;align-items:center;gap:8px} .rf>label{font-size:12.5px;color:var(--t3);white-space:nowrap;min-width:92px} .seg{display:inline-flex;background:var(--s2);border-radius:8px;padding:2px;gap:2px} .seg button{border:0;background:transparent;border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--t2)} .seg button.on{background:var(--bg);color:var(--t1);box-shadow:0 0 0 1px var(--bd2)} .chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:7px;background:var(--s2);font-size:13px;cursor:pointer;user-select:none} .chip input{margin:0} .rtabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);overflow-x:auto} .lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;min-height:340px} .lst{border:1px solid var(--bd);border-radius:10px;display:flex;flex-direction:column;min-height:0;height:360px} .lst .lh{display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--bd);flex-wrap:wrap} .lst .lh b{font-size:13px;font-weight:600;flex:1 1 auto} .lst .lh .n{font-size:12px;color:var(--t3)} .lst .ls{padding:6px 8px;border-bottom:1px solid var(--bd)} .lst .ls input{width:100%;height:28px} .lst .lb{flex:1 1 auto;overflow:auto;padding:2px 0} .lst .li{display:flex;align-items:center;gap:8px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .lst .li:hover{background:var(--s1)} .lst .li .c{color:var(--t3);font-size:12px;min-width:46px} .lst .lf{display:flex;gap:6px;padding:6px 8px;border-top:1px solid var(--bd);align-items:center;flex-wrap:wrap} .lst .lf .btn{height:26px;font-size:12.5px;padding:0 8px} .lst .lf label{display:flex;gap:5px;align-items:center;font-size:12.5px;color:var(--t2);margin-left:auto} .para{border:1px solid var(--bd);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;max-width:760px} .para .pr2{display:grid;grid-template-columns:200px 120px 120px 120px 30px;gap:6px;align-items:center} .menu{position:relative} .menu .dd{position:absolute;right:0;top:38px;z-index:30;background:var(--pop);border:1px solid var(--bd2);border-radius:10px;padding:6px;min-width:300px;box-shadow:0 10px 30px rgba(0,0,0,.35)} .menu .dd button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:13.5px} .menu .dd button:hover{background:var(--s2)} .menu .dd .ddt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);padding:6px 10px 2px}"}
+      </style>
+      <div className={`app ${v.theme ?? ""}`}>
+        <div className="sbw">
+          <Sidebar active="osr" />
+        </div>
+        <div className="main">
+          <header className="hdr">
+            <div className="bc">
+              <span className="m">
+                Accounts reports
+              </span>
+              <span className="m">
+                /
+              </span>
+              <span>
+                Outstanding
+              </span>
+              <span className="muted" style={{"fontSize":"13px"}}>
+                Report Selection
+              </span>
+            </div>
+            <span className={v.noteCls} style={{"fontSize":"13px"}} role="status">
+              {v.note}
+            </span>
+            <div className="menu">
+              <button className="btn" type="button" onClick={v.optTog}>
+                Option ▾
+              </button>
+              {' '}
+              {v.optOpen ? (
+                <>
+                  <div className="dd">
+                    <button type="button" onClick={v.setDefault}>
+                      Set selected filters as default
+                    </button>
+                    <button type="button" onClick={v.clearDefault}>
+                      Clear default
+                    </button>
+                  </div>
+                </>
+              ) : null}
+            </div>
+            <div className="menu">
+              <button className="btn" type="button" onClick={v.expTog}>
+                Export Outstanding Report ▾
+              </button>
+              {' '}
+              {v.expOpen ? (
+                <>
+                  <div className="dd">
+                    <div className="ddt">
+                      One group per page, save as PDF
+                    </div>
+                    {(v.exports || []).map((x, $index) => (
+                      <Fragment key={$index}>
+                        <button type="button" onClick={x?.go}>
+                          {x?.l}
+                        </button>
+                      </Fragment>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </div>
+            <button className="btn pr" type="button" onClick={v.preview}>
+              Preview (F5)
+            </button>
+          </header>
+          <div className="rs">
+            <div className="rrow">
+              <div className="rf">
+                <label>
+                  Choice
+                </label>
+                <div className="seg">
+                  {(v.choices || []).map((o, $index) => (
+                    <Fragment key={$index}>
+                      <button type="button" className={o?.c} onClick={o?.go}>
+                        {o?.l}
+                      </button>
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+              <div className="rf">
+                <label>
+                  Report Mode
+                </label>
+                <div className="seg">
+                  {(v.modes || []).map((o, $index) => (
+                    <Fragment key={$index}>
+                      <button type="button" className={o?.c} onClick={o?.go}>
+                        {o?.l}
+                      </button>
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+              <div className="rf">
+                <label>
+                  Type
+                </label>
+                <div className="seg">
+                  {(v.rtypes || []).map((o, $index) => (
+                    <Fragment key={$index}>
+                      <button type="button" className={o?.c} onClick={o?.go}>
+                        {o?.l}
+                      </button>
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+              <div className="rf">
+                <label>
+                  Report Format
+                </label>
+                <select className="inp" aria-label="Report format" style={{"width":"300px"}} value={v.f?.format} onChange={v.set?.format}>
+                  {(v.formats || []).map((o, $index) => (
+                    <Fragment key={$index}>
+                      <option value={o?.v}>
+                        {o?.l}
+                      </option>
+                    </Fragment>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="rrow">
+              <div className="rf">
+                <label>
+                  Inv : From
+                </label>
+                <input className="inp" type="text" aria-label="Invoice from" style={{"width":"120px"}} value={v.f?.from} onChange={v.set?.from} placeholder="dd-mm-yyyy" />
+              </div>
+              <div className="rf">
+                <label style={{"minWidth":"0"}}>
+                  To
+                </label>
+                <input className="inp" type="text" aria-label="Invoice to" style={{"width":"120px"}} value={v.f?.to} onChange={v.set?.to} placeholder="dd-mm-yyyy" />
+              </div>
+              <div className="rf">
+                <label>
+                  Transaction Type
+                </label>
+                {(v.ttypes || []).map((o, $index) => (
+                  <Fragment key={$index}>
+                    <label className="chip">
+                      <input type="checkbox" checked={o?.on} onChange={o?.tog} />
+                      {o?.l}
+                    </label>
+                  </Fragment>
+                ))}
+              </div>
+              <div className="rf">
+                <label>
+                  Group by
+                </label>
+                <select className="inp" aria-label="Group by" style={{"width":"260px"}} value={v.f?.by} onChange={v.set?.by}>
+                  {(v.bys || []).map((o, $index) => (
+                    <Fragment key={$index}>
+                      <option value={o?.v}>
+                        {o?.l}
+                      </option>
+                    </Fragment>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="rrow">
+              <div className="rf">
+                <label>
+                  Rec : From
+                </label>
+                <input className="inp" type="text" aria-label="Receipt from" style={{"width":"120px"}} value={v.f?.recFrom} onChange={v.set?.recFrom} placeholder="dd-mm-yyyy" />
+              </div>
+              <div className="rf">
+                <label style={{"minWidth":"0"}}>
+                  To
+                </label>
+                <input className="inp" type="text" aria-label="Receipt to" style={{"width":"120px"}} value={v.f?.recTo} onChange={v.set?.recTo} placeholder="dd-mm-yyyy" />
+              </div>
+              <button className="btn" type="button" onClick={v.paraTog}>
+                Outstanding Para{v.paraN}
+              </button>
+              {' '}
+              <label className="chip">
+                <input type="checkbox" checked={v.f?.recWise} onChange={v.tog?.recWise} />
+                Recieve Date Wise?
+              </label>
+              {' '}
+              <label className="chip">
+                <input type="checkbox" checked={v.f?.due} onChange={v.tog?.due} />
+                Due Date Wise OS?
+              </label>
+            </div>
+            {v.paraOpen ? (
+              <>
+                <div className="para">
+                  <div className="sh">
+                    <h2 style={{"fontSize":"13.5px"}}>
+                      Outstanding Para
+                    </h2>
+                    <span className="muted" style={{"fontSize":"12.5px"}}>
+                      Only bills that meet every condition are printed
+                    </span>
+                  </div>
+                  {(v.paras || []).map((x, $index) => (
+                    <Fragment key={$index}>
+                      <div className="pr2">
+                        <select className="inp" aria-label="Condition type" value={x?.f} onChange={x?.setF}>
+                          {(v.paraFields || []).map((o, $index) => (
+                            <Fragment key={$index}>
+                              <option value={o?.v}>
+                                {o?.l}
+                              </option>
+                            </Fragment>
+                          ))}
+                        </select>
+                        {' '}
+                        <select className="inp" aria-label="Condition" value={x?.op} onChange={x?.setOp}>
+                          {(v.paraOps || []).map((o, $index) => (
+                            <Fragment key={$index}>
+                              <option value={o?.v}>
+                                {o?.l}
+                              </option>
+                            </Fragment>
+                          ))}
+                        </select>
+                        {' '}
+                        <input className="inp" type="text" aria-label="Value 1" value={x?.a} onChange={x?.setA} placeholder="Value 1" />
+                        {' '}
+                        <input className="inp" type="text" aria-label="Value 2" value={x?.b} onChange={x?.setB} placeholder="Value 2" />
+                        {' '}
+                        <button className="btn sm gh" type="button" onClick={x?.del} aria-label="Remove">
+                          ✕
+                        </button>
+                      </div>
+                    </Fragment>
+                  ))}
+                  <div>
+                    <button className="btn sm" type="button" onClick={v.paraAdd}>
+                      + Add condition
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : null}
+            <div className="rtabs">
+              {(v.tabs || []).map((t, $index) => (
+                <Fragment key={$index}>
+                  <button type="button" className={t?.c} onClick={t?.go}>
+                    {t?.l}
+                    {t?.n ? (
+                      <>
+                        <span className="n">
+                          {t?.n}
+                        </span>
+                      </>
+                    ) : null}
+                  </button>
+                </Fragment>
+              ))}
+            </div>
+            <div className="lists">
+              {(v.lists || []).map((L, $index) => (
+                <Fragment key={$index}>
+                  <div className="lst">
+                    <div className="lh">
+                      <b>
+                        {L?.title}
+                      </b>
+                      <span className="n">
+                        {L?.count}
+                      </span>
+                    </div>
+                    <div className="ls">
+                      <input className="inp" type="text" aria-label="Search" value={L?.q} onChange={L?.setQ} placeholder="Search" />
+                    </div>
+                    <div className="lb">
+                      {(L?.rows || []).map((r, $index) => (
+                        <Fragment key={$index}>
+                          <div className="li" onClick={r?.tog}>
+                            <input type="checkbox" className="cbx" checked={r?.on} aria-label="Select" readOnly />
+                            <span className="c">
+                              {r?.code}
+                            </span>
+                            <span>
+                              {r?.name}
+                            </span>
+                          </div>
+                        </Fragment>
+                      ))}
+                      {' '}
+                      {L?.more ? (
+                        <>
+                          <div className="muted" style={{"fontSize":"12px","padding":"6px 10px"}}>
+                            {L?.more}
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
+                    <div className="lf">
+                      <button className="btn" type="button" onClick={L?.all}>
+                        Select All
+                      </button>
+                      <button className="btn" type="button" onClick={L?.none}>
+                        De-Select All
+                      </button>
+                      {L?.canNot ? (
+                        <>
+                          <label>
+                            <input type="checkbox" checked={L?.not} onChange={L?.togNot} />
+                            Not Selected ?
+                          </label>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                </Fragment>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="aiw">
+          <Assistant page="out" />
+        </div>
+      </div>
+      </>
+    );
+  }
+}
+
+export default function OutstandingReport(props) {
+  const theme = useTheme();
+  return <OutstandingReportView {...props} theme={theme} />;
+}

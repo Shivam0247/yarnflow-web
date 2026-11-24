@@ -97,7 +97,7 @@ class Component extends DCLogic {
       back: !!st.drill, backL: 'All ' + (GB.find((x) => x[0] === st.gb) || [0, ''])[1].toLowerCase() + ' · ' + (st.drill || ''), goBack: () => this.setState({ drill: null, sel: [] }),
       allOn: rows.length > 0 && rows.every((x) => x.on), togAll: () => { const all = rows.every((x) => x.on); rows.forEach(() => {}); this.setState({ sel: all ? [] : (st.vw === 'b' ? res.bills.filter((b) => pid.has(b.partyId)).slice(0, st.lim).map((b) => 'b' + b.id) : st.gb !== 'party' && !st.drill ? [] : parties.slice(0, st.lim).map((p) => 'p' + p.partyId)) }); },
       cities: [...new Set(res.parties.map((p) => p.city).filter(Boolean))].sort(), brokers: [...new Set(res.parties.map((p) => p.brokerName).filter(Boolean))].sort(),
-      oldPrint: () => { try { window.open('/print/outstanding', '_blank'); } catch (e) {} },
+      oldPrint: () => this.go('OutstandingReport' + sfx + '.dc.html'),
       exportCsv: () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = 'Outstanding ' + (r ? 'receivable' : 'payable') + '.csv'; a.click(); } catch (e) {} },
       bulkGo: () => { if (!r) { this.go('Payments' + sfx + '.dc.html'); try { window.localStorage.setItem('yf-pay-kind', 'p'); } catch (e) {} return; } const list = selParties.length ? selParties : res.parties.filter((p) => p.overdue > 0); if (!list.length) return; if (list.length > 1 && !window.confirm('Open WhatsApp reminders for ' + list.length + ' parties?')) return; list.slice(0, 15).forEach(remind); },
       more: rows.length < count, loadMore: () => this.setState({ lim: st.lim + 50 }), footer: common.footerX };
