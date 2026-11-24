@@ -39,9 +39,13 @@ class Component extends DCLogic {
     const TY = [['FDY', 'FDY'], ['POY', 'POY'], ['DTY', 'DTY'], ['VISCOSE', 'Viscose'], ['NYLON', 'Nylon'], ['SPUN', 'Spun'], ['COTTON', 'Cotton'], ['OTHER', 'Other'], ['SERVICE', 'Service / general']];
     return [{ t: 'Item', f: [{ k: 'code', l: 'Item code', req: 1 }, { k: 'name', l: 'Yarn quality / name', req: 1 }, { k: 'description', l: 'Description' }, { k: 'type', l: 'Type', type: 'sel', opts: TY }, { k: 'brandId', l: 'Brand / mill', type: 'sel', opts: [['', '—']].concat((this.state.brands || []).map((b) => [b.id, b.name])) }, { k: 'isActive', l: 'Active', type: 'chk', ph: 'Show in entry screens' }] },
       { t: 'Specification', f: [{ k: 'denier', l: 'Denier / count', ph: '75' }, { k: 'filament', l: 'Filament', ph: '36' }, { k: 'lustre', l: 'Lustre', ph: 'SD / BR / FD' }, { k: 'stdBoxKg', l: 'Std box kg' }, { k: 'conesPerBox', l: 'Cones per box' }, { k: 'unit', l: 'Unit', type: 'sel', opts: [['KG', 'Kg'], ['PCS', 'Pcs'], ['MTR', 'Mtr'], ['BOX', 'Box'], ['NOS', 'Nos']] }] },
-      { t: 'Tax, rate & stock', f: [{ k: 'hsn', l: 'HSN', req: 1, ph: '5402' }, { k: 'gstRate', l: 'GST %', type: 'sel', opts: [[0, '0%'], [0.25, '0.25%'], [3, '3%'], [5, '5%'], [12, '12%'], [18, '18%'], [28, '28%']] }, { k: 'rate', l: 'Default rate ₹/kg' }, { k: 'minStock', l: 'Minimum stock kg' }, { k: 'isGeneral', l: 'General item', type: 'chk', ph: 'Non-yarn (for general bills)' }] }];
+      { t: 'Tax, rate & stock', f: [{ k: 'hsn', l: 'HSN', req: 1, ph: '5402' }, { k: 'gstRate', l: 'GST %', type: 'sel', opts: [[0, '0%'], [0.25, '0.25%'], [3, '3%'], [5, '5%'], [12, '12%'], [18, '18%'], [28, '28%']] }, { k: 'rate', l: 'Default rate ₹/kg' }, { k: 'minStock', l: 'Minimum stock kg' }, { k: 'isGeneral', l: 'General item', type: 'chk', ph: 'Non-yarn (for general bills)' }] },
+      { t: 'Item detail (as in the old item master)', f: [{ k: 'x:I_ID', l: 'Item id' }, { k: 'x:I_ScreenName', l: 'Screen name' }, { k: 'x:I_ShortCode', l: 'Short code' }, { k: 'x:I_Com', l: 'Company item name' },
+        { k: 'x:I_ISTOCK', l: 'Stockable', type: 'sel', opts: [['YES', 'Yes'], ['NO', 'No']] }, { k: 'x:I_BLOCK', l: 'Block', type: 'sel', opts: [['NO', 'No'], ['YES', 'Yes']] }, { k: 'x:I_IsEmb', l: 'Item is embroidery?', type: 'sel', opts: [['', '—'], ['NO', 'No'], ['YES', 'Yes']] },
+        { k: 'x:I_PRate', l: 'Purchase rate' }, { k: 'x:I_SRate', l: 'Sale rate' }, { k: 'x:I_OQty', l: 'Opening qty' }, { k: 'x:I_Weight', l: 'Weight' }, { k: 'x:I_PcsRate', l: 'Pcs rate' }, { k: 'x:I_Discount', l: 'Item discount' }, { k: 'x:I_AvgRate', l: 'Avg. rate' }] }];
   }
-  body(v) { const b = {}; ['code', 'name', 'description', 'denier', 'filament', 'lustre', 'hsn', 'type', 'unit'].forEach((k) => { b[k] = this.nz(String(v[k] ?? '').trim()); }); b.brandId = v.brandId ? Number(v.brandId) : null; ['stdBoxKg', 'conesPerBox', 'rate', 'minStock', 'gstRate'].forEach((k) => { b[k] = this.num(v[k]); }); b.isGeneral = !!v.isGeneral; b.isActive = v.isActive !== false; return b; }
+  body(v) { const b = {}; ['code', 'name', 'description', 'denier', 'filament', 'lustre', 'hsn', 'type', 'unit'].forEach((k) => { b[k] = this.nz(String(v[k] ?? '').trim()); }); b.brandId = v.brandId ? Number(v.brandId) : null; ['stdBoxKg', 'conesPerBox', 'rate', 'minStock', 'gstRate'].forEach((k) => { b[k] = this.num(v[k]); }); b.isGeneral = !!v.isGeneral; b.isActive = v.isActive !== false;
+    const ex = {}; Object.keys(v).filter((k) => k.indexOf('x:') === 0).forEach((k) => { ex[k.slice(2)] = String(v[k] ?? '').trim(); }); if (Object.keys(ex).length) b.extra = ex; return b; }
   async updRates() {
     const api = this.api(); if (!api) return; const pct = window.prompt('Change default rate of the listed items by how many % ? (e.g. 2 or -1.5)'); if (!pct || isNaN(Number(pct))) return;
     const list = this._vis || []; let ok = 0;
@@ -70,7 +74,7 @@ class Component extends DCLogic {
     ];
     const types = [['All', '186'], ['FDY', '64'], ['POY', '18'], ['DTY', '22'], ['Viscose', '26'], ['Nylon', '21'], ['Spun', '35']];
 
-      const t = st.t; const rows = (t === 'All' ? all : all.filter((r) => r.type === t)).map((r) => ({ ...r, edit: () => {} }));
+      const t = st.t; const rows = (t === 'All' ? all : all.filter((r) => r.type === t)).map((r, i) => ({ iid: String(460 + i) + '-I', ...r, edit: () => {} }));
       return { ...base, rows, chips: types.map(([n, k]) => ({ n, k, cls: n === t ? 'chip on' : 'chip', pick: () => this.setState({ t: n }) })), count: rows.length + ' of ' + types.find((x) => x[0] === t)[1] + ' yarn items', lustres: ['SD', 'BR', 'FD'], mills: ['Reliance', 'Sanathan', 'Century'], exportCsv: () => {}, more: true, loadMore: () => {} };
     }
     const inr = (n, d) => { const v = Number(n) || 0; const s = Math.abs(v).toFixed(d || 0); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (v < 0 ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
@@ -78,7 +82,7 @@ class Component extends DCLogic {
     const TL = (t) => (t === 'FDY' || t === 'POY' || t === 'DTY' ? t : TN(t));
     let vis = st.rows.filter((r) => (st.t === 'All' || TL(r.type) === st.t) && (!st.fc || r.code.toLowerCase().indexOf(st.fc.toLowerCase()) >= 0) && (!st.fq || (r.name + ' ' + (r.description || '')).toLowerCase().indexOf(st.fq.toLowerCase()) >= 0) && (!st.fd || String(r.denier || '').indexOf(st.fd) >= 0) && (!st.fl || r.lustre === st.fl) && (!st.fm2 || r.brandName === st.fm2));
     this._vis = vis;
-    const rows = vis.slice(0, st.lim).map((r) => ({ code: r.code, name: r.name, mill: r.brandName || r.description || '—', type: TL(r.type), tc: '--c: ' + (C[TL(r.type)] || '#8F8F8F'), den: r.denier ? r.denier + (/\D/.test(r.denier) ? '' : ' D') : '—', fil: r.filament || '—', lus: r.lustre || '—', hsn: r.hsn + ' · ' + r.gstRate + '%', box: r.stdBoxKg ? inr(r.stdBoxKg) + ' kg' : '—', stock: inr(r.stockQty, 0), sc: r.minStock > 0 && r.stockQty < r.minStock ? 'low' : '', rate: r.rate ? inr(r.rate, 2) : '—', edit: () => this.fmOpen('Edit yarn item · ' + r.code, r, r.id) }));
+    const rows = vis.slice(0, st.lim).map((r) => ({ iid: (r.extra || {}).I_ID || '', code: r.code, name: r.name, mill: r.brandName || r.description || '—', type: TL(r.type), tc: '--c: ' + (C[TL(r.type)] || '#8F8F8F'), den: r.denier ? r.denier + (/\D/.test(r.denier) ? '' : ' D') : '—', fil: r.filament || '—', lus: r.lustre || '—', hsn: r.hsn + ' · ' + r.gstRate + '%', box: r.stdBoxKg ? inr(r.stdBoxKg) + ' kg' : '—', stock: inr(r.stockQty, 0), sc: r.minStock > 0 && r.stockQty < r.minStock ? 'low' : '', rate: r.rate ? inr(r.rate, 2) : '—', edit: () => { const x = {}; Object.entries(r.extra || {}).forEach(([k, v]) => { x['x:' + k] = String(v ?? '').trim(); }); this.fmOpen('Edit yarn item · ' + r.code, { ...x, ...r }, r.id); } }));
     const cnt = { All: st.rows.length }; st.rows.forEach((r) => { const t = TL(r.type); cnt[t] = (cnt[t] || 0) + 1; });
     const csv = () => [['Code', 'Name', 'Type', 'Brand', 'Denier', 'Filament', 'Lustre', 'HSN', 'GST %', 'Std box kg', 'Stock kg', 'Rate', 'Min stock']].concat(vis.map((r) => [r.code, r.name, r.type, r.brandName, r.denier, r.filament, r.lustre, r.hsn, r.gstRate, r.stdBoxKg, r.stockQty, r.rate, r.minStock])).map((a) => a.map((v) => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
     return { ...base, rows, chips: Object.keys(cnt).map((n) => ({ n, k: inr(cnt[n]), cls: n === st.t ? 'chip on' : 'chip', pick: () => this.setState({ t: n }) })), count: rows.length + ' of ' + vis.length + ' yarn items' + (st.toast ? ' · ' + st.toast : ''),
@@ -183,6 +187,9 @@ class YarnMasterView extends Component {
                     <input className="cb" type="checkbox" aria-label="Select all" />
                   </th>
                   <th>
+                    Item id
+                  </th>
+                  <th>
                     Code
                   </th>
                   <th>
@@ -220,6 +227,9 @@ class YarnMasterView extends Component {
                     <tr onDoubleClick={x?.edit}>
                       <td>
                         <input className="cb" type="checkbox" aria-label="Select item" />
+                      </td>
+                      <td className="t2" style={{"fontVariantNumeric":"tabular-nums"}}>
+                        {x?.iid}
                       </td>
                       <td className="t2" style={{"fontVariantNumeric":"tabular-nums"}}>
                         {x?.code}

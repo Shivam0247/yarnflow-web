@@ -111,3 +111,16 @@ describe('roles', () => {
     expect((await s.post('/masters/groups', { name: 'Nope', nature: 'ASSET' })).status).toBe(403);
   });
 });
+
+describe('old-software fields on masters', () => {
+  it('keep the old record: fields sent are saved, the rest stay, an emptied one is cleared', async () => {
+    const a = await w.api.ok(w.api.post('/masters/accounts', { name: 'Old Fields Party', groupId: w.g('Sundry Debtors'), kind: 'CUSTOMER', extra: { P_Id: '1000', P_LegName: 'OLD FIELDS PVT LTD', P_LockDays: '30' } }));
+    expect(a.extra.P_Id).toBe('1000');
+    expect((await w.api.ok(w.api.get('/masters/accounts'))).data.find((x: any) => x.id === a.id).partyCode).toBe('1000');
+    const b = await w.api.ok(w.api.patch(`/masters/accounts/${a.id}`, { extra: { P_LockDays: '15', P_LegName: '' } }));
+    expect(b.extra).toEqual({ P_Id: '1000', P_LockDays: '15' });
+    const it2 = await w.api.ok(w.api.post('/masters/items', { code: 'OLD1', name: 'Old item', hsn: '5402', gstRate: 5, extra: { I_ID: '497-I', I_ISTOCK: 'YES' } }));
+    const it3 = await w.api.ok(w.api.patch(`/masters/items/${it2.id}`, { extra: { I_ISTOCK: 'NO' } }));
+    expect(it3.extra).toEqual({ I_ID: '497-I', I_ISTOCK: 'NO' });
+  });
+});

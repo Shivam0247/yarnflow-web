@@ -94,7 +94,9 @@ export const accountSchema = z.object({
   tcsApplicable: z.boolean().optional(),
   tcsRate: z.coerce.number().min(0).max(10).optional(),
   status: z.enum(['ACTIVE', 'ON_HOLD', 'BLOCKED', 'INACTIVE']).optional(),
-  notes: optS(2000)
+  notes: optS(2000),
+  /** fields of the old software's party master that YarnFlow has no column for (P_LegName, P_LockDays …) */
+  extra: z.record(z.string().max(40), z.string().max(400)).optional()
 });
 
 export const itemSchema = z.object({
@@ -114,7 +116,9 @@ export const itemSchema = z.object({
   rate: money.optional(),
   minStock: z.coerce.number().min(0).optional(),
   isGeneral: z.boolean().optional(),
-  isActive: z.boolean().optional()
+  isActive: z.boolean().optional(),
+  /** fields of the old software's item master that YarnFlow has no column for (I_ID, I_ISTOCK …) */
+  extra: z.record(z.string().max(40), z.string().max(400)).optional()
 });
 
 export const brandSchema = z.object({ name: s(120).min(1), millAccountId: optId, location: optS(120) });
@@ -262,7 +266,8 @@ async function decorateAccounts(ctx: Ctx, rows: (typeof accounts.$inferSelect)[]
   return rows.map((r) => {
     const b = r2((r.openingType === 'DR' ? r.openingBalance : -r.openingBalance) + (bm.get(r.id) ?? 0));
     const { extra: _extra, ...rest } = r; // the old software's full record is shown on the account itself, not in lists
-    return { ...rest, groupName: gm.get(r.groupId) ?? null, balance: Math.abs(b), balanceType: b >= 0 ? 'DR' : 'CR', balanceSigned: b };
+    const oldId = (_extra as Record<string, unknown> | null)?.P_Id; // the old software's party code (P_Id)
+    return { ...rest, partyCode: oldId ? String(oldId) : r.code, groupName: gm.get(r.groupId) ?? null, balance: Math.abs(b), balanceType: b >= 0 ? 'DR' : 'CR', balanceSigned: b };
   });
 }
 
@@ -315,7 +320,7 @@ export async function getMaster(ctx: Ctx, def: MasterDef, id: number) {
   const t = def.table;
   const [row] = await ctx.db.select().from(t).where(and(eq(col(t, 'id'), id), eq(col(t, 'companyId'), ctx.mcId)));
   if (!row) throw notFound(def.label);
-  if (def.slug === 'accounts') return (await decorateAccounts(ctx, [row as never]))[0];
+  if (def.slug === 'accounts') return { ...(await decorateAccounts(ctx, [row as never]))[0], extra: (row as { extra: unknown }).extra ?? null };
   if (def.slug === 'items') return (await decorateItems(ctx, [row as never]))[0];
   return row;
 }
@@ -366,6 +371,12 @@ export async function updateMaster(ctx: Ctx, def: MasterDef, id: number, raw: un
     }
   }
   if (def.slug === 'groups' && data.parentId === id) throw unprocessable('A group cannot be under itself');
+  if (data.extra) {
+    // the old record stays; values sent replace it, an empty value clears one
+    const m: Record<string, unknown> = { ...((existing.extra as Record<string, unknown>) ?? {}), ...(data.extra as Record<string, unknown>) };
+    for (const k of Object.keys(m)) if (m[k] === '') delete m[k];
+    data.extra = m;
+  }
   await checkRefs(ctx, def, data);
   await uniqueCheck(ctx, def, data, id);
   if (data.isDefault) await clearDefault(ctx, def, data);
