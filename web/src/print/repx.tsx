@@ -222,6 +222,7 @@ function textOf(c: Ctl, s: Scope, now: Date) {
     if (c.attrs.PageInfo === 'DateTime' || /\{0:[^}]*[dyMH]/.test(fmt ?? '')) return netFormat(fmt, now);
     return ''; // page numbers are printed in the page margin
   }
+  if (c.expr.Text != null && s.params.__design) return c.expr.Text + (c.summary ? ` (${c.summary})` : '');
   if (c.expr.Text != null) return netFormat(c.attrs.TextFormatString, evalExpr(c.expr.Text, s, c.summary));
   return c.attrs.Text ?? '';
 }
@@ -351,4 +352,28 @@ export function RepxReport({ design, rows, params, showDetail }: { design: Desig
       </tbody>
     </table>
   );
+}
+
+const BAND_NAMES: Record<string, string> = { TopMarginBand: 'Top margin', ReportHeaderBand: 'Report header', PageHeaderBand: 'Page header', GroupHeaderBand: 'Group header', DetailBand: 'Detail', GroupFooterBand: 'Group footer', ReportFooterBand: 'Report footer', PageFooterBand: 'Page footer', BottomMarginBand: 'Bottom margin', SubBand: 'Sub band' };
+
+/** The saved design as the old report designer shows it: every band in order, with the field each box prints. */
+export function RepxDesignView({ design }: { design: Design }) {
+  const now = new Date();
+  const s: Scope = { row: null, group: [], report: [], params: { __design: 1 } };
+  const order = ['TopMarginBand', 'ReportHeaderBand', 'PageHeaderBand', 'GroupHeaderBand', 'DetailBand', 'GroupFooterBand', 'ReportFooterBand', 'PageFooterBand', 'BottomMarginBand'];
+  const bands = [...design.bands].sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type) || (a.type === 'GroupHeaderBand' ? b.level - a.level : a.level - b.level));
+  const label = (b: Band) => {
+    const g = b.groupFields.map((f) => f.field).join(', ');
+    return `${BAND_NAMES[b.type] ?? b.type}${g ? ' — group by ' + g : ''}${b.visible ? '' : ' (hidden in the design)'}`;
+  };
+  const one = (b: Band, key: string): ReactNode => (
+    <div key={key}>
+      <div className="rx-dlabel">{label(b)}</div>
+      <div style={{ position: 'relative', minHeight: Math.max(b.height * U, 6), outline: '1px dashed #9ab', opacity: b.visible ? 1 : 0.55 }}>
+        {b.controls.map((c, i) => <Control key={i} c={c} s={s} inh={{}} now={now} />)}
+      </div>
+      {b.subBands.map((sb, i) => one(sb, key + '-' + i))}
+    </div>
+  );
+  return <div style={{ width: (design.pageWidth - design.margins[0] - design.margins[1]) * U }}>{bands.map((b, i) => one(b, String(i)))}</div>;
 }

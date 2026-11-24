@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { YF_API } from '@/dc/api';
-import { parseRepx, RepxReport } from './repx';
+import { parseRepx, RepxDesignView, RepxReport } from './repx';
 
 interface Meta { regId: number; title: string; type: string; mode: string; available: boolean }
 
@@ -51,7 +51,7 @@ export default function ReportPage() {
       </div>
       {design && data && (
         <div className="rp-page" style={{ paddingLeft: design.margins[0] * 0.96, paddingRight: design.margins[1] * 0.96, paddingTop: design.margins[2] * 0.96, width: design.pageWidth * 0.96 }}>
-          <RepxReport design={design} rows={data.rows} params={data.params} showDetail={detail} />
+          {sp.get('view') === 'design' ? <RepxDesignView design={design} /> : <RepxReport design={design} rows={data.rows} params={data.params} showDetail={detail} />}
         </div>
       )}
     </div>
@@ -66,6 +66,7 @@ html, body { background: #e9e9e9 !important; }
 .rp-bar button { background: #2f6fed; color: #fff; border: 0; border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
 .rp-page { margin: 0 auto; background: #fff; box-sizing: border-box; min-height: 1100px; }
 .rx-band { break-inside: avoid; }
+.rx-dlabel { font: 600 10px Arial; color: #fff; background: #5b7186; padding: 2px 6px; margin-top: 6px; }
 @page { size: A4; margin: 6mm 0 8mm; @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt Arial; margin-right: 8mm; } }
 @media print {
   html, body { background: #fff !important; }
