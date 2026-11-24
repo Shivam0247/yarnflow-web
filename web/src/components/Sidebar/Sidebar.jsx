@@ -34,7 +34,7 @@ class Component extends DCLogic {
       bank: [['Bank receipt / payment', 'Payments', 'F6 · F7', 'pay'], ['Receipt register', 'ReceiptRegister', '', 'rc'], ['Payment register', 'PaymentRegister', '', 'py'], ['Receipt return register', 'ReceiptReturnRegister', '', 'rr'], ['Cash receipt / payment', 'Payments', '⇧ F6 · ⇧ F7', ''], ['On-account entries', 'Payments', '', ''], ['Bank reconciliation', 'BankReco', '', 'breco'], ['Cheque book inward', 'Payments', '', ''], ['Payment follow-up', 'Outstanding', '', '']],
       jv: [['Debit note', 'DebitNoteList', 'Ctrl D', 'dn'], ['Credit note', 'CreditNoteList', 'Ctrl E', 'cn'], ['Journal voucher', 'JournalVoucherList', 'Ctrl J', 'jvo'], ['Interest debit notes', 'Outstanding', '', ''], ['Opening entries', 'Ledger', '', '']],
       acc: [['Ledgers', 'Ledger', '', 'led'], ['Outstanding & ageing', 'Outstanding', '', 'out'], ['Outstanding report (old format)', 'OutstandingReport', '', 'osr'], ['Bill adjustment', 'Payments', '', ''], ['Pending bill adjustment', 'Outstanding', '', ''], ['Opening balances', 'Ledger', '', '']],
-      inv: [['Stock & godowns', 'Stock', '', 'stock'], ['Stock ledger', 'Stock', '', ''], ['Godown transfer', 'Stock', '', ''], ['Lot & grade changes', 'Stock', '', '']],
+      inv: [['Stock & godowns', 'Stock', '', 'stock'], ['Final reports (Sold / Unsold)', 'FinalReports', '', 'finr'], ['Stock ledger', 'Stock', '', ''], ['Godown transfer', 'Stock', '', ''], ['Lot & grade changes', 'Stock', '', '']],
       rep: [['Account reports', 'Reports', '', 'rep'], ['Inventory reports', 'Reports', '', ''], ['GST & e-invoice', 'Reports', '', ''], ['E-way bill closure', 'Reports', '', '']]
     };
     const owner = {};

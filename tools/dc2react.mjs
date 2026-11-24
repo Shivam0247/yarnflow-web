@@ -49,6 +49,7 @@ export const ROUTES = {
   ReceiptReturnRegister: '/accounts/receipt-returns',
   BankReco: '/accounts/bank-reconciliation',
   OutstandingReport: '/accounts/outstanding-report',
+  FinalReports: '/reports/final-reports',
   DebitNoteList: '/accounts/debit-notes',
   DebitNoteEntry: '/accounts/debit-notes/new',
   DebitNoteView: '/accounts/debit-notes/view',

@@ -17,6 +17,7 @@ import * as eway from '../services/eway.js';
 import { printData } from '../services/print.js';
 import * as oldrep from '../services/oldreports.js';
 import { outstandingFilters, outstandingPrint } from '../services/outstandingPrint.js';
+import * as trading from '../services/trading.js';
 import { MASTERS, createMaster, deleteMaster, getMaster, listMaster, updateMaster } from '../services/masters.js';
 import * as rep from '../services/reports.js';
 import * as assistant from '../services/assistant.js';
@@ -260,6 +261,8 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.post('/api/assistant/ask', read((ctx, req) => assistant.ask(ctx, String((req.body as { q?: string } | undefined)?.q ?? ''))));
   app.get('/api/assistant/insights', read((ctx) => assistant.insights(ctx)));
   app.get('/api/outstanding-print', read((ctx, req) => outstandingPrint(ctx, q(req))));
+  app.get('/api/reports/sold-unsold', read((ctx, req) => trading.soldUnsold(ctx, q(req))));
+  app.get('/api/reports/purchase-stock', read((ctx, req) => trading.purchaseStock(ctx, q(req))));
   app.get('/api/outstanding-print/filters', read((ctx) => outstandingFilters(ctx)));
   app.get('/api/report-designs', read(async () => oldrep.listDesigns()));
   app.get('/api/report-designs/:id', read(async (ctx, req) => ({ xml: oldrep.designXml(idParam(req)) })));
