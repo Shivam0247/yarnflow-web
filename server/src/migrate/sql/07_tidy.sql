@@ -112,3 +112,9 @@ SELECT mig.note('tidy: bills linked to their orders and challans');
 UPDATE public.books b SET is_active = true
 WHERE NOT b.is_active AND EXISTS (SELECT 1 FROM public.vouchers v WHERE v.book_id = b.id AND v.ledger_period = 24);
 SELECT mig.note('tidy: books in use active');
+
+-- 7. payments: the old software keeps a payment's amount as a negative number; YarnFlow keeps every
+--    document's amount positive (the type says which way the money went)
+UPDATE public.vouchers SET amount = -amount, net_amount = -net_amount
+WHERE type = 'PAYMENT' AND (amount < 0 OR net_amount < 0) AND amount <= 0 AND net_amount <= 0;
+SELECT mig.note('tidy: payment amounts positive');

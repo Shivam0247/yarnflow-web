@@ -67,7 +67,8 @@ FROM (
 GROUP BY 1, 2, 3;
 CREATE TEMP TABLE new_docs AS
 SELECT r.legacy_db AS db, r.legacy_table AS tbl, v.subtype AS ftype, count(*) AS n,
-  sum(CASE WHEN r.legacy_table = 'RecMst' THEN v.amount WHEN r.legacy_table = 'PendingAdjustmentMst' THEN v.amount ELSE v.net_amount END) AS amt
+  sum(CASE WHEN r.legacy_table = 'RecMst' AND v.type = 'PAYMENT' THEN -v.amount  -- the old software keeps payments negative
+           WHEN r.legacy_table = 'RecMst' THEN v.amount WHEN r.legacy_table = 'PendingAdjustmentMst' THEN v.amount ELSE v.net_amount END) AS amt
 FROM public.legacy_refs r JOIN public.vouchers v ON v.id = r.entity_id
 WHERE r.entity = 'voucher' AND r.legacy_table <> 'JVMst' AND NOT coalesce(v.extra ? '_orphanLines', false) GROUP BY 1, 2, 3;
 INSERT INTO mig.recon (area, check_name, scope, old_value, new_value)

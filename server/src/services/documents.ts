@@ -1177,7 +1177,10 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
            bk.name as "bookName",
            ${def.lines === 'journal' || def.posting === 'note'
              ? sql`(select case when l.debit > 0 then 'Dr' else 'Cr' end from voucher_lines l where l.voucher_id = v.id and l.account_id = v.party_id order by l.line_no limit 1)`
-             : sql`null`} as "partyDc"
+             : sql`null`} as "partyDc",
+           ${def.posting === 'receipt' || def.posting === 'payment'
+             ? sql`p.mobile as "partyMobile", (select string_agg(b.number, ', ' order by b.date) from bill_allocations a join vouchers b on b.id = a.bill_id where a.voucher_id = v.id and a.bill_id <> v.id) as "billNos"`
+             : sql`null as "partyMobile", null as "billNos"`}
     from vouchers v
     left join books bk on bk.id = v.book_id
     left join accounts p on p.id = v.party_id

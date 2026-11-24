@@ -83,9 +83,10 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 <div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="pay" hint-size="236px,960px"></dc-import></div>
 <div class="main">
 <header class="hdr">
-<div class="bc"><span class="m">Payments &amp; Receipts</span><span class="m">/</span><span>{{docNo}}</span></div>
+<div class="bc"><a class="m" href="{{regHref}}">{{regL}}</a><span class="m">/</span><span>{{docNo}}</span><span class="{{tagC}}">{{tagL}}</span></div>
 <div class="seg" role="group" aria-label="Entry type"><button type="button" class="{{rc}}" onClick="{{setR}}">Receipt</button><button type="button" class="{{py}}" onClick="{{setP}}">Payment</button><button type="button" class="{{ct}}" onClick="{{setC}}">Contra</button><button type="button" class="{{jv}}" onClick="{{setJ}}">Journal</button></div>
 <button class="btn" type="button" onClick="{{send}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Send voucher</button>
+<sc-if value="{{editing}}" hint-placeholder-val="{{false}}"><button class="btn" type="button" onClick="{{newDoc}}">New</button><button class="btn" type="button" style="color: #EF4444" onClick="{{remove}}" disabled="{{busy}}">Delete</button></sc-if>
 <button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveL}}</button>
 </header>
 <div class="split">
@@ -93,6 +94,7 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 <div class="pane">
 <div class="ph2"><h2>{{kind}} details</h2><span class="{{noteCls}}" style="font-size: 13px; max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{note}}">{{note}}</span></div>
 <div class="fgrid">
+<sc-if value="{{hasBills}}" hint-placeholder-val="{{true}}"><div class="fld"><label for="p0">Book name</label><select id="p0" class="inp" value="{{f.bookId}}" onChange="{{set.bookId}}"><sc-for list="{{opt.books}}" as="o" hint-placeholder-count="2"><option value="{{o.v}}">{{o.l}}</option></sc-for></select></div></sc-if>
 <div class="fld"><label for="p1">{{partyLabel}} <span style="color: #EF4444">*</span></label><select id="p1" class="inp" value="{{f.partyId}}" onChange="{{set.partyId}}"><sc-for list="{{opt.parties}}" as="o" hint-placeholder-count="1"><option value="{{o.v}}">{{o.l}}</option></sc-for></select></div>
 <div class="fld"><label for="p2">Amount <span style="color: #EF4444">*</span></label><input id="p2" class="inp" type="text" value="{{f.amount}}" onChange="{{set.amount}}" placeholder="₹ 0.00"></div>
 <div class="fld"><label for="p3">Date</label><input id="p3" class="inp" type="text" value="{{f.date}}" onChange="{{set.date}}" placeholder="dd-mm-yyyy"></div>
@@ -136,7 +138,7 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 </div>
 <div class="sec" style="border-bottom: 0">
 <div class="sech"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Recent {{kindLower}}s</span></div>
-<sc-for list="{{recent}}" as="x" hint-placeholder-count="3"><div class="kv"><span class="k">{{x.a}}</span><span class="v">{{x.b}}</span></div></sc-for>
+<sc-for list="{{recent}}" as="x" hint-placeholder-count="3"><div class="kv" style="cursor: pointer" title="Open to edit" onClick="{{x.open}}"><span class="k">{{x.a}}</span><span class="v">{{x.b}}</span></div></sc-for>
 <sc-if value="{{noRecent}}" hint-placeholder-val="{{false}}"><div class="kv"><span class="k">Nothing yet</span><span class="v">—</span></div></sc-if>
 <div style="padding: 14px 20px 0"><span class="tag t-green">{{footTag}}</span></div>
 </div>
@@ -155,21 +157,53 @@ class Component extends DCLogic {
   slug(k) { return { r: 'receipts', p: 'payments', c: 'contras', j: 'journals' }[k || this.state.kind]; }
   componentDidMount() {
     const api = this.api(); if (!api) return;
-    let k = 'r'; try { const want = window.localStorage.getItem('yf-pay-kind'); if (want) { window.localStorage.removeItem('yf-pay-kind'); k = want; } } catch (e) {}
-    this.setState({ kind: k, f: { date: this.today(), mode: 'NEFT' } }); this.init(k);
+    let k = 'r'; let ed = null; try { const want = window.localStorage.getItem('yf-pay-kind'); if (want) { window.localStorage.removeItem('yf-pay-kind'); k = want; } ed = JSON.parse(window.localStorage.getItem('yf-pay-edit') || 'null'); if (ed) { window.localStorage.removeItem('yf-pay-edit'); k = ed.k || k; } } catch (e) {}
+    this.setState({ kind: k, f: { date: this.today(), mode: 'NEFT' } }); this.init(k).then(() => { if (ed && ed.id) this.openDoc(k, ed.id); });
   }
   async init(k) {
     const api = this.api(); if (!api) return;
     try {
       const lk = await api.lookups(); const bank = lk.banks[0];
       this.setState({ lk, f: { ...this.state.f, bankAccountId: this.state.f.bankAccountId || (bank ? String(bank.id) : '') } });
-      this.number(k);
+      await this.number(k);
       let pre = null; try { pre = JSON.parse(window.localStorage.getItem('yf-pay-party') || 'null'); if (pre) window.localStorage.removeItem('yf-pay-party'); } catch (e) {}
       if (pre && pre.id) this.pickParty(String(pre.id));
     } catch (e) { this.setState({ note: api.message(e), err: true }); }
   }
-  async number(k) { const api = this.api(); if (!api) return; try { const nx = await api.get('/vouchers/' + this.slug(k) + '/next-number'); this.setState({ nextNo: nx.number }); } catch (e) {} }
-  setKind(k) { if (k === this.state.kind) return; this.setState({ kind: k, adj: {}, off: {}, bills: [], sm: null, note: '', err: false, f: { date: this.state.f.date || this.today(), mode: this.state.f.mode || 'NEFT', bankAccountId: (this.state.lk && this.state.lk.banks[0]) ? String(this.state.lk.banks[0].id) : '' } }); this.number(k); }
+  async number(k, bookId) { const api = this.api(); if (!api) return; try { const nx = await api.get('/vouchers/' + this.slug(k) + '/next-number', bookId ? { bookId } : undefined); this.setState({ nextNo: nx.number, f: { ...this.state.f, bookId: String(nx.bookId) } }); } catch (e) {} }
+  setBook(id) {
+    // like the old form: the book decides the numbering; a bank book also brings its bank account
+    const lk = this.state.lk || {}; const b = (lk.books || []).find((x) => String(x.id) === String(id));
+    const bank = b && (lk.banks || []).find((a) => a.id === b.accountId);
+    this.setState({ f: { ...this.state.f, bookId: String(id), bankAccountId: bank ? String(bank.id) : this.state.f.bankAccountId } });
+    if (!this.state.edit) this.number(this.state.kind, Number(id));
+  }
+  /** open a saved receipt / payment for editing */
+  async openDoc(k, id) {
+    const api = this.api(); if (!api) return;
+    try {
+      const d = await api.get('/vouchers/' + this.slug(k) + '/' + id);
+      const dmy = (x) => (x ? String(x).slice(0, 10).split('-').reverse().join('-') : '');
+      const x = d.extra || {}; const s = (v) => (v === null || v === undefined ? '' : String(v));
+      const [bills, sm] = d.partyId && (k === 'r' || k === 'p') ? await Promise.all([api.get('/accounts/' + d.partyId + '/open-bills', { side: k === 'r' ? 'receivable' : 'payable', exclude: d.id }), api.get('/accounts/' + d.partyId + '/summary')]) : [[], null];
+      const adj = {}; (d.allocations || []).filter((a) => a.billId !== d.id).forEach((a) => { adj[a.billId] = (Number(adj[a.billId] || 0) + Number(a.amount)).toFixed(2); });
+      // a bill already fully settled by this receipt is not "open" any more without it: keep it in the list
+      const have = new Set((bills || []).map((b) => b.id));
+      const extraB = (d.allocations || []).filter((a) => a.billId !== d.id && !have.has(a.billId)).map((a) => ({ id: a.billId, number: a.number, date: a.date, net: a.net || Number(a.amount), pending: Number(a.amount) }));
+      this.setState({ kind: k, edit: d, nextNo: d.number, bills: (bills || []).concat(extraB), sm, adj, off: {}, note: 'Editing ' + d.number, err: false,
+        f: { bookId: s(d.bookId), partyId: s(d.partyId), amount: s(Math.abs(Number(d.amount || d.netAmount) || 0)), date: dmy(d.date), mode: d.mode || 'NEFT', bankAccountId: s(d.bankAccountId), instrumentNo: s(d.instrumentNo), instrumentDate: dmy(d.instrumentDate),
+          narration: s(d.narration).trim(), slipNo: s(x.slipNo), partyBank: s(x.partyBank), collectionPersonId: s(d.collectionPersonId) } });
+    } catch (e) { this.setState({ note: api.message(e), err: true }); }
+  }
+  newDoc() { const k = this.state.kind; this.setState({ edit: null, adj: {}, off: {}, bills: [], sm: null, note: '', err: false, f: { date: this.today(), mode: 'NEFT', bankAccountId: this.state.f.bankAccountId } }); this.number(k); }
+  async remove() {
+    const api = this.api(); const d = this.state.edit; if (!api || !d) return;
+    if (!window.confirm('Delete ' + d.number + '? The bills it settled become pending again.')) return;
+    this.setState({ busy: true });
+    try { await api.del('/vouchers/' + this.slug() + '/' + d.id); api.invalidate(); this.newDoc(); this.setState({ busy: false, note: '✓ Deleted ' + d.number }); }
+    catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
+  }
+  setKind(k) { if (k === this.state.kind) return; this.setState({ edit: null, kind: k, adj: {}, off: {}, bills: [], sm: null, note: '', err: false, f: { date: this.state.f.date || this.today(), mode: this.state.f.mode || 'NEFT', bankAccountId: (this.state.lk && this.state.lk.banks[0]) ? String(this.state.lk.banks[0].id) : '' } }); this.number(k); }
   async pickParty(id) {
     const api = this.api(); const k = this.state.kind;
     this.setState({ f: { ...this.state.f, partyId: id }, adj: {}, off: {}, bills: [], sm: null, note: '', err: false });
@@ -202,14 +236,19 @@ class Component extends DCLogic {
       if (!f.bankAccountId) return this.setState({ note: 'Choose the bank / cash account', err: true });
       const allocations = (st.bills || []).filter((b) => !st.off[b.id] && n(st.adj[b.id]) > 0).map((b) => ({ billId: b.id, amount: n(st.adj[b.id]) }));
       if (allocations.reduce((a, x) => a + x.amount, 0) > amt + 0.005) return this.setState({ note: 'Adjusted more than the amount', err: true });
-      const ex = {}; if (f.slipNo) ex.slipNo = String(f.slipNo); if (f.partyBank) ex.partyBank = String(f.partyBank);
-      body = { date: iso(f.date), partyId: Number(f.partyId), bankAccountId: Number(f.bankAccountId), mode: f.mode || 'NEFT', instrumentNo: f.instrumentNo || null, instrumentDate: iso(f.instrumentDate), collectionPersonId: f.collectionPersonId ? Number(f.collectionPersonId) : null, amount: amt, narration: f.narration || null, allocations, extra: ex };
+      const ex = { slipNo: String(f.slipNo || '').trim(), partyBank: String(f.partyBank || '').trim() };
+      body = { bookId: f.bookId ? Number(f.bookId) : undefined, date: iso(f.date), partyId: Number(f.partyId), bankAccountId: Number(f.bankAccountId), mode: f.mode || 'NEFT', instrumentNo: f.instrumentNo || null, instrumentDate: iso(f.instrumentDate), collectionPersonId: f.collectionPersonId ? Number(f.collectionPersonId) : null, amount: amt, narration: f.narration || null, allocations, extra: ex };
     }
     this.setState({ busy: true, note: 'Saving…', err: false });
     try {
+      if (st.edit) {
+        const d = await api.put('/vouchers/' + this.slug() + '/' + st.edit.id, body); api.invalidate();
+        this.setState({ busy: false, last: d }); await this.openDoc(k, d.id); this.setState({ note: '✓ Updated ' + d.number + ' · ₹ ' + amt.toLocaleString('en-IN', { minimumFractionDigits: 2 }), err: false });
+        return;
+      }
       const d = await api.post('/vouchers/' + this.slug(), body); api.invalidate();
       this.setState({ busy: false, note: '✓ Saved ' + d.number + ' · ₹ ' + amt.toLocaleString('en-IN', { minimumFractionDigits: 2 }), err: false, last: d, f: { date: f.date, mode: f.mode, bankAccountId: f.bankAccountId }, adj: {}, off: {}, bills: [], sm: null });
-      this.number(k);
+      this.number(k, f.bookId ? Number(f.bookId) : undefined);
     } catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
   }
 
@@ -224,19 +263,22 @@ class Component extends DCLogic {
       theme, rc: k === 'r' ? 'on' : '', py: k === 'p' ? 'on' : '', ct: k === 'c' ? 'on' : '', jv: k === 'j' ? 'on' : '',
       setR: () => (live ? this.setKind('r') : this.setState({ kind: 'r' })), setP: () => (live ? this.setKind('p') : this.setState({ kind: 'p' })), setC: () => (live ? this.setKind('c') : this.setState({ kind: 'c' })), setJ: () => (live ? this.setKind('j') : this.setState({ kind: 'j' })),
       kind: KN, kindLower: KN.toLowerCase(), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy, saveL: st.busy ? 'Saving…' : 'Save ' + KN.toLowerCase(), save: () => this.save(),
-      send: () => window.print(), isNarr: k === 'c' || k === 'j', hasBills: k === 'r' || k === 'p'
+      send: () => window.print(), isNarr: k === 'c' || k === 'j', hasBills: k === 'r' || k === 'p',
+      editing: !!st.edit, newDoc: () => this.newDoc(), remove: () => this.remove(), tagL: st.edit ? 'Editing' : 'New', tagC: st.edit ? 'tag t-blue' : 'tag',
+      regHref: (k === 'p' ? 'PaymentRegister' : 'ReceiptRegister') + (theme === 'light' ? 'Light' : '') + '.dc.html', regL: k === 'p' ? 'Payment register' : k === 'r' ? 'Receipt register' : 'Payments & Receipts'
     };
+    if (st.edit) base.saveL = st.busy ? 'Saving…' : 'Update ' + KN.toLowerCase();
     if (!live) {
       const sample = [['SI-0598', '05-08-2026', '79 days', 'tag t-red', '1,48,250.00', '1,48,250.00', '1,48,250.00', true], ['SI-0640', '22-08-2026', '62 days', 'tag t-red', '1,62,000.00', '1,62,000.00', '51,750.00', true], ['SI-0721', '18-09-2026', '35 days', 'tag t-orange', '1,33,875.00', '31,400.00', '', false], ['SI-0790', '10-10-2026', '13 days', 'tag t-gray', '1,40,700.00', '1,40,700.00', '', false]];
       const pfx = r ? 'SI' : 'PB';
       return { ...base, docNo: { r: 'RC-26-27-0471', p: 'PY-26-27-0092', c: 'CT-26-27-0014', j: 'JV-26-27-0031' }[k], partyLabel: { r: 'Received from', p: 'Paid to', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
         partyName: r ? 'Krishna Textiles' : 'Reliance Industries', partySub: r ? 'Sundry Debtors · Ring Road, Surat' : 'Sundry Creditors · Yarn mill, Silvassa', initial: r ? 'K' : 'R', p: pfx, drcr: r ? 'Dr' : 'Cr',
         f: { partyId: '', amount: '₹ 2,00,000.00', date: '23-10-2026', mode: 'NEFT', bankAccountId: '', instrumentNo: 'HDFCR52026102318821', narration: '', instrumentDate: '23-10-2026', slipNo: '1898', collectionPersonId: '', partyBank: 'HDFC Bank' }, set: {},
-        opt: { parties: [{ v: '', l: r ? 'Krishna Textiles' : 'Reliance Industries' }], banks: [{ v: '', l: 'HDFC Bank · Current ••4412' }, { v: 's', l: 'SBI · Current ••0918' }], collectors: [{ v: '', l: 'Prakash P.' }] },
+        opt: { books: [{ v: '', l: r ? 'BANK RECEIPT THE SURAT PEOPLES CO OP BANK' : 'BANK PAYMENT THE SURAT PEOPLES CO OP BANK' }], parties: [{ v: '', l: r ? 'Krishna Textiles' : 'Reliance Industries' }], banks: [{ v: '', l: 'HDFC Bank · Current ••4412' }, { v: 's', l: 'SBI · Current ••0918' }], collectors: [{ v: '', l: 'Prakash P.' }] },
         bills: sample.map((b) => ({ no: b[0].replace('SI', pfx), dt: b[1], age: b[2], tc: b[3], amt: b[4], paid: '0.00', pend: b[5], qty: '1,004.020', brk: 'Direct', book: 'Yarn sales tax (Umiya)', brand: 'Durga', cp: 'Prakash P.', avg: '154.50', cr: '15', diff: '32', adj: b[6], on: b[7], tog: () => {}, set: () => {} })), noBills: false, allOn: true, togAll: () => {}, autoAdj: () => {},
         sm: { amt: '₹ 2,00,000.00', l2: 'Adjusted', adj: '₹ 2,00,000.00', l3: 'On account', onAcc: '₹ 0.00', after: '₹ 2,82,350.00' },
         ac: { out: '₹ 4,82,350.00', od: '₹ 3,10,250.00', odC: 'tag t-red', cr: '45 days', delay: '+21 days' },
-        recent: [{ a: '06-10-2026', b: '₹ 1,50,000 · Cheque' }, { a: '12-09-2026', b: '₹ 2,00,000 · NEFT' }, { a: '18-08-2026', b: '₹ 1,75,500 · RTGS' }], noRecent: false, footTag: 'WhatsApp receipt goes out automatically on save', openLedger: () => {} };
+        recent: [{ a: '06-10-2026', b: '₹ 1,50,000 · Cheque', open: () => {} }, { a: '12-09-2026', b: '₹ 2,00,000 · NEFT', open: () => {} }, { a: '18-08-2026', b: '₹ 1,75,500 · RTGS', open: () => {} }], noRecent: false, footTag: 'WhatsApp receipt goes out automatically on save', openLedger: () => {} };
     }
     const f = st.f;
     const notBank = lk.ledgers.filter((a) => a.kind !== 'BANK' && a.kind !== 'CASH');
@@ -247,6 +289,7 @@ class Component extends DCLogic {
     const P = lk.ledgers.find((a) => String(a.id) === String(f.partyId));
     const set = {}; ['amount', 'date', 'mode', 'bankAccountId', 'instrumentNo', 'narration', 'instrumentDate', 'slipNo', 'collectionPersonId', 'partyBank'].forEach((key) => { set[key] = (e) => this.setState({ f: { ...this.state.f, [key]: e.target.value }, note: this.state.err ? '' : this.state.note, err: false }); });
     set.partyId = (e) => this.pickParty(e.target.value);
+    set.bookId = (e) => this.setBook(e.target.value);
     const amt = n(f.amount);
     set.amount = (e) => { const v = e.target.value; this.setState({ f: { ...this.state.f, amount: v } }); if (Object.keys(this.state.adj).length === 0 && n(v) > 0) this.auto(n(v)); };
     const today = Date.now();
@@ -263,12 +306,12 @@ class Component extends DCLogic {
     const openB = sm ? sm.bills || [] : [];
     const delay = openB.length ? Math.round(openB.reduce((a, b) => a + (b.overdueDays || 0), 0) / openB.length) : 0;
     const typ = { r: 'RECEIPT', p: 'PAYMENT' }[k];
-    const recent = sm ? sm.recent.filter((x) => x.type === typ).slice(0, 4).map((x) => ({ a: dmy(x.date), b: '₹ ' + inr(x.amount || x.netAmount, 0) + (x.mode ? ' · ' + x.mode.charAt(0) + x.mode.slice(1).toLowerCase() : '') })) : [];
+    const recent = sm ? sm.recent.filter((x) => x.type === typ && (!st.edit || x.id !== st.edit.id)).slice(0, 4).map((x) => ({ a: x.number, b: dmy(x.date) + ' · ₹ ' + inr(Math.abs(x.amount || x.netAmount), 0), open: () => this.openDoc(k, x.id) })) : [];
     const name = P ? P.name : { r: 'Select party', p: 'Select party', c: 'Select account', j: 'Select account' }[k];
     return { ...base, docNo: st.nextNo || '…', partyLabel: { r: 'Received from', p: 'Paid to', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
       partyName: name, partySub: P ? (kindL[P.kind] || P.kind) + (P.city ? ' · ' + P.city : '') : '—', initial: P ? P.name.replace(/^(Shree|Shri|The)\s+/i, '').charAt(0) : '+', p: r ? 'GU' : 'PB', drcr: P && P.balance < 0 ? 'Cr' : 'Dr',
       f: { ...f, partyId: f.partyId || '', amount: f.amount ?? '', instrumentNo: f.instrumentNo ?? '', narration: f.narration ?? '', instrumentDate: f.instrumentDate ?? '', slipNo: f.slipNo ?? '', collectionPersonId: f.collectionPersonId ?? '', partyBank: f.partyBank ?? '' }, set,
-      opt: { parties: [{ v: '', l: name === 'Select party' || name === 'Select account' ? name + '…' : 'Select…' }].concat(partyList.map((a) => ({ v: String(a.id), l: a.name + (a.city ? ' · ' + a.city : '') }))), banks: bankList.map((a) => ({ v: String(a.id), l: a.name })), collectors: [{ v: '', l: 'Select…' }].concat((lk.collectionPersons || []).map((a) => ({ v: String(a.id), l: a.name }))) },
+      opt: { books: (lk.books || []).filter((b) => b.voucherType === typ).map((b) => ({ v: String(b.id), l: b.name })), parties: [{ v: '', l: name === 'Select party' || name === 'Select account' ? name + '…' : 'Select…' }].concat(partyList.map((a) => ({ v: String(a.id), l: a.name + (a.city ? ' · ' + a.city : '') }))), banks: bankList.map((a) => ({ v: String(a.id), l: a.name })), collectors: [{ v: '', l: 'Select…' }].concat((lk.collectionPersons || []).map((a) => ({ v: String(a.id), l: a.name }))) },
       bills, noBills: !!f.partyId && bills.length === 0, allOn: bills.length > 0 && bills.every((b) => b.on),
       togAll: () => { if (bills.length && bills.every((b) => b.on)) { const off = {}; (st.bills || []).forEach((b) => { off[b.id] = true; }); this.setState({ off }); } else this.auto(amt || (st.bills || []).reduce((a, b) => a + b.pending, 0)); },
       autoAdj: () => this.auto(amt),

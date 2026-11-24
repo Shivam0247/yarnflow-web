@@ -44,6 +44,8 @@ export const ROUTES = {
   GeneralPurchaseEntry: '/purchase/general/new',
   GeneralPurchaseView: '/purchase/general/view',
   Payments: '/accounts/payments',
+  ReceiptRegister: '/accounts/receipts',
+  PaymentRegister: '/accounts/payments/register',
   DebitNoteList: '/accounts/debit-notes',
   DebitNoteEntry: '/accounts/debit-notes/new',
   DebitNoteView: '/accounts/debit-notes/view',

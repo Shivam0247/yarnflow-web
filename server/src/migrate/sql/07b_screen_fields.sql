@@ -147,7 +147,8 @@ FROM rs WHERE v.id = rs.id;
 UPDATE public.vouchers v SET
   mode = coalesce((SELECT (CASE upper(name) WHEN 'CHEQUE' THEN 'CHEQUE' WHEN 'NEFT' THEN 'NEFT' WHEN 'RTGS' THEN 'RTGS' WHEN 'UPI' THEN 'UPI' WHEN 'CASH' THEN 'CASH' ELSE 'OTHER' END)::pay_mode
                    FROM public.lookups WHERE code = rm.j->>'Rec_CheqMode'), CASE WHEN rm.j->>'Rec_Type' LIKE 'CASH%' THEN 'CASH'::pay_mode END, v.mode),
-  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['slipNo','modeName']) || pg_temp.jx(
+  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['slipNo','modeName','smsSent']) || pg_temp.jx(
+    'smsSent', CASE WHEN rm.j->>'Rec_IsSmsSent' = '1' THEN 'Yes' END,
     'slipNo', mig.s(rm.j->>'Rec_Slip'),
     'modeName', (SELECT name FROM public.lookups WHERE code = rm.j->>'Rec_CheqMode'))
 FROM rm WHERE v.id = rm.id;
