@@ -3,7 +3,7 @@
  * the same page breaks: /print/outstanding?by=group|collector|broker|salesperson&kind=sale|debit|all&from&to&only=<group>
  * Pages are laid out here (fixed row heights) so "Page x of y" and the header repeat as before.
  */
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { YF_API } from '@/dc/api';
 
@@ -15,12 +15,15 @@ const GROUP_LABEL: Record<string, string> = { group: 'Group :', collector: 'Coll
 const slash = (d: string) => { const [y, m, dd] = d.slice(0, 10).split('-'); return `${dd}/${m}/${y}`; };
 const short = (d: string) => { const [y, m, dd] = d.slice(0, 10).split('-'); return `${dd}/${m}/${y.slice(2)}`; };
 const int = (n: number) => String(Math.round(n));
-const f2 = (n: number) => n.toFixed(2);
-const f3 = (n: number) => n.toFixed(3);
+/** half-up rounding, as the old report printed (5556.735 → 5556.74) */
+const fx = (n: number, d: number) => { const k = 10 ** d; return (Math.round(n * k + (n >= 0 ? 1e-6 : -1e-6)) / k).toFixed(d); };
+const f2 = (n: number) => fx(n, 2);
+const f3 = (n: number) => fx(n, 3);
 
-/* page geometry (old print at 110 dpi): rows are fixed height, so pages break where the old ones did */
-const PAGE_H = 1300, TOP = 158, BOTTOM = 42;
-const H = { bill: 18.3, group: 22, party: 16, add: 17, ptotal: 20, gtotal: 18, grand: 22, gap: 2 };
+/* Geometry in points, measured from the old Crystal PDF (A4 595 × 842 pt): every section has its height
+   and every field its x position, font and size, so text, rules and page breaks fall where they did. */
+const Y0 = 83.3, LIMIT = 817;
+const H = { group: 18, party: 13.7, add: 12.2, bill: 12.05, ptotal: 13.7, gtotal: 11.5, grand: 14.7 };
 
 type Line =
   | { k: 'group'; name: string }
@@ -31,16 +34,29 @@ type Line =
   | { k: 'gtotal'; qty: number; net: number; rec: number; os: number }
   | { k: 'grand'; qty: number; net: number; os: number };
 
-function Swastik() {
-  return (
-    <svg width="20" height="22" viewBox="0 0 20 22" aria-hidden style={{ display: 'block' }}>
-      <rect x="2.5" y="3.5" width="17" height="17" fill="#d8d8d8" />
-      <g stroke="#000" strokeWidth="2.4" fill="none" strokeLinecap="square">
-        <path d="M10 2v16M2 10h16M10 2h6M18 10v6M10 18H4M2 10V4" />
-      </g>
-      <g fill="#000"><circle cx="5.5" cy="6" r="1.2" /><circle cx="14.5" cy="6" r="1.2" /><circle cx="5.5" cy="14.5" r="1.2" /><circle cx="14.5" cy="14.5" r="1.2" /></g>
-    </svg>
-  );
+type Font = 'c' | 'cb' | 't' | 'tb';
+const FONT: Record<Font, string> = {
+  c: "400 {s}pt Calibri, Carlito, Arial, sans-serif",
+  cb: "700 {s}pt Calibri, Carlito, Arial, sans-serif",
+  t: "400 {s}pt 'Times New Roman', 'Liberation Serif', Times, serif",
+  tb: "700 {s}pt 'Times New Roman', 'Liberation Serif', Times, serif"
+};
+/** glyph-top correction per font and size (browser text box vs the Crystal PDF), measured */
+const DY: Record<string, number> = { 'cb9.85': 2.05, 'cb6.55': 1.25, 'tb7.95': 0.75, 't8': 0.16, 'c8.2': 0.95, 'cb7.35': 0.52, 'cb8.2': 0.65, 'c6.55': 1.3, 't7.05': 0.51, 'c6.15': 1.55, 'c7.35': 1.1 };
+/** one text field: x = left edge, or r = right edge (right aligned), or cx = centre; w clips the field */
+function T({ y, x, r, cx, w, f = 'c', s = 6.55, blue, children }: { y: number; x?: number; r?: number; cx?: number; w?: number; f?: Font; s?: number; blue?: boolean; children: ReactNode }) {
+  const st: CSSProperties = { position: 'absolute', top: y - (DY[f + s] ?? 0) + 'pt', font: FONT[f].replace('{s}', String(s)), lineHeight: s + 'pt', whiteSpace: 'pre', color: blue ? '#0000ff' : '#000' };
+  if (r != null) { const ww = w ?? 120; Object.assign(st, { left: r - ww + 'pt', width: ww + 'pt', textAlign: 'right', overflow: 'hidden' }); }
+  else if (cx != null) { const ww = w ?? 400; Object.assign(st, { left: cx - ww / 2 + 'pt', width: ww + 'pt', textAlign: 'center' }); }
+  else { Object.assign(st, { left: x + 'pt' }); if (w != null) Object.assign(st, { width: w + 'pt', overflow: 'hidden' }); }
+  return <div style={st}>{children}</div>;
+}
+function Rule({ y, x1, x2, dash, thin }: { y: number; x1: number; x2: number; dash?: boolean; thin?: boolean }) {
+  // dashes as Crystal drew them: 1 pt rule 12 on / 4 off from x1 + 1, hairline 11.5 on / 4.5 off
+  const sx = dash ? (thin ? x1 - 0.1 : x1 + 1) : x1;
+  const st: CSSProperties = { position: 'absolute', left: sx + 'pt', width: x2 - sx + 'pt', top: y - 0.7 - (thin ? 0.25 : 0.5) + 'pt', height: (thin ? 0.5 : 1) + 'pt' };
+  st.background = dash ? `repeating-linear-gradient(90deg, #000 0 ${thin ? 11.5 : 12}pt, transparent ${thin ? 11.5 : 12}pt 16pt)` : '#000';
+  return <div style={st} />;
 }
 
 export default function OutstandingPrint() {
@@ -95,10 +111,10 @@ export default function OutstandingPrint() {
     }
     if (lines.length) lines.push({ k: 'grand', qty: gq, net: gn, os: go });
     const out: Line[][] = [[]];
-    let y = TOP;
+    let y = Y0;
     for (const l of lines) {
       const h = H[l.k];
-      if (y + h > PAGE_H - BOTTOM && out[out.length - 1].length) { out.push([]); y = TOP; }
+      if (y + h > LIMIT && out[out.length - 1].length) { out.push([]); y = Y0; }
       out[out.length - 1].push(l); y += h;
     }
     return out;
@@ -141,101 +157,120 @@ export default function OutstandingPrint() {
         <span>{busy ? 'Loading…' : data ? `${pages.length} page${pages.length === 1 ? '' : 's'}` : ''}</span>
         {err && <span style={{ color: '#ff8a8a' }}>{err}</span>}
       </div>
-      {data && pages.map((lines, i) => (
-        <div className="op-page" key={i}>
-          <div className="op-co-name">{data.company.name}</div>
-          <div className="op-co-addr">{data.company.address}</div>
-          <div className="op-title">{data.title.replace(' - ', ' -  ')}</div>
-          <div className="op-dash" />
-          <div className="op-meta">
-            <span className="serif" style={{ width: 520 }}>{slash(data.from)} TO {slash(data.to)}</span>
-            <span style={{ width: 80 }}>{slash(YF_API.today())}</span>
-            <span style={{ width: 170 }}>{time}</span>
-            <span style={{ flex: 1, textAlign: 'right', paddingRight: 22, whiteSpace: 'nowrap' }}>Page {i + 1} of {pages.length}</span>
+      {data && pages.map((lines, i) => {
+        let y = Y0;
+        return (
+          <div className="op-page" key={i}>
+            <T cx={290.85} y={16.2} f="cb" s={9.85}>{data.company.name}</T>
+            <T cx={291.15} y={29.1} f="cb" s={6.55} w={560}>{data.company.address}</T>
+            <T cx={297.75} y={44.0} f="tb" s={7.95}>{data.title.replace(' - ', ' -  ')}</T>
+            <Rule y={54.3} x1={19.6} x2={576} dash />
+            <T x={23.3} y={58.1} f="t" s={8}>{slash(data.from)} TO {slash(data.to)}</T>
+            <T x={365.8} y={58.7} s={7.35}>{slash(YF_API.today())}</T>
+            <T x={417.9} y={58.7} s={7.35}>{time}</T>
+            <T x={526.8} y={58.3} s={8.2}>Page {i + 1} of {pages.length}</T>
+            <Rule y={69.5} x1={15.8} x2={595} />
+            {([[24.0, 'Company'], [67.4, 'Date'], [90.1, 'Bill No'], [141.0, 'Broker'], [195.1, 'Item Name'], [269.0, 'Rate'], [305.5, 'Bill Qnty.'],
+              [373.2, 'Bill Net.'], [430.2, 'Total Rec.'], [495.4, 'Total O/s'], [529.6, 'C.Days'], [554.6, 'Days']] as [number, string][]).map(([x, t]) => (
+              <T key={t} x={x} y={74.2} f="cb">{t}</T>
+            ))}
+            <Rule y={83.8} x1={15.1} x2={569.3} />
+            {lines.map((l, j) => { const top = y; y += H[l.k]; return <Section key={j} l={l} y={top} by={data.by} />; })}
           </div>
-          <div className="op-row op-head">
-            <C w={43} a="c">Company</C><C w={67} a="r" pr={22}>Date</C><C w={78}>Bill No</C><C w={72}>Broker</C><C w={120} pl={12}>Item Name</C>
-            <C w={40} a="r">Rate</C><C w={60} a="r">Bill Qnty.</C><C w={115} a="r" pr={22}>Bill Net.</C><C w={110} a="c">Total Rec.</C>
-            <C w={65} a="r">Total O/s</C><C w={40} a="c">C.Days</C><C w={30} a="r">Days</C>
-          </div>
-          {lines.map((l, j) => <LineView key={j} l={l} by={data.by} />)}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
-function C({ w, a, pl, pr, children, className }: { w: number; a?: 'r' | 'c'; pl?: number; pr?: number; children?: ReactNode; className?: string }) {
-  return <div className={'op-c ' + (className ?? '')} style={{ width: w, textAlign: a === 'r' ? 'right' : a === 'c' ? 'center' : 'left', paddingLeft: pl, paddingRight: pr }}>{children}</div>;
-}
-
-function LineView({ l, by }: { l: Line; by: string }) {
+function Section({ l, y, by }: { l: Line; y: number; by: string }) {
   switch (l.k) {
     case 'group':
       return (
-        <div className="op-row op-group">
-          <div style={{ width: 30 }}><Swastik /></div>
-          <div className="b blue" style={{ width: 118, fontSize: 11, paddingLeft: 8 }}>{GROUP_LABEL[by] ?? 'Group :'}</div>
-          <div className="b blue" style={{ flex: 1, fontSize: 12.5 }}>{l.name}</div>
-          <div style={{ width: 24 }}><Swastik /></div>
-        </div>
+        <>
+          <img src="/print/swastik.png" alt="" style={{ position: 'absolute', left: '17.3pt', top: y - 0.7 + 'pt', width: '17.25pt', height: '18pt' }} />
+          <img src="/print/swastik.png" alt="" style={{ position: 'absolute', left: '552.05pt', top: y - 0.7 + 'pt', width: '17.25pt', height: '18pt' }} />
+          <T x={41.3} y={y + 3.1} f="cb" s={7.35} blue>{GROUP_LABEL[by] ?? 'Group :'}</T>
+          <T x={113.3} y={y + 3.5} f="cb" s={8.2} blue>{l.name}</T>
+        </>
       );
     case 'party':
       return (
-        <div className="op-row op-party">
-          <div className="b" style={{ width: 79, paddingLeft: 20 }}>Party :</div>
-          <div className="b nowrap" style={{ width: 316 }}>{l.p.name}</div>
-          <div className="b" style={{ width: 42 }}>Name</div>
-          <div className="nowrap s10" style={{ width: 113 }}>{l.p.contact ?? ''}</div>
-          <div className="b" style={{ width: 30 }}>Mob</div>
-          <div className="nowrap s10" style={{ width: 120 }}>{l.p.mobile ?? ''}</div>
-          <div className="b" style={{ width: 50, textAlign: 'right', paddingRight: 8 }}>Coll. P :</div>
-          <div className="nowrap s10" style={{ flex: 1 }}>{l.p.collector ?? ''}</div>
-        </div>
+        <>
+          <Rule y={y + 0.5} x1={17.3} x2={593.7} />
+          <T x={29.3} y={y + 4.6} f="cb" s={7.35}>Party :</T>
+          <T x={68.1} y={y + 4.0} f="cb" s={7.35} w={198}>{l.p.name}</T>
+          <T x={269.3} y={y + 3.7} f="cb">Name</T>
+          <T x={294.8} y={y + 3.6} w={64}>{l.p.contact ?? ''}</T>
+          <T x={361.6} y={y + 4.4} f="cb">Mob</T>
+          <T x={384.8} y={y + 4.3} w={68}>{l.p.mobile ?? ''}</T>
+          <T x={456.1} y={y + 4.4} f="cb">Coll. P :</T>
+          <T x={483.8} y={y + 2.8}>{l.p.collector ?? ''}</T>
+        </>
       );
     case 'add': {
       const bal = l.p.balance;
       return (
-        <div className="op-row op-add">
-          <div className="b u" style={{ width: 79, paddingLeft: 20 }}>Add:</div>
-          <div className="nowrap u s9" style={{ width: 518 }}>{l.p.address ?? ''}</div>
-          <div className="b u" style={{ width: 120, textAlign: 'center' }}>Ledger Balance</div>
-          <div className="s10" style={{ flex: 1, textAlign: 'right', paddingRight: 30 }}>{f2(Math.abs(bal))} {bal < 0 ? 'CR' : 'DB'}</div>
-        </div>
+        <>
+          <T x={30.5} y={y + 2.9} f="cb">Add:</T>
+          <T x={67.3} y={y + 2.8} w={356}>{l.p.address ?? ''}</T>
+          <T x={426.1} y={y + 2.9} f="cb">Ledger Balance</T>
+          <T r={541.0} y={y + 2.8} w={70}>{' ' + f2(Math.abs(bal))}</T>
+          <T x={543.0} y={y + 2.8}>{bal < 0 ? 'CR' : 'DB'}</T>
+          <Rule y={y + 9.8} x1={30.8} x2={570.5} dash thin />
+        </>
       );
     }
     case 'bill': {
       const b = l.b;
       return (
-        <div className="op-row op-bill">
-          <C w={43} className="serif s11">{b.com}</C><C w={67} a="r" pr={6}>{short(b.date)}</C><C w={78} pl={10}>{b.number}</C>
-          <C w={72} pl={6} className="nowrap">{b.broker}</C><C w={120} pl={4} className="nowrap">{b.item}</C>
-          <C w={40} a="r">{f2(b.rate)}</C><C w={60} a="r">{f2(b.qty)}</C><C w={115} a="r" pr={22} className="serif s11">{int(b.net)}</C>
-          <C w={110} a="c" className="serif s11">{f2(b.received)}</C><C w={65} a="r">{int(b.pending)}</C>
-          <C w={40} a="c">{b.crDays}</C><C w={30} a="r">{b.days}</C>
-        </div>
+        <>
+          <T x={16.5} y={y + 2.4} f="t" s={7.05} w={30}>{b.com}</T>
+          <T r={72.3} y={y + 2.9} w={30}>{short(b.date)}</T>
+          <T x={90.0} y={y + 2.9} w={50}>{b.number}</T>
+          <T x={141.0} y={y + 2.9} w={47}>{b.broker}</T>
+          <T x={189.1} y={y + 2.9} w={74.6}>{b.item}</T>
+          <T r={285.1} y={y + 2.9} w={40}>{' ' + f2(b.rate)}</T>
+          <T r={330.1} y={y + 2.9} w={42}>{' ' + f2(b.qty)}</T>
+          <T r={398.1} y={y + 2.4} f="t" s={7.05} w={60}>{' ' + int(b.net)}</T>
+          <T r={457.6} y={y + 2.4} f="t" s={7.05} w={50}>{' ' + f2(b.received)}</T>
+          <T r={521.4} y={y + 2.9} w={60}>{' ' + int(b.pending)}</T>
+          <T cx={535.15} y={y + 2.7} s={6.15} w={16}>{' ' + b.crDays}</T>
+          <T r={570.5} y={y + 2.9} w={28}>{' ' + b.days}</T>
+        </>
       );
     }
     case 'ptotal':
       return (
-        <div className="op-row op-tot op-ptot">
-          <C w={430} pl={20} className="b s11">Party Total :</C><C w={60} a="r" className="b">{f3(l.qty)}</C>
-          <C w={115} a="r" pr={22} className="b">{int(l.net)}</C><C w={110} /><C w={65} a="r" className="b">{int(l.os)}</C>
-        </div>
+        <>
+          <Rule y={y + 1.3} x1={14.3} x2={592.9} />
+          <T x={29.3} y={y + 5.8} f="cb" s={8.2}>Party Total :</T>
+          {Math.abs(l.qty) > 0.0005 && <T r={329.4} y={y + 5.1} f="cb" w={60}>{' ' + f3(l.qty)}</T>}
+          <T r={397.4} y={y + 5.1} f="cb" w={60}>{' ' + int(l.net)}</T>
+          <T r={521.4} y={y + 5.1} f="cb" w={60}>{' ' + int(l.os)}</T>
+        </>
       );
     case 'gtotal':
       return (
-        <div className="op-row op-tot op-gtot">
-          <C w={430} pl={20} className="b s11">Group Wise Total :</C><C w={60} a="r" className="b">{f3(l.qty)}</C>
-          <C w={115} a="r" pr={22} className="b">{int(l.net)}</C><C w={110} a="c" className="b">{int(l.rec)}</C><C w={65} a="r" className="b">{int(l.os)}</C>
-        </div>
+        <>
+          <Rule y={y + 0.5} x1={14.8} x2={593.7} />
+          <T x={29.3} y={y + 3.6} f="cb" s={8.2}>Group Wise Total :</T>
+          <T r={329.5} y={y + 2.8} f="cb" w={60}>{' ' + f3(l.qty)}</T>
+          <T r={398.2} y={y + 2.8} f="cb" w={60}>{' ' + int(l.net)}</T>
+          <T r={461.7} y={y + 2.8} f="cb" w={60}>{' ' + int(l.rec)}</T>
+          <T r={521.4} y={y + 2.8} f="cb" w={60}>{' ' + int(l.os)}</T>
+          <Rule y={y + 10.8} x1={14.8} x2={592.9} />
+        </>
       );
     case 'grand':
       return (
-        <div className="op-row op-tot op-grand">
-          <C w={430} pl={20} className="b s11">Grand Total :</C><C w={60} a="r" className="b">{f3(l.qty)}</C>
-          <C w={115} a="r" pr={22} className="b">{int(l.net)}</C><C w={110} /><C w={65} a="r" className="b">{int(l.os)}</C>
-        </div>
+        <>
+          <T x={30.1} y={y + 4.9} f="cb" s={8.2}>Grand Total :</T>
+          <T r={329.5} y={y + 4.2} f="cb" w={60}>{' ' + f3(l.qty)}</T>
+          <T r={397.4} y={y + 2.6} f="cb" w={60}>{' ' + int(l.net)}</T>
+          <T r={521.4} y={y + 2.6} f="cb" w={60}>{' ' + int(l.os)}</T>
+          <Rule y={y + 14.7} x1={14.8} x2={592.1} />
+        </>
       );
   }
 }
@@ -248,7 +283,7 @@ html, body { background: #e9e9e9 !important; }
 .op-bar button { background: #2f6fed; color: #fff; border: 0; border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
 .op-co { position: relative; } .op-co summary { cursor: pointer; padding: 5px 8px; border: 1px solid #444; border-radius: 6px; }
 .op-co > div { position: absolute; top: 34px; left: 0; background: #222; border: 1px solid #444; border-radius: 8px; padding: 8px; max-height: 60vh; overflow: auto; width: 320px; display: grid; gap: 4px; }
-.op-page { width: 920px; height: 1300px; margin: 0 auto 18px; background: #fff; box-sizing: border-box; padding: 18px 35px 0 25px; position: relative; overflow: hidden; break-after: page; }
+.op-page { width: 595.3pt; height: 841.9pt; margin: 0 auto 18px; background: #fff; position: relative; overflow: hidden; break-after: page; }
 .op-page * { box-sizing: border-box; }
 .op-co-name { text-align: center; font-weight: 700; font-size: 14.5px; margin-left: 30px; }
 .op-co-addr { text-align: center; font-weight: 700; font-size: 9px; margin: 3px 0 0 30px; }
@@ -274,6 +309,6 @@ html, body { background: #e9e9e9 !important; }
   html, body { background: #fff !important; }
   .op-bar { display: none; }
   .op-root { padding: 0; }
-  .op-page { zoom: 0.8627; margin: 0; }
+  .op-page { margin: 0; }
 }
 `;
