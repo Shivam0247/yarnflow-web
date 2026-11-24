@@ -16,6 +16,7 @@ import * as docs from '../services/documents.js';
 import * as eway from '../services/eway.js';
 import { printData } from '../services/print.js';
 import * as oldrep from '../services/oldreports.js';
+import { outstandingPrint } from '../services/outstandingPrint.js';
 import { MASTERS, createMaster, deleteMaster, getMaster, listMaster, updateMaster } from '../services/masters.js';
 import * as rep from '../services/reports.js';
 import * as assistant from '../services/assistant.js';
@@ -258,6 +259,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   }));
   app.post('/api/assistant/ask', read((ctx, req) => assistant.ask(ctx, String((req.body as { q?: string } | undefined)?.q ?? ''))));
   app.get('/api/assistant/insights', read((ctx) => assistant.insights(ctx)));
+  app.get('/api/outstanding-print', read((ctx, req) => outstandingPrint(ctx, q(req))));
   app.get('/api/report-designs', read(async () => oldrep.listDesigns()));
   app.get('/api/report-designs/:id', read(async (ctx, req) => ({ xml: oldrep.designXml(idParam(req)) })));
   app.get('/api/report-designs/:id/data', read((ctx, req) => oldrep.reportData(ctx, idParam(req), q(req))));

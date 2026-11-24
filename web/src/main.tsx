@@ -7,6 +7,7 @@ import { resolveHref } from '@/dc/runtime';
 
 const PrintPage = lazy(() => import('@/print/PrintPage'));
 const ReportPage = lazy(() => import('@/print/ReportPage'));
+const OutstandingPrint = lazy(() => import('@/print/OutstandingPrint'));
 
 /** Each screen is a full page (sidebar + content + assistant), exactly as in the design. */
 function Root() {
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       ...PAGES.map(({ path, Component }) => ({ path, element: <Component /> })),
+      { path: '/print/outstanding', element: <OutstandingPrint /> },
       { path: '/print/report/:regId', element: <ReportPage /> },
       { path: '/print/:slug/:id', element: <PrintPage /> },
       { path: '*', element: <Navigate to="/" replace /> }
