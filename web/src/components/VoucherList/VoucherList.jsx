@@ -13,7 +13,7 @@ class Component extends DCLogic {
   constructor(p) { super(p); this.state = { tab: 'All', loaded: 22, sel: [], selAll: false, excl: [], focus: null, toast: '', over: {} }; }
   /* live data (app) — on the design canvas window.YF_API is absent and the sample rows are used */
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
-  slug() { return { ds: 'dispatch-schedules', gs: 'general-sales', sr: 'sale-returns', gp: 'general-purchases', pr: 'purchase-returns', dn: 'debit-notes', cn: 'credit-notes', jv: 'journals', rc: 'receipts', py: 'payments' }[this.props.kind || 'ds']; }
+  slug() { return { ds: 'dispatch-schedules', gs: 'general-sales', sr: 'sale-returns', gp: 'general-purchases', pr: 'purchase-returns', dn: 'debit-notes', cn: 'credit-notes', jv: 'journals', rc: 'receipts', py: 'payments', rr: 'receipt-returns' }[this.props.kind || 'ds']; }
   async load() {
     const api = this.api(); if (!api) return;
     try { const r = await api.get('/vouchers/' + this.slug(), (this.props.kind || 'ds') === 'ds' ? { view: 'lines', pageSize: 100000 } : { pageSize: 100000 }); this.setState({ live: r.data }); }
@@ -35,6 +35,7 @@ const KINDS = {
   gp: { mod: 'Purchase', title: 'General purchase bill', reg: 'General purchase register', list: 'GeneralPurchaseList', entry: 'GeneralPurchaseEntry', view: 'GeneralPurchaseView', no: 'GENU00221/26-27', noun: 'bill', nouns: 'bills' },
   dn: { mod: 'Accounts', title: 'Debit note', reg: 'Debit note register', list: 'DebitNoteList', entry: 'DebitNoteEntry', view: 'DebitNoteView', no: 'DN00041/26-27', noun: 'note', nouns: 'notes' },
   rc: { mod: 'Bank & Cash', title: 'Receipt', reg: 'Receipt register', list: 'ReceiptRegister', entry: 'Payments', view: 'Payments', no: '14142', noun: 'receipt', nouns: 'receipts' },
+  rr: { mod: 'Bank & Cash', title: 'Receipt return', reg: 'Receipt return register', list: 'ReceiptReturnRegister', entry: 'Payments', view: 'Payments', no: '0064', noun: 'return', nouns: 'returns' },
   py: { mod: 'Bank & Cash', title: 'Payment', reg: 'Payment register', list: 'PaymentRegister', entry: 'Payments', view: 'Payments', no: '2352', noun: 'payment', nouns: 'payments' },
   jv: { mod: 'Accounts', title: 'Journal voucher', reg: 'Journal register', list: 'JournalVoucherList', entry: 'JournalVoucherEntry', view: 'JournalVoucherView', no: '20348', noun: 'voucher', nouns: 'vouchers' },
   cn: { mod: 'Accounts', title: 'Credit note', reg: 'Credit note register', list: 'CreditNoteList', entry: 'CreditNoteEntry', view: 'CreditNoteView', no: 'CN00027/26-27', noun: 'note', nouns: 'notes' },
@@ -48,6 +49,7 @@ const PARTIES = {
   gp: ['PUROHIT HANSRAJ VELAJI', 'DISHA TEXTECH & GENERAL TRADING', 'SHEKHAWATI ROAD CARRIER', 'DURGA KANWAR', 'SWASTIK TRANSPORT SERVICE', 'UNITED GUJARAT YARN DEALERS ASSOCIATION', 'SHAURYA TEMPO SERVICE', 'MAA ROADLINES', 'LALIT ROAD CARRIER', 'TRI WORLD EXIM SERVICES LLP', 'COMMERCIAL GOODS CARRIERS'],
   dn: ['KRISHNA TEXTILES', 'LAXMI CREATION', 'SHREE DURGA SYNTEX PVT LTD', 'OM SAI WEAVING', 'SANATHAN TEXTILES LIMITED', 'NAVRANG PRINTS'],
   rc: ['KRISHNA TEXTILES', 'OM SAI WEAVING', 'LAXMI CREATION', 'SHIV TEXTILE'],
+  rr: ['KRISHNA TEXTILES', 'OM SAI WEAVING'],
   py: ['RELIANCE INDUSTRIES', 'GARDEN SILK MILLS', 'SANGAM SPINNERS', 'INDORAMA'],
   jv: ['SHIVAM TEXTILES', 'KRISHNA TEXTILES', 'OM SAI WEAVING', 'LAXMI CREATION'],
   cn: ['OM SAI WEAVING', 'BHAGWATI FILAMENTS', 'KRISHNA TEXTILES', 'RELIANCE INDUSTRIES LIMITED', 'GEETA FAB', 'JIGITA FAB LLP'],
@@ -64,9 +66,9 @@ const dstr = (d) => z2(d.getUTCDate()) + '-' + z2(d.getUTCMonth() + 1) + '-' + d
 const gstin = (r) => ['24', '26', '27'][Math.floor(r() * 3)] + 'AA' + 'ABCDFGHJKLMPR'[Math.floor(r() * 13)] + 'C' + String(1000 + Math.floor(r() * 9000)) + 'K1Z' + 'ABCDEFGH'[Math.floor(r() * 8)];
 
 function makeRows(kind) {
-  const r = rnd({ ds: 11, gs: 23, sr: 37, gp: 41, pr: 53, dn: 61, cn: 67, jv: 71, rc: 73, py: 79 }[kind]);
+  const r = rnd({ ds: 11, gs: 23, sr: 37, gp: 41, pr: 53, dn: 61, cn: 67, jv: 71, rc: 73, py: 79, rr: 83 }[kind]);
   const P = PARTIES[kind]; const out = [];
-  const N = { ds: 52, gs: 50, sr: 48, gp: 46, pr: 40, dn: 30, cn: 26, jv: 24, rc: 40, py: 30 }[kind];
+  const N = { ds: 52, gs: 50, sr: 48, gp: 46, pr: 40, dn: 30, cn: 26, jv: 24, rc: 40, py: 30, rr: 8 }[kind];
   const start = Date.UTC(2026, 3, 6);
   for (let i = 0; i < N; i++) {
     const dt = new Date(start + Math.floor((i / N) * 200 + r() * 3) * 864e5);
@@ -86,9 +88,9 @@ function makeRows(kind) {
       const it = ITEMS[Math.floor(r() * ITEMS.length)]; const pcs = [1, 2, 6, 12, 22, 24, 32, 34, 36, 52, 72][Math.floor(r() * 11)]; const wt = Math.round(pcs * (26 + r() * 20) * 1000) / 1000; const rate = Math.round((110 + r() * 75) * 100) / 100;
       const c = CITY[Math.floor(r() * CITY.length)]; const ag = AGENTS[Math.floor(r() * AGENTS.length)];
       out.push({ no: 'R' + String(i + 1).padStart(5, '0') + '/26-27', dt: dstr(dt), p, it: it[0], pcs, wt, amt: Math.round(wt * rate), rate, remark: r() > 0.85 ? 'Shade variation' : '', colp: COLP[Math.floor(r() * COLP.length)], adj: r() > 0.25 ? 'GU' + String(400 + Math.floor(r() * 40000)).padStart(5, '0') + '/26-27' : '', adjdt: dstr(new Date(dt.getTime() - Math.floor(r() * 40) * 864e5)), lr: r() > 0.8 ? String(11000 + Math.floor(r() * 900)) : '', veh: 'GJ' + ['19X', '16', '05B', '03B', '19Y'][Math.floor(r() * 5)] + '-' + (1000 + Math.floor(r() * 8999)), bk: ag, city: c[0], area: c[1], state: 'Gujarat', sp: ['Manoj', 'Aelish', 'Avi M'][Math.floor(r() * 3)], tr: TRANS[Math.floor(r() * TRANS.length)], irn: Math.floor(r() * 0xffffff).toString(16) + '…', sign: r() > 0.78 ? 'Received' : 'Pending' });
-    } else if (kind === 'rc' || kind === 'py') {
+    } else if (kind === 'rc' || kind === 'py' || kind === 'rr') {
       const amt = Math.round(20000 + r() * 400000); const md = ['Cheque', 'NEFT', 'RTGS'][Math.floor(r() * 3)];
-      out.push({ no: (kind === 'rc' ? 'SRC' : 'SPC') + String(14000 + i) + '/26-27', dt: dstr(dt), p, mob: '98' + String(Math.floor(10000000 + r() * 89999999)), chq: md === 'Cheque' ? String(Math.floor(100000 + r() * 899999)).padStart(6, '0') : '', bill: 'GU' + String(23000 + i) + '/25-26', amt, remark: '', main: r() > 0.7 ? 'Against bills' : '', mode: md, sms: kind === 'rc' ? 'Yes' : 'No', book: kind === 'rc' ? 'BANK RECEIPT THE SURAT PEOPLES CO OP BANK LTD.' : 'BANK PAYMENT THE SURAT PEOPLES CO OP BANK LTD.' });
+      out.push({ no: (kind === 'rc' ? 'SRC' : kind === 'rr' ? 'SRRT' : 'SPC') + String(14000 + i) + '/26-27', dt: dstr(dt), p, mob: '98' + String(Math.floor(10000000 + r() * 89999999)), chq: md === 'Cheque' ? String(Math.floor(100000 + r() * 899999)).padStart(6, '0') : '', bill: 'GU' + String(23000 + i) + '/25-26', amt, remark: '', main: r() > 0.7 ? 'Against bills' : '', mode: md, sms: kind === 'rc' ? 'Yes' : 'No', book: kind === 'rc' ? 'BANK RECEIPT THE SURAT PEOPLES CO OP BANK LTD.' : 'BANK PAYMENT THE SURAT PEOPLES CO OP BANK LTD.' });
     } else if (kind === 'dn' || kind === 'cn' || kind === 'jv') {
       const why = (kind === 'dn' ? ['Interest on late payment', 'Rate difference', 'Short weight claim', 'Freight recovery'] : ['Rate difference', 'Quality claim', 'Cash discount', 'Turnover discount'])[Math.floor(r() * 4)];
       const tax = Math.round(500 + r() * 24000); const adj = r() > 0.45;
@@ -163,7 +165,7 @@ function makeRows(kind) {
       if (kind === 'gs' || kind === 'gp') return { id: b.id, no: b.number, dt: dmy(b.date), inv: b.refNo || '', p: b.partyName, gst: b.partyGstin || '', pcs: b.totalPcs, wt: b.totalQty, meter: b.totalQty, amt: b.netAmount, st: paidSt, rcm: b.reverseCharge ? 'Yes' : 'No', so: ex.orderNo || '', adj: ex.adjBillNo || '', lock: b.status === 'LOCKED' ? 'Yes' : 'No' };
       if (kind === 'sr') return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName, it: b.itemNames || '', pcs: b.totalPcs, wt: b.totalQty, amt: b.netAmount, rate: b.totalQty ? b.taxableAmount / b.totalQty : 0, remark: b.reason || b.remark || '', colp: b.collectionPersonName || '', adj: b.sourceNumber || '', adjdt: dmy(b.sourceDate), lr: b.lrNo || '', veh: b.vehicleNo || '',
         bk: b.brokerName || 'Direct', city: b.partyCity || '', area: b.partyArea || '', state: b.partyState || '', sp: b.salesPersonName || '', tr: b.transporterName || '', irn: b.irn ? b.irn.slice(0, 6) + '\u2026' : '', sign: ex.signCopy || 'Pending' };
-      if (kind === 'rc' || kind === 'py') return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName || '', mob: b.partyMobile || '', chq: b.instrumentNo || '', bill: ex.billNo || b.billNos || '', amt: b.amount || b.netAmount || 0,
+      if (kind === 'rc' || kind === 'py' || kind === 'rr') return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName || '', mob: b.partyMobile || '', chq: b.instrumentNo || '', bill: ex.billNo || b.billNos || '', amt: b.amount || b.netAmount || 0,
         remark: ex.lineRemark || '', main: (b.narration || '').trim(), mode: ex.modeName || (b.mode ? b.mode.charAt(0) + b.mode.slice(1).toLowerCase() : ''), sms: ex.smsSent || 'No', book: b.bookName || '', st: b.status === 'CANCELLED' ? 'Cancelled' : 'Saved' };
       if (kind === 'dn' || kind === 'cn' || kind === 'jv') { const a = b.amount || b.netAmount || 0; return { id: b.id, no: b.number, dt: dmy(b.date), p: b.partyName || '', exp: ex.secondAccount || '', bill: ex.billNo || b.refNo || '', dr: b.partyDc === 'Dr' ? a : 0, cr: b.partyDc === 'Dr' ? 0 : a,
         remark: (b.narration || b.remark || '').trim(), book: b.bookName || '', einv: ex.einvCancelled || 'No', colp: b.collectionPersonName || '', grp: b.partyGroupName || '', gst: b.partyGstin || '', st: b.status === 'CANCELLED' ? 'Cancelled' : 'Saved' }; }
@@ -193,7 +195,7 @@ function makeRows(kind) {
       TABS = [['All', 'All', '#8F8F8F'], ['Pending', 'Sign copy pending', '#F97316'], ['Received', 'Sign copy received', '#22C55E']]; tabOf = (r) => r.sign;
       totals = ['pcs', 'wt', 'amt'];
       bulk = [['Mark sign copy received', 'btn sm ok', { sign: 'Received' }], ['Print e-way bill', 'btn sm', null], ['Print', 'btn sm', null]]; note = '';
-    } else if (kind === 'rc' || kind === 'py') {
+    } else if (kind === 'rc' || kind === 'py' || kind === 'rr') {
       // the old software's register (ShowRecords BANKREC)
       COLS = [T('no', 'Voucher no.'), T('dt', 'Voucher date', { date: 1 }), T('p', 'Account name'), T('mob', 'Mobile no.'), T('chq', 'Cheque no.'), T('bill', 'Bill no.'), T('amt', 'Amount', num(2)), T('remark', 'Remark'), T('main', 'Main remark'), T('mode', 'Mode of payment'), T('sms', 'SMS sent?', { tag: 1 }), T('book', 'Book name')];
       TABS = [['All', 'All', '#8F8F8F']]; tabOf = () => 'All';
@@ -220,7 +222,7 @@ function makeRows(kind) {
     const isSel = (no) => SA ? EX.indexOf(no) < 0 : this.state.sel.indexOf(no) >= 0;
     const val = (r, c) => { const v = c.get ? c.get(r) : r[c.k]; return v == null || v === '' ? '\u2014' : v; };
     const SKIP = (e) => !!(e && e.target && e.target.closest && e.target.closest('input,button,a,label,select'));
-    const open = (r) => { if (kind === 'rc' || kind === 'py') { try { if (LIVE) window.localStorage.setItem('yf-pay-edit', JSON.stringify({ k: kind === 'rc' ? 'r' : 'p', id: r.id })); } catch (err) {} this.go('Payments' + sfx + '.dc.html'); return; } try { window.localStorage.setItem('yf-view-' + kind, JSON.stringify(Object.assign({ t: Date.now() }, r, LIVE ? { id: r.id } : {}))); } catch (err) {} this.go(K.view + sfx + '.dc.html'); };
+    const open = (r) => { if (kind === 'rc' || kind === 'py' || kind === 'rr') { try { if (LIVE) window.localStorage.setItem('yf-pay-edit', JSON.stringify({ k: { rc: 'r', py: 'p', rr: 'rr' }[kind], id: r.id })); } catch (err) {} this.go('Payments' + sfx + '.dc.html'); return; } try { window.localStorage.setItem('yf-view-' + kind, JSON.stringify(Object.assign({ t: Date.now() }, r, LIVE ? { id: r.id } : {}))); } catch (err) {} this.go(K.view + sfx + '.dc.html'); };
     const rows = shown.map((r) => { const on = isSel(r.no);
       return { on, rc: on || this.state.focus === r.no ? 'sel' : '',
         tog: () => SA ? this.setState({ excl: on ? EX.concat([r.no]) : EX.filter((x) => x !== r.no) }) : this.setState({ sel: on ? this.state.sel.filter((x) => x !== r.no) : this.state.sel.concat([r.no]) }),
@@ -232,8 +234,8 @@ function makeRows(kind) {
     const allOn = SA ? EX.length === 0 && vis.length > 0 : (shown.length > 0 && shown.every((r) => this.state.sel.indexOf(r.no) >= 0));
     const counts = {}; D.forEach((r) => { const k2 = tabOf(r); counts[k2] = (counts[k2] || 0) + 1; });
     return {
-      theme, kind, k: K, cf, rows, foot, span: String(COLS.length + 1), aiPage: { ds: 'so', gs: 'disp', sr: 'disp', gp: 'pb', pr: 'pb', dn: 'led', cn: 'led', jv: 'led', rc: 'pay', py: 'pay' }[kind],
-      newHref: K.entry + sfx + '.dc.html', newClick: () => { try { if (kind === 'py') window.localStorage.setItem('yf-pay-kind', 'p'); } catch (e) {} }, newLabel: { ds: 'New schedule', gs: 'New bill', sr: 'New return', gp: 'New bill', pr: 'New return', dn: 'New debit note', cn: 'New credit note', jv: 'New journal voucher', rc: 'New receipt', py: 'New payment' }[kind],
+      theme, kind, k: K, cf, rows, foot, span: String(COLS.length + 1), aiPage: { ds: 'so', gs: 'disp', sr: 'disp', gp: 'pb', pr: 'pb', dn: 'led', cn: 'led', jv: 'led', rc: 'pay', py: 'pay', rr: 'pay' }[kind],
+      newHref: K.entry + sfx + '.dc.html', newClick: () => { try { if (kind === 'py' || kind === 'rr') window.localStorage.setItem('yf-pay-kind', kind === 'py' ? 'p' : 'rr'); } catch (e) {} }, newLabel: { ds: 'New schedule', gs: 'New bill', sr: 'New return', gp: 'New bill', pr: 'New return', dn: 'New debit note', cn: 'New credit note', jv: 'New journal voucher', rc: 'New receipt', py: 'New payment', rr: 'New receipt return' }[kind],
       tabs: TABS.map(([k2, l, c]) => ({ l, n: inr(k2 === 'All' ? D.length : (counts[k2] || 0), 0), c: '--c: ' + c, cls: k2 === tab ? 'tab on' : 'tab', pick: () => this.setState({ tab: k2, loaded: 22, sel: [], selAll: false, excl: [] }) })),
       allOn, hasSel: selRows.length > 0, selCount: SA ? inr(selRows.length, 0) + ' (all)' : selRows.length, selNote: note,
       toggleAll: () => this.setState(allOn || SA ? { selAll: false, excl: [], sel: [] } : { selAll: true, excl: [], sel: [] }),

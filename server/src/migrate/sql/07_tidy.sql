@@ -116,5 +116,5 @@ SELECT mig.note('tidy: books in use active');
 -- 7. payments: the old software keeps a payment's amount as a negative number; YarnFlow keeps every
 --    document's amount positive (the type says which way the money went)
 UPDATE public.vouchers SET amount = -amount, net_amount = -net_amount
-WHERE type = 'PAYMENT' AND (amount < 0 OR net_amount < 0) AND amount <= 0 AND net_amount <= 0;
+WHERE type IN ('PAYMENT', 'RECEIPT_RETURN') AND (amount < 0 OR net_amount < 0) AND amount <= 0 AND net_amount <= 0;
 SELECT mig.note('tidy: payment amounts positive');

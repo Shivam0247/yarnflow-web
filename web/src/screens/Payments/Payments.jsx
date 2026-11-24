@@ -14,7 +14,9 @@ class Component extends DCLogic {
   /* live data layer: present in the app, absent on the design canvas (sample data is used there) */
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
   today() { const t = new Date(); const z = (n) => String(n).padStart(2, '0'); return z(t.getDate()) + '-' + z(t.getMonth() + 1) + '-' + t.getFullYear(); }
-  slug(k) { return { r: 'receipts', p: 'payments', c: 'contras', j: 'journals' }[k || this.state.kind]; }
+  slug(k) { return { r: 'receipts', p: 'payments', rr: 'receipt-returns', c: 'contras', j: 'journals' }[k || this.state.kind]; }
+  /** bills shown for a party: open bills, or for a returned cheque the bills that have something settled */
+  billsFor(k, id, exclude) { const q = { side: k === 'p' ? 'payable' : 'receivable' }; if (exclude) q.exclude = exclude; if (k === 'rr') q.settled = '1'; return this.api().get('/accounts/' + id + '/open-bills', q); }
   componentDidMount() {
     const api = this.api(); if (!api) return;
     let k = 'r'; let ed = null; try { const want = window.localStorage.getItem('yf-pay-kind'); if (want) { window.localStorage.removeItem('yf-pay-kind'); k = want; } ed = JSON.parse(window.localStorage.getItem('yf-pay-edit') || 'null'); if (ed) { window.localStorage.removeItem('yf-pay-edit'); k = ed.k || k; } } catch (e) {}
@@ -45,11 +47,11 @@ class Component extends DCLogic {
       const d = await api.get('/vouchers/' + this.slug(k) + '/' + id);
       const dmy = (x) => (x ? String(x).slice(0, 10).split('-').reverse().join('-') : '');
       const x = d.extra || {}; const s = (v) => (v === null || v === undefined ? '' : String(v));
-      const [bills, sm] = d.partyId && (k === 'r' || k === 'p') ? await Promise.all([api.get('/accounts/' + d.partyId + '/open-bills', { side: k === 'r' ? 'receivable' : 'payable', exclude: d.id }), api.get('/accounts/' + d.partyId + '/summary')]) : [[], null];
-      const adj = {}; (d.allocations || []).filter((a) => a.billId !== d.id).forEach((a) => { adj[a.billId] = (Number(adj[a.billId] || 0) + Number(a.amount)).toFixed(2); });
+      const [bills, sm] = d.partyId && (k === 'r' || k === 'p' || k === 'rr') ? await Promise.all([this.billsFor(k, d.partyId, d.id), api.get('/accounts/' + d.partyId + '/summary')]) : [[], null];
+      const adj = {}; (d.allocations || []).filter((a) => a.billId !== d.id).forEach((a) => { adj[a.billId] = (Number(adj[a.billId] || 0) + Math.abs(Number(a.amount))).toFixed(2); });
       // a bill already fully settled by this receipt is not "open" any more without it: keep it in the list
       const have = new Set((bills || []).map((b) => b.id));
-      const extraB = (d.allocations || []).filter((a) => a.billId !== d.id && !have.has(a.billId)).map((a) => ({ id: a.billId, number: a.number, date: a.date, net: a.net || Number(a.amount), pending: Number(a.amount) }));
+      const extraB = (d.allocations || []).filter((a) => a.billId !== d.id && !have.has(a.billId)).map((a) => ({ id: a.billId, number: a.number, date: a.date, net: a.net || Number(a.amount), pending: Math.abs(Number(a.amount)), settled: Math.abs(Number(a.amount)) }));
       this.setState({ kind: k, edit: d, nextNo: d.number, bills: (bills || []).concat(extraB), sm, adj, off: {}, note: 'Editing ' + d.number, err: false,
         f: { bookId: s(d.bookId), partyId: s(d.partyId), amount: s(Math.abs(Number(d.amount || d.netAmount) || 0)), date: dmy(d.date), mode: d.mode || 'NEFT', bankAccountId: s(d.bankAccountId), instrumentNo: s(d.instrumentNo), instrumentDate: dmy(d.instrumentDate),
           narration: s(d.narration).trim(), slipNo: s(x.slipNo), partyBank: s(x.partyBank), collectionPersonId: s(d.collectionPersonId) } });
@@ -69,13 +71,13 @@ class Component extends DCLogic {
     this.setState({ f: { ...this.state.f, partyId: id }, adj: {}, off: {}, bills: [], sm: null, note: '', err: false });
     if (!api || !id || k === 'c' || k === 'j') return;
     try {
-      const [bills, sm] = await Promise.all([api.get('/accounts/' + id + '/open-bills', { side: k === 'r' ? 'receivable' : 'payable' }), api.get('/accounts/' + id + '/summary')]);
+      const [bills, sm] = await Promise.all([this.billsFor(k, id), api.get('/accounts/' + id + '/summary')]);
       this.setState({ bills, sm });
     } catch (e) { this.setState({ note: api.message(e), err: true }); }
   }
   auto(amount) {
     const bills = this.state.bills || []; let left = amount; const adj = {};
-    bills.forEach((b) => { const p = b.pending; const a = Math.min(p, Math.max(0, left)); if (a > 0.004) { adj[b.id] = a.toFixed(2); left -= a; } });
+    bills.forEach((b) => { const p = this.state.kind === 'rr' ? b.settled : b.pending; const a = Math.min(p, Math.max(0, left)); if (a > 0.004) { adj[b.id] = a.toFixed(2); left -= a; } });
     this.setState({ adj, off: {} });
   }
   async save() {
@@ -118,20 +120,20 @@ class Component extends DCLogic {
     const inr = (n, d) => { const v = Number(n) || 0; const s = Math.abs(v).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (v < 0 ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
     const n = (v) => Number(String(v ?? '').replace(/[₹,\s]/g, '')) || 0;
     const dmy = (x) => (x ? String(x).slice(0, 10).split('-').reverse().join('-') : '');
-    const KN = { r: 'Receipt', p: 'Payment', c: 'Contra', j: 'Journal' }[k];
+    const KN = { r: 'Receipt', p: 'Payment', rr: 'Receipt return', c: 'Contra', j: 'Journal' }[k];
     const base = {
-      theme, rc: k === 'r' ? 'on' : '', py: k === 'p' ? 'on' : '', ct: k === 'c' ? 'on' : '', jv: k === 'j' ? 'on' : '',
+      theme, rrc: k === 'rr' ? 'on' : '', setRR: () => (live ? this.setKind('rr') : this.setState({ kind: 'rr' })), rc: k === 'r' ? 'on' : '', py: k === 'p' ? 'on' : '', ct: k === 'c' ? 'on' : '', jv: k === 'j' ? 'on' : '',
       setR: () => (live ? this.setKind('r') : this.setState({ kind: 'r' })), setP: () => (live ? this.setKind('p') : this.setState({ kind: 'p' })), setC: () => (live ? this.setKind('c') : this.setState({ kind: 'c' })), setJ: () => (live ? this.setKind('j') : this.setState({ kind: 'j' })),
       kind: KN, kindLower: KN.toLowerCase(), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy, saveL: st.busy ? 'Saving…' : 'Save ' + KN.toLowerCase(), save: () => this.save(),
-      send: () => window.print(), isNarr: k === 'c' || k === 'j', hasBills: k === 'r' || k === 'p',
+      send: () => window.print(), isNarr: k === 'c' || k === 'j', hasBills: k === 'r' || k === 'p' || k === 'rr', pendL: k === 'rr' ? 'Settled' : 'Pending', adjT: k === 'rr' ? 'Bills to open again (cheque returned)' : 'Adjust against bills',
       editing: !!st.edit, newDoc: () => this.newDoc(), remove: () => this.remove(), tagL: st.edit ? 'Editing' : 'New', tagC: st.edit ? 'tag t-blue' : 'tag',
-      regHref: (k === 'p' ? 'PaymentRegister' : 'ReceiptRegister') + (theme === 'light' ? 'Light' : '') + '.dc.html', regL: k === 'p' ? 'Payment register' : k === 'r' ? 'Receipt register' : 'Payments & Receipts'
+      regHref: (k === 'p' ? 'PaymentRegister' : k === 'rr' ? 'ReceiptReturnRegister' : 'ReceiptRegister') + (theme === 'light' ? 'Light' : '') + '.dc.html', regL: k === 'p' ? 'Payment register' : k === 'rr' ? 'Receipt return register' : k === 'r' ? 'Receipt register' : 'Payments & Receipts'
     };
     if (st.edit) base.saveL = st.busy ? 'Saving…' : 'Update ' + KN.toLowerCase();
     if (!live) {
       const sample = [['SI-0598', '05-08-2026', '79 days', 'tag t-red', '1,48,250.00', '1,48,250.00', '1,48,250.00', true], ['SI-0640', '22-08-2026', '62 days', 'tag t-red', '1,62,000.00', '1,62,000.00', '51,750.00', true], ['SI-0721', '18-09-2026', '35 days', 'tag t-orange', '1,33,875.00', '31,400.00', '', false], ['SI-0790', '10-10-2026', '13 days', 'tag t-gray', '1,40,700.00', '1,40,700.00', '', false]];
       const pfx = r ? 'SI' : 'PB';
-      return { ...base, docNo: { r: 'RC-26-27-0471', p: 'PY-26-27-0092', c: 'CT-26-27-0014', j: 'JV-26-27-0031' }[k], partyLabel: { r: 'Received from', p: 'Paid to', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
+      return { ...base, docNo: { r: 'RC-26-27-0471', p: 'PY-26-27-0092', rr: 'SRRT0064/26-27', c: 'CT-26-27-0014', j: 'JV-26-27-0031' }[k], partyLabel: { r: 'Received from', p: 'Paid to', rr: 'Cheque returned by', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', rr: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
         partyName: r ? 'Krishna Textiles' : 'Reliance Industries', partySub: r ? 'Sundry Debtors · Ring Road, Surat' : 'Sundry Creditors · Yarn mill, Silvassa', initial: r ? 'K' : 'R', p: pfx, drcr: r ? 'Dr' : 'Cr',
         f: { partyId: '', amount: '₹ 2,00,000.00', date: '23-10-2026', mode: 'NEFT', bankAccountId: '', instrumentNo: 'HDFCR52026102318821', narration: '', instrumentDate: '23-10-2026', slipNo: '1898', collectionPersonId: '', partyBank: 'HDFC Bank' }, set: {},
         opt: { books: [{ v: '', l: r ? 'BANK RECEIPT THE SURAT PEOPLES CO OP BANK' : 'BANK PAYMENT THE SURAT PEOPLES CO OP BANK' }], parties: [{ v: '', l: r ? 'Krishna Textiles' : 'Reliance Industries' }], banks: [{ v: '', l: 'HDFC Bank · Current ••4412' }, { v: 's', l: 'SBI · Current ••0918' }], collectors: [{ v: '', l: 'Prakash P.' }] },
@@ -144,7 +146,7 @@ class Component extends DCLogic {
     const notBank = lk.ledgers.filter((a) => a.kind !== 'BANK' && a.kind !== 'CASH');
     const ord = (first) => notBank.filter((a) => a.kind === first).concat(notBank.filter((a) => a.kind !== first));
     const kindL = { CUSTOMER: 'Sundry Debtors', SUPPLIER: 'Sundry Creditors', BROKER: 'Broker', TRANSPORTER: 'Transporter', EXPENSE: 'Expense', INCOME: 'Income', BANK: 'Bank', CASH: 'Cash' };
-    const partyList = k === 'r' ? ord('CUSTOMER') : k === 'p' ? ord('SUPPLIER') : k === 'c' ? lk.banks : lk.ledgers;
+    const partyList = k === 'r' || k === 'rr' ? ord('CUSTOMER') : k === 'p' ? ord('SUPPLIER') : k === 'c' ? lk.banks : lk.ledgers;
     const bankList = k === 'j' ? lk.ledgers : lk.banks;
     const P = lk.ledgers.find((a) => String(a.id) === String(f.partyId));
     const set = {}; ['amount', 'date', 'mode', 'bankAccountId', 'instrumentNo', 'narration', 'instrumentDate', 'slipNo', 'collectionPersonId', 'partyBank'].forEach((key) => { set[key] = (e) => this.setState({ f: { ...this.state.f, [key]: e.target.value }, note: this.state.err ? '' : this.state.note, err: false }); });
@@ -154,21 +156,21 @@ class Component extends DCLogic {
     set.amount = (e) => { const v = e.target.value; this.setState({ f: { ...this.state.f, amount: v } }); if (Object.keys(this.state.adj).length === 0 && n(v) > 0) this.auto(n(v)); };
     const today = Date.now();
     const bills = (st.bills || []).map((b) => { const dd = b.dueDate || b.date; const age = Math.round((today - new Date(String(dd).slice(0, 10) + 'T00:00:00').getTime()) / 864e5); const on = !st.off[b.id] && n(st.adj[b.id]) > 0;
-      return { no: b.number, dt: dmy(b.date), age: age > 0 ? age + ' days' : 'Due ' + dmy(dd), tc: age > 60 ? 'tag t-red' : age > 30 ? 'tag t-orange' : 'tag t-gray', amt: inr(b.net, 2), paid: inr(b.net - b.pending, 2), pend: inr(b.pending, 2), qty: b.qty ? inr(b.qty, 3) : '—', brk: b.brokerName || '—', book: b.bookName || '—', brand: b.brand || '—', cp: b.collectionPersonName || '—',
+      return { no: b.number, dt: dmy(b.date), age: age > 0 ? age + ' days' : 'Due ' + dmy(dd), tc: age > 60 ? 'tag t-red' : age > 30 ? 'tag t-orange' : 'tag t-gray', amt: inr(b.net, 2), paid: inr(b.net - b.pending, 2), pend: inr(k === 'rr' ? b.settled : b.pending, 2), qty: b.qty ? inr(b.qty, 3) : '—', brk: b.brokerName || '—', book: b.bookName || '—', brand: b.brand || '—', cp: b.collectionPersonName || '—',
         avg: b.avgRate ? inr(b.avgRate, 2) : '—', cr: String(b.creditDays || 0), diff: String(Math.max(0, Math.round((today - new Date(String(b.date).slice(0, 10) + 'T00:00:00').getTime()) / 864e5))), adj: st.off[b.id] ? '' : st.adj[b.id] ?? '', on,
-        tog: () => { if (on) this.setState({ off: { ...this.state.off, [b.id]: true } }); else { const used = (st.bills || []).reduce((a, x) => a + (x.id !== b.id && !st.off[x.id] ? n(st.adj[x.id]) : 0), 0); const a = Math.min(b.pending, Math.max(0, amt - used)) || b.pending; this.setState({ off: { ...this.state.off, [b.id]: false }, adj: { ...this.state.adj, [b.id]: a.toFixed(2) } }); } },
+        tog: () => { if (on) this.setState({ off: { ...this.state.off, [b.id]: true } }); else { const used = (st.bills || []).reduce((a, x) => a + (x.id !== b.id && !st.off[x.id] ? n(st.adj[x.id]) : 0), 0); const cap = k === 'rr' ? b.settled : b.pending; const a = Math.min(cap, Math.max(0, amt - used)) || cap; this.setState({ off: { ...this.state.off, [b.id]: false }, adj: { ...this.state.adj, [b.id]: a.toFixed(2) } }); } },
         set: (e) => this.setState({ adj: { ...this.state.adj, [b.id]: e.target.value }, off: { ...this.state.off, [b.id]: false } }) }; });
     const adjT = (st.bills || []).reduce((a, b) => a + (st.off[b.id] ? 0 : n(st.adj[b.id])), 0);
     const sm = st.sm;
     const out = sm ? sm.outstanding : P ? Math.abs(P.balance) : 0;
-    const after = Math.max(0, out - (k === 'r' || k === 'p' ? amt : 0));
+    const after = Math.max(0, out + (k === 'rr' ? amt : 0) - (k === 'r' || k === 'p' ? amt : 0));
     const od = sm ? sm.overdue : 0;
     const openB = sm ? sm.bills || [] : [];
     const delay = openB.length ? Math.round(openB.reduce((a, b) => a + (b.overdueDays || 0), 0) / openB.length) : 0;
-    const typ = { r: 'RECEIPT', p: 'PAYMENT' }[k];
+    const typ = { r: 'RECEIPT', p: 'PAYMENT', rr: 'RECEIPT_RETURN' }[k];
     const recent = sm ? sm.recent.filter((x) => x.type === typ && (!st.edit || x.id !== st.edit.id)).slice(0, 4).map((x) => ({ a: x.number, b: dmy(x.date) + ' · ₹ ' + inr(Math.abs(x.amount || x.netAmount), 0), open: () => this.openDoc(k, x.id) })) : [];
     const name = P ? P.name : { r: 'Select party', p: 'Select party', c: 'Select account', j: 'Select account' }[k];
-    return { ...base, docNo: st.nextNo || '…', partyLabel: { r: 'Received from', p: 'Paid to', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
+    return { ...base, docNo: st.nextNo || '…', partyLabel: { r: 'Received from', p: 'Paid to', rr: 'Cheque returned by', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', rr: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
       partyName: name, partySub: P ? (kindL[P.kind] || P.kind) + (P.city ? ' · ' + P.city : '') : '—', initial: P ? P.name.replace(/^(Shree|Shri|The)\s+/i, '').charAt(0) : '+', p: r ? 'GU' : 'PB', drcr: P && P.balance < 0 ? 'Cr' : 'Dr',
       f: { ...f, partyId: f.partyId || '', amount: f.amount ?? '', instrumentNo: f.instrumentNo ?? '', narration: f.narration ?? '', instrumentDate: f.instrumentDate ?? '', slipNo: f.slipNo ?? '', collectionPersonId: f.collectionPersonId ?? '', partyBank: f.partyBank ?? '' }, set,
       opt: { books: (lk.books || []).filter((b) => b.voucherType === typ).map((b) => ({ v: String(b.id), l: b.name })), parties: [{ v: '', l: name === 'Select party' || name === 'Select account' ? name + '…' : 'Select…' }].concat(partyList.map((a) => ({ v: String(a.id), l: a.name + (a.city ? ' · ' + a.city : '') }))), banks: bankList.map((a) => ({ v: String(a.id), l: a.name })), collectors: [{ v: '', l: 'Select…' }].concat((lk.collectionPersons || []).map((a) => ({ v: String(a.id), l: a.name }))) },
@@ -217,18 +219,18 @@ class PaymentsView extends Component {
               <button type="button" className={v.py} onClick={v.setP}>
                 Payment
               </button>
+              <button type="button" className={v.rrc} onClick={v.setRR}>
+                Receipt return
+              </button>
               <button type="button" className={v.ct} onClick={v.setC}>
                 Contra
-              </button>
-              <button type="button" className={v.jv} onClick={v.setJ}>
-                Journal
               </button>
             </div>
             <button className="btn" type="button" onClick={v.send}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
                 <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
               </svg>
-              Send voucher
+              Send
             </button>
             {' '}
             {v.editing ? (
@@ -384,7 +386,7 @@ class PaymentsView extends Component {
                   <>
                     <div className="ph2" style={{"marginTop":"6px"}}>
                       <h2 style={{"fontSize":"16px"}}>
-                        Adjust against bills
+                        {v.adjT}
                       </h2>
                       <button className="btn" type="button" onClick={v.autoAdj}>
                         Auto-adjust oldest first
@@ -413,7 +415,7 @@ class PaymentsView extends Component {
                               Paid
                             </th>
                             <th className="r">
-                              Pending
+                              {v.pendL}
                             </th>
                             <th className="r">
                               Qty kg

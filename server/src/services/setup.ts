@@ -118,6 +118,8 @@ const DEFAULT_BOOKS: [VoucherType, string, string, number, boolean, string | nul
   ['GENERAL_PURCHASE', 'General purchase', 'GP', 5, true, SYS.GENERAL_PURCHASE, true],
   ['RECEIPT', 'Bank receipt', 'RC', 4, true, null, true],
   ['PAYMENT', 'Bank payment', 'PY', 4, true, null, true],
+  ['RECEIPT_RETURN', 'Bank receipt return', 'RR', 4, true, null, true],
+  ['PAYMENT_RETURN', 'Bank payment return', 'PRT', 4, true, null, true],
   ['CONTRA', 'Contra', 'CT', 4, true, null, true],
   ['JOURNAL', 'Journal', 'JV', 4, true, null, true],
   ['DEBIT_NOTE', 'Debit note', 'DN', 4, true, null, true],

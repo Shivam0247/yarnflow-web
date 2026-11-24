@@ -190,7 +190,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   /* ------------------------------------------------------------ accounts */
   app.get('/api/accounts/:id/open-bills', read((ctx, req) => {
     const side = q(req).side === 'payable' ? 'payable' : 'receivable';
-    return docs.openBills(ctx, idParam(req), side, Number(q(req).exclude) || undefined);
+    return docs.openBills(ctx, idParam(req), side, Number(q(req).exclude) || undefined, { settled: q(req).settled === '1' });
   }));
   app.get('/api/accounts/:id/summary', read(async (ctx, req) => {
     const id = idParam(req);

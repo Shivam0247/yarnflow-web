@@ -515,6 +515,23 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     }
   }
 
+  // a returned (bounced) receipt / payment opens again the bills it had settled: those settlements are
+  // reversed with negative adjustments, never more than is settled on the bill today
+  if ((def.type === 'RECEIPT_RETURN' || def.type === 'PAYMENT_RETURN') && input.allocations?.length) {
+    const req = input.allocations;
+    const bills = await db.select().from(vouchers).where(and(inArray(vouchers.id, req.map((a) => a.billId)), eq(vouchers.companyId, ctx.companyId)));
+    const pend = await billPending(ctx, bills.map((b) => b.id), existingId);
+    for (const a of req) {
+      const b = bills.find((x) => x.id === a.billId);
+      if (!b) throw unprocessable(`Bill ${a.billId} not found`);
+      if (party && b.partyId !== party.id) throw unprocessable(`Bill ${b.number} belongs to another party`);
+      const settled = r2(Number(b.netAmount) - (pend.get(b.id) ?? Number(b.netAmount)));
+      if (a.amount > settled + 0.005) throw unprocessable(`Only ₹${settled} of ${b.number} is settled, so only that much can be opened again`);
+    }
+    if (sum(req, (a) => a.amount) > totals.netAmount + 0.005) throw unprocessable('Re-opened amount is more than the voucher amount');
+    allocations = req.map((a) => ({ billId: a.billId, amount: -r2(a.amount) }));
+  }
+
   // ---- approval rules
   const approvalReasons: string[] = [];
   if (def.approval === 'credit' && party) {
@@ -635,7 +652,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
 }
 
 /** open bills of a party, oldest first */
-export async function openBills(ctx: Ctx, partyId: number, side: 'receivable' | 'payable', excludeVoucherId?: number) {
+export async function openBills(ctx: Ctx, partyId: number, side: 'receivable' | 'payable', excludeVoucherId?: number, opts: { settled?: boolean } = {}) {
   const res = await ctx.db.execute(sql`
     select v.id, v.number, v.date, v.due_date as "dueDate", v.net_amount as net, v.tds_amount as tds, v.type,
       v.total_qty as qty, v.credit_days as "creditDays", br.name as "brokerName", bk.name as "bookName", cp.name as "collectionPersonName",
@@ -649,7 +666,10 @@ export async function openBills(ctx: Ctx, partyId: number, side: 'receivable' | 
     qty: Number(r.qty) || 0, creditDays: Number(r.creditDays) || 0, brokerName: (r.brokerName as string) ?? null, bookName: (r.bookName as string) ?? null,
     collectionPersonName: (r.collectionPersonName as string) ?? null, avgRate: r.avgRate ? Number(r.avgRate) : null, brand: (r.brand as string) ?? null }));
   const pend = await billPending(ctx, rows.map((r) => r.id), excludeVoucherId);
-  return rows.map((r) => ({ ...r, pending: pend.get(r.id) ?? 0 })).filter((r) => r.pending > 0.005);
+  const all = rows.map((r) => ({ ...r, pending: pend.get(r.id) ?? 0, settled: r2(r.net - (pend.get(r.id) ?? 0)) }));
+  // for a returned cheque: the bills that have something settled on them, latest first
+  if (opts.settled) return all.filter((r) => r.settled > 0.005).reverse().slice(0, 500);
+  return all.filter((r) => r.pending > 0.005);
 }
 
 /* ----------------------------------------------------------- posting */
