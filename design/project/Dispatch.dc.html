@@ -503,17 +503,19 @@ class Component extends DCLogic {
     if (!api) { if (BR) this.setState({ upd: true }); return; }
     const doc = this.state.doc;
     const body = this.body(); if (!body) return;
+    // the print opens in its own tab, laid out as the old bill (opened now, while the click still counts)
+    let pw = null; if (print) { try { pw = window.open('about:blank', '_blank'); } catch (e) {} }
     this.setState({ busy: true, note: 'Saving…', err: false });
     try {
       const d = doc ? await api.put('/vouchers/sale-bills/' + doc.id, body) : await api.post('/vouchers/sale-bills', body);
       api.invalidate();
-      if (print) window.print();
+      if (pw) pw.location.href = '/print/sale-bills/' + d.id;
       const msg = (doc ? '✓ Updated ' : '✓ Saved ') + d.number + (d.ewbStatus === 'PENDING' ? ' — e-way bill due' : '');
       if (doc) { this.fill(d); this.setState({ busy: false, note: msg, err: false, upd: true }); this.reloadPending(); return; }
       try { window.localStorage.setItem('yf-open-sb', JSON.stringify({ t: Date.now(), id: d.id, no: d.number })); window.localStorage.setItem('yf-flash', msg); } catch (e) {}
       if (this.props.startPicker) { this.go('Dispatch' + this.sfx() + '.dc.html'); return; }
       this._raw = null; this.setState({ busy: false }); this._rd && this._rd();
-    } catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
+    } catch (e) { if (pw) pw.close(); this.setState({ busy: false, note: api.message(e), err: true }); }
   }
   async remove() {
     const api = this.api(); const doc = this.state.doc;

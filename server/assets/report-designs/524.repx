@@ -1,0 +1,266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="19.2.3.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v19.2, Version=19.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Margins="20, 20, 25, 25" PaperKind="A4" PaperName="A4" PageWidth="827" PageHeight="1169" Version="19.2" DataSource="#Ref-0">
+  <Bands>
+    <Item1 Ref="2" ControlType="TopMarginBand" HeightF="25" />
+    <Item2 Ref="3" ControlType="PageHeaderBand" HeightF="25" StyleName="ReportHeaderBandStyle" BackColor="White">
+      <SubBands>
+        <Item1 Ref="4" ControlType="SubBand" HeightF="138" BackColor="White">
+          <Controls>
+            <Item1 Ref="5" ControlType="XRPictureBox" Padding="5,5,0,0,100" Sizing="ZoomImage" ImageAlignment="MiddleCenter" SizeF="60,60" LocationFloat="20, 4" Borders="None" />
+            <Item2 Ref="6" ControlType="XRLabel" Name="lblCompName" AnchorVertical="Top" AnchorHorizontal="Both" TextAlignment="MiddleCenter" SizeF="787,23" LocationFloat="0, 0" Font="Calibri, 11pt, style=Bold" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="7" EventName="BeforePrint" PropertyName="Text" Expression="Creative_CompanyName" />
+              </ExpressionBindings>
+            </Item2>
+            <Item3 Ref="8" ControlType="XRLabel" Name="lblCompAdd" AnchorVertical="Top" AnchorHorizontal="Both" TextAlignment="MiddleCenter" SizeF="787,23" LocationFloat="0, 23" Font="Calibri, 8pt" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="9" EventName="BeforePrint" PropertyName="Text" Expression="Creative_CompanyNameAddress" />
+              </ExpressionBindings>
+            </Item3>
+            <Item4 Ref="10" ControlType="XRLabel" Name="lblreportTitle" AnchorVertical="Top" AnchorHorizontal="Both" TextAlignment="MiddleCenter" SizeF="787,23" LocationFloat="0, 46" Font="Calibri, 9pt, style=Bold" Borders="Bottom">
+              <ExpressionBindings>
+                <Item1 Ref="11" EventName="BeforePrint" PropertyName="Text" Expression="Creative_ReportTitle" />
+              </ExpressionBindings>
+            </Item4>
+            <Item5 Ref="12" ControlType="XRLabel" Name="lblGstNo" AnchorVertical="Top" AnchorHorizontal="Left" TextAlignment="MiddleLeft" SizeF="393.5,23" LocationFloat="0, 69" Font="Calibri, 8pt" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="13" EventName="BeforePrint" PropertyName="Text" Expression="Creative_GstNo" />
+              </ExpressionBindings>
+            </Item5>
+            <Item6 Ref="14" ControlType="XRLabel" Name="lblphoneNo" AnchorVertical="Top" AnchorHorizontal="Right" TextAlignment="MiddleRight" SizeF="393.5,23" LocationFloat="393.5, 69" Font="Calibri, 8pt" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="15" EventName="BeforePrint" PropertyName="Text" Expression="Creative_PhoneNo" />
+              </ExpressionBindings>
+            </Item6>
+            <Item7 Ref="16" ControlType="XRLabel" Name="lblFromToDate" AnchorVertical="Top" AnchorHorizontal="Left" TextAlignment="MiddleLeft" SizeF="393.5,23" LocationFloat="0, 92" Font="Calibri, 8pt" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="17" EventName="BeforePrint" PropertyName="Text" Expression="Creative_FromToDT" />
+              </ExpressionBindings>
+            </Item7>
+            <Item8 Ref="18" ControlType="XRLabel" Name="lblCostcenter" AnchorVertical="Top" AnchorHorizontal="Right" TextAlignment="MiddleRight" SizeF="393.5,23" LocationFloat="393.5, 92" Font="Calibri, 8pt" Borders="None">
+              <ExpressionBindings>
+                <Item1 Ref="19" EventName="BeforePrint" PropertyName="Text" Expression="Creative_CostCenter" />
+              </ExpressionBindings>
+            </Item8>
+            <Item9 Ref="20" ControlType="XRPageInfo" Name="PageInfo" PageInfo="DateTime" TextFormatString="Print On: {0:dd-MM-yyyy hh:mm:ss}" AnchorVertical="Top" AnchorHorizontal="Both" TextAlignment="MiddleLeft" SizeF="393.5,23" LocationFloat="0, 115" Font="Calibri, 8pt" />
+            <Item10 Ref="21" ControlType="XRPageInfo" Name="PageInfo" TextFormatString="Page {0} of {1}" AnchorVertical="Top" AnchorHorizontal="Both" TextAlignment="MiddleRight" SizeF="393.5,23" LocationFloat="393.5, 115" Font="Calibri, 8pt" />
+          </Controls>
+        </Item1>
+        <Item2 Ref="22" ControlType="SubBand" HeightF="25">
+          <Controls>
+            <Item1 Ref="23" ControlType="XRTable" SizeF="787,25" LocationFloat="0, 0">
+              <Rows>
+                <Item1 Ref="24" ControlType="XRTableRow" Weight="11.5">
+                  <Cells>
+                    <Item1 Ref="25" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Book Name" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item2 Ref="26" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Party Name" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item3 Ref="27" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Transporter" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item4 Ref="28" ControlType="XRTableCell" Weight="92" Multiline="true" Text="Delivery Party" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item5 Ref="29" ControlType="XRTableCell" Weight="108" Multiline="true" Text="Party Group" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item6 Ref="30" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Item Name" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item7 Ref="31" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Item Remarks" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item8 Ref="32" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Quantity" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item9 Ref="33" ControlType="XRTableCell" Weight="41" Multiline="true" Text="Rate" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item10 Ref="34" ControlType="XRTableCell" Weight="65" Multiline="true" Text="Lot Number" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item11 Ref="35" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Grade" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item12 Ref="36" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Order No" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item13 Ref="37" ControlType="XRTableCell" Weight="75" Multiline="true" Text="UCreatedt" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                    <Item14 Ref="38" ControlType="XRTableCell" Weight="75" Multiline="true" Text="Sals_Status" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                  </Cells>
+                </Item1>
+              </Rows>
+            </Item1>
+          </Controls>
+        </Item2>
+      </SubBands>
+    </Item2>
+    <Item3 Ref="39" ControlType="GroupHeaderBand" GroupUnion="WithFirstDetail" HeightF="15" StyleName="ReportGroupHeaderBandStyle">
+      <GroupFields>
+        <Item1 Ref="40" FieldName="BROKER" />
+      </GroupFields>
+      <Controls>
+        <Item1 Ref="41" ControlType="XRTable" SizeF="787,15" LocationFloat="0, 0" Tag_type="System.Int32" Tag="0">
+          <Rows>
+            <Item1 Ref="42" ControlType="XRTableRow" Weight="11.5">
+              <Cells>
+                <Item1 Ref="43" ControlType="XRTableCell" Weight="0.078639855018028837" Text="Broker:" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" BackColor="Transparent" Borders="Top, Bottom" />
+                <Item2 Ref="44" ControlType="XRTableCell" Weight="0.92136014498197116" TextAlignment="MiddleLeft" Font="Calibri, 8pt, style=Bold" BackColor="Transparent" Borders="Top, Bottom">
+                  <ExpressionBindings>
+                    <Item1 Ref="45" EventName="BeforePrint" PropertyName="Text" Expression="[BROKER]" />
+                  </ExpressionBindings>
+                </Item2>
+              </Cells>
+            </Item1>
+          </Rows>
+        </Item1>
+      </Controls>
+    </Item3>
+    <Item4 Ref="46" ControlType="DetailBand" HeightF="15" EvenStyleName="ReportEvenStyle" OddStyleName="ReportOddStyle" StyleName="ReportDetailBandStyle">
+      <Controls>
+        <Item1 Ref="47" ControlType="XRTable" SizeF="787,15" LocationFloat="0, 0">
+          <Rows>
+            <Item1 Ref="48" ControlType="XRTableRow" Weight="11.5">
+              <Cells>
+                <Item1 Ref="49" ControlType="XRTableCell" Weight="75" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="50" EventName="BeforePrint" PropertyName="Text" Expression="[BOOK_NAME]" />
+                  </ExpressionBindings>
+                </Item1>
+                <Item2 Ref="51" ControlType="XRTableCell" Weight="75" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="52" EventName="BeforePrint" PropertyName="Text" Expression="[PARTY_NAME]" />
+                  </ExpressionBindings>
+                </Item2>
+                <Item3 Ref="53" ControlType="XRTableCell" Weight="75" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="54" EventName="BeforePrint" PropertyName="Text" Expression="[TRANSPORTER]" />
+                  </ExpressionBindings>
+                </Item3>
+                <Item4 Ref="55" ControlType="XRTableCell" Weight="92" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="56" EventName="BeforePrint" PropertyName="Text" Expression="[DLY_PARTY]" />
+                  </ExpressionBindings>
+                </Item4>
+                <Item5 Ref="57" ControlType="XRTableCell" Weight="108" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="58" EventName="BeforePrint" PropertyName="Text" Expression="[MISTRY]" />
+                  </ExpressionBindings>
+                </Item5>
+                <Item6 Ref="59" ControlType="XRTableCell" Weight="75" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="60" EventName="BeforePrint" PropertyName="Text" Expression="[I_NAME]" />
+                  </ExpressionBindings>
+                </Item6>
+                <Item7 Ref="61" ControlType="XRTableCell" Weight="75" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="62" EventName="BeforePrint" PropertyName="Text" Expression="[ITEM_REMARKS]" />
+                  </ExpressionBindings>
+                </Item7>
+                <Item8 Ref="63" ControlType="XRTableCell" Weight="75" TextFormatString="{0:n2}" Multiline="true" TextAlignment="MiddleRight" Font="Calibri, 8pt" ForeColor="Black" BackColor="Transparent" Padding="4,4,0,0,96" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="64" EventName="BeforePrint" PropertyName="Text" Expression="[QTY]" />
+                  </ExpressionBindings>
+                </Item8>
+                <Item9 Ref="65" ControlType="XRTableCell" Weight="41" Multiline="true" TextAlignment="MiddleRight" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="66" EventName="BeforePrint" PropertyName="Text" Expression="[RATE]" />
+                  </ExpressionBindings>
+                </Item9>
+                <Item10 Ref="67" ControlType="XRTableCell" Weight="65" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="68" EventName="BeforePrint" PropertyName="Text" Expression="[LOT_NMBR]" />
+                  </ExpressionBindings>
+                </Item10>
+                <Item11 Ref="69" ControlType="XRTableCell" Weight="75" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="70" EventName="BeforePrint" PropertyName="Text" Expression="[GRADE]" />
+                  </ExpressionBindings>
+                </Item11>
+                <Item12 Ref="71" ControlType="XRTableCell" Weight="75" TextFormatString="{0:n2}" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="72" EventName="BeforePrint" PropertyName="Text" Expression="[ORD_NO]" />
+                  </ExpressionBindings>
+                </Item12>
+                <Item13 Ref="73" ControlType="XRTableCell" Weight="75" TextFormatString="{0:d}" Multiline="true" TextAlignment="MiddleRight" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="74" EventName="BeforePrint" PropertyName="Text" Expression="[UCreatedt]" />
+                  </ExpressionBindings>
+                </Item13>
+                <Item14 Ref="75" ControlType="XRTableCell" Weight="75" Multiline="true" TextAlignment="MiddleLeft" Font="Calibri, 8pt" BackColor="Transparent" Borders="None">
+                  <ExpressionBindings>
+                    <Item1 Ref="76" EventName="BeforePrint" PropertyName="Text" Expression="[Sals_Status]" />
+                  </ExpressionBindings>
+                </Item14>
+              </Cells>
+            </Item1>
+          </Rows>
+        </Item1>
+      </Controls>
+    </Item4>
+    <Item5 Ref="77" ControlType="GroupFooterBand" HeightF="15" StyleName="ReportGroupFooterBandStyle">
+      <Controls>
+        <Item1 Ref="78" ControlType="XRTable" SizeF="787,15" LocationFloat="0, 0">
+          <Rows>
+            <Item1 Ref="79" ControlType="XRTableRow" Weight="11.5">
+              <Cells>
+                <Item1 Ref="80" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item2 Ref="81" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item3 Ref="82" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item4 Ref="83" ControlType="XRTableCell" Weight="92" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item5 Ref="84" ControlType="XRTableCell" Weight="108" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item6 Ref="85" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item7 Ref="86" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item8 Ref="87" ControlType="XRTableCell" Weight="75" TextFormatString="{0:n2}" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom">
+                  <Summary Ref="88" Running="Group" IgnoreNullValues="true" />
+                  <ExpressionBindings>
+                    <Item1 Ref="89" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([QTY])" />
+                  </ExpressionBindings>
+                </Item8>
+                <Item9 Ref="90" ControlType="XRTableCell" Weight="41" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item10 Ref="91" ControlType="XRTableCell" Weight="65" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item11 Ref="92" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item12 Ref="93" ControlType="XRTableCell" Weight="75" TextFormatString="{0:n2}" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom">
+                  <Summary Ref="94" Running="Group" IgnoreNullValues="true" />
+                  <ExpressionBindings>
+                    <Item1 Ref="95" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([ORD_NO])" />
+                  </ExpressionBindings>
+                </Item12>
+                <Item13 Ref="96" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+                <Item14 Ref="97" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Top, Bottom" />
+              </Cells>
+            </Item1>
+          </Rows>
+        </Item1>
+      </Controls>
+    </Item5>
+    <Item6 Ref="98" ControlType="ReportFooterBand" HeightF="15" StyleName="ReportFooterBandStyle">
+      <Controls>
+        <Item1 Ref="99" ControlType="XRTable" SizeF="787,15" LocationFloat="0, 0">
+          <Rows>
+            <Item1 Ref="100" ControlType="XRTableRow" Weight="11.5">
+              <Cells>
+                <Item1 Ref="101" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item2 Ref="102" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item3 Ref="103" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item4 Ref="104" ControlType="XRTableCell" Weight="92" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item5 Ref="105" ControlType="XRTableCell" Weight="108" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item6 Ref="106" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item7 Ref="107" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item8 Ref="108" ControlType="XRTableCell" Weight="75" TextFormatString="{0:n2}" TextAlignment="MiddleRight" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom">
+                  <Summary Ref="109" Running="Report" IgnoreNullValues="true" />
+                  <ExpressionBindings>
+                    <Item1 Ref="110" EventName="BeforePrint" PropertyName="Text" Expression="sumSum([QTY])" />
+                  </ExpressionBindings>
+                </Item8>
+                <Item9 Ref="111" ControlType="XRTableCell" Weight="41" TextAlignment="MiddleRight" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item10 Ref="112" ControlType="XRTableCell" Weight="65" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item11 Ref="113" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item12 Ref="114" ControlType="XRTableCell" Weight="75" TextFormatString="{0:0}" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom">
+                  <Summary Ref="115" Running="Report" IgnoreNullValues="true" />
+                  <ExpressionBindings>
+                    <Item1 Ref="116" EventName="BeforePrint" PropertyName="Text" Expression="sumCount([ORD_NO])" />
+                  </ExpressionBindings>
+                </Item12>
+                <Item13 Ref="117" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleRight" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+                <Item14 Ref="118" ControlType="XRTableCell" Weight="75" TextAlignment="MiddleLeft" WordWrap="false" Font="Calibri, 7.5pt, style=Bold" BackColor="Transparent" Padding="4,4,0,0,96" Borders="Bottom" />
+              </Cells>
+            </Item1>
+          </Rows>
+        </Item1>
+      </Controls>
+    </Item6>
+    <Item7 Ref="119" ControlType="BottomMarginBand" HeightF="25" />
+  </Bands>
+  <StyleSheet>
+    <Item1 Ref="120" Name="ReportHeaderBandStyle" BorderStyle="Inset" Padding="4,4,0,0,100" Font="Calibri, 9pt, style=Bold" ForeColor="Black" BackColor="White" BorderColor="Black" BorderDashStyle="Solid" StringFormat="Near;Center;0;None;Character;Default" TextAlignment="MiddleLeft" />
+    <Item2 Ref="121" Name="ReportGroupHeaderBandStyle" BorderStyle="Inset" Padding="4,0,0,0,100" BackColor="255,206,206,206" StringFormat="Near;Center;0;None;Character;Default" TextAlignment="MiddleLeft" />
+    <Item3 Ref="122" Name="ReportDetailBandStyle" BorderStyle="Inset" Padding="4,4,0,0,100" BackColor="Transparent" StringFormat="Near;Center;0;None;Character;Default" TextAlignment="MiddleLeft" />
+    <Item4 Ref="123" Name="ReportGroupFooterBandStyle" BorderStyle="Inset" Padding="4,4,0,0,100" Font="Calibri, 9pt, style=Bold" ForeColor="Black" BackColor="White" BorderColor="Black" BorderDashStyle="Solid" StringFormat="Near;Center;0;None;Character;Default" TextAlignment="MiddleLeft" />
+    <Item5 Ref="124" Name="ReportFooterBandStyle" BorderStyle="Inset" Padding="4,4,0,0,100" Font="Calibri, 9pt, style=Bold" ForeColor="Black" StringFormat="Near;Center;0;None;Character;Default" TextAlignment="MiddleLeft" />
+    <Item6 Ref="125" Name="ReportOddStyle" BorderStyle="Inset" Padding="4,4,0,0,100" BackColor="Transparent" StringFormat="Near;Center;0;None;Character;Default" TextAlignment="MiddleLeft" />
+    <Item7 Ref="126" Name="ReportEvenStyle" BorderStyle="Inset" Padding="4,4,0,0,100" BackColor="Transparent" StringFormat="Near;Center;0;None;Character;Default" TextAlignment="MiddleLeft" />
+  </StyleSheet>
+  <ObjectStorage>
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v19.2" Ref="0" Content="~Xtra#NULL" Type="System.Data.DataTable" />
+  </ObjectStorage>
+</XtraReportsLayoutSerializer>

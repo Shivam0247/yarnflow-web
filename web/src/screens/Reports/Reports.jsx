@@ -71,7 +71,7 @@ class Component extends DCLogic {
     const rv = { on: live && !!st.key, key: st.key || '', title: t ? t.title : st.busy ? 'Loading…' : '', sub: t ? t.sub : '', from: dmy(st.rf), to: dmy(st.rt),
       opts: list.filter((r) => !q || r.title.toLowerCase().indexOf(q) >= 0 || r.key === st.key).map((r) => ({ v: r.key, l: r.title })), pick: (e) => this.open(e.target.value),
       setFrom: (e) => { const v = iso(e.target.value); if (v) this.open(st.key, v, st.rt); }, setTo: (e) => { const v = iso(e.target.value); if (v) this.open(st.key, st.rf, v); },
-      print: () => window.print(), excel: () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = (t ? t.title : 'report') + '.csv'; a.click(); } catch (e) {} }, close: () => this.setState({ key: null, tbl: null }),
+      print: () => window.print(), old: () => { try { window.open('/print/report/914', '_blank'); } catch (e) {} }, excel: () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = (t ? t.title : 'report') + '.csv'; a.click(); } catch (e) {} }, close: () => this.setState({ key: null, tbl: null }),
       cols: t ? t.cols.map((c) => ({ l: c.l, cls: isR(c) ? 'r' : '' })) : [],
       rows: t ? t.rows.slice(0, 2000).map((r) => ({ cls: r.bold ? 'b' : '', cells: t.cols.map((c) => ({ v: fmt(c, r[c.k]), cls: isR(c) ? 'r' : '' })) })) : [],
       empty: !!t && t.rows.length === 0, emptyL: st.busy ? 'Loading…' : 'Nothing in this period', hasTot: !!(t && t.total), tot: t && t.total ? t.cols.map((c) => ({ v: fmt(c, t.total[c.k]), cls: isR(c) ? 'r' : '' })) : [], hasNote: !!(t && t.note), note: t ? t.note || '' : '' };
@@ -217,6 +217,9 @@ class ReportsView extends Component {
                       to
                     </span>
                     <input className="inp" type="text" value={v.rv?.to} onChange={v.rv?.setTo} aria-label="To" style={{"width":"120px"}} />
+                    <button className="btn sm" type="button" onClick={v.rv?.old} title="The old software's saved report designs">
+                      Old designs
+                    </button>
                     <button className="btn sm" type="button" onClick={v.rv?.print}>
                       Print
                     </button>

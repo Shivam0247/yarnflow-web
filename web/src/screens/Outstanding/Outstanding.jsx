@@ -38,7 +38,7 @@ class Component extends DCLogic {
       const cards = r ? [{ l: 'Total receivable', v: '₹ 62.4 L', st: stc('#3B82F6') }, { l: '0–30 days', v: '₹ 29.8 L', st: stc('#8F8F8F') }, { l: '31–60 days', v: '₹ 17.8 L', st: stc('#F97316') }, { l: '61–90 days', v: '₹ 9.7 L', st: stc('#EF4444') }, { l: '90+ days', v: '₹ 5.1 L', st: stc('#B91C1C') }]
         : [{ l: 'Total payable', v: '₹ 38.9 L', st: stc('#3B82F6') }, { l: 'Due this week', v: '₹ 9.7 L', st: stc('#F97316') }, { l: 'Not yet due', v: '₹ 26.1 L', st: stc('#8F8F8F') }, { l: 'Overdue', v: '₹ 3.1 L', st: stc('#EF4444') }, { l: 'Advances paid', v: '₹ 3.0 L', st: stc('#A855F7') }];
       return { ...common, setR: () => this.setState({ mode: 'r' }), setP: () => this.setState({ mode: 'p' }), rows: (r ? recv : pay).map((x) => ({ ...x, on: false, tog: () => {}, open: () => {}, act: () => {}, al: r ? 'Remind' : 'Pay' })), cards,
-        h1: 'Party', h2: 'City', h9: 'Last ' + (r ? 'receipt' : 'payment'), back: false, backL: '', goBack: () => {}, none: false, allOn: false, togAll: () => {}, exportCsv: () => {}, bulkGo: () => {},
+        h1: 'Party', h2: 'City', h9: 'Last ' + (r ? 'receipt' : 'payment'), back: false, backL: '', goBack: () => {}, none: false, allOn: false, togAll: () => {}, oldPrint: () => {}, exportCsv: () => {}, bulkGo: () => {},
         cities: ['Surat', 'Bhiwandi', 'Ichalkaranji'], brokers: ['Mahesh Shah'], ft: { l: '', t: '', a: '', b: '', d: '', e: '' }, more: true, loadMore: () => {},
         footer: r ? '8 of 38 parties · ₹ 62.4 L receivable' : '6 of 14 mills · ₹ 38.9 L payable' };
     }
@@ -97,6 +97,7 @@ class Component extends DCLogic {
       back: !!st.drill, backL: 'All ' + (GB.find((x) => x[0] === st.gb) || [0, ''])[1].toLowerCase() + ' · ' + (st.drill || ''), goBack: () => this.setState({ drill: null, sel: [] }),
       allOn: rows.length > 0 && rows.every((x) => x.on), togAll: () => { const all = rows.every((x) => x.on); rows.forEach(() => {}); this.setState({ sel: all ? [] : (st.vw === 'b' ? res.bills.filter((b) => pid.has(b.partyId)).slice(0, st.lim).map((b) => 'b' + b.id) : st.gb !== 'party' && !st.drill ? [] : parties.slice(0, st.lim).map((p) => 'p' + p.partyId)) }); },
       cities: [...new Set(res.parties.map((p) => p.city).filter(Boolean))].sort(), brokers: [...new Set(res.parties.map((p) => p.brokerName).filter(Boolean))].sort(),
+      oldPrint: () => { try { window.open('/print/report/1', '_blank'); } catch (e) {} },
       exportCsv: () => { try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = 'Outstanding ' + (r ? 'receivable' : 'payable') + '.csv'; a.click(); } catch (e) {} },
       bulkGo: () => { if (!r) { this.go('Payments' + sfx + '.dc.html'); try { window.localStorage.setItem('yf-pay-kind', 'p'); } catch (e) {} return; } const list = selParties.length ? selParties : res.parties.filter((p) => p.overdue > 0); if (!list.length) return; if (list.length > 1 && !window.confirm('Open WhatsApp reminders for ' + list.length + ' parties?')) return; list.slice(0, 15).forEach(remind); },
       more: rows.length < count, loadMore: () => this.setState({ lim: st.lim + 50 }), footer: common.footerX };
@@ -129,6 +130,10 @@ class OutstandingView extends Component {
                 Payable
               </button>
             </div>
+            <button className="btn" type="button" onClick={v.oldPrint} title="Print in the old software's saved outstanding designs">
+              Old format
+            </button>
+            {' '}
             <button className="btn" type="button" onClick={v.exportCsv}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

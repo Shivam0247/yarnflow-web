@@ -1,0 +1,262 @@
+[
+ {
+  "regId": 1,
+  "title": "Outstanding",
+  "type": "Outstanding",
+  "mode": "DETAIL",
+  "groups": "Mistry=0,Partys=1",
+  "fields": "Com_Short,BillDt,BillNo,I_NAME,Brand,Sal_AvgRate,Qty,Sal_NetAmt,ReceivedAmt,PendingAmt,Sal_Crdays,DiffDays,Ftype,TraspoterName,PartyMobile,OrderDate,OrderNo,Sal_Rmk",
+  "company": 11,
+  "page": "Portrait"
+ },
+ {
+  "regId": 3,
+  "title": "COLELCTIONWISE VND OUTSTANDING REPORT",
+  "type": "Outstanding",
+  "mode": "DETAIL",
+  "groups": "Mistry=0",
+  "fields": "Com_Short,BillDt,BillNo,P_Name,Sal_NetAmt,ReceivedAmt,PendingAmt,Sal_Crdays,Architect,DiffDays,Gname,ComCode",
+  "company": 1,
+  "page": null
+ },
+ {
+  "regId": 6,
+  "title": "test",
+  "type": "Outstanding",
+  "mode": "DETAIL",
+  "groups": "Mistry=0,P_Name=1",
+  "fields": "Com_Short,BillDt,BillNo,Sal_NetAmt,ReceivedAmt,PendingAmt,Sal_Crdays,Architect,DiffDays,CollectionName",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 10,
+  "title": "AVI SALES OS REPORT",
+  "type": "Outstanding",
+  "mode": "DETAIL",
+  "groups": "Mistry=0,Partys=1",
+  "fields": "Com_Short,Gname,BillDt,BillNo,Qty,DiffDays,Sal_NetAmt,ReceivedAmt,PendingAmt",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 12,
+  "title": "Debit Note Base O/s Report",
+  "type": "Outstanding",
+  "mode": "DETAIL",
+  "groups": "",
+  "fields": "Com_Short,Mistry,P_Name,BillDt,BillNo,Brand,Sal_NetAmt,ReceivedAmt,PendingAmt",
+  "company": 2,
+  "page": "Portrait"
+ },
+ {
+  "regId": 13,
+  "title": "DEBTNOTE REGESTER",
+  "type": "Outstanding",
+  "mode": "DETAIL",
+  "groups": "",
+  "fields": "BillDt,BillNo,Mistry,P_Name,Partys,Com_Short,Sal_NetAmt,ReceivedAmt,PendingAmt,CollectionName",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 16,
+  "title": "VIRAL DAILY PAYMENT REPORT",
+  "type": "Outstanding",
+  "mode": "DETAIL",
+  "groups": "Mistry=0,Partys=1",
+  "fields": "Com_Short,BillDt,BillNo,Rec_Date,Sal_NetAmt,ReceivedAmt,Sal_Crdays,DiffDays,CollectionName,Brand,PendingAmt,Architect",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 19,
+  "title": "PARTYWISE SUMMARY",
+  "type": "Outstanding",
+  "mode": "SUMMARY",
+  "groups": "Mistry=0,BillDt=1",
+  "fields": "Mistry,BillDt,Qty,Sal_NetAmt,ReceivedAmt,PendingAmt,DiffDays",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 20,
+  "title": "PARTYWISE SUMMARY",
+  "type": "Outstanding",
+  "mode": "SUMMARY",
+  "groups": "Partys=0",
+  "fields": "Partys,GstNo,Sal_NetAmt,TaxableAmt,ReceivedAmt,PendingAmt,DiffDays",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 357,
+  "title": "SALES PARTYWISE",
+  "type": "Other",
+  "mode": "DETAIL",
+  "groups": "",
+  "fields": "Sal_Date,Billno,Bok_Name,I_Name,SalS_weight,Sal_VehicleNo,SalS_SqMt_Ft,P_GSTNo",
+  "company": 11,
+  "page": "Portrait"
+ },
+ {
+  "regId": 400,
+  "title": "PURCHASE REGISTER SUMMARY (MASTER)",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "P_Name=0,I_Name=1",
+  "fields": "Pur_Code,Billno,BillDATE,PurS_Challano,PurS_Rmk,ArchCode,PurS_Icode,Purs_Weight,LOT_NMBR,Desc_Name1,PurS_SqMt_Ft,PurS_Rate,PurS_TaxableAmt,DueDate,NETAMT,TRASPORT_NAME,Vehicle_Name",
+  "company": 11,
+  "page": "Portrait"
+ },
+ {
+  "regId": 524,
+  "title": "SALE ORDER REGIESTER DETAIL",
+  "type": "Other",
+  "mode": "DETAIL",
+  "groups": "BROKER=0",
+  "fields": "BOOK_NAME,PARTY_NAME,TRANSPORTER,DLY_PARTY,MISTRY,I_NAME,ITEM_REMARKS,QTY,RATE,LOT_NMBR,GRADE,ORD_NO,UCreatedt,Sals_Status",
+  "company": 12,
+  "page": null
+ },
+ {
+  "regId": 776,
+  "title": "PRAVINBHAI MONTHLY REPORT",
+  "type": "Other",
+  "mode": "DETAIL",
+  "groups": "",
+  "fields": "Sal_Date,Billno,P_Name,Bok_Name,I_Name,Sals_HsnCode,SalS_weight,SalS_Rate,Sals_TaxableAmt,CGSTAMT,SGSTAMT,IGSTAMT,Sal_NetAmt,Sal_VehicleNo,TRASPORT_NAME",
+  "company": 11,
+  "page": "Portrait"
+ },
+ {
+  "regId": 808,
+  "title": "Brandwise Sold-UnSold Report",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "",
+  "fields": "I_Name,Brand,SO_Qty,Stock,LockQty,PO_Qty,Bal_Qty",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 809,
+  "title": "Purchase Stock Report (BANK STOCK)",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "Pur_Status=0,P_Name=1,I_Name=2",
+  "fields": "Pur_Date,Pur_Invno,PurS_Challano,Purs_ChDate,LOT_NMBR,Grade,Purs_Weight,Purs_Rate,Pur_AvgRate,DispatchQty,PendingQty,Transpoter",
+  "company": 2,
+  "page": "Portrait"
+ },
+ {
+  "regId": 832,
+  "title": "DAILY SALES CHAKING COLLECTION PERSON",
+  "type": "Other",
+  "mode": "DETAIL",
+  "groups": "CollectionPerson=0,username=1",
+  "fields": "Com_Short,Sal_Date,Billno,P_Name,I_Name,SalS_SqMt_Ft,SalS_weight,Sal_Crdays,Sal_AvgRate,ArchName,Sal_NetAmt",
+  "company": 1,
+  "page": null
+ },
+ {
+  "regId": 835,
+  "title": "STOCK SUMMARY REPORT (Company Wise)",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "Brand=0,I_Name=1",
+  "fields": "LOT_NMBR,Grade,Purs_Weight,DispatchQty,PendingQty,Pur_Status,CompanyName",
+  "company": 1,
+  "page": null
+ },
+ {
+  "regId": 839,
+  "title": "STOCK SUMMARY REPORT (All Company)",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "Brand=0",
+  "fields": "I_Name,LOT_NMBR,Grade,Purs_Weight,DispatchQty,PendingQty,Pur_Status",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 841,
+  "title": "PURCHASE ODER SUMMERY MANOJBHAI",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "Brand=0",
+  "fields": "Sal_Id,Sal_Date,Ord_Qty,PurQty,SalS_Rate,PendingQty,Ord_CrDays",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 849,
+  "title": "PURCHES STOCK REPORT",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "Pur_Status=0,I_Name=1",
+  "fields": "Pur_Date,Pur_Invno,PurS_Challano,Purs_ChDate,Pur_LrNo,Brand,Vehicel,LOT_NMBR,Grade,Pur_Box,Purs_Weight,Purs_Rate,DispatchQty,DispatchBox,Pur_AvgRate,PendingBox,PendingQty,StockValue,BillAmt,Transpoter,CompanyName",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 854,
+  "title": "TRANSPOTER DISPECH VEHICAL NO WISE REPORT",
+  "type": "Other",
+  "mode": "DETAIL",
+  "groups": "Com_Short=0",
+  "fields": "Sal_Date,Billno,P_Name,DP_OAdd,Brand,I_Name,SalS_SqMt_Ft,Grade,SalS_weight,Sals_BasicAmt,Sal_NetAmt,username,Sal_VehicleNo,TRASPORT_NAME,Sals_HsnCode,CGSTAMT,SGSTAMT,IGSTAMT",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 865,
+  "title": "Brandwise Sold-UnSold Report",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "",
+  "fields": "I_Name,Brand,SO_Qty,Stock,PO_Qty,Bal_Qty",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 887,
+  "title": "DAILY SALE SODA REPORT",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "Ord_Date=0",
+  "fields": "Ord_Id,Mistry,PARTY_ADD,Sals_Status,DELPARTY_ADD,Brk_Name,Sal_BrkKgs,Brand,Sals_LotNumber,I_Name,SalS_Rate,Grade,Ord_CrDays,Ord_Qty,DispSchQty,PendingQty,Architect,OsAmount,OsDueDays,PGQty,P_OMobile",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 888,
+  "title": "ItemWise Stock Report",
+  "type": "Other",
+  "mode": "SUMMARY",
+  "groups": "I_Name=0",
+  "fields": "I_Name,Purs_Weight,DispatchQty,PendingQty",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 914,
+  "title": "Daily Receipt Register",
+  "type": "Other",
+  "mode": "DETAIL",
+  "groups": "PartyGroup=0",
+  "fields": "Com_Short,P_OMobile,Architect,BillNo,BillDate,AutoDbtS_Pcs,AutoDbtS_Qty,Brand,RecSS_RecDate,BillDays,TOTALDAYS,CrDays,DiffDays,Ftype,Ledamt,BIllPaidAmt,JvPaidAmt,TdsAmt,Balance,SecondAccount,AutoDbtS_DbntNo,DebitNoteAmt,ChkNo,Rec_NetAmt,PartyBank,Remarks,CollectionName",
+  "company": 1,
+  "page": "Portrait"
+ },
+ {
+  "regId": 920,
+  "title": "Monthly Received Report",
+  "type": "Other",
+  "mode": "DETAIL",
+  "groups": "PartyGroup=0,RecMonth=1",
+  "fields": "PartyGroup,RecMonth,AutoDbtS_Pcs,AutoDbtS_Qty,Ledamt,BIllPaidAmt,Ftype",
+  "company": 1,
+  "page": "Portrait"
+ }
+]

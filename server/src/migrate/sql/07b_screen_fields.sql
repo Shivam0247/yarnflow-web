@@ -79,8 +79,10 @@ UPDATE public.voucher_lines l SET
   tcs_amount = coalesce(nullif(mig.num0(sl.j->>'Sals_MAmt'), 0), l.tcs_amount),
   purchase_ref = coalesce(left(mig.s(sl.j->>'SalS_Com'), 40), l.purchase_ref),
   purchase_inv_no = coalesce(left(mig.s(sl.j->>'SalS_To'), 40), l.purchase_inv_no),
-  extra = (coalesce(l.extra, '{}'::jsonb) - ARRAY['tcsPct','boxType','bomId','purchaseCode','orderId','avgRate','avgRateGst','grossAmt','brokeragePct','jobHsn']) || pg_temp.jx(
+  extra = (coalesce(l.extra, '{}'::jsonb) - ARRAY['tcsPct','boxType','bomId','purchaseCode','orderId','avgRate','avgRateGst','grossAmt','brokeragePct','jobHsn','purChallan','purEntryCode']) || pg_temp.jx(
     'tcsPct', mig.s(sl.j->>'Sals_MPer'),
+    'purChallan', mig.s(sl.j->>'SalS_BookeOn'),
+    'purEntryCode', mig.s(sl.j->>'Sals_PurCode'),
     'boxType', mig.s(sl.j->>'Sals_Boxtype'),
     'bomId', mig.s(sl.j->>'SalS_BomId'),
     'purchaseCode', mig.s(sl.j->>'Sals_PurCodeMain'),

@@ -212,7 +212,7 @@ class Component extends DCLogic {
       groups, lines, tt: { n: nLines + ' lines', dr: inr(dr, 2), cr: inr(cr, 2), diff: second || S ? 'Each line is posted against ' + (second ? second.name : S.second) : Math.abs(dr - cr) < 0.005 ? 'Balanced' : 'Difference ₹ ' + inr(dr - cr, 2) },
       gridNote: second || S ? 'Lines are posted against the ' + (kind === 'jv' ? 'second' : 'expense') + ' account, as in the old software' : 'Debit and credit must be equal',
       tax, adj, noAdj: !adj.length, canAdj: !!(live && K.party && f.partyId), openOpts, addAdj, am,
-      remove: () => this.remove(), save: () => this.save(), print: () => { try { window.print(); } catch (e) {} }, busy: !!st.busy,
+      remove: () => this.remove(), save: () => this.save(), print: () => { try { const d = this.state.doc; if (d) window.open('/print/' + this.K().slug + '/' + d.id, '_blank'); else this.setState({ note: 'Save the voucher first, then print', err: true }); } catch (e) {} }, busy: !!st.busy,
       closeL: view ? 'Close' : 'Cancel', saveL: st.busy ? 'Saving…' : view ? (st.saved ? '✓ Updated' : 'Update') : 'Save',
       note: st.note || (view ? 'Editing ' + (D.number || '') : ''), noteCls: st.err ? 'tag t-red' : 'muted'
     };

@@ -373,20 +373,28 @@ function makeRows(kind) {
     };
   }
   fail(msg) { this.setState({ note: msg, err: true }); return null; }
+  /** documents with a print laid out as the old software's */
+  printable() { return ['sale-returns', 'general-sales', 'debit-notes', 'credit-notes'].includes(this.meta().slug); }
+  printDoc() {
+    const doc = this.state.doc;
+    if (doc && this.printable()) { try { window.open('/print/' + this.meta().slug + '/' + doc.id, '_blank'); } catch (e) {} return; }
+    window.print();
+  }
   async save(print) {
     const api = this.api(); const M = this.meta(); const doc = this.state.doc;
     if (!api) { this.setState({ saved: true }); return; }
     const body = this.body(); if (!body) return;
+    const own = print && this.printable(); let pw = null; if (own) { try { pw = window.open('about:blank', '_blank'); } catch (e) {} }
     this.setState({ busy: true, note: 'Saving…', err: false });
     try {
       const d = doc ? await api.put('/vouchers/' + M.slug + '/' + doc.id, body) : await api.post('/vouchers/' + M.slug, body);
-      api.invalidate(); if (print) window.print();
+      api.invalidate(); if (pw) pw.location.href = '/print/' + M.slug + '/' + d.id; else if (print && !own) window.print();
       const msg = (doc ? '✓ Updated ' : '✓ Saved ') + d.number + (d.status === 'PENDING_APPROVAL' ? ' — waiting for approval' : '');
       if (doc) { this.fill(d); this.setState({ busy: false, saved: true, note: msg }); return; }
       const K = this.vd().KINDS[this.kind()]; const sfx = (this.props.theme ?? 'dark') === 'light' ? 'Light' : '';
       try { window.localStorage.setItem('yf-view-' + this.kind(), JSON.stringify({ t: Date.now(), id: d.id, no: d.number })); window.localStorage.setItem('yf-flash', msg); } catch (e) {}
       this.go(K.view + sfx + '.dc.html');
-    } catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
+    } catch (e) { if (pw) pw.close(); this.setState({ busy: false, note: api.message(e), err: true }); }
   }
   async remove() {
     const api = this.api(); const M = this.meta(); const doc = this.state.doc;
@@ -564,7 +572,7 @@ function makeRows(kind) {
       lines, foot: L.length ? foot : cols.map((c2, i) => ({ cls: c2.r ? 'r' : '', v: i === 0 ? 'Total' : (c2.t ? inr(0, c2.d) : '') })), boxes,
       closeL: view ? 'Close' : 'Cancel', printL: view ? 'Print' : 'Save & print', saveL: st.busy ? 'Saving…' : view ? (saved ? '✓ Updated' : 'Update') : (saved ? '✓ Saved' : 'Save'), busy: !!st.busy,
       note: st.note || (view ? (saved ? 'Changes saved to ' + REC.no : 'Editing ' + REC.no) : (saved ? 'Saved as ' + K.no : '')), noteCls: st.err ? 'tag t-red' : 'muted',
-      save: () => this.save(false), print: () => (view ? window.print() : this.save(true)), remove: () => this.remove()
+      save: () => this.save(false), print: () => (view ? this.printDoc() : this.save(true)), remove: () => this.remove()
     };
   }
 }

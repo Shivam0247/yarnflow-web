@@ -1,9 +1,12 @@
-import { Suspense, useEffect, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useEffect, useSyncExternalStore } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
 import { YF_API } from '@/dc/api';
 import { PAGES } from '@/app/routes';
 import { resolveHref } from '@/dc/runtime';
+
+const PrintPage = lazy(() => import('@/print/PrintPage'));
+const ReportPage = lazy(() => import('@/print/ReportPage'));
 
 /** Each screen is a full page (sidebar + content + assistant), exactly as in the design. */
 function Root() {
@@ -42,6 +45,8 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       ...PAGES.map(({ path, Component }) => ({ path, element: <Component /> })),
+      { path: '/print/report/:regId', element: <ReportPage /> },
+      { path: '/print/:slug/:id', element: <PrintPage /> },
       { path: '*', element: <Navigate to="/" replace /> }
     ]
   }

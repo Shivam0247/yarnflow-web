@@ -20,4 +20,21 @@ ON CONFLICT DO NOTHING;
 INSERT INTO public.user_companies (user_id, company_id)
 SELECT u.id, c.id FROM public.users u CROSS JOIN public.companies c
 ON CONFLICT DO NOTHING;
+-- who entered each document (the old Uname), shown as "prepared by" on the prints
+CREATE TEMP TABLE uref AS SELECT legacy_key AS emp, entity_id AS user_id FROM public.legacy_refs WHERE entity = 'user';
+CREATE INDEX ON uref (emp);
+DO $$
+DECLARE t text; d text;
+BEGIN
+  FOREACH d IN ARRAY ARRAY['UMIYA20', 'UMIYA24'] LOOP
+    FOREACH t IN ARRAY ARRAY['SalesMst', 'PurchaseMst', 'RecMst', 'QuotationMst', 'JVMst', 'DispatchMst'] LOOP
+      EXECUTE format($q$
+        UPDATE public.vouchers v SET created_by_id = u.user_id
+        FROM public.legacy_refs r JOIN legacy_%s.%I o ON o._row = r.legacy_row JOIN uref u ON u.emp = btrim(o."Uname")
+        WHERE r.entity = 'voucher' AND r.legacy_db = %L AND r.legacy_table = %L AND v.id = r.entity_id
+          AND v.created_by_id IS DISTINCT FROM u.user_id$q$, lower(d), t, d, t);
+    END LOOP;
+  END LOOP;
+END $$;
+SELECT mig.note('users: documents linked to the user who entered them');
 SELECT mig.note('users: done');

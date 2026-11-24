@@ -14,6 +14,8 @@ import { requireRole } from '../services/context.js';
 import * as bankreco from '../services/bankreco.js';
 import * as docs from '../services/documents.js';
 import * as eway from '../services/eway.js';
+import { printData } from '../services/print.js';
+import * as oldrep from '../services/oldreports.js';
 import { MASTERS, createMaster, deleteMaster, getMaster, listMaster, updateMaster } from '../services/masters.js';
 import * as rep from '../services/reports.js';
 import * as assistant from '../services/assistant.js';
@@ -136,6 +138,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
     return docs.pendingLines(ctx, typeOf(req).type, forType, Number(q(req).partyId) || undefined);
   }));
   app.get('/api/vouchers/:slug/:id', read((ctx, req) => docs.getDoc(ctx, typeOf(req), idParam(req))));
+  app.get('/api/vouchers/:slug/:id/print', read((ctx, req) => printData(ctx, typeOf(req), idParam(req))));
   app.get('/api/vouchers/:slug/:id/related', read((ctx, req) => docs.related(ctx, typeOf(req), idParam(req))));
   app.post('/api/vouchers/:slug', write((ctx, req) => docs.createDoc(ctx, typeOf(req), req.body), 201));
   app.put('/api/vouchers/:slug/:id', write((ctx, req) => docs.updateDoc(ctx, typeOf(req), idParam(req), req.body)));
@@ -255,6 +258,9 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   }));
   app.post('/api/assistant/ask', read((ctx, req) => assistant.ask(ctx, String((req.body as { q?: string } | undefined)?.q ?? ''))));
   app.get('/api/assistant/insights', read((ctx) => assistant.insights(ctx)));
+  app.get('/api/report-designs', read(async () => oldrep.listDesigns()));
+  app.get('/api/report-designs/:id', read(async (ctx, req) => ({ xml: oldrep.designXml(idParam(req)) })));
+  app.get('/api/report-designs/:id/data', read((ctx, req) => oldrep.reportData(ctx, idParam(req), q(req))));
   app.get('/api/reports/list', read(async () => Object.entries(tables.REPORTS).map(([key, title]) => ({ key, title }))));
   app.get('/api/reports/table/:key', read((ctx, req) => tables.reportTable(ctx, p(req).key, q(req))));
   app.get('/api/reports/dashboard', read((ctx, req) => rep.dashboard(ctx, q(req).from, q(req).to)));
