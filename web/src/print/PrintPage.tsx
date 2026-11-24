@@ -111,9 +111,9 @@ function BillPrint({ d, qr }: { d: PrintData; qr: string }) {
   const tax = n(doc.cgstAmount) + n(doc.sgstAmount) + n(doc.igstAmount);
   const net = n(doc.netAmount);
   const qty = lines.reduce((s, l) => s + n(l.qty), 0);
-  const netRate = x.avgRate ? n(x.avgRate) : qty ? net / qty : 0;
+  const netRate = qty ? net / qty : 0;
   const lpc = (net * 0.015) / 30;
-  const purChallan = (l: Row) => l.extra?.purChallan ?? l.purchaseRef ?? '';
+  const purChallan = (l: Row) => l.extra?.purChallan ?? '';
   const entryNo = (l: Row) => d.purchaseEntry[l.extra?.purEntryCode ?? l.extra?.purchaseCode] ?? l.purchaseRef ?? '';
   const itemDesc = (l: Row) => [l.itemName ?? l.description, l.grade].filter(Boolean).join(' ');
   const totalCops = lines.reduce((s, l) => s + n(l.cops), 0);
@@ -252,7 +252,7 @@ function BillPrint({ d, qr }: { d: PrintData; qr: string }) {
               <tr key={l.id} className="it">
                 <td>{i + 1}</td>
                 <td style={{ textAlign: 'left' }}>{itemDesc(l)}</td>
-                <td className="wrap">{purChallan(l)}</td>
+                <td className="wrap">{purChallan(l) || l.purchaseInvNo || ''}</td>
                 <td>{l.lrNo ?? ''}</td>
                 <td>{l.hsn ?? ''}</td>
                 <td className="wrap">{l.lotNo ?? ''}</td>
@@ -375,7 +375,7 @@ function BillPrint({ d, qr }: { d: PrintData; qr: string }) {
         </div>
         <div className="row b s10" style={{ height: 24, alignItems: 'center' }}>
           <div className="cell" style={{ width: 160 }}>Company Challan Date:</div>
-          <div className="cell nb" style={{ width: 110 }}>{dmy(l0.challanDate ?? doc.date)}</div>
+          <div className="cell nb" style={{ width: 110 }}>{purChallan(l0) ? dmy(l0.challanDate ?? doc.date) : ''}</div>
           <div className="cell" style={{ width: 90 }}>Sales Date:</div>
           <div className="cell nb" style={{ width: 140 }}>{dmy(doc.date)}</div>
           <div className="cell" style={{ width: 95 }}>Total Pcs:</div>
@@ -483,12 +483,12 @@ function NoteCopy({ d, copy }: { d: PrintData; copy: string }) {
       <div className="row bt">
         <div className="br" style={{ width: 415, padding: '2px 4px' }}>
           <div className="row"><div style={{ width: 50 }} className="s12">M/s,</div><div className="b s12">{party?.name}</div></div>
-          <div className="row" style={{ marginTop: 4 }}><div style={{ width: 55 }} className="s11">Address :</div><div className="s10" style={{ flex: 1 }}>{[address(party), party?.city, String(party?.state ?? '').toUpperCase(), party?.pincode].filter(Boolean).join(', ')}</div></div>
+          <div className="row" style={{ marginTop: 4 }}><div style={{ width: 55 }} className="s11">Address :</div><div className="s10" style={{ flex: 1 }}>{address(party)}</div></div>
           <div className="row s11"><div style={{ width: 55 }}>Mobile :</div><div className="nowrap" style={{ flex: 1 }}>{party?.mobile ?? ''}</div></div>
         </div>
         <div style={{ flex: 1, padding: '2px 4px' }}>
           <div className="row"><div style={{ width: 60 }} className="s12">Delivery:</div><div className="b s12">{delivery?.name}</div></div>
-          <div className="row" style={{ marginTop: 4 }}><div style={{ width: 60 }} className="s11">{delivery !== party ? 'Address :' : ''}</div><div className="s10" style={{ flex: 1 }}>{[address(delivery), String(delivery?.state ?? '').toUpperCase(), delivery?.pincode].filter(Boolean).join(', ')}</div></div>
+          <div className="row" style={{ marginTop: 4 }}><div style={{ width: 60 }} className="s11">{delivery !== party ? 'Address :' : ''}</div><div className="s10" style={{ flex: 1 }}>{address(delivery)}</div></div>
           <div className="row s11" style={{ marginTop: 4 }}><div style={{ width: 118 }}>Collection Person:</div><div>{d.collector?.name ?? ''}</div></div>
         </div>
       </div>
@@ -510,7 +510,7 @@ function NoteCopy({ d, copy }: { d: PrintData; copy: string }) {
           <div style={{ position: 'absolute', left: 10, top: 68, width: 330 }} className="s12">
             <div className="row" style={{ height: 30 }}><div className="b s11" style={{ width: 70 }}>Bill No :</div><div>{billNo}</div></div>
             <div className="row" style={{ height: 34 }}><div className="b s11" style={{ width: 70 }}>Date :</div><div>{billDate}</div></div>
-            <div className="row"><div className="b s10" style={{ width: 70 }}>Remarks :</div><div className="s10" style={{ flex: 1 }}>{doc.narration ?? doc.remark ?? ''}</div></div>
+            <div className="row"><div className="b s10" style={{ width: 70 }}>Remarks :</div><div className="s10" style={{ flex: 1, maxWidth: 160 }}>{doc.narration ?? doc.remark ?? ''}</div></div>
           </div>
           <div style={{ position: 'absolute', right: 8, top: 4, textAlign: 'right' }}>
             <div className="b s11" style={{ height: 60 }}>Total Value Before Tax (Rs.)</div>
