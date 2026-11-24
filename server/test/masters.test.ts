@@ -124,3 +124,12 @@ describe('old-software fields on masters', () => {
     expect(it3.extra).toEqual({ I_ID: '497-I', I_ISTOCK: 'NO' });
   });
 });
+
+describe('party group / broker master (old broker master fields)', () => {
+  it('saves the old fields and keeps the rest', async () => {
+    const g = await w.api.ok(w.api.post('/masters/party-groups', { name: 'Old Group', phone: '9825000000', creditLimit: 1000000, extra: { Brk_LockDays: '30', Brk_ContactPerson: 'Manojbhai' } }));
+    expect(g.extra).toEqual({ Brk_LockDays: '30', Brk_ContactPerson: 'Manojbhai' });
+    const g2 = await w.api.ok(w.api.patch(`/masters/party-groups/${g.id}`, { extra: { Brk_LockDays: '45' } }));
+    expect(g2.extra).toEqual({ Brk_LockDays: '45', Brk_ContactPerson: 'Manojbhai' });
+  });
+});

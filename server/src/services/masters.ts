@@ -166,7 +166,9 @@ export const personSchema = z.preprocess(
   creditDays: z.coerce.number().int().min(0).optional().nullable(),
   isBlocked: z.boolean().optional(),
   blockReason: optS(400),
-  remark: optS(400)
+  remark: optS(400),
+  /** fields of the old software's broker / party group master with no column here (Brk_LockDays, Brk_ContactPerson …) */
+  extra: z.record(z.string().max(40), z.string().max(400)).optional()
 })) as unknown as z.ZodObject<z.ZodRawShape>;
 /** person roles each person master shows / creates */
 export const PERSON_ROLES: Record<string, string[]> = {

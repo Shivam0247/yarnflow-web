@@ -159,14 +159,28 @@ class Component extends DCLogic {
     const api = this.api(); if (!api) return;
     try { const g = (s) => api.get('/masters/' + s, { pageSize: 100000 }).then((r) => r.data);
       const [accounts, groups, items, brands, transporters, vehicles, godowns, sp, cc, books, stock, lk] = await Promise.all([g('accounts'), g('groups'), g('items'), g('brands'), g('transporters'), g('vehicles'), g('godowns'), g('sales-persons'), g('cost-centers'), g('books'), api.get('/reports/stock'), api.lookups()]);
-      this.setState({ d: { accounts, groups, items, brands, transporters, vehicles, godowns, sp, cc, books, stock: stock.rows }, lk }); } catch (e) { this.setState({ toast: api.message(e) }); }
+      const [pg, brk, col] = await Promise.all([g('party-groups'), g('brokers'), g('collectors')]);
+      this.setState({ d: { accounts, groups, items, brands, transporters, vehicles, godowns, sp, cc, books, stock: stock.rows, pg, brk, col }, lk }); } catch (e) { this.setState({ toast: api.message(e) }); }
   }
   /* editable simple masters */
   MS() {
     const lk = this.state.lk || { ledgers: [], suppliers: [], transporters: [] };
     const VT = ['SALES_ORDER', 'PURCHASE_ORDER', 'DISPATCH_SCHEDULE', 'SALE_BILL', 'PURCHASE_BILL', 'SALE_RETURN', 'PURCHASE_RETURN', 'GENERAL_SALE', 'GENERAL_PURCHASE', 'RECEIPT', 'PAYMENT', 'CONTRA', 'JOURNAL', 'DEBIT_NOTE', 'CREDIT_NOTE', 'STOCK_TRANSFER', 'OPENING_STOCK'];
     const lab = (s) => s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
+    // the old software's broker / party group (Mistry) / collector master: same fields, old-only ones kept in extra
+    const PSPEC = (t) => [{ t, f: [{ k: 'code', l: 'Code' }, { k: 'name', l: 'Name', req: 1 }, { k: 'shortName', l: 'Short name' }, { k: 'x:Brk_ContactPerson', l: 'Contact person' }, { k: 'phone', l: 'Phone' }, { k: 'email', l: 'E-mail id' }] },
+      { t: 'Address', f: [{ k: 'address1', l: 'Address 1' }, { k: 'address2', l: 'Address 2' }, { k: 'city', l: 'City' }, { k: 'x:Brk_Pincode', l: 'Pincode' }, { k: 'pan', l: 'PAN no.' }] },
+      { t: 'Credit & other', f: [{ k: 'creditLimit', l: 'Credit limit' }, { k: 'creditDays', l: 'Cr. days' }, { k: 'x:Brk_LockDays', l: 'Lock days' }, { k: 'x:Brk_ColPerson', l: 'Collection person' }, { k: 'x:Brk_Gradation', l: 'Gradation' }, { k: 'rate', l: 'Rate' },
+        { k: 'isBlocked', l: 'Block', type: 'chk', ph: 'Blocked' }, { k: 'blockReason', l: 'Block remark' }, { k: 'remark', l: 'Remark' }] }];
+    const PBODY = (role) => (v) => { const b = { role, code: this.nz(v.code), name: v.name, shortName: this.nz(v.shortName), phone: this.nz(v.phone), email: this.nz(v.email), address1: this.nz(v.address1), address2: this.nz(v.address2), city: this.nz(v.city), pan: this.nz(v.pan),
+      creditLimit: v.creditLimit === '' || v.creditLimit == null ? null : this.num(v.creditLimit), creditDays: v.creditDays === '' || v.creditDays == null ? null : Math.round(this.num(v.creditDays)), rate: v.rate === '' || v.rate == null ? null : this.num(v.rate), isBlocked: !!v.isBlocked, blockReason: this.nz(v.blockReason), remark: this.nz(v.remark) };
+      const ex = {}; Object.keys(v).filter((k) => k.indexOf('x:') === 0).forEach((k) => { ex[k.slice(2)] = String(v[k] ?? '').trim(); }); if (Object.keys(ex).length) b.extra = ex; return b; };
+    const PROW = (r) => [r.code || '—', r.name, r.phone || '—', r.city || '—', r.creditLimit ? Number(r.creditLimit).toLocaleString('en-IN') : '—', (r.extra || {}).Brk_LockDays || '—', r.isBlocked ? 'Blocked' : ''];
+    const PCOLS = ['Code', 'Name', 'Phone', 'City', 'Credit limit', 'Lock days', 'Block'];
     return {
+      'party-groups': { title: 'Party groups (Mistry)', data: 'pg', cols: PCOLS, row: PROW, spec: PSPEC('Party group'), blank: {}, body: PBODY('PARTY_GROUP') },
+      brokers: { title: 'Brokers / architects', data: 'brk', cols: PCOLS, row: PROW, spec: PSPEC('Broker'), blank: {}, body: PBODY('BROKER') },
+      collectors: { title: 'Collection persons', data: 'col', cols: PCOLS, row: PROW, spec: PSPEC('Collection person'), blank: {}, body: PBODY('COLLECTOR') },
       'sales-persons': { title: 'Sales & collection persons', data: 'sp', cols: ['Name', 'Mobile', 'Email', 'Active'], row: (r) => [r.name, r.mobile || '—', r.email || '—', r.isActive ? 'Yes' : 'No'],
         spec: [{ t: 'Person', f: [{ k: 'name', l: 'Name', req: 1 }, { k: 'mobile', l: 'Mobile' }, { k: 'email', l: 'Email' }, { k: 'isActive', l: 'Active', type: 'chk', ph: 'Can be chosen in entries' }] }], blank: { isActive: true },
         body: (v) => ({ name: v.name, mobile: v.mobile ? String(v.mobile).replace(/\D/g, '').slice(-10) : null, email: this.nz(v.email), isActive: !!v.isActive }) },
@@ -188,10 +202,15 @@ class Component extends DCLogic {
   }
   /* read-only lists derived from the books */
   DER(key) {
+    // computed once per load (25,000+ accounts)
+    if (this._derD !== this.state.d) { this._derD = this.state.d; this._der = {}; }
+    if (key in this._der) return this._der[key];
+    return (this._der[key] = this.DER0(key));
+  }
+  DER0(key) {
     const d = this.state.d; const cnt = (arr, f) => { const m = new Map(); arr.forEach((x) => { const k = f(x); if (k) m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()].sort((a, b) => b[1] - a[1]); };
     const A = d.accounts;
     const L = {
-      partyGroups: ['Party groups', ['Head office', 'Branches / units'], cnt(A.filter((a) => a.partyGroupId), (a) => (A.find((x) => x.id === a.partyGroupId) || {}).name).map(([k, n]) => [k, n])],
       tds: ['TDS / TCS', ['Party', 'TDS', 'TCS'], A.filter((a) => a.tdsApplicable || a.tcsApplicable).map((a) => [a.name, a.tdsApplicable ? a.tdsRate + '%' : '—', a.tcsApplicable ? a.tcsRate + '%' : '—'])],
       hsn: ['HSN codes', ['HSN', 'GST %', 'Items'], cnt(d.items, (i) => i.hsn + '|' + i.gstRate).map(([k, n]) => k.split('|').concat([n]))],
       units: ['Units', ['Unit', 'Items'], cnt(d.items, (i) => i.unit)],
@@ -213,18 +232,18 @@ class Component extends DCLogic {
     const sfx = theme === 'light' ? 'Light' : '';
     const L = (f) => (f ? f + sfx + '.dc.html' : '#');
     const S = [
-      ['Accounts', 'Parties, brokers, groups', [['Party master', '1,248', 'AccountMaster', 'Ctrl M'], ['Delivery parties', '312', 'AccountMaster'], ['Account groups', '17', 'GroupMaster'], ['Party groups', '24', ''], ['Brokers', '38', 'AccountMaster', 'Ctrl A'], ['Collection persons', '9', ''], ['TDS / TCS', '6', ''], ['Blocked parties', '14', 'AccountMaster'], ['Party opening balances', '—', 'Ledger']]],
+      ['Accounts', 'Parties, brokers, groups', [['Party master', '1,248', 'AccountMaster', 'Ctrl M'], ['Delivery parties', '312', 'AccountMaster'], ['Account groups', '17', 'GroupMaster'], ['Party groups', '24', ''], ['Brokers', '38', '', 'Ctrl A'], ['Collection persons', '9', ''], ['Sales persons', '11', ''], ['TDS / TCS', '6', ''], ['Blocked parties', '14', 'AccountMaster'], ['Party opening balances', '—', 'Ledger']]],
       ['Items & yarn', 'What you buy and sell', [['Yarn items', '186', 'YarnMaster', 'Ctrl I'], ['Item groups', '12', 'YarnMaster'], ['Item main groups', '5', 'YarnMaster'], ['HSN codes', '8', ''], ['Units', '6', ''], ['Designs / shades', '64', ''], ['Godowns', '6', 'Stock']]],
       ['Inventory', 'Lot and quality tracking', [['Lots', '412', 'Stock'], ['Merge numbers', '38', ''], ['Twist', '4', ''], ['Grades', '5', ''], ['Item opening stock', '—', 'Stock']]],
       ['Logistics & location', 'Transport and addresses', [['Transporters', '22', 'TransporterMaster'], ['Vehicles', '31', ''], ['Areas', '18', ''], ['Cities', '54', ''], ['States', '36', ''], ['Countries', '3', '']]],
       ['Company setup', 'Branches, books, series', [['Branches', '2', ''], ['Cost centers', '3', ''], ['Books & voucher series', '14', ''], ['Company godowns', '6', 'Stock'], ['Partner ratio', '3', ''], ['Narrations', '27', '']]]
     ];
     const live = !!st.d; const d = st.d;
-    const MAP = { 'Party groups': ['der', 'partyGroups'], 'Collection persons': ['ms', 'sales-persons'], 'TDS / TCS': ['der', 'tds'], 'HSN codes': ['der', 'hsn'], 'Units': ['der', 'units'], 'Designs / shades': ['der', 'designs'], 'Item groups': ['der', 'itemGroups'], 'Item main groups': ['der', 'itemMain'],
+    const MAP = { 'Party groups': ['ms', 'party-groups'], 'Brokers': ['ms', 'brokers'], 'Collection persons': ['ms', 'collectors'], 'Sales persons': ['ms', 'sales-persons'], 'TDS / TCS': ['der', 'tds'], 'HSN codes': ['der', 'hsn'], 'Units': ['der', 'units'], 'Designs / shades': ['der', 'designs'], 'Item groups': ['der', 'itemGroups'], 'Item main groups': ['der', 'itemMain'],
       'Godowns': ['ms', 'godowns'], 'Lots': ['der', 'lots'], 'Merge numbers': ['der', 'merge'], 'Twist': ['der', 'twist'], 'Grades': ['der', 'grades'], 'Vehicles': ['ms', 'vehicles'], 'Areas': ['der', 'areas'], 'Cities': ['der', 'cities'], 'States': ['der', 'states'], 'Countries': ['der', 'countries'],
       'Branches': ['der', 'branches'], 'Cost centers': ['ms', 'cost-centers'], 'Books & voucher series': ['ms', 'books'], 'Company godowns': ['ms', 'godowns'], 'Partner ratio': ['der', 'partners'], 'Narrations': ['der', 'narrations'], 'Blocked parties': ['der', 'blocked'], 'Brands / mills': ['ms', 'brands'] };
     const S2 = S.map(([t, dd, items]) => [t, dd, t === 'Items & yarn' && !items.some((i) => i[0] === 'Brands / mills') ? items.concat([['Brands / mills', '', '']]) : items]);
-    const COUNT = live ? { 'Party master': d.accounts.filter((a) => a.kind === 'CUSTOMER' || a.kind === 'SUPPLIER').length, 'Delivery parties': d.accounts.filter((a) => a.kind === 'CUSTOMER').length, 'Account groups': d.groups.length, 'Brokers': d.accounts.filter((a) => a.kind === 'BROKER').length, 'Collection persons': d.sp.length,
+    const COUNT = live ? { 'Party master': d.accounts.filter((a) => a.kind === 'CUSTOMER' || a.kind === 'SUPPLIER').length, 'Delivery parties': d.accounts.filter((a) => a.kind === 'CUSTOMER').length, 'Account groups': d.groups.length, 'Brokers': d.brk.length, 'Party groups': d.pg.length, 'Collection persons': d.col.length, 'Sales persons': d.sp.filter((p) => p.role === 'SALES_PERSON').length,
       'Yarn items': d.items.filter((i) => !i.isGeneral).length, 'Godowns': d.godowns.length, 'Company godowns': d.godowns.length, 'Lots': d.stock.length, 'Transporters': d.transporters.length, 'Vehicles': d.vehicles.length, 'Cost centers': d.cc.length, 'Books & voucher series': d.books.length, 'Brands / mills': d.brands.length } : {};
     const q = st.q.trim().toLowerCase();
     let total = 0;
@@ -238,7 +257,7 @@ class Component extends DCLogic {
     if (st.sm && live) {
       if (st.sm.der) { const x = this.DER(st.sm.key); sm = { open: true, title: x[0], sub: x[2].length + ' from your books', canAdd: false, cols: x[1], rows: x[2].map((r) => ({ cls: '', on: () => {}, cells: r.map(String) })), none: x[2].length === 0, empty: 'Nothing recorded yet', close: () => this.setState({ sm: null }), add: () => {} }; }
       else { const M = this.MS()[st.sm.key]; const data = d[M.data] || [];
-        sm = { open: true, title: M.title, sub: data.length + ' records', canAdd: true, cols: M.cols, rows: data.map((r) => ({ cls: 'ck', on: () => this.fmOpen('Edit · ' + (r.name || r.number), r, r.id), cells: M.row(r).map(String) })), none: data.length === 0, empty: 'None yet — press + New', close: () => this.setState({ sm: null }), add: () => this.fmOpen('New · ' + M.title, M.blank) }; }
+        sm = { open: true, title: M.title, sub: data.length + ' records', canAdd: true, cols: M.cols, rows: data.map((r) => ({ cls: 'ck', on: () => { const x = {}; Object.entries(r.extra || {}).forEach(([k, v]) => { x['x:' + k] = String(v ?? '').trim(); }); this.fmOpen('Edit · ' + (r.name || r.number), { ...x, ...r }, r.id); }, cells: M.row(r).map(String) })), none: data.length === 0, empty: 'None yet — press + New', close: () => this.setState({ sm: null }), add: () => this.fmOpen('New · ' + M.title, M.blank) }; }
     }
     let fm = { open: false };
     if (st.fm && st.sm && !st.sm.der) { const M = this.MS()[st.sm.key]; fm = this.fmVals(M.spec, st.fm); fm.save = () => this.fmSave(st.sm.key, M.body(st.fm.v), () => this.load()); fm.del = () => this.fmDel(st.sm.key, () => this.load()); }
