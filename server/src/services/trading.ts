@@ -133,16 +133,35 @@ export async function soldUnsold(ctx: Ctx, f: Filters) {
   return { rows, totals: { stock: t('stock'), saleOrderPending: t('saleOrderPending'), soldUnsold: t('soldUnsold'), purchasePending: t('purchasePending'), unsoldAfterPurchase: t('unsoldAfterPurchase') } };
 }
 
-/** Trading stock list (pending purchase lines): Pending / Clear / Lock as the old screen */
-export async function purchaseStock(ctx: Ctx, f: Filters & { mode?: string }) {
+/** Purchase Stock Pending List (Pending Order Form → Stock-F9): Pending / Clear / Lock as the old screen */
+export async function purchaseStock(ctx: Ctx, f: Filters & { mode?: string; from?: string; to?: string; q?: string }) {
   const mode = f.mode === 'clear' ? 'clear' : f.mode === 'lock' ? 'lock' : 'pending';
+  const like = f.q ? '%' + f.q + '%' : null;
   const res = await ctx.db.execute<Row>(sql`
-    select x.*, it.name as "itemName", it.legacy_code as "itemCode", a.name as party, c.short_name as com
+    select x.id, x.number, x.date, x.w, x.pcs, x.lot, x.brand, x.gr as grade, x.ch as "challanNo", x.rate, x.lock, x.clear,
+      x."dispatchQty", x."pendingQty", x."pendingBox", it.name as "itemName", it.legacy_code as "itemCode", a.name as party,
+      c.short_name as com, v.ref_no as "invNo", v.ref_date as "invDate", v.extra->>'avgRate' as "avgRate", v.vehicle_no as vehicle,
+      t.name as transporter, dp.name as "deliveryParty", l.lr_no as "lrNo", l.challan_date as "challanDate", v.extra->>'supplier' as supplier
     from (${pendingPurchaseSql(ctx, f, mode === 'lock' ? 'lock' : 'all')}) x
-      join items it on it.id = x."itemId" left join accounts a on a.id = x."partyId" left join companies c on c.id = x."companyId"
+      join items it on it.id = x."itemId" join vouchers v on v.id = x."voucherId" join voucher_lines l on l.id = x.id
+      left join accounts a on a.id = x."partyId" left join companies c on c.id = x."companyId"
+      left join transporters t on t.id = v.transporter_id left join accounts dp on dp.id = v.delivery_party_id
     where ${sql.raw(mode === 'pending' ? `x."pendingQty" > 0 and x.clear is null and x.lock is null`
       : mode === 'clear' ? `(abs(x."pendingQty") < 0.0005 or x.clear is not null) and x.clear is distinct from 'OLDYEAR'` : 'true')}
+      ${f.from ? sql`and x.date >= ${f.from}` : sql``} ${f.to ? sql`and x.date <= ${f.to}` : sql``}
+      ${like ? sql`and (it.name ilike ${like} or a.name ilike ${like} or x.number ilike ${like} or x.lot ilike ${like} or x.ch ilike ${like})` : sql``}
     order by x.date desc, x.number limit 5000`);
   const rows = res.rows.map((r) => ({ ...r, w: r3(N(r.w)), dispatchQty: r3(N(r.dispatchQty)), pendingQty: r3(N(r.pendingQty)), pendingBox: r3(N(r.pendingBox)) }));
-  return { mode, rows, totals: { qty: r3(rows.reduce((s, r) => s + r.w, 0)), dispatched: r3(rows.reduce((s, r) => s + r.dispatchQty, 0)), pending: r3(rows.reduce((s, r) => s + r.pendingQty, 0)) } };
+  return { mode, rows, totals: { qty: r3(rows.reduce((s, r) => s + r.w, 0)), dispatched: r3(rows.reduce((s, r) => s + r.dispatchQty, 0)), pending: r3(rows.reduce((s, r) => s + r.pendingQty, 0)), box: r3(rows.reduce((s, r) => s + r.pendingBox, 0)) } };
+}
+
+/** Stock Clear (F11) / ReOpen (F12): mark purchase lines' remaining stock as cleared, or open it again */
+export async function setStockClear(ctx: Ctx, body: { lineIds?: number[]; clear?: boolean }) {
+  const ids = (body.lineIds ?? []).map(Number).filter((n) => Number.isInteger(n) && n > 0);
+  if (!ids.length) return { updated: 0 };
+  const res = await ctx.db.execute(sql`
+    update voucher_lines l set extra = case when ${!!body.clear} then coalesce(l.extra, '{}'::jsonb) || '{"stockClear": "1"}'::jsonb else coalesce(l.extra, '{}'::jsonb) - 'stockClear' end
+    from vouchers v where v.id = l.voucher_id and v.type = 'PURCHASE_BILL' and v.company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})
+      and l.id in ${sql.raw('(' + ids.join(',') + ')')} and coalesce(l.extra->>'stockClear', '') <> 'OLDYEAR'`);
+  return { updated: res.rowCount ?? 0 };
 }

@@ -263,6 +263,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/outstanding-print', read((ctx, req) => outstandingPrint(ctx, q(req))));
   app.get('/api/reports/sold-unsold', read((ctx, req) => trading.soldUnsold(ctx, q(req))));
   app.get('/api/reports/purchase-stock', read((ctx, req) => trading.purchaseStock(ctx, q(req))));
+  app.put('/api/reports/purchase-stock/clear', write((ctx, req) => trading.setStockClear(ctx, req.body as { lineIds?: number[]; clear?: boolean })));
   app.get('/api/outstanding-print/filters', read((ctx) => outstandingFilters(ctx)));
   app.get('/api/report-designs', read(async () => oldrep.listDesigns()));
   app.get('/api/report-designs/:id', read(async (ctx, req) => ({ xml: oldrep.designXml(idParam(req)) })));

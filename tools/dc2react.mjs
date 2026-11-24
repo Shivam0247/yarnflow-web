@@ -50,6 +50,7 @@ export const ROUTES = {
   BankReco: '/accounts/bank-reconciliation',
   OutstandingReport: '/accounts/outstanding-report',
   FinalReports: '/reports/final-reports',
+  PurchaseStock: '/inventory/purchase-stock',
   DebitNoteList: '/accounts/debit-notes',
   DebitNoteEntry: '/accounts/debit-notes/new',
   DebitNoteView: '/accounts/debit-notes/view',
