@@ -3,7 +3,7 @@
 // Markup, styles, sample data and behaviour are identical to the design.
 import { Fragment } from 'react';
 import { DCLogic, useTheme } from '@/dc/runtime';
-import VoucherEntry from '@/components/VoucherEntry/VoucherEntry';
+import JournalForm from '@/components/JournalForm/JournalForm';
 
 import CSS from './DebitNoteView.css?raw';
 
@@ -20,7 +20,7 @@ class DebitNoteViewView extends Component {
       <>
         <style>{CSS}</style>
       <div style={{"height":"100vh","background":"#141414"}}>
-        <VoucherEntry kind="dn" mode="view" />
+        <JournalForm kind="dn" mode="view" />
       </div>
       </>
     );

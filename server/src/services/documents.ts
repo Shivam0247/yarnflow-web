@@ -127,6 +127,8 @@ export const docSchema = z.object({
   remark: z.string().max(2000).optional().nullable(),
   narration: z.string().max(2000).optional().nullable(),
   ewbNo: optStr,
+  /** 'journal': the old software's journal form (account lines with debit / credit), used for journals, debit and credit notes */
+  format: z.enum(['journal']).optional().nullable(),
   lines: z.array(lineSchema).default([]),
   allocations: z.array(z.object({ billId: z.coerce.number().int().positive(), amount: num.positive() })).optional(),
   autoAdjust: z.boolean().optional()
@@ -340,7 +342,28 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
   // ---- lines
   const touchedOrders: number[] = [];
   let lines: Record<string, unknown>[] = [];
-  if (def.lines === 'item') {
+  const jf = isJournalForm(def, input);
+  if (jf) {
+    // old journal form: each line is an account with debit or credit. With a second account (debit / credit
+    // notes, most old journals) every line is posted against it, so the lines need not balance by themselves.
+    const raw = input.lines.filter((l) => l.accountId && (Number(l.debit) || Number(l.credit)));
+    if (!raw.length) throw unprocessable('Add at least one account line');
+    const second = Number(input.extra?.secondAccountId) || null;
+    if (second) await getAccount(ctx, second, 'Second account');
+    for (const [i, l] of raw.entries()) {
+      await getAccount(ctx, l.accountId, `Account on line ${i + 1}`);
+      if (Number(l.debit) && Number(l.credit)) throw unprocessable(`Line ${i + 1}: enter either debit or credit`);
+      if (l.itemId) {
+        const [it] = await db.select({ id: items.id }).from(items).where(and(eq(items.id, l.itemId), eq(items.companyId, ctx.mcId)));
+        if (!it) throw unprocessable(`Line ${i + 1}: item not found`);
+      }
+    }
+    const dr = r2(sum(raw, (l) => Number(l.debit) || 0));
+    const cr = r2(sum(raw, (l) => Number(l.credit) || 0));
+    if (!second && dr !== cr) throw unprocessable(`Debit (${dr}) and credit (${cr}) must be equal, or choose the second account`);
+    lines = raw.map((l, i) => ({ lineNo: i + 1, accountId: l.accountId, itemId: l.itemId ?? null, description: l.description ?? null, hsn: l.hsn ?? null,
+      debit: r2(Number(l.debit) || 0), credit: r2(Number(l.credit) || 0), remark1: l.remark1 ?? null, extra: l.extra && Object.keys(l.extra).length ? l.extra : null }));
+  } else if (def.lines === 'item') {
     const raw = input.lines.filter((l) => l.itemId || l.accountId || l.description || l.qty || l.amount);
     if (!raw.length) throw unprocessable('Add at least one item');
     const itemIds = [...new Set(raw.map((l) => l.itemId).filter(Boolean))] as number[];
@@ -443,7 +466,11 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
   const isTcs = input.isTcs ?? (def.posting === 'sale' ? !!party?.tcsApplicable : false);
   const tcsRate = isTcs ? Number(input.tcsRate ?? party?.tcsRate ?? 0.1) || 0 : 0;
   let totals: Record<string, number> = {};
-  if (def.lines === 'item') {
+  if (jf) {
+    // like the old software the note / journal amount is the amount entered (JV_Amt); it is not a bill of its own
+    const amt = r2(Number(input.amount) || Math.max(sum(lines, (l) => Number(l.debit) || 0), sum(lines, (l) => Number(l.credit) || 0)));
+    totals = { amount: amt, netAmount: 0 };
+  } else if (def.lines === 'item') {
     const c = calcDocument(lines as never[], { interState, tax: def.tax, isTcs, tcsRate, tdsRate, addLess: input.addLess ?? 0, discounts: input.discounts });
     lines = c.lines as never;
     totals = c.totals as never;
@@ -531,7 +558,7 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     refName: input.refName ?? null,
     doNo: input.doNo ?? null,
     opportunityNo: input.opportunityNo ?? null,
-    extra: input.extra ?? null,
+    extra: jf ? { ...(input.extra ?? {}), jvFormat: '1' } : input.extra ?? null,
     reason: input.reason ?? null,
     creditDays,
     dueDate: input.dueDate ?? (def.bill || def.posting === 'note' || def.type === 'SALES_ORDER' ? addDays(input.date, creditDays) : null),
@@ -570,8 +597,22 @@ async function prepare(ctx: Ctx, def: TypeDef, input: DocIn, existingId?: number
     if (input.ewbNo) Object.assign(header, { ewbNo: input.ewbNo, ewbStatus: 'GENERATED' });
   }
 
+  // old journal form: "Adjustment details" — the bills this entry settles
+  if (jf && input.allocations?.length) {
+    const before = new Map<number, number>();
+    if (existingId) for (const a of await db.select().from(billAllocations).where(eq(billAllocations.voucherId, existingId))) before.set(a.billId, (before.get(a.billId) ?? 0) + Number(a.amount));
+    const pend = await billPending(ctx, input.allocations.map((a) => a.billId), existingId);
+    for (const a of input.allocations) {
+      const [b] = await db.select({ id: vouchers.id, number: vouchers.number }).from(vouchers).where(and(eq(vouchers.id, a.billId), eq(vouchers.companyId, ctx.companyId)));
+      if (!b) throw unprocessable('Adjusted bill not found');
+      // an adjustment saved earlier stays as it was; a new or bigger one must fit what is still pending
+      if (a.amount > (before.get(a.billId) ?? 0) + 0.005 && a.amount > (pend.get(a.billId) ?? 0) + 0.005) throw unprocessable(`${b.number}: only ₹${pend.get(a.billId) ?? 0} is pending`);
+    }
+    allocations = input.allocations.map((a) => ({ billId: a.billId, amount: r2(a.amount) }));
+  }
+
   // a note made against a bill: a credit note to a customer / debit note to a supplier settles it
-  if (def.posting === 'note' && input.sourceId && party) {
+  if (!jf && def.posting === 'note' && input.sourceId && party) {
     const [b] = await db.select().from(vouchers).where(and(eq(vouchers.id, input.sourceId), eq(vouchers.companyId, ctx.companyId)));
     if (!b || b.partyId !== party.id) throw unprocessable('The bill does not belong to this party');
     const settles = (def.type === 'CREDIT_NOTE' && isBill(b.type, party.kind, 'receivable')) || (def.type === 'DEBIT_NOTE' && isBill(b.type, party.kind, 'payable'));
@@ -647,6 +688,23 @@ async function post(ctx: Ctx, def: TypeDef, v: typeof vouchers.$inferSelect, lin
     if (v.tdsAmount) {
       dr(v.partyId!, v.tdsAmount, `TDS on ${v.number}`);
       cr(await S(SYS.TDS_PAYABLE), v.tdsAmount, `TDS on ${v.number}`);
+    }
+  } else if (v.extra && (v.extra as Record<string, string>).jvFormat === '1') {
+    // old journal form, posted as the old software did: with a second account every line goes to its account on the
+    // opposite side and to the second account on its own side (the TDS line's other side is the party);
+    // without one the lines are posted as they are. A provisional debit note is not posted.
+    const x = v.extra as Record<string, string>;
+    if (x.provisional !== 'Yes') {
+      const second = Number(x.secondAccountId) || null;
+      const tdsAcc = Number(x.tdsAccountId) || null;
+      for (const l of lines) {
+        const amt = r2((Number(l.debit) || 0) - (Number(l.credit) || 0));
+        if (!amt) continue;
+        if (!second) { dr(l.accountId!, amt, l.description ?? narr); continue; }
+        const other = tdsAcc && l.accountId === tdsAcc && v.partyId ? v.partyId : second;
+        dr(l.accountId!, -amt, l.description ?? narr);
+        dr(other, amt, l.description ?? narr);
+      }
     }
   } else if (def.posting === 'note') {
     // DN debits the party, CN credits it; customer side uses output GST, supplier side input GST
@@ -831,6 +889,11 @@ export async function updateDoc(ctx: Ctx, def: TypeDef, id: number, raw: unknown
   await refreshStatuses(ctx.db, [...p.touchedOrders, ...[...oldSources.values()].map((s) => s.voucherId), ...(await orderVouchersOf(ctx.db, oldLines.map((l) => l.orderLineId))), id]);
   await audit(ctx, def.slug, id, 'UPDATE', `${def.label} ${number} updated`);
   return getDoc(ctx, def, id);
+}
+
+/** a journal / debit note / credit note entered in the old software's journal form */
+function isJournalForm(def: TypeDef, input: DocIn) {
+  return input.format === 'journal' && (def.posting === 'note' || def.posting === 'journal');
 }
 
 /** saved extra fields stay unless the screen sends a new value; an empty value clears one */
@@ -1110,8 +1173,13 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
            (select string_agg(distinct ov.number, ', ') from voucher_lines l join voucher_lines ol on ol.id = l.order_line_id join vouchers ov on ov.id = ol.voucher_id where l.voucher_id = v.id) as "orderNumbers",
            pg.name as "partyGroupName", ag.name as "agentName", v.irn, v.extra, p.area as "partyArea", p.state as "partyState",
            br.name as "brokerName", sp.name as "salesPersonName", cp.name as "collectionPersonName", dp.name as "deliveryPartyName", ml.name as "millName",
-           v.reason, v.reverse_charge as "reverseCharge", v.source_id as "sourceId", src.date as "sourceDate", v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote"
+           v.reason, v.reverse_charge as "reverseCharge", v.source_id as "sourceId", src.date as "sourceDate", v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote",
+           bk.name as "bookName",
+           ${def.lines === 'journal' || def.posting === 'note'
+             ? sql`(select case when l.debit > 0 then 'Dr' else 'Cr' end from voucher_lines l where l.voucher_id = v.id and l.account_id = v.party_id order by l.line_no limit 1)`
+             : sql`null`} as "partyDc"
     from vouchers v
+    left join books bk on bk.id = v.book_id
     left join accounts p on p.id = v.party_id
     left join persons pg on pg.id = p.party_group_id
     left join accounts ag on ag.id = v.agent_id

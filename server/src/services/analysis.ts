@@ -194,7 +194,7 @@ export async function dayBook(ctx: Ctx, raw: unknown) {
   const to = q.to ?? from;
   const res = await ctx.db.execute(sql`
     select v.id, v.type, v.number, v.date, v.status, p.name as "partyName", v.total_qty as qty,
-      case when v.type in ('RECEIPT','PAYMENT') then v.amount else v.net_amount end as amount, coalesce(v.narration, v.remark) as narration,
+      case when v.type in ('RECEIPT','PAYMENT') or v.net_amount = 0 then v.amount else v.net_amount end as amount, coalesce(v.narration, v.remark) as narration,
       (select coalesce(sum(debit),0) from ledger_entries e where e.voucher_id = v.id) as debit, u.name as "createdBy", v.created_at as "createdAt"
     from vouchers v left join accounts p on p.id = v.party_id left join users u on u.id = v.created_by_id
     where v.company_id = ${ctx.companyId} and v.date between ${from} and ${to} ${q.type ? sql`and v.type = ${q.type}` : sql``}

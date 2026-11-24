@@ -188,3 +188,48 @@ UPDATE public.voucher_lines l SET extra = (coalesce(l.extra, '{}'::jsonb) - ARRA
     'closedOn', to_char(mig.d(ql.j->>'Sals_CloDate'), 'DD-MM-YYYY'))
 FROM ql WHERE l.id = ql.id;
 SELECT mig.note('screen fields: orders');
+
+/* ---------------------------------------------------------------- journals, debit notes, credit notes (JVMst — the old journal form) */
+CREATE TEMP TABLE cc AS SELECT legacy_code AS code, id FROM public.cost_centers WHERE company_id = 1;
+CREATE TEMP TABLE jm AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher', 'JVMst') r JOIN legacy_umiya20."JVMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher', 'JVMst') r JOIN legacy_umiya24."JVMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+UPDATE public.vouchers v SET
+  amount = CASE WHEN v.amount = 0 THEN coalesce(mig.num(jm.j->>'JV_Amt'), 0) ELSE v.amount END,
+  ref_date = coalesce(v.ref_date, nullif(mig.d(jm.j->>'Jv_AdBillDt'), DATE '1900-01-01')),
+  credit_days = coalesce(nullif(v.credit_days, 0), mig.int(jm.j->>'Jv_CrDays'), 0),
+  cost_center_id = coalesce(v.cost_center_id, (SELECT id FROM cc WHERE code = jm.j->>'CostcenterCode')),
+  ack_no = coalesce(v.ack_no, left(mig.s(jm.j->>'JV_ACK_No'), 30)),
+  extra = (coalesce(v.extra, '{}'::jsonb) - ARRAY['jvFormat','secondAccountId','secondAccount','tdsAccountId','tdsAccount','tdsSection','tdsPct','tdsAmt','gstPct',
+           'beforeTax','cgstPct','cgst','sgstPct','sgst','igstPct','igst','tcsPct','tcs','billNo','billDate','hsn','gstTranType','partyVchNo','partyVchDate',
+           'crNoteParty','provisional','autoNote','reason','einvCancelled','ackDate']) || jsonb_build_object('jvFormat', '1') || pg_temp.jx(
+    'secondAccountId', (SELECT id::text FROM acc WHERE code = jm.j->>'Jv_SecndPcode'),
+    'secondAccount', (SELECT name FROM acc WHERE code = jm.j->>'Jv_SecndPcode'),
+    'tdsAccountId', (SELECT id::text FROM acc WHERE code = jm.j->>'Jv_TDSAccount'),
+    'tdsAccount', (SELECT name FROM acc WHERE code = jm.j->>'Jv_TDSAccount'),
+    'tdsSection', (SELECT section FROM tds WHERE code = jm.j->>'Jv_TDSSection'),
+    'tdsPct', mig.s(jm.j->>'Jv_TDSPer'), 'tdsAmt', mig.s(jm.j->>'Jv_TDSAmt'),
+    'gstPct', mig.s(jm.j->>'JvvatPer'), 'beforeTax', mig.s(jm.j->>'JvBeforeTax'),
+    'cgstPct', mig.s(jm.j->>'Jv_CGstPer'), 'cgst', mig.s(jm.j->>'Jv_CGst'),
+    'sgstPct', mig.s(jm.j->>'Jv_SGstPer'), 'sgst', mig.s(jm.j->>'Jv_SGst'),
+    'igstPct', mig.s(jm.j->>'Jv_IGstPer'), 'igst', mig.s(jm.j->>'Jv_IGst'),
+    'tcsPct', mig.s(jm.j->>'Jv_TcsPer'), 'tcs', mig.s(jm.j->>'Jv_TcsAmt'),
+    'billNo', mig.s(jm.j->>'Jv_AdBillNo'), 'billDate', to_char(mig.d(jm.j->>'Jv_AdBillDt'), 'DD-MM-YYYY'),
+    'hsn', mig.s(jm.j->>'JV_HsnCode'), 'gstTranType', mig.s(jm.j->>'Jv_GstTranType'),
+    'partyVchNo', mig.s(jm.j->>'Jv_PartyDbNote'), 'partyVchDate', to_char(mig.d(jm.j->>'Jv_PartyDbNoteDt'), 'DD-MM-YYYY'),
+    'crNoteParty', (SELECT name FROM acc WHERE code = jm.j->>'Jv_AutoCrPCode'),
+    'provisional', CASE WHEN jm.j->>'Jv_IsProvisionalDebitNt' = '1' THEN 'Yes' END,
+    'autoNote', CASE WHEN jm.j->>'Jv_IsAutoDebiteNote' = '1' THEN 'Yes' END,
+    'reason', mig.s(jm.j->>'Jv_ReasonRmk'),
+    'einvCancelled', CASE WHEN jm.j->>'Jv_IsCancleEinv' = '1' THEN 'Yes' END,
+    'ackDate', to_char(mig.d(jm.j->>'Jv_ACK_Date'), 'DD-MM-YYYY'))
+FROM jm WHERE v.id = jm.id;
+CREATE TEMP TABLE jl AS
+SELECT r.id, to_jsonb(t) AS j FROM pg_temp.refs('voucher_line', 'JVMst') r JOIN legacy_umiya20."JVMst" t ON t._row = r.rw WHERE r.db = 'UMIYA20'
+UNION ALL
+SELECT r.id, to_jsonb(t) FROM pg_temp.refs('voucher_line', 'JVMst') r JOIN legacy_umiya24."JVMst" t ON t._row = r.rw WHERE r.db = 'UMIYA24';
+UPDATE public.voucher_lines l SET extra = (coalesce(l.extra, '{}'::jsonb) - ARRAY['usdRate','usdAmt','lineRemark']) || pg_temp.jx(
+    'usdRate', mig.s(jl.j->>'JV_PerUsdRate'), 'usdAmt', mig.s(jl.j->>'JV_UsdAmt'), 'lineRemark', mig.s(jl.j->>'JV_PRmk'))
+FROM jl WHERE l.id = jl.id AND (jl.j->>'JV_PerUsdRate' NOT IN ('0', '') OR coalesce(btrim(jl.j->>'JV_PRmk'), '') <> '' OR l.extra ?| ARRAY['usdRate','usdAmt','lineRemark']);
+SELECT mig.note('screen fields: journals and notes');
