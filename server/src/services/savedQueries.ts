@@ -23,6 +23,10 @@ export interface SqDef { regId: number; name: string; type: string | null; bookL
 
 const FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../assets/saved-queries.json');
 let defs: SqDef[] | null = null;
+/** the grid layouts the team saved on the old Manage Desk (Creatives\\Layout\\TradingDashboard): visible columns, order, widths, grouping */
+interface DeskLayout { cols: { field: string; width: number; caption: string | null }[]; group: string[]; sort: [string, string][]; groupSummary: string[] }
+let layouts: Record<string, DeskLayout> | null = null;
+const layoutOf = (key: string) => (layouts ??= JSON.parse(fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../assets/desk-layouts.json'), 'utf8')) as Record<string, DeskLayout>)[key] ?? null;
 const all = () => (defs ??= JSON.parse(fs.readFileSync(FILE, 'utf8')) as SqDef[]);
 
 export interface SqFilter { from: string; to: string; companies?: string; costCenters?: string; type?: string; status?: string }
@@ -47,7 +51,7 @@ export async function runSaved(ctx: Ctx, regId: number, f: SqFilter) {
   const cols = (d.cols ?? []).map((c) => ({ ...c, field: fieldOf(c.sel) }));
   // no grid definition saved: the old grid showed every column of the query
   const shown = cols.some((c) => c.show) ? cols : Object.keys(rows[0] ?? {}).map((k, i) => ({ sel: k, cap: k, sum: null, filter: null, show: true, seq: i, dec: null, fmt: null, field: k }));
-  return { regId, name: d.name, mode: d.mode, cols: shown, rows };
+  return { regId, name: d.name, mode: d.mode, cols: shown, rows, layout: layoutOf(String(regId)) };
 }
 
 /* ------------------------------------------------------------------ filters */
@@ -360,8 +364,11 @@ export async function deskOutstanding(ctx: Ctx, f: SqFilter & { layout?: string 
     };
   });
   let out = rows;
-  if (layout === 'PartyGroup+Party Wise Summary' || layout === 'PartGroup_Broker_SalesPerone_Wise') {
-    const keyOf = (r: Row) => (layout === 'PartyGroup+Party Wise Summary' ? [r.Mistry, r.P_Name] : [r.Mistry, r.Architect, r.SalesPersonName]).join('|');
+  if (layout === 'PartyGroup+Party Wise Summary') {
+    // the old grid showed the bills grouped by party group (saved layout), not one line per party
+    out = [...rows].sort((a, b) => String(a.Mistry).localeCompare(String(b.Mistry)) || String(a.P_Name).localeCompare(String(b.P_Name)));
+  } else if (layout === 'PartGroup_Broker_SalesPerone_Wise') {
+    const keyOf = (r: Row) => [r.Mistry, r.Architect, r.SalesPersonName].join('|');
     const m = new Map<string, Row>();
     for (const r of rows) {
       const k = keyOf(r); const g = m.get(k);
@@ -378,7 +385,9 @@ export async function deskOutstanding(ctx: Ctx, f: SqFilter & { layout?: string 
     out.sort((a, b) => String(a.Mistry).localeCompare(String(b.Mistry)) || String(a.P_Name ?? a.Architect).localeCompare(String(b.P_Name ?? b.Architect)));
   }
   const cols = OS_LAYOUTS[layout].map((c, i) => ({ sel: c.field, cap: c.cap, sum: c.sum ?? null, filter: null, show: true, seq: i, dec: c.dec ?? null, fmt: null, field: c.field }));
-  return { regId: 0, name: 'Outstanding - ' + layout, mode: 'DETAIL', cols, rows: out };
+  const lay = layoutOf('os:' + layout);
+  if (lay) for (const c of lay.cols) if (!cols.some((x) => x.field === c.field)) { const d = OS_LAYOUTS.Datewise.find((x) => x.field === c.field); if (d) cols.push({ sel: d.field, cap: d.cap, sum: d.sum ?? null, filter: null, show: true, seq: cols.length, dec: d.dec ?? null, fmt: null, field: d.field }); }
+  return { regId: 0, name: 'Outstanding - ' + layout, mode: 'DETAIL', cols, rows: out, layout: lay };
 }
 export const OS_LAYOUT_NAMES = Object.keys(OS_LAYOUTS);
 
@@ -428,3 +437,137 @@ export async function deskStock(ctx: Ctx, f: SqFilter & { days?: string }) {
   const cols = STOCK_COLS.map((c, i) => ({ sel: c.field, cap: c.cap, sum: c.sum ?? null, filter: null, show: true, seq: i, dec: c.dec ?? null, fmt: null, field: c.field }));
   return { regId: 0, name: 'Stock Report', mode: 'DETAIL', cols, rows };
 }
+
+/* ------------------------------------------------------------------ Manage Desk → Monthly Report tab (day by day) */
+const MONTH_COLS: DeskCol[] = [
+  { field: 'CompanyName', cap: 'Company Name' }, { field: 'CostCenterName', cap: 'Costcenter Name' }, { field: 'Day_Month', cap: 'Month' }, { field: 'Day_date', cap: 'Date' },
+  { field: 'Day_Name', cap: 'Week Day' }, { field: 'TotRecv', cap: 'Total Rec.', sum: 'Sum' }, { field: 'TotPay', cap: 'Total Pay.', sum: 'Sum' },
+  { field: 'TotQty', cap: 'Dispatch KGS', sum: 'Sum', dec: 3 }, { field: 'TotPurQty', cap: 'Puchase Qty', sum: 'Sum', dec: 3 }, { field: 'TotSal', cap: 'Total Sal.', sum: 'Sum' },
+  { field: 'TotPur', cap: 'Total Pur.', sum: 'Sum' }, { field: 'BL1', cap: 'Sale O/S' }, { field: 'BL2', cap: 'Debit Note (O/S)' }, { field: 'BL3', cap: 'Pur O/S' },
+  { field: 'SaleOrd', cap: 'Sale Order Booked', sum: 'Sum', dec: 3 }, { field: 'PurOrd', cap: 'Purchase Order Booked', sum: 'Sum', dec: 3 },
+  { field: 'TotQtySalRtn', cap: 'Sales Rtn Tot Qry', sum: 'Sum', dec: 3 }, { field: 'TotSalRTN', cap: 'Sales Rtn Tot Amt', sum: 'Sum' },
+  { field: 'TotPurRtnQty', cap: 'Purchase Rtn Tot Qty', sum: 'Sum', dec: 3 }, { field: 'TotPurRtn', cap: 'Purchase Rtn Tot Amt', sum: 'Sum' },
+  { field: 'TotGenPur', cap: 'General Pur Tot Amt', sum: 'Sum' }, { field: 'TotDNT', cap: 'Total Debit Note', sum: 'Sum' }, { field: 'TotCNT', cap: 'Total Credit Note', sum: 'Sum' }
+];
+export async function deskMonthly(ctx: Ctx, f: SqFilter) {
+  const co = ids(f.companies), cc = ids(f.costCenters);
+  const cos = sql.raw(co.length ? co.join(',') : `select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId}`);
+  const ccs = sql.raw(cc.length ? ` and v.cost_center_id in (${cc.join(',')})` : '');
+  const res = await ctx.db.execute<Row>(sql`
+    with days as (select d::date as d from generate_series(${f.from}::date, ${f.to}::date, '1 day') d),
+    day as (
+      select v.company_id as c, v.date as d,
+        sum(case when v.type = 'RECEIPT' then abs(coalesce(v.amount, v.net_amount)) else 0 end) as "TotRecv",
+        sum(case when v.type = 'PAYMENT' then abs(coalesce(v.amount, v.net_amount)) else 0 end) as "TotPay",
+        sum(case when v.type = 'DISPATCH_SCHEDULE' then v.total_qty else 0 end) as "TotQty",
+        sum(case when v.type = 'PURCHASE_BILL' then v.total_qty else 0 end) as "TotPurQty",
+        sum(case when v.type in ('SALE_BILL', 'GENERAL_SALE') then v.net_amount else 0 end) as "TotSal",
+        sum(case when v.type = 'PURCHASE_BILL' then v.net_amount else 0 end) as "TotPur",
+        sum(case when v.type = 'SALES_ORDER' then v.total_qty else 0 end) as "SaleOrd",
+        sum(case when v.type = 'PURCHASE_ORDER' then v.total_qty else 0 end) as "PurOrd",
+        sum(case when v.type = 'SALE_RETURN' then v.total_qty else 0 end) as "TotQtySalRtn", sum(case when v.type = 'SALE_RETURN' then v.net_amount else 0 end) as "TotSalRTN",
+        sum(case when v.type = 'PURCHASE_RETURN' then v.total_qty else 0 end) as "TotPurRtnQty", sum(case when v.type = 'PURCHASE_RETURN' then v.net_amount else 0 end) as "TotPurRtn",
+        sum(case when v.type = 'GENERAL_PURCHASE' then v.net_amount else 0 end) as "TotGenPur",
+        sum(case when v.type in ('DEBIT_NOTE', 'INTEREST_DEBIT_NOTE') then abs(coalesce(v.amount, v.net_amount)) else 0 end) as "TotDNT",
+        sum(case when v.type = 'CREDIT_NOTE' then abs(coalesce(v.amount, v.net_amount)) else 0 end) as "TotCNT"
+      from vouchers v where v.status <> 'CANCELLED' and v.company_id in (${cos}) and v.date between ${f.from} and ${f.to} ${ccs}
+      group by 1, 2),
+    bills as (select v.company_id as c, v.id, v.date, v.net_amount, case when v.type in ('SALE_BILL', 'GENERAL_SALE') then 1 when v.type in ('DEBIT_NOTE', 'INTEREST_DEBIT_NOTE') then 2 when v.type in ('PURCHASE_BILL', 'GENERAL_PURCHASE') then 3 end as k
+      from vouchers v where v.status <> 'CANCELLED' and v.company_id in (${cos}) and v.date <= ${f.to} ${ccs} and v.net_amount > 0
+        and v.type in ('SALE_BILL', 'GENERAL_SALE', 'DEBIT_NOTE', 'INTEREST_DEBIT_NOTE', 'PURCHASE_BILL', 'GENERAL_PURCHASE')),
+    alloc as (select b.c, b.k, a.date, sum(a.amount) as amt from bill_allocations a join bills b on b.id = a.bill_id
+      where a.ledger_period = ${ctx.period} and a.kind is distinct from 'PENDING' and a.date <= ${f.to} group by 1, 2, 3),
+    mv as (select c, k, date, sum(net_amount) as amt from bills group by 1, 2, 3 union all select c, k, date, -amt from alloc),
+    opn as (select c, k, sum(amt) as amt from mv where date < ${f.from} group by 1, 2),
+    dly as (select c, k, date as d, sum(amt) as amt from mv where date >= ${f.from} group by 1, 2, 3),
+    bal as (select c.id as c, k.k, dd.d, coalesce((select amt from opn where opn.c = c.id and opn.k = k.k), 0)
+        + sum(coalesce(dly.amt, 0)) over (partition by c.id, k.k order by dd.d) as amt
+      from days dd cross join companies c cross join (values (1), (2), (3)) k(k) left join dly on dly.c = c.id and dly.k = k.k and dly.d = dd.d
+      where c.id in (${cos}))
+    select c.name as "CompanyName", '' as "CostCenterName", to_char(dd.d, 'Mon-YYYY') as "Day_Month", dd.d as "Day_date", trim(to_char(dd.d, 'Day')) as "Day_Name", day.*,
+      b1.amt as "BL1", b2.amt as "BL2", b3.amt as "BL3"
+    from days dd cross join companies c left join day on day.c = c.id and day.d = dd.d
+      left join bal b1 on b1.c = c.id and b1.k = 1 and b1.d = dd.d left join bal b2 on b2.c = c.id and b2.k = 2 and b2.d = dd.d left join bal b3 on b3.c = c.id and b3.k = 3 and b3.d = dd.d
+    where c.id in (${cos}) and (day.c is not null or b1.amt <> 0 or b2.amt <> 0 or b3.amt <> 0)
+    order by c.name, dd.d`);
+  const num = ['TotRecv', 'TotPay', 'TotQty', 'TotPurQty', 'TotSal', 'TotPur', 'SaleOrd', 'PurOrd', 'TotQtySalRtn', 'TotSalRTN', 'TotPurRtnQty', 'TotPurRtn', 'TotGenPur', 'TotDNT', 'TotCNT', 'BL1', 'BL2', 'BL3'];
+  const rows = res.rows.map(({ c, d, ...r }) => { const o: Row = { ...r }; for (const k of num) o[k] = r2(N(r[k])); return o; });
+  const cols = MONTH_COLS.map((c, i) => ({ sel: c.field, cap: c.cap, sum: c.sum ?? null, filter: null, show: true, seq: i, dec: c.dec ?? null, fmt: null, field: c.field }));
+  return { regId: 0, name: 'Monthly Report', mode: 'DETAIL', cols, rows };
+}
+
+/* ------------------------------------------------------------------ Manage Desk → Order Status tab */
+const OSTAT_COLS: DeskCol[] = [
+  { field: 'Ord_Id', cap: 'Order No', sum: 'Count' }, { field: 'Ord_Date', cap: 'Order Date' }, { field: 'Mistry', cap: 'Party Group' }, { field: 'P_Name', cap: 'Party Name' },
+  { field: 'I_Name', cap: 'Item' }, { field: 'Brand', cap: 'Brand' }, { field: 'Ord_Qty', cap: 'Ord. Qty', sum: 'Sum', dec: 3 }, { field: 'DispQty', cap: 'Disp. Qty', sum: 'Sum', dec: 3 },
+  { field: 'PendingQty', cap: 'Pending Qty', sum: 'Sum', dec: 3 }, { field: 'SalS_Rate', cap: 'Rate', dec: 2 }, { field: 'Architect', cap: 'Broker' }, { field: 'SalesPerson', cap: 'Sales Person' },
+  { field: 'O_Status', cap: 'Status' }, { field: 'LastDispDate', cap: 'Last Disp. Date' }
+];
+export async function deskOrderStatus(ctx: Ctx, f: SqFilter) {
+  const res = await ctx.db.execute<Row>(sql`
+    with d as materialized (
+      select coalesce(ol.id, (select o2.id from voucher_lines o2 join vouchers ov on ov.id = o2.voucher_id where ov.type = 'SALES_ORDER' and ov.legacy_code = l.extra->>'orderCode' and o2.item_id = l.item_id order by o2.line_no limit 1)) as oid,
+        sum(l.qty) as q, max(v.date) as last
+      from vouchers v join voucher_lines l on l.voucher_id = v.id left join voucher_lines ol on ol.id = l.order_line_id
+      where v.type = 'DISPATCH_SCHEDULE' and v.status <> 'CANCELLED' and (l.order_line_id is not null or l.extra ? 'orderCode') and v.date >= ${f.from}
+      group by 1)
+    select v.number as "Ord_Id", v.date as "Ord_Date", pg.name as "Mistry", p.name as "P_Name", it.name as "I_Name", l.brand as "Brand", l.qty as "Ord_Qty",
+      coalesce(d.q, 0) as "DispQty", case when ${O_STATUS} in ('CLOSE', 'CANCEL') then 0 else greatest(l.qty - coalesce(d.q, 0), 0) end as "PendingQty", l.rate as "SalS_Rate", br.name as "Architect", sp.name as "SalesPerson",
+      ${O_STATUS} as "O_Status", d.last as "LastDispDate"
+    from vouchers v join voucher_lines l on l.voucher_id = v.id left join items it on it.id = l.item_id left join accounts p on p.id = v.party_id
+      left join persons pg on pg.id = p.party_group_id left join persons br on br.id = v.broker_id left join persons sp on sp.id = v.sales_person_id
+      left join d on d.oid = l.id
+    where v.type = 'SALES_ORDER' ${scope(ctx, f)}
+    order by v.date, v.number, l.line_no`);
+  const cols = OSTAT_COLS.map((c, i) => ({ sel: c.field, cap: c.cap, sum: c.sum ?? null, filter: null, show: true, seq: i, dec: c.dec ?? null, fmt: null, field: c.field }));
+  return { regId: 0, name: 'Order Status Report', mode: 'DETAIL', cols, rows: res.rows };
+}
+
+/* ------------------------------------------------------------------ Order History tab formats: 244 Required Stock, 245 Order History GradeWise, 246 PO History */
+PORTS[244] = async (ctx, f) => {
+  const rows = await trading.soldUnsoldByBrand(ctx, { companies: f.companies });
+  return rows.map((r) => ({ I_Name: r.name, Brand: r.brand, SO_Qty: r.so, Stock: r.stock, PO_Qty: r.po, Bal_Qty: r2(r.stock + r.po - r.so), ItemCode: r.itemId, BrandCode: r.brand, SuppName: '' }));
+};
+
+/** order lines with each dispatch made against them (ord qty / pending shown on the order's first row, as the old LAG did) */
+PORTS[245] = async (ctx, f) => {
+  const status = (f.status || '').toUpperCase();
+  const res = await ctx.db.execute<Row>(sql`
+    select v.number as "Ord_No", v.date as "Sal_Date", v.credit_days as "Crdays", v.remark as "Remarks", p.name as "P_Name", dp.name as "DelParty", su.name as "SuppName",
+      br.name as "Broker", sp.name as "SALEPERSON", pg.name as "Party_Group", it.name as "I_Name", l.brand as "Brand", coalesce(dl.grade, l.grade) as "Grade",
+      l.qty as oq, round(l.rate, 2) as "SalS_Rate", round(dl.rate, 2) as "Dspt_Rate", dv.number as "Dspt_ChallNo", dv.date as "Dspt_ChallDate", dl.lot_no as "Lot_Number",
+      coalesce(case when coalesce(v.extra->>'orderTypeNo', '0') = '1' then dl.pcs else dl.qty end, 0) as "DispSchQty", ${S_STATUS} as "Sals_Status",
+      v.company_id as "ComCode", v.cost_center_id as "Sal_CostCenter", p.id as "P_Code", dv.extra->>'saleBillNo' as "Dspt_SalId", l.id as lid,
+      coalesce(dl.grade, l.grade) as "Salss_Grade", l.brand as "Sals_Brand", it.legacy_code as "SalS_Icode", p.party_group_id as "P_MtryCode", v.sales_person_id as "Sal_SalesPersonCode", v.book_id as "Sal_Bkcode"
+    from vouchers v join voucher_lines l on l.voucher_id = v.id left join items it on it.id = l.item_id
+      left join accounts p on p.id = v.party_id left join accounts su on su.id = nullif(v.extra->>'supplierId', '')::int
+      left join persons pg on pg.id = p.party_group_id left join persons br on br.id = v.broker_id left join persons sp on sp.id = v.sales_person_id
+      left join voucher_lines dl on (dl.order_line_id = l.id or (dl.extra->>'orderCode' = v.legacy_code and dl.item_id = l.item_id))
+        and dl.voucher_id in (select id from vouchers where type = 'DISPATCH_SCHEDULE' and status <> 'CANCELLED')
+      left join vouchers dv on dv.id = dl.voucher_id left join accounts dp on dp.id = dv.delivery_party_id
+    where v.type = 'SALES_ORDER' ${scope(ctx, f)} ${status ? sql`and ${S_STATUS} = ${status}` : sql``}
+    order by v.number, l.line_no, dv.date, dv.number`);
+  const disp = new Map<unknown, number>();
+  for (const r of res.rows) disp.set(r.lid, (disp.get(r.lid) ?? 0) + N(r.DispSchQty));
+  let prev: unknown = null;
+  return res.rows.map(({ oq, lid, ...r }) => {
+    const first = r.Ord_No !== prev; prev = r.Ord_No;
+    return { ...r, Ord_Qty: first ? N(oq) : null, PendingQty: first ? r2(N(oq) - (disp.get(lid) ?? 0)) : null };
+  });
+};
+
+/** Purchase Order History: purchase-order lines with the purchases made against them */
+PORTS[246] = async (ctx, f) => {
+  const res = await ctx.db.execute<Row>(sql`
+    select v.legacy_code as "Ord_Code", v.number as "Ord_Id", v.date as "Sal_Date", it.legacy_code as "I_Code", it.name as "I_Name", l.brand as "Brand", l.qty as "Ord_Qty",
+      pv.number as "Pur_Id", coalesce(pl.qty, 0) as "Pur_Qty", v.cost_center_id as "Sal_CostCenter", v.company_id as "ComCode", round(l.rate, 2) as "POrdRate",
+      round(pl.rate, 2) as "PurS_Rate", pl.challan_no as "PurS_Challano",
+      null as "Sal_Id", null as "SaleOrderQty", null as "SalORate", null as "DisChallaNo", null as "DispatchQty", null as "SalBillNo", null as "SalS_Weight", null as "SalS_Rate"
+    from vouchers v join voucher_lines l on l.voucher_id = v.id left join items it on it.id = l.item_id
+      left join voucher_lines pl on ((pl.extra->>'poCode' = v.legacy_code and pl.item_id = l.item_id and coalesce(pl.brand, '') = coalesce(l.brand, '')) or pl.source_line_id = l.id)
+        and pl.voucher_id in (select id from vouchers where type = 'PURCHASE_BILL' and status <> 'CANCELLED')
+      left join vouchers pv on pv.id = pl.voucher_id
+    where v.type = 'PURCHASE_ORDER' ${scope(ctx, f)}
+    order by v.date, v.number, l.line_no, pv.date`);
+  return res.rows;
+};

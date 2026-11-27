@@ -136,6 +136,7 @@ select.pv{cursor:pointer}
 .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
 .t-red-x{color:#F87171}
 .light .t-red-x{color:#B91C1C}
+.grow td{background:var(--s2);font-weight:600;white-space:nowrap;overflow:visible;max-width:0}
 </style>
 
 <div class="app {{theme}}">
@@ -161,9 +162,9 @@ select.pv{cursor:pointer}
 </div>
 <sc-if value="{{hasFormats}}" hint-placeholder-val="{{true}}">
 <div class="tw" style="max-height: calc(100vh - 270px)"><table class="it" style="white-space: nowrap">
-<thead><tr><th class="r">#</th><sc-for list="{{cols}}" as="c" hint-placeholder-count="8"><th class="{{c.cls}}">{{c.cap}}</th></sc-for></tr></thead>
+<thead><tr><th class="r">#</th><sc-for list="{{cols}}" as="c" hint-placeholder-count="8"><th class="{{c.cls}}" style="{{c.st}}">{{c.cap}}</th></sc-for></tr></thead>
 <tbody>
-<sc-for list="{{rows}}" as="x" hint-placeholder-count="12"><tr><td class="r muted">{{x.n}}</td><sc-for list="{{x.cells}}" as="v" hint-placeholder-count="8"><td class="{{v.c}}">{{v.v}}</td></sc-for></tr></sc-for>
+<sc-for list="{{rows}}" as="x" hint-placeholder-count="12"><tr class="{{x.cls}}"><td class="r muted">{{x.n}}</td><sc-for list="{{x.cells}}" as="v" hint-placeholder-count="8"><td class="{{v.c}}">{{v.v}}</td></sc-for></tr></sc-for>
 <sc-if value="{{empty}}" hint-placeholder-val="{{false}}"><tr><td colspan="{{span}}" class="muted" style="text-align: center; padding: 18px">{{emptyL}}</td></tr></sc-if>
 </tbody>
 <tfoot><tr><td></td><sc-for list="{{foot}}" as="v" hint-placeholder-count="8"><td class="{{v.c}}">{{v.v}}</td></sc-for></tr></tfoot>
@@ -183,11 +184,11 @@ const TABS = [
   { k: 'bills', l: 'Bills', books: [0, 1, 2, 3] },
   { k: 'os', l: 'Outstanding', url: '/manage-desk/outstanding', fixed: ['Datewise', 'PartyGroup+Party Wise Summary', 'Sales_Person_Wise', 'PartGroup_Broker_SalesPerone_Wise'], types: [['SAL', 'Sale'], ['SALGEN', 'Sale + General Sale'], ['DBNT', 'Debit Note']], typeL: 'Type' },
   { k: 'stock', l: 'Stock', url: '/manage-desk/stock', fixed: ['Stock Report'], types: [['', 'All'], ['30', '30 days +'], ['60', '60 days +'], ['90', '90 days +'], ['180', '180 days +'], ['365', '365 days +']], typeL: 'Days' },
-  { k: 'hist', l: 'Order History' },
+  { k: 'hist', l: 'Order History', regs: [245, 246, 244, 241, 247, 254, 255], types: [['', 'All'], ['PENDING', 'Pending'], ['CLOSE', 'Close'], ['CANCEL', 'Cancel']], typeL: 'Status' },
   { k: 'bank', l: 'Bank-Cash', books: [24, 26] },
-  { k: 'month', l: 'Monthly Report' },
+  { k: 'month', l: 'Monthly Report', url: '/manage-desk/monthly', fixed: ['Monthly Report'], monthStart: true },
   { k: 'note', l: 'Debit / Credit Note Register', books: [19, 20, 22] },
-  { k: 'ostat', l: 'Order Status' }
+  { k: 'ostat', l: 'Order Status', url: '/manage-desk/order-status', fixed: ['Order Status Report'], monthStart: true }
 ];
 const BANK_TYPES = [['BANKREC', 'Bank Receipt'], ['BANKPAY', 'Bank Payment'], ['CASHREC', 'Cash Receipt'], ['CASHPAY', 'Cash Payment']];
 const ORDER_STATUS = [['PENDING', 'Pending'], ['CLOSE', 'Close'], ['CANCEL', 'Cancel']];
@@ -210,8 +211,8 @@ class Component extends DCLogic {
   async init() {
     const api = this.api(); if (!api) return;
     try {
-      const [fl, ccs, list] = await Promise.all([api.get('/outstanding-print/filters'), api.get('/lookups').then((l) => l.costCenters || []).catch(() => []), api.get('/saved-queries', { type: 'TDASHBOARD' })]);
-      const formats = {}; for (const t of TABS) if (t.books) formats[t.k] = list.filter((x) => t.books.includes(x.bookList));
+      const [fl, ccs, list] = await Promise.all([api.get('/outstanding-print/filters'), api.get('/lookups').then((l) => l.costCenters || []).catch(() => []), api.get('/saved-queries')]);
+      const formats = {}; for (const t of TABS) { if (t.books) formats[t.k] = list.filter((x) => x.type === 'TDASHBOARD' && t.books.includes(x.bookList)); if (t.regs) formats[t.k] = t.regs.map((id) => list.find((x) => x.regId === id)).filter(Boolean); }
       this.setState({ fl, ccs: Array.isArray(ccs) ? ccs : (ccs.rows || []), formats, ready: true }, () => this.pickTab(this.state.tab));
     } catch (e) { this.setState({ note: api.message(e), err: true }); }
   }
@@ -220,7 +221,7 @@ class Component extends DCLogic {
     const td = TABS.find((t) => t.k === k) || TABS[0];
     const list = td.fixed ? td.fixed.map((x) => ({ regId: x })) : (this.state.formats[k] || []);
     const type = td.types ? td.types[0][0] : k === 'bank' ? 'BANKREC' : k === 'orders' ? 'PENDING' : '';
-    const from = k === 'os' ? '01-04-2000' : this.state.f.from;
+    const to = this.state.f.to; const from = k === 'os' ? '01-04-2000' : td.monthStart && /^\d{2}-\d{2}-\d{4}$/.test(to) ? '01' + to.slice(2) : this.state.f.from;
     this.setState({ tab: k, data: null, f: { ...this.state.f, from, fmt: list.length ? String(list[0].regId) : '', type } }, () => this.load());
   }
   fmtFor() {
@@ -240,7 +241,7 @@ class Component extends DCLogic {
     const fmt = this.fmtFor(); if (!fmt) { this.setState({ data: null }); return; }
     this.setState({ busy: true, data: null, note: 'Loading…', err: false });
     try {
-      const data = await api.get('/saved-queries/' + fmt.regId + '/data', { from: this.iso(f.from) || undefined, to: this.iso(f.to) || undefined, companies: f.company || undefined, costCenters: f.cc || undefined, type: this.state.tab === 'bank' ? f.type : undefined, status: this.state.tab === 'orders' ? f.type : undefined });
+      const data = await api.get('/saved-queries/' + fmt.regId + '/data', { from: this.iso(f.from) || undefined, to: this.iso(f.to) || undefined, companies: f.company || undefined, costCenters: f.cc || undefined, type: this.state.tab === 'bank' ? f.type : undefined, status: this.state.tab === 'orders' || this.state.tab === 'hist' ? f.type || undefined : undefined });
       if (fresh()) this.setState({ data, busy: false, note: '' });
     } catch (e) { if (fresh()) this.setState({ data: null, busy: false, note: api.message(e), err: true }); }
   }
@@ -251,10 +252,22 @@ class Component extends DCLogic {
     const dmy = (v) => v.slice(0, 10).split('-').reverse().join('/');
     const num = (v, d) => (Number(v) || 0).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
     const data = st.data;
-    const cols = data ? data.cols.filter((c) => c.show).sort((a, b) => a.seq - b.seq) : [];
+    let cols = data ? data.cols.filter((c) => c.show).sort((a, b) => a.seq - b.seq) : [];
+    const lay = data && data.layout;
+    if (lay && lay.cols && lay.cols.length) cols = lay.cols.map((l) => { const c = data.cols.find((x) => x.field === l.field); return c ? { ...c, width: l.width } : null; }).filter(Boolean);
+    const grp = lay && lay.group && lay.group.length ? lay.group[0] : null;
+    const grpCap = grp ? ((data.cols.find((x) => x.field === grp) || {}).cap || grp) : '';
     const isNum = (c) => !!c.sum && c.sum !== 'Count' || (data && data.rows.length && typeof data.rows[0][c.field] === 'number') || (data && data.rows.length && /^-?\d+(\.\d+)?$/.test(String(data.rows[0][c.field] ?? '')) && !/(_Id|No|Code|Mobile|Phone)$/i.test(c.field));
     const fmtCell = (c, v) => { if (v == null || v === '') return ''; if (isDate(v)) return dmy(v); if (isNum(c)) return num(v, c.dec != null ? c.dec : 2); return String(v); };
-    const rows = data ? data.rows.slice(0, 3000).map((r, i) => ({ n: i + 1, cells: cols.map((c) => ({ v: fmtCell(c, r[c.field]), c: isNum(c) ? 'r' : '' })) })) : [];
+    const rows = [];
+    if (data) {
+      const src = data.rows.slice(0, 3000); let cur = null;
+      const sums = (g) => cols.filter((c) => c.sum === 'Sum').map((c) => c.cap + ' = ' + num(data.rows.filter((r) => String(r[grp] ?? '') === g).reduce((s, r) => s + (Number(r[c.field]) || 0), 0), c.dec != null ? c.dec : 2)).join(', ');
+      src.forEach((r, i) => {
+        if (grp && String(r[grp] ?? '') !== cur) { cur = String(r[grp] ?? ''); rows.push({ n: '', cls: 'grow', cells: cols.map((c, ci) => ({ v: ci === 0 ? grpCap + ': ' + cur + (sums(cur) ? '  (' + sums(cur) + ')' : '') : '', c: '' })) }); }
+        rows.push({ n: i + 1, cls: '', cells: cols.map((c) => ({ v: fmtCell(c, r[c.field]), c: isNum(c) ? 'r' : '' })) });
+      });
+    }
     const foot = cols.map((c) => {
       if (!data) return { v: '', c: '' };
       if (c.sum === 'Count') return { v: String(data.rows.length), c: 'r' };
@@ -270,7 +283,7 @@ class Component extends DCLogic {
         const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\\ufeff' + csv], { type: 'text/csv' })); a.download = (data.name || 'Manage Desk') + '.csv'; a.click();
       } catch (e) {}
     };
-    const hasFormats = !!(td.books || td.fixed);
+    const hasFormats = !!(td.books || td.fixed || td.regs);
     return {
       theme, f, set,
       tabs: TABS.map((t) => ({ l: t.l, c: 'tab' + (t.k === st.tab ? ' on' : ''), go: () => this.pickTab(t.k) })),
@@ -279,8 +292,8 @@ class Component extends DCLogic {
       formats, hasFormats, noFormats: !hasFormats, tabL: td.l,
       hasType: !!td.types || st.tab === 'bank' || (st.tab === 'orders' && String(f.fmt) === '252'), typeL: td.typeL || (st.tab === 'bank' ? 'Type' : 'Status'),
       typeOpts: (td.types || (st.tab === 'bank' ? BANK_TYPES : ORDER_STATUS)).map(([v, l]) => ({ v, l })),
-      cols: cols.map((c) => ({ cap: c.cap, cls: isNum(c) ? 'r' : '' })), rows, foot, span: cols.length + 1,
-      empty: rows.length === 0, emptyL: st.busy ? 'Loading…' : 'No records found', count: data ? data.rows.length + ' rows' + (data.rows.length > 3000 ? ' (first 3,000 shown — Export To Excel has all)' : '') : '',
+      cols: cols.map((c) => ({ cap: c.cap, cls: isNum(c) ? 'r' : '', st: c.width ? 'min-width: ' + Math.round(c.width * 0.9) + 'px' : '' })), rows, foot, span: cols.length + 1,
+      empty: !data || data.rows.length === 0, emptyL: st.busy ? 'Loading…' : 'No records found', count: data ? data.rows.length + ' rows' + (data.rows.length > 3000 ? ' (first 3,000 shown — Export To Excel has all)' : '') : '',
       excel, print: () => { try { window.print(); } catch (e) {} }, refresh: () => this.load(), busy: !!st.busy, note: st.note, noteCls: st.err ? 'tag t-red' : 'muted'
     };
   }

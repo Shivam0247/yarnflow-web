@@ -1,0 +1,265 @@
+{
+ "237": {
+  "cols": [
+   {
+    "field": "CompanyName",
+    "width": 200,
+    "caption": "CompanyName"
+   },
+   {
+    "field": "CostCenter",
+    "width": 133,
+    "caption": "CostCenter"
+   },
+   {
+    "field": "Sal_Date",
+    "width": 85,
+    "caption": "Bill Date"
+   },
+   {
+    "field": "Sal_Id",
+    "width": 112,
+    "caption": "Bill No"
+   },
+   {
+    "field": "I_NAME",
+    "width": 145,
+    "caption": "Item"
+   },
+   {
+    "field": "Desc_Name",
+    "width": 72,
+    "caption": "Brand"
+   },
+   {
+    "field": "SalS_Weight",
+    "width": 67,
+    "caption": "Qty"
+   },
+   {
+    "field": "SalS_Rate",
+    "width": 62,
+    "caption": "Rate"
+   },
+   {
+    "field": "Mistry",
+    "width": 230,
+    "caption": "PartyGroup"
+   },
+   {
+    "field": "SalesPerson",
+    "width": 102,
+    "caption": "SalesPerson"
+   },
+   {
+    "field": "P_Name",
+    "width": 265,
+    "caption": "Party"
+   },
+   {
+    "field": "DisPer",
+    "width": 64,
+    "caption": "DisPer"
+   },
+   {
+    "field": "DisAmt",
+    "width": 67,
+    "caption": "DisAmt"
+   },
+   {
+    "field": "PalletDisPer",
+    "width": 102,
+    "caption": "PalletDisPer"
+   },
+   {
+    "field": "PalletDisAmt",
+    "width": 105,
+    "caption": "PalletDisAmt"
+   },
+   {
+    "field": "Diskgs",
+    "width": 64,
+    "caption": "Diskgs"
+   },
+   {
+    "field": "DiskgsAmt",
+    "width": 90,
+    "caption": "DiskgsAmt"
+   },
+   {
+    "field": "SalS_GrossAmt",
+    "width": 88,
+    "caption": "Amount"
+   },
+   {
+    "field": "PartyBalance",
+    "width": 108,
+    "caption": "PartyBalance"
+   }
+  ],
+  "group": [],
+  "sort": [],
+  "groupSummary": [
+   "Sal_Id",
+   "SalS_Weight",
+   "SalS_GrossAmt",
+   "Sal_Id",
+   "SalS_Weight",
+   "SalS_GrossAmt"
+  ]
+ },
+ "245": {
+  "cols": [
+   {
+    "field": "Ord_No",
+    "width": 119,
+    "caption": "Order No"
+   },
+   {
+    "field": "Sal_Date",
+    "width": 94,
+    "caption": "Order Date"
+   },
+   {
+    "field": "Party_Group",
+    "width": 230,
+    "caption": "Party Group"
+   },
+   {
+    "field": "P_Name",
+    "width": 263,
+    "caption": "Party Name"
+   },
+   {
+    "field": "SuppName",
+    "width": 224,
+    "caption": "SuppName"
+   },
+   {
+    "field": "Broker",
+    "width": 94,
+    "caption": "Broker"
+   },
+   {
+    "field": "SALEPERSON",
+    "width": 110,
+    "caption": "SALEPERSON"
+   },
+   {
+    "field": "I_Name",
+    "width": 119,
+    "caption": "Item Name"
+   },
+   {
+    "field": "Brand",
+    "width": 101,
+    "caption": "Brand"
+   },
+   {
+    "field": "Grade",
+    "width": 69,
+    "caption": "Grade"
+   },
+   {
+    "field": "Ord_Qty",
+    "width": 78,
+    "caption": "Ord_Qty"
+   },
+   {
+    "field": "SalS_Rate",
+    "width": 79,
+    "caption": "Ord Rate"
+   },
+   {
+    "field": "PendingQty",
+    "width": 97,
+    "caption": "PendingQty"
+   },
+   {
+    "field": "Sals_Status",
+    "width": 66,
+    "caption": "Status"
+   },
+   {
+    "field": "Crdays",
+    "width": 66,
+    "caption": "Crdays"
+   },
+   {
+    "field": "Remarks",
+    "width": 226,
+    "caption": "Remarks"
+   }
+  ],
+  "group": [],
+  "sort": [],
+  "groupSummary": [
+   "DispSchQty",
+   "PendingQty",
+   "Ord_No",
+   "Ord_Qty"
+  ]
+ },
+ "os:PartyGroup+Party Wise Summary": {
+  "cols": [
+   {
+    "field": "P_Name",
+    "width": 263,
+    "caption": null
+   },
+   {
+    "field": "I_Name",
+    "width": 51,
+    "caption": null
+   },
+   {
+    "field": "Brand",
+    "width": 59,
+    "caption": null
+   },
+   {
+    "field": "Qty",
+    "width": 93,
+    "caption": null
+   },
+   {
+    "field": "PendingAmt",
+    "width": 103,
+    "caption": null
+   },
+   {
+    "field": "Ftype",
+    "width": 52,
+    "caption": null
+   },
+   {
+    "field": "Architect",
+    "width": 151,
+    "caption": null
+   },
+   {
+    "field": "CollectionName",
+    "width": 172,
+    "caption": null
+   },
+   {
+    "field": "BillDt",
+    "width": 89,
+    "caption": null
+   }
+  ],
+  "group": [
+   "Mistry"
+  ],
+  "sort": [
+   [
+    "Mistry",
+    "Ascending"
+   ]
+  ],
+  "groupSummary": [
+   "Qty",
+   "PendingAmt"
+  ]
+ }
+}
