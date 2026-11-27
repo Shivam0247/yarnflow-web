@@ -90,7 +90,20 @@ Status: **Same** = checked against the old screen/data · **Compare** = exists, 
 | E-Invoice / Digital Signature / Download Bill | E-way bills | Compare |
 | Purchase Bill Import (Excel) | — | Missing |
 | Item+Brand+Grade Wise Rate Master | — | Missing |
-| Whatsup SMS / SMS Template / File Upload | — | Missing |
+| WhatsApp (automatic: Sale Order text + party outstanding PDF, Sale Bill text + PDF, Bank Receipt thank-you, Bank Payment cheque note, DN / CN / interest DN PDFs, scheduled report PDFs; 1,48,368 messages in the old data) | — | Building (message queue with the old texts; sending service to be chosen) |
+| SMS Template / File Upload (777 documents) | — | Missing |
 | Year End Process / Closing Transfer Utility | — | Missing |
 | Update Data To Selected Party | — | Missing |
 | User Managment / User Roll Admin / Sepcial Permision / Bank CC Permission | Users | Compare |
+
+## Print designs (Crystal, REPORT folder on the pen drive)
+
+The 24 Crystal designs are encrypted, so each print is copied from a sample PDF of the old software.
+
+| Print | Status |
+|---|---|
+| SALESBILLTRADING_GST (sale bill), CRDBNOTE (DN / CN), journal note | Same |
+| PartyGroupWise outstanding (Party Groupwise Sales Outstanding) | Same (3 sample PDFs) |
+| SalesOrder, PurchaseOrder, YARNCHALLAN, PUR_RETURN_GST, BANK_CASH_PAYMENT_VOUCHER, CHEQUE_SPCB, AutoDebitNote, PartyGroup | Waiting for sample PDFs |
+| ACCLEDGER, CASH_BANK_LEDGER | Waiting for sample PDFs |
+| AgingWise, Broker+Party, BrokerWise summary, PartyGroupWise summary, PartyWise, Monthly, InterestBase, Daily Receipt Register, Sales / Purchase register detail and summary | Waiting for sample PDFs |
