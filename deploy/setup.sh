@@ -5,6 +5,13 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 DOMAIN="${1:-}"
+IP=$(curl -s https://api.ipify.org || true)
+# no domain of your own: a free name for this server's IP, so HTTPS still works (e.g. 72-60-1-23.sslip.io)
+if [ -z "$DOMAIN" ] && [ -n "$IP" ]; then DOMAIN="$(echo "$IP" | tr . -).sslip.io"; fi
+# small servers: 4 GB swap so building the app never runs out of memory
+if [ ! -f /swapfile ] && [ "$(free -g | awk '/Mem:/{print $2}')" -lt 16 ]; then
+  fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile && echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
 if ! command -v docker >/dev/null; then
   echo "› Installing Docker…"; curl -fsSL https://get.docker.com | sh
 fi
@@ -19,7 +26,7 @@ ADMIN_PASSWORD=$ADMIN_PASSWORD
 EXPORT_DIR=./export
 ENV
   chmod 600 .env
-  echo "› Administrator login: admin@yarnflow.in / $ADMIN_PASSWORD   (saved in deploy/.env — change it after first login)"
+  echo "› Administrator login: admin@yarnflow.in / $ADMIN_PASSWORD   (saved in deploy/.env — write it down)"
 fi
 mkdir -p export reports backups
 # firewall: only ssh + web
@@ -30,8 +37,10 @@ if [ -f /etc/iptables/rules.v4 ] && command -v netfilter-persistent >/dev/null; 
 elif command -v ufw >/dev/null; then ufw allow OpenSSH >/dev/null; ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null; ufw --force enable >/dev/null; fi
 echo "› Building and starting YarnFlow…"
 docker compose up -d --build
-# nightly database backup at 02:30, keeping 14 days
-( crontab -l 2>/dev/null | grep -v yarnflow-backup; echo "30 2 * * * bash $(pwd)/backup.sh >> $(pwd)/backups/backup.log 2>&1 # yarnflow-backup" ) | crontab -
-if [ -n "$DOMAIN" ]; then URL="https://$DOMAIN"; else URL="http://$(curl -s https://api.ipify.org || echo SERVER-IP)"; fi
+# nightly database backup at 02:30 (last 14 kept), then the program updates itself from GitHub at 03:30 (data is never touched)
+( crontab -l 2>/dev/null | grep -v 'yarnflow-backup\|yarnflow-update'
+  echo "30 2 * * * bash $(pwd)/backup.sh >> $(pwd)/backups/backup.log 2>&1 # yarnflow-backup"
+  echo "30 3 * * * bash $(pwd)/update.sh >> $(pwd)/backups/update.log 2>&1 # yarnflow-update" ) | crontab -
+if [ -n "$DOMAIN" ]; then URL="https://$DOMAIN"; else URL="http://${IP:-SERVER-IP}"; fi
 echo "✓ YarnFlow is running: $URL"
 echo "  Next: copy the old software's export folder to $(pwd)/export and run: bash load-data.sh"
