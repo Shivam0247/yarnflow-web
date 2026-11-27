@@ -594,3 +594,38 @@ PORTS[261] = async (ctx, f) => {
   const rows = await PORTS[245](ctx, f);
   return rows.map((r) => ({ ...r, BillParty: r.P_Name, DeliveryParty: r.DelParty, Ord_Qty: r.Ord_Qty ?? 0, PendingQty: r.PendingQty ?? 0 }));
 };
+
+/* ------------------------------------------------------------------ 256 Sales Person Wise Reciept / 260 REGISTER (BillAdjustmentDetails_All) */
+/** each receipt adjusted against a sale / general sale / debit-note bill that is now fully received (NETAMT = 0) */
+function receiptAdjustments(byEntryDate: boolean): Port {
+  return async (ctx, f) => {
+    const co = ids(f.companies), cc = ids(f.costCenters);
+    const res = await ctx.db.execute<Row>(sql`
+      with b as materialized (
+        select v.id, v.company_id, v.cost_center_id, v.number, v.date, v.net_amount, v.credit_days, v.subtype, v.type, v.party_id, v.book_id, v.broker_id, v.sales_person_id
+        from vouchers v
+        where v.type in ('SALE_BILL', 'GENERAL_SALE', 'DEBIT_NOTE', 'INTEREST_DEBIT_NOTE') and v.status <> 'CANCELLED' and v.net_amount > 0
+          ${sql.raw(co.length ? ` and v.company_id in (${co.join(',')})` : ` and v.company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})`)}
+          ${sql.raw(cc.length ? ` and v.cost_center_id in (${cc.join(',')})` : '')}
+          and v.net_amount - coalesce((select sum(a2.amount) from bill_allocations a2 where a2.bill_id = v.id and a2.ledger_period = ${ctx.period} and a2.kind is distinct from 'PENDING'), 0) <= 0.005)
+      select b.number as "BillNo", case when b.type::text like '%DEBIT_NOTE' then 'DBNT' else b.subtype end as "Ftype", b.date as "BillDate", a.date as "RecSS_RecDate",
+        coalesce(b.credit_days, p.credit_days, 0) as "CrDays", b.net_amount as "Ledamt", a.amount as "BIllPaidAmt", r.instrument_no as "ChkNo", 0 as "JvAmt",
+        br.name as "Broker", br.name as "Architect", pg.name as "PartyGroup", cp.name as "CollectionName", c.name as "CompanyName", cc.name as "Cost_Center", r.subtype as "VTYPE",
+        p.name as "PartyName", bk.name as "BOK_NAME", r.net_amount as "Rec_NetAmt", p.id as "Pcode", b.company_id as "ComCode", b.cost_center_id as "CostcenterCode", b.book_id as "Book_Code",
+        p.party_group_id as "PGroupcode", c.short_name as "Com_Short", coalesce(b.sales_person_id, p.sales_person_id) as "SalesPersonCode", sp.name as "SalesPerson",
+        greatest(a.date - b.date - coalesce(b.credit_days, p.credit_days, 0), 0) as "DiffDays", a.date - b.date as "TOTALDAYS", r.extra->>'partyBank' as "PartyBank",
+        coalesce(r.narration, r.remark) as "Remarks", p.mobile as "P_OMobile", coalesce(b.credit_days, p.credit_days, 0) as "BillDays", 0 as "Balance",
+        trim(to_char(a.date, 'YYYY')) || '-' || to_char(a.date, 'MM') || ' ' || trim(to_char(a.date, 'Month')) as "RecMonth", to_char(r.created_at, 'YYYY-MM-DD') as "UserDtTm",
+        '(' || to_char(a.date, 'YYYY-MM') || ') ' || trim(to_char(a.date, 'Month')) as "BillMonth"
+      from b join bill_allocations a on a.bill_id = b.id and a.ledger_period = ${ctx.period} and a.kind = 'RECEIPT'
+        join vouchers r on r.id = a.voucher_id and r.type = 'RECEIPT'
+        left join accounts p on p.id = b.party_id left join persons pg on pg.id = p.party_group_id left join persons br on br.id = coalesce(b.broker_id, p.broker_id)
+        left join persons cp on cp.id = p.collection_person_id left join persons sp on sp.id = coalesce(b.sales_person_id, p.sales_person_id)
+        left join companies c on c.id = b.company_id left join cost_centers cc on cc.id = b.cost_center_id left join books bk on bk.id = b.book_id
+      where ${byEntryDate ? sql`r.created_at::date between ${f.from} and ${f.to}` : sql`a.date between ${f.from} and ${f.to}`}
+      order by pg.name, p.name, b.date, b.number`);
+    return res.rows;
+  };
+}
+PORTS[256] = receiptAdjustments(false);
+PORTS[260] = receiptAdjustments(true);
