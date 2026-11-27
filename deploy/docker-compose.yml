@@ -17,6 +17,7 @@ services:
     # never published to the internet: only the app talks to it
   app:
     build: ..
+    shm_size: 1gb   # headless Chromium makes the WhatsApp / email PDFs
     restart: unless-stopped
     depends_on:
       db: { condition: service_healthy }
