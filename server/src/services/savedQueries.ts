@@ -571,3 +571,26 @@ PORTS[246] = async (ctx, f) => {
     order by v.date, v.number, l.line_no, pv.date`);
   return res.rows;
 };
+
+/* ------------------------------------------------------------------ Order Report formats with grids: 221, 251, 261 */
+async function gradations(ctx: Ctx) {
+  const r = await ctx.db.execute<Row>(sql`select id, extra->>'P_Gradation' as g from accounts where company_id = ${ctx.mcId} and extra ? 'P_Gradation'`);
+  return new Map(r.rows.map((x) => [Number(x.id), x.g]));
+}
+/** STOCK (order report): pending booking lines with party-group outstanding and gradation */
+PORTS[221] = async (ctx, f) => {
+  const [rows, grad] = await Promise.all([PORTS[252](ctx, f), gradations(ctx)]);
+  return rows.map((r) => ({ ...r, P_Gradation: grad.get(Number(r.P_Code)) ?? '' }));
+};
+/** TOTAL SUMMARY N PENDING STOCK REPORT: Tradding_AllPendingSalesOrder with party-group outstanding and the group's pending qty */
+PORTS[251] = async (ctx, f) => {
+  const [rows, grad] = await Promise.all([PORTS[252](ctx, { ...f, status: f.status || 'PENDING' }), gradations(ctx)]);
+  const pg = new Map<number, number>();
+  for (const r of rows) if (r.Sals_Status === 'PENDING') pg.set(Number(r.P_MtryCode), (pg.get(Number(r.P_MtryCode)) ?? 0) + N(r.PendingQty));
+  return rows.map((r) => ({ ...r, Ord_Id: r.Sal_Id, Ord_Date: r.Sal_Date, PtyGrpPeningQty: 0, PGQty: Math.round((pg.get(Number(r.P_MtryCode)) ?? 0) * 1000) / 1000, P_Gradation: grad.get(Number(r.P_Code)) ?? '' }));
+};
+/** REGISTER (order report): order lines grade-wise with what was scheduled against them */
+PORTS[261] = async (ctx, f) => {
+  const rows = await PORTS[245](ctx, f);
+  return rows.map((r) => ({ ...r, BillParty: r.P_Name, DeliveryParty: r.DelParty, Ord_Qty: r.Ord_Qty ?? 0, PendingQty: r.PendingQty ?? 0 }));
+};

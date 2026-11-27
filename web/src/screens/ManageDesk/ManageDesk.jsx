@@ -20,13 +20,17 @@ const TABS = [
   { k: 'note', l: 'Debit / Credit Note Register', books: [19, 20, 22] },
   { k: 'ostat', l: 'Order Status', url: '/manage-desk/order-status', fixed: ['Order Status Report'], monthStart: true }
 ];
+const ORDER_TABS = [
+  { k: 'so', l: 'Sale Order', regs: [251, 221, 261, 245], types: [['PENDING', 'Pending'], ['CLOSE', 'Close'], ['CANCEL', 'Cancel'], ['', 'All']], typeL: 'Status' },
+  { k: 'po', l: 'Purchase Order', regs: [246] }
+];
 const BANK_TYPES = [['BANKREC', 'Bank Receipt'], ['BANKPAY', 'Bank Payment'], ['CASHREC', 'Cash Receipt'], ['CASHPAY', 'Cash Payment']];
 const ORDER_STATUS = [['PENDING', 'Pending'], ['CLOSE', 'Close'], ['CANCEL', 'Cancel']];
 class Component extends DCLogic {
   constructor(p) {
     super(p);
     const t = new Date(); const d = String(t.getDate()).padStart(2, '0') + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + t.getFullYear();
-    let tab = 'orders'; try { tab = localStorage.getItem('yf-desk-tab') || 'orders'; } catch (e) {}
+    let tab = p.mode === 'orders' ? 'so' : 'orders'; try { if (p.mode !== 'orders') tab = localStorage.getItem('yf-desk-tab') || 'orders'; } catch (e) {}
     this.state = { tab, f: { company: '', cc: '', from: d, to: d, fmt: '', type: '' }, formats: {}, data: null, note: '', err: false, busy: false };
   }
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
@@ -37,21 +41,23 @@ class Component extends DCLogic {
     try { window.addEventListener('keydown', this._key); } catch (e) {}
   }
   componentWillUnmount() { try { window.removeEventListener('keydown', this._key); } catch (e) {} }
-  tabDef() { return TABS.find((t) => t.k === this.state.tab) || TABS[0]; }
+  tabs() { return this.props.mode === 'orders' ? ORDER_TABS : TABS; }
+  tabDef() { const T = this.tabs(); return T.find((t) => t.k === this.state.tab) || T[0]; }
   async init() {
     const api = this.api(); if (!api) return;
     try {
       const [fl, ccs, list] = await Promise.all([api.get('/outstanding-print/filters'), api.get('/lookups').then((l) => l.costCenters || []).catch(() => []), api.get('/saved-queries')]);
-      const formats = {}; for (const t of TABS) { if (t.books) formats[t.k] = list.filter((x) => x.type === 'TDASHBOARD' && t.books.includes(x.bookList)); if (t.regs) formats[t.k] = t.regs.map((id) => list.find((x) => x.regId === id)).filter(Boolean); }
+      const formats = {}; for (const t of TABS.concat(ORDER_TABS)) { if (t.books) formats[t.k] = list.filter((x) => x.type === 'TDASHBOARD' && t.books.includes(x.bookList)); if (t.regs) formats[t.k] = t.regs.map((id) => list.find((x) => x.regId === id)).filter(Boolean); }
       this.setState({ fl, ccs: Array.isArray(ccs) ? ccs : (ccs.rows || []), formats, ready: true }, () => this.pickTab(this.state.tab));
     } catch (e) { this.setState({ note: api.message(e), err: true }); }
   }
   pickTab(k) {
-    try { localStorage.setItem('yf-desk-tab', k); } catch (e) {}
-    const td = TABS.find((t) => t.k === k) || TABS[0];
+    try { if (this.props.mode !== 'orders') localStorage.setItem('yf-desk-tab', k); } catch (e) {}
+    const td = this.tabs().find((t) => t.k === k) || this.tabs()[0];
     const list = td.fixed ? td.fixed.map((x) => ({ regId: x })) : (this.state.formats[k] || []);
     const type = td.types ? td.types[0][0] : k === 'bank' ? 'BANKREC' : k === 'orders' ? 'PENDING' : '';
-    const to = this.state.f.to; const from = k === 'os' ? '01-04-2000' : td.monthStart && /^\d{2}-\d{2}-\d{4}$/.test(to) ? '01' + to.slice(2) : this.state.f.from;
+    const to = this.state.f.to; const fyFrom = (() => { const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(to); if (!m) return this.state.f.from; const y = Number(m[2]) >= 4 ? Number(m[3]) : Number(m[3]) - 1; return '01-04-' + y; })();
+    const from = this.props.mode === 'orders' ? fyFrom : k === 'os' ? '01-04-2000' : td.monthStart && /^\d{2}-\d{2}-\d{4}$/.test(to) ? '01' + to.slice(2) : this.state.f.from;
     this.setState({ tab: k, data: null, f: { ...this.state.f, from, fmt: list.length ? String(list[0].regId) : '', type } }, () => this.load());
   }
   fmtFor() {
@@ -71,7 +77,7 @@ class Component extends DCLogic {
     const fmt = this.fmtFor(); if (!fmt) { this.setState({ data: null }); return; }
     this.setState({ busy: true, data: null, note: 'Loading…', err: false });
     try {
-      const data = await api.get('/saved-queries/' + fmt.regId + '/data', { from: this.iso(f.from) || undefined, to: this.iso(f.to) || undefined, companies: f.company || undefined, costCenters: f.cc || undefined, type: this.state.tab === 'bank' ? f.type : undefined, status: this.state.tab === 'orders' || this.state.tab === 'hist' ? f.type || undefined : undefined });
+      const data = await api.get('/saved-queries/' + fmt.regId + '/data', { from: this.iso(f.from) || undefined, to: this.iso(f.to) || undefined, companies: f.company || undefined, costCenters: f.cc || undefined, type: this.state.tab === 'bank' ? f.type : undefined, status: ['orders', 'hist', 'so'].includes(this.state.tab) ? f.type || undefined : undefined });
       if (fresh()) this.setState({ data, busy: false, note: '' });
     } catch (e) { if (fresh()) this.setState({ data: null, busy: false, note: api.message(e), err: true }); }
   }
@@ -115,8 +121,8 @@ class Component extends DCLogic {
     };
     const hasFormats = !!(td.books || td.fixed || td.regs);
     return {
-      theme, f, set,
-      tabs: TABS.map((t) => ({ l: t.l, c: 'tab' + (t.k === st.tab ? ' on' : ''), go: () => this.pickTab(t.k) })),
+      theme, f, set, sbActive: this.props.mode === 'orders' ? 'ordr' : 'desk', bc1: this.props.mode === 'orders' ? 'Reports' : 'Dashboard', bc2: this.props.mode === 'orders' ? 'Order Report' : 'Manage Desk',
+      tabs: this.tabs().map((t) => ({ l: t.l, c: 'tab' + (t.k === st.tab ? ' on' : ''), go: () => this.pickTab(t.k) })),
       companies: ((st.fl || {}).companies || []).map((c) => ({ v: String(c.id), l: (c.code ? c.code + ' — ' : '') + c.name })),
       ccs: (st.ccs || []).map((c) => ({ v: String(c.id), l: c.name })),
       formats, hasFormats, noFormats: !hasFormats, tabL: td.l,
@@ -141,19 +147,19 @@ class ManageDeskView extends Component {
       </style>
       <div className={`app ${v.theme ?? ""}`}>
         <div className="sbw">
-          <Sidebar active="desk" />
+          <Sidebar active={v.sbActive} />
         </div>
         <div className="main">
           <header className="hdr">
             <div className="bc">
               <span className="m">
-                Dashboard
+                {v.bc1}
               </span>
               <span className="m">
                 /
               </span>
               <span>
-                Manage Desk
+                {v.bc2}
               </span>
             </div>
             <span className={v.noteCls} style={{"fontSize":"13px"}} role="status">
