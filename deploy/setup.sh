@@ -38,9 +38,10 @@ elif command -v ufw >/dev/null; then ufw allow OpenSSH >/dev/null; ufw allow 80/
 echo "› Building and starting YarnFlow…"
 docker compose up -d --build
 # nightly database backup at 02:30 (last 14 kept), then the program updates itself from GitHub at 03:30 (data is never touched)
-( crontab -l 2>/dev/null | grep -v 'yarnflow-backup\|yarnflow-update'
+{ crontab -l 2>/dev/null | grep -v 'yarnflow-backup\|yarnflow-update' || true
   echo "30 2 * * * bash $(pwd)/backup.sh >> $(pwd)/backups/backup.log 2>&1 # yarnflow-backup"
-  echo "30 3 * * * bash $(pwd)/update.sh >> $(pwd)/backups/update.log 2>&1 # yarnflow-update" ) | crontab -
+  echo "30 3 * * * bash $(pwd)/update.sh >> $(pwd)/backups/update.log 2>&1 # yarnflow-update"; } | crontab -
 if [ -n "$DOMAIN" ]; then URL="https://$DOMAIN"; else URL="http://${IP:-SERVER-IP}"; fi
 echo "✓ YarnFlow is running: $URL"
+echo "  Administrator login: admin@yarnflow.in / $(grep ^ADMIN_PASSWORD= .env | cut -d= -f2)"
 echo "  Next: copy the old software's export folder to $(pwd)/export and run: bash load-data.sh"
