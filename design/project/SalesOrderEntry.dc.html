@@ -416,7 +416,7 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 <div style="flex: 1"></div>
 <sc-if value="{{isNew}}" hint-placeholder-val="{{true}}"><span class="{{noteCls}}" style="font-size: 13px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{note}}">{{note}}</span><a class="btn gh" href="{{regHref}}">Cancel</a>
 <button class="btn" type="button" onClick="{{savePrint}}" disabled="{{busy}}">Save &amp; print</button>
-<button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveLabel}}</button></sc-if><sc-if value="{{isRec}}" hint-placeholder-val="{{false}}"><span class="{{noteCls}}" style="font-size: 13px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{note}}">{{updNote}}</span><a class="btn gh" href="{{backHref}}">Close</a><button class="btn" type="button" onClick="{{print}}">Print</button><button class="btn pr" type="button" onClick="{{doUpdate}}" disabled="{{busy}}">{{updLabel}}</button></sc-if>
+<button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveLabel}}</button></sc-if><sc-if value="{{isRec}}" hint-placeholder-val="{{false}}"><span class="{{noteCls}}" style="font-size: 13px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{note}}">{{updNote}}</span><a class="btn gh" href="{{backHref}}">Close</a><sc-if value="{{shareId}}"><dc-import name="Share" vid="{{shareId}}" hint-size="80px,34px"></dc-import></sc-if><button class="btn" type="button" onClick="{{print}}">Print</button><button class="btn pr" type="button" onClick="{{doUpdate}}" disabled="{{busy}}">{{updLabel}}</button></sc-if>
 </div>
 </div>
 
@@ -701,6 +701,7 @@ class Component extends DCLogic {
     const saveLabel = st.busy ? 'Saving…' : 'Save for approval';
     return {
       backHref: BK ? BK.href : 'SalesOrderList' + sfx + '.dc.html', backLabel: BK ? BK.label : 'Sales order register',
+      shareId: isRec && st.doc && st.doc.id ? String(st.doc.id) : '',
       tx, sideKey: isRec ? 'so' : 'soe', regLabel: isRec ? 'Sales order register' : 'Sales Orders', isRec, isNew: !isRec,
       recTitle: isRec ? recNo : 'New order', recTag: isRec ? stL : 'New', recTagC: isRec ? (TAGC[stL] || 'tag') : 'tag', recNo, recDt: f.date,
       updLabel: st.busy ? 'Saving…' : st.upd ? '✓ Updated' : 'Update order', updNote: st.note || ('Editing ' + recNo), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy,

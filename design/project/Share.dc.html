@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Share</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+.shr{display:inline-flex;align-items:center;gap:6px;position:relative}
+.shr .ib{width:34px;height:34px;border-radius:8px;border:0;display:grid;place-items:center;cursor:pointer;background:var(--s2,#262626);color:var(--t1,#EDEDED)}
+.shr .ib:hover{background:var(--s3,#2E2E2E)}
+.shr .ib.wa{color:#16A34A}
+.shr .ib:disabled{opacity:.45;cursor:default}
+.shr .msg{position:absolute;right:0;bottom:40px;white-space:nowrap;font-size:12px;padding:6px 10px;border-radius:8px;background:var(--ib,#F5F5F5);color:var(--it,#171717);box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:30;max-width:420px;overflow:hidden;text-overflow:ellipsis}
+.shr .msg.err{background:#B91C1C;color:#fff}
+</style>
+</helmet>
+<span class="shr">
+<button class="ib wa" type="button" title="{{waTitle}}" aria-label="Send on WhatsApp" onClick="{{wa}}" disabled="{{busy}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg></button>
+<button class="ib" type="button" title="{{mailTitle}}" aria-label="Send by email" onClick="{{mail}}" disabled="{{busy}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></button>
+<sc-if value="{{msg}}"><span class="{{msgCls}}" role="status">{{msg}}</span></sc-if>
+</span>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"vid":{"editor":"string","default":""},"os":{"editor":"string","default":""},"$preview":{"width":120,"height":60}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { busy: false, msg: '', err: false }; }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  componentWillUnmount() { clearTimeout(this.t); }
+  say(msg, err) { this.setState({ msg, err: !!err, busy: false }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ msg: '' }), err ? 7000 : 4000); }
+  async send(channel) {
+    const api = this.api(); const vid = String(this.props.vid || ''); const os = String(this.props.os || '');
+    if (!api) return;
+    if (!vid && !os) { this.say('Save the document first', true); return; }
+    this.setState({ busy: true, msg: channel === 'email' ? 'Sending email…' : 'Sending on WhatsApp…', err: false });
+    try {
+      const r = os ? await api.post('/share/outstanding', { qs: os, channel }) : await api.post('/share/' + channel + '/' + vid, {});
+      const who = r.sent ? r.sent.join(', ') : r.to;
+      this.say((channel === 'email' ? '✉ Sending email to ' : '✓ Sending on WhatsApp to ') + (who || 'party') + (r.missing && r.missing.length ? ' · none for ' + r.missing.join(', ') : ''));
+    } catch (e) { this.say(api.message(e), true); }
+  }
+  renderVals() {
+    const st = this.state; const os = !!this.props.os;
+    return {
+      busy: st.busy, msg: st.msg, msgCls: st.err ? 'msg err' : 'msg',
+      waTitle: os ? 'Send this outstanding to the party on WhatsApp' : 'Send to the party on WhatsApp',
+      mailTitle: os ? 'Email this outstanding to the party' : 'Email to the party',
+      wa: () => this.send('whatsapp'), mail: () => this.send('email')
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -366,6 +366,7 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 <button class="btn no" type="button" onClick="{{remove}}" disabled="{{busy}}">Delete</button>
 <div style="flex: 1"></div>
 <span class="{{noteCls}}" style="font-size: 13px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{updNote}}">{{updNote}}</span><a class="btn gh" href="{{backHref}}">{{closeLabel}}</a>
+<sc-if value="{{shareId}}"><dc-import name="Share" vid="{{shareId}}" hint-size="80px,34px"></dc-import></sc-if>
 <button class="btn" type="button" onClick="{{savePrint}}" disabled="{{busy}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>Save &amp; print</button>
 <button class="btn pr" type="button" onClick="{{doUpdate}}" disabled="{{busy}}">{{saveLabel}}</button>
 </div>
@@ -607,6 +608,7 @@ class Component extends DCLogic {
     const billDt = live ? st.f.date || dmyNow : BR ? BR.dt : '23-10-2026';
     const billV = { billNo: recNo, billDt, regLabel: isRec ? 'Sale bill register' : 'Sale bills', billTag: isRec ? (doc && doc.status === 'CANCELLED' ? 'Cancelled' : 'Saved') : '', billTagC: isRec ? (doc && doc.status === 'CANCELLED' ? 'tag t-red' : 'tag') : '',
       closeLabel: isRec ? 'Close' : 'Cancel', saveLabel: st.busy ? 'Saving…' : isRec ? (st.upd ? '✓ Updated' : 'Update bill') : 'Save bill',
+      shareId: live && doc && doc.id ? String(doc.id) : '',
       updNote: st.note || (isRec ? (st.upd ? 'Changes saved to ' + recNo : 'Editing ' + recNo) : ''), noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy,
       doUpdate: () => this.save(false), savePrint: () => this.save(true), remove: () => this.remove() };
     // previous / next bill

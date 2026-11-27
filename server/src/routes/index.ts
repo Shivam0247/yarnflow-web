@@ -27,6 +27,7 @@ import * as an from '../services/analysis.js';
 import * as wa from '../services/whatsapp.js';
 import * as wac from '../services/waCloud.js';
 import * as mail from '../services/email.js';
+import * as share from '../services/share.js';
 import { BILL_TYPES, BY_SLUG, TYPES, type VoucherType } from '../services/types.js';
 
 type Q = Record<string, string | undefined>;
@@ -269,6 +270,10 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/reports/purchase-stock', read((ctx, req) => trading.purchaseStock(ctx, q(req))));
   app.get('/api/whatsapp/messages', read((ctx, req) => wa.listMessages(ctx, q(req))));
   app.post('/api/whatsapp/messages/:id/sent', write((ctx, req) => wa.markSent(ctx, idParam(req), String((req.body as { status?: string })?.status ?? 'SENT'))));
+  // share buttons on documents and the outstanding report
+  app.post('/api/share/whatsapp/:id', write((ctx, req) => share.whatsappDoc(ctx, idParam(req))));
+  app.post('/api/share/email/:id', write((ctx, req) => share.emailDoc(ctx, idParam(req), (req.body as { to?: string })?.to)));
+  app.post('/api/share/outstanding', write((ctx, req) => share.shareOutstanding(ctx, (req.body ?? {}) as never)));
   app.get('/api/email/messages', read((ctx, req) => mail.listEmails(ctx, q(req))));
   app.post('/api/email/messages/:id/retry', write((ctx, req) => mail.setStatus(ctx, idParam(req), 'PENDING')));
   app.post('/api/email/messages/:id/skip', write((ctx, req) => mail.setStatus(ctx, idParam(req), 'SKIPPED')));

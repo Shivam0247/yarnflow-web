@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
 
@@ -214,6 +215,7 @@ class Component extends DCLogic {
       tax, adj, noAdj: !adj.length, canAdj: !!(live && K.party && f.partyId), openOpts, addAdj, am,
       remove: () => this.remove(), save: () => this.save(), print: () => { try { const d = this.state.doc; if (d) window.open('/print/' + this.K().slug + '/' + d.id, '_blank'); else this.setState({ note: 'Save the voucher first, then print', err: true }); } catch (e) {} }, busy: !!st.busy,
       closeL: view ? 'Close' : 'Cancel', saveL: st.busy ? 'Saving…' : view ? (st.saved ? '✓ Updated' : 'Update') : 'Save',
+      shareId: st.doc && st.doc.id && this.kind() !== 'jv' ? String(st.doc.id) : '',
       note: st.note || (view ? 'Editing ' + (D.number || '') : ''), noteCls: st.err ? 'tag t-red' : 'muted'
     };
   }
@@ -566,6 +568,12 @@ class JournalFormView extends Component {
             <DcLink className="btn gh" href={v.listHref}>
               {v.closeL}
             </DcLink>
+            {' '}
+            {v.shareId ? (
+              <>
+                <Share vid={v.shareId} />
+              </>
+            ) : null}
             {' '}
             <button className="btn" type="button" onClick={v.print} disabled={v.busy}>
               Print

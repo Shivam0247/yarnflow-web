@@ -1,0 +1,8 @@
+/* Share styles — identical to the design. Injected only while this screen is mounted. */
+.shr{display:inline-flex;align-items:center;gap:6px;position:relative}
+.shr .ib{width:34px;height:34px;border-radius:8px;border:0;display:grid;place-items:center;cursor:pointer;background:var(--s2,#262626);color:var(--t1,#EDEDED)}
+.shr .ib:hover{background:var(--s3,#2E2E2E)}
+.shr .ib.wa{color:#16A34A}
+.shr .ib:disabled{opacity:.45;cursor:default}
+.shr .msg{position:absolute;right:0;bottom:40px;white-space:nowrap;font-size:12px;padding:6px 10px;border-radius:8px;background:var(--ib,#F5F5F5);color:var(--it,#171717);box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:30;max-width:420px;overflow:hidden;text-overflow:ellipsis}
+.shr .msg.err{background:#B91C1C;color:#fff}

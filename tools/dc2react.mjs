@@ -7,7 +7,7 @@ import { parseDocument } from 'htmlparser2';
 const [, , SRC, OUT] = process.argv;
 
 // ---- which files become what -------------------------------------------------
-const COMPONENTS = ['Sidebar', 'Assistant', 'VoucherList', 'VoucherEntry', 'JournalForm'];
+const COMPONENTS = ['Sidebar', 'Assistant', 'VoucherList', 'VoucherEntry', 'JournalForm', 'Share'];
 const SKIP = new Set(['MainCreate', 'SalesOrderEntryPartySearch', 'EwayBillsGenerate', 'AssistantPanel', 'PurchaseOrderApproval', 'SalesOrderApproval', 'TopBar']);
 export const ROUTES = {
   Login: '/login',

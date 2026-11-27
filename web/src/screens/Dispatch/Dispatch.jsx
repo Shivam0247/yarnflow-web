@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink, sx } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
 import CSS from './Dispatch.css?raw';
@@ -213,6 +214,7 @@ class Component extends DCLogic {
     const billDt = live ? st.f.date || dmyNow : BR ? BR.dt : '23-10-2026';
     const billV = { billNo: recNo, billDt, regLabel: isRec ? 'Sale bill register' : 'Sale bills', billTag: isRec ? (doc && doc.status === 'CANCELLED' ? 'Cancelled' : 'Saved') : '', billTagC: isRec ? (doc && doc.status === 'CANCELLED' ? 'tag t-red' : 'tag') : '',
       closeLabel: isRec ? 'Close' : 'Cancel', saveLabel: st.busy ? 'Saving…' : isRec ? (st.upd ? '✓ Updated' : 'Update bill') : 'Save bill',
+      shareId: live && doc && doc.id ? String(doc.id) : '',
       updNote: st.note || (isRec ? (st.upd ? 'Changes saved to ' + recNo : 'Editing ' + recNo) : ''), noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy,
       doUpdate: () => this.save(false), savePrint: () => this.save(true), remove: () => this.remove() };
     // previous / next bill
@@ -1501,6 +1503,12 @@ class DispatchView extends Component {
                 <DcLink className="btn gh" href={v.backHref}>
                   {v.closeLabel}
                 </DcLink>
+                {' '}
+                {v.shareId ? (
+                  <>
+                    <Share vid={v.shareId} />
+                  </>
+                ) : null}
                 {' '}
                 <button className="btn" type="button" onClick={v.savePrint} disabled={v.busy}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

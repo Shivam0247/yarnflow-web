@@ -170,6 +170,7 @@ select.pv{cursor:pointer}
 <div style="flex: 1"></div>
 <span class="{{noteCls}}" style="font-size: 13px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{note}}">{{note}}</span>
 <a class="btn gh" href="{{listHref}}">{{closeL}}</a>
+<sc-if value="{{shareId}}"><dc-import name="Share" vid="{{shareId}}" hint-size="80px,34px"></dc-import></sc-if>
 <button class="btn" type="button" onClick="{{print}}" disabled="{{busy}}">{{printL}}</button>
 <button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveL}}</button>
 </div>
@@ -571,6 +572,7 @@ function makeRows(kind) {
       groups, cols: cols.map((c) => ({ l: c.l, cls: c.r ? 'r' : '' })), itemOpts,
       lines, foot: L.length ? foot : cols.map((c2, i) => ({ cls: c2.r ? 'r' : '', v: i === 0 ? 'Total' : (c2.t ? inr(0, c2.d) : '') })), boxes,
       closeL: view ? 'Close' : 'Cancel', printL: view ? 'Print' : 'Save & print', saveL: st.busy ? 'Saving…' : view ? (saved ? '✓ Updated' : 'Update') : (saved ? '✓ Saved' : 'Save'), busy: !!st.busy,
+      shareId: st.doc && st.doc.id && ['sale-returns'].includes(this.meta().slug) ? String(st.doc.id) : '',
       note: st.note || (view ? (saved ? 'Changes saved to ' + REC.no : 'Editing ' + REC.no) : (saved ? 'Saved as ' + K.no : '')), noteCls: st.err ? 'tag t-red' : 'muted',
       save: () => this.save(false), print: () => (view ? this.printDoc() : this.save(true)), remove: () => this.remove()
     };

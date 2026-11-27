@@ -66,10 +66,8 @@ textarea.inp{height:84px;padding:8px 10px;width:100%;resize:vertical}
 <div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="wa" hint-size="236px,960px"></dc-import></div>
 <div class="main">
 <header class="hdr">
-<div class="bc"><span>WhatsApp messages</span><span class="tag t-orange">{{pendingN}} to send</span><span class="{{senderCls}}" title="{{senderTip}}">{{senderTxt}}</span></div>
+<div class="bc"><span>WhatsApp log</span><span class="tag t-orange">{{pendingN}} to send</span><span class="{{senderCls}}" title="{{senderTip}}">{{senderTxt}}</span></div>
 <input class="inp" type="search" placeholder="Bill no, mobile or text" aria-label="Search messages" style="width: 240px" value="{{q}}" onChange="{{setQ}}">
-<button class="{{tplBtn}}" type="button" onClick="{{toggleTpl}}">Message templates</button>
-<button class="{{setBtn}}" type="button" onClick="{{toggleSet}}">WhatsApp setup</button>
 </header>
 <sc-if value="{{showList}}">
 <div class="split">
@@ -99,10 +97,7 @@ textarea.inp{height:84px;padding:8px 10px;width:100%;resize:vertical}
 <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
 <pre class="msg">{{sel.body}}</pre>
 <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
-<button class="btn ok" type="button" onClick="{{send}}">{{sendLabel}}</button>
 <button class="btn" type="button" onClick="{{openPdf}}">{{pdfLabel}}</button>
-<button class="btn" type="button" onClick="{{markSent}}">Mark as sent</button>
-<button class="btn no" type="button" onClick="{{skip}}">Skip</button>
 <button class="btn" type="button" onClick="{{retry}}">Send again</button>
 <div style="flex: 1"></div><span class="muted" style="font-size: 13px">{{done}}</span>
 </div>
@@ -213,7 +208,7 @@ class Component extends DCLogic {
       setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
       tplBtn: st.tpl ? 'btn pr' : 'btn', toggleTpl: () => { const on = !st.tpl; this.setState({ tpl: on, set: false }); if (on && !st.tpls) this.loadTpl(); },
       setBtn: st.set ? 'btn pr' : 'btn', toggleSet: () => { const on = !st.set; this.setState({ set: on, tpl: false }); if (on && !st.ct) this.loadCloud(); },
-      showList: !st.tpl && !st.set, showTpl: !!st.tpl && !st.set, showSet: !!st.set,
+      showList: true, showTpl: false, showSet: false,
       modes: [['off', 'Off'], ['linked', 'Office PC sender (linked phone)'], ['cloud', 'Official WhatsApp API']].map(([k, label]) => ({ label, cls: (cfg.mode || 'linked') === k ? 'btn pr' : 'btn', pick: () => this.setState({ cfg: { ...cfg, mode: k }, sdone: 'Not saved yet' }) })),
       modeNote: ({ off: 'Messages are still listed here, nothing is sent automatically.', linked: 'Messages are sent by the WhatsApp Sender program on an office PC, using a phone linked by QR code (as the old software did).', cloud: "Messages are sent by the YarnFlow server through Meta's official API using approved templates; a bill's text and PDF go as one message. Delivered / read ticks come back from Meta." })[cfg.mode || 'linked'],
       fields: [['phoneNumberId', 'Phone number ID', 'text', '15 digits, from API Setup'], ['wabaId', 'Business account ID', 'text', 'WhatsApp Business Account ID'], ['appId', 'App ID', 'text', 'Meta app ID'], ['accessToken', 'Access token', 'password', 'permanent token'], ['appSecret', 'App secret', 'password', 'for checking webhook calls (recommended)'], ['displayNumber', 'WhatsApp number', 'text', 'for your reference']].map(([k, label, type, ph]) => ({ k: 'wa-' + k, label, type, ph, v: cfg[k] || '', set: (e) => this.setState({ cfg: { ...cfg, [k]: e.target.value }, sdone: 'Not saved yet' }) })),
@@ -238,7 +233,7 @@ class Component extends DCLogic {
       senderCls: (() => { if (cfg.mode === 'cloud') return 'tag t-green'; const b = st.sender; return 'tag ' + (b && (Date.now() - new Date(b.at).getTime()) < 60000 ? 't-green' : 't-red'); })(),
       senderTip: st.sender ? 'Sending from WhatsApp ' + (st.sender.info || '') : 'Start the WhatsApp Sender on the office PC so messages go out automatically',
       retry: async () => { const api = this.api(); if (!api || !selM) return; try { await api.post('/whatsapp/messages/' + selM.id + '/retry', {}); this.setState({ done: 'Queued again' }); await this.load(); } catch (e) { this.setState({ done: api.message(e) }); } },
-      hint: cfg.mode === 'cloud' ? 'Messages go out automatically through the official WhatsApp API as soon as a document is saved. Send on WhatsApp and Mark as sent are only for sending one by hand.' : 'Messages go out automatically while the WhatsApp Sender runs on the office PC. If it is not running, Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
+      hint: 'Every WhatsApp message YarnFlow sends — automatically when a document is saved, or from the WhatsApp button on a bill, note, order, receipt or the outstanding report. Send again re-sends a failed one.', hintOld: cfg.mode === 'cloud' ? 'Messages go out automatically through the official WhatsApp API as soon as a document is saved. Send on WhatsApp and Mark as sent are only for sending one by hand.' : 'Messages go out automatically while the WhatsApp Sender runs on the office PC. If it is not running, Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
       send: () => { if (!selM || !selM.mobile) { this.setState({ done: 'Add a mobile number on the party first' }); return; } try { window.open('https://wa.me/' + selM.mobile + '?text=' + encodeURIComponent(text(selM)), '_blank', 'noopener'); } catch (e) {} },
       openPdf: () => { if (selM && selM.attachment) try { window.open(pdfUrl(selM), '_blank', 'noopener'); } catch (e) {} },
       markSent: () => this.mark(selM, 'SENT'), skip: () => this.mark(selM, 'SKIPPED'),

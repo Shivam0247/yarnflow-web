@@ -179,6 +179,7 @@ select.pv{cursor:pointer}
 <div style="flex: 1"></div>
 <span class="{{noteCls}}" style="font-size: 13px; max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{note}}">{{note}}</span>
 <a class="btn gh" href="{{listHref}}">{{closeL}}</a>
+<sc-if value="{{shareId}}"><dc-import name="Share" vid="{{shareId}}" hint-size="80px,34px"></dc-import></sc-if>
 <button class="btn" type="button" onClick="{{print}}" disabled="{{busy}}">Print</button>
 <button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveL}}</button>
 </div>
@@ -392,6 +393,7 @@ class Component extends DCLogic {
       tax, adj, noAdj: !adj.length, canAdj: !!(live && K.party && f.partyId), openOpts, addAdj, am,
       remove: () => this.remove(), save: () => this.save(), print: () => { try { const d = this.state.doc; if (d) window.open('/print/' + this.K().slug + '/' + d.id, '_blank'); else this.setState({ note: 'Save the voucher first, then print', err: true }); } catch (e) {} }, busy: !!st.busy,
       closeL: view ? 'Close' : 'Cancel', saveL: st.busy ? 'Saving…' : view ? (st.saved ? '✓ Updated' : 'Update') : 'Save',
+      shareId: st.doc && st.doc.id && this.kind() !== 'jv' ? String(st.doc.id) : '',
       note: st.note || (view ? 'Editing ' + (D.number || '') : ''), noteCls: st.err ? 'tag t-red' : 'muted'
     };
   }

@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink, sx } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
 import CSS from './VoucherEntry.css?raw';
@@ -402,6 +403,7 @@ function makeRows(kind) {
       groups, cols: cols.map((c) => ({ l: c.l, cls: c.r ? 'r' : '' })), itemOpts,
       lines, foot: L.length ? foot : cols.map((c2, i) => ({ cls: c2.r ? 'r' : '', v: i === 0 ? 'Total' : (c2.t ? inr(0, c2.d) : '') })), boxes,
       closeL: view ? 'Close' : 'Cancel', printL: view ? 'Print' : 'Save & print', saveL: st.busy ? 'Saving…' : view ? (saved ? '✓ Updated' : 'Update') : (saved ? '✓ Saved' : 'Save'), busy: !!st.busy,
+      shareId: st.doc && st.doc.id && ['sale-returns'].includes(this.meta().slug) ? String(st.doc.id) : '',
       note: st.note || (view ? (saved ? 'Changes saved to ' + REC.no : 'Editing ' + REC.no) : (saved ? 'Saved as ' + K.no : '')), noteCls: st.err ? 'tag t-red' : 'muted',
       save: () => this.save(false), print: () => (view ? this.printDoc() : this.save(true)), remove: () => this.remove()
     };
@@ -655,6 +657,12 @@ class VoucherEntryView extends Component {
             <DcLink className="btn gh" href={v.listHref}>
               {v.closeL}
             </DcLink>
+            {' '}
+            {v.shareId ? (
+              <>
+                <Share vid={v.shareId} />
+              </>
+            ) : null}
             {' '}
             <button className="btn" type="button" onClick={v.print} disabled={v.busy}>
               {v.printL}

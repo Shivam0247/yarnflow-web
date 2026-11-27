@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink, sx } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
 import CSS from './SalesOrderEntry.css?raw';
@@ -271,6 +272,7 @@ class Component extends DCLogic {
     const saveLabel = st.busy ? 'Saving…' : 'Save for approval';
     return {
       backHref: BK ? BK.href : 'SalesOrderList' + sfx + '.dc.html', backLabel: BK ? BK.label : 'Sales order register',
+      shareId: isRec && st.doc && st.doc.id ? String(st.doc.id) : '',
       tx, sideKey: isRec ? 'so' : 'soe', regLabel: isRec ? 'Sales order register' : 'Sales Orders', isRec, isNew: !isRec,
       recTitle: isRec ? recNo : 'New order', recTag: isRec ? stL : 'New', recTagC: isRec ? (TAGC[stL] || 'tag') : 'tag', recNo, recDt: f.date,
       updLabel: st.busy ? 'Saving…' : st.upd ? '✓ Updated' : 'Update order', updNote: st.note || ('Editing ' + recNo), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy,
@@ -1339,6 +1341,11 @@ class SalesOrderEntryView extends Component {
                     <DcLink className="btn gh" href={v.backHref}>
                       Close
                     </DcLink>
+                    {v.shareId ? (
+                      <>
+                        <Share vid={v.shareId} />
+                      </>
+                    ) : null}
                     <button className="btn" type="button" onClick={v.print}>
                       Print
                     </button>

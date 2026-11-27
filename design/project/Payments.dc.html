@@ -85,7 +85,7 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 <header class="hdr">
 <div class="bc"><a class="m" href="{{regHref}}">{{regL}}</a><span class="m">/</span><span>{{docNo}}</span><span class="{{tagC}}">{{tagL}}</span></div>
 <div class="seg" role="group" aria-label="Entry type"><button type="button" class="{{rc}}" onClick="{{setR}}">Receipt</button><button type="button" class="{{py}}" onClick="{{setP}}">Payment</button><button type="button" class="{{rrc}}" onClick="{{setRR}}">Receipt return</button><button type="button" class="{{ct}}" onClick="{{setC}}">Contra</button></div>
-<button class="btn" type="button" onClick="{{send}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Send</button>
+<sc-if value="{{shareId}}"><dc-import name="Share" vid="{{shareId}}" hint-size="80px,34px"></dc-import></sc-if>
 <sc-if value="{{editing}}" hint-placeholder-val="{{false}}"><button class="btn" type="button" onClick="{{newDoc}}">New</button><button class="btn" type="button" style="color: #EF4444" onClick="{{remove}}" disabled="{{busy}}">Delete</button></sc-if>
 <button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveL}}</button>
 </header>
@@ -266,7 +266,7 @@ class Component extends DCLogic {
       setR: () => (live ? this.setKind('r') : this.setState({ kind: 'r' })), setP: () => (live ? this.setKind('p') : this.setState({ kind: 'p' })), setC: () => (live ? this.setKind('c') : this.setState({ kind: 'c' })), setJ: () => (live ? this.setKind('j') : this.setState({ kind: 'j' })),
       kind: KN, kindLower: KN.toLowerCase(), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy, saveL: st.busy ? 'Saving…' : 'Save ' + KN.toLowerCase(), save: () => this.save(),
       send: () => window.print(), isNarr: k === 'c' || k === 'j', hasBills: k === 'r' || k === 'p' || k === 'rr', pendL: k === 'rr' ? 'Settled' : 'Pending', adjT: k === 'rr' ? 'Bills to open again (cheque returned)' : 'Adjust against bills',
-      editing: !!st.edit, newDoc: () => this.newDoc(), remove: () => this.remove(), tagL: st.edit ? 'Editing' : 'New', tagC: st.edit ? 'tag t-blue' : 'tag',
+      editing: !!st.edit, shareId: (k === 'r' || k === 'p') && (st.edit || st.last) ? String((st.edit || st.last).id) : '', newDoc: () => this.newDoc(), remove: () => this.remove(), tagL: st.edit ? 'Editing' : 'New', tagC: st.edit ? 'tag t-blue' : 'tag',
       regHref: (k === 'p' ? 'PaymentRegister' : k === 'rr' ? 'ReceiptReturnRegister' : 'ReceiptRegister') + (theme === 'light' ? 'Light' : '') + '.dc.html', regL: k === 'p' ? 'Payment register' : k === 'rr' ? 'Receipt return register' : k === 'r' ? 'Receipt register' : 'Payments & Receipts'
     };
     if (st.edit) base.saveL = st.busy ? 'Saving…' : 'Update ' + KN.toLowerCase();

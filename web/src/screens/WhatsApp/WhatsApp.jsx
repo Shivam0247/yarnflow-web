@@ -55,7 +55,7 @@ class Component extends DCLogic {
       setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
       tplBtn: st.tpl ? 'btn pr' : 'btn', toggleTpl: () => { const on = !st.tpl; this.setState({ tpl: on, set: false }); if (on && !st.tpls) this.loadTpl(); },
       setBtn: st.set ? 'btn pr' : 'btn', toggleSet: () => { const on = !st.set; this.setState({ set: on, tpl: false }); if (on && !st.ct) this.loadCloud(); },
-      showList: !st.tpl && !st.set, showTpl: !!st.tpl && !st.set, showSet: !!st.set,
+      showList: true, showTpl: false, showSet: false,
       modes: [['off', 'Off'], ['linked', 'Office PC sender (linked phone)'], ['cloud', 'Official WhatsApp API']].map(([k, label]) => ({ label, cls: (cfg.mode || 'linked') === k ? 'btn pr' : 'btn', pick: () => this.setState({ cfg: { ...cfg, mode: k }, sdone: 'Not saved yet' }) })),
       modeNote: ({ off: 'Messages are still listed here, nothing is sent automatically.', linked: 'Messages are sent by the WhatsApp Sender program on an office PC, using a phone linked by QR code (as the old software did).', cloud: "Messages are sent by the YarnFlow server through Meta's official API using approved templates; a bill's text and PDF go as one message. Delivered / read ticks come back from Meta." })[cfg.mode || 'linked'],
       fields: [['phoneNumberId', 'Phone number ID', 'text', '15 digits, from API Setup'], ['wabaId', 'Business account ID', 'text', 'WhatsApp Business Account ID'], ['appId', 'App ID', 'text', 'Meta app ID'], ['accessToken', 'Access token', 'password', 'permanent token'], ['appSecret', 'App secret', 'password', 'for checking webhook calls (recommended)'], ['displayNumber', 'WhatsApp number', 'text', 'for your reference']].map(([k, label, type, ph]) => ({ k: 'wa-' + k, label, type, ph, v: cfg[k] || '', set: (e) => this.setState({ cfg: { ...cfg, [k]: e.target.value }, sdone: 'Not saved yet' }) })),
@@ -80,7 +80,7 @@ class Component extends DCLogic {
       senderCls: (() => { if (cfg.mode === 'cloud') return 'tag t-green'; const b = st.sender; return 'tag ' + (b && (Date.now() - new Date(b.at).getTime()) < 60000 ? 't-green' : 't-red'); })(),
       senderTip: st.sender ? 'Sending from WhatsApp ' + (st.sender.info || '') : 'Start the WhatsApp Sender on the office PC so messages go out automatically',
       retry: async () => { const api = this.api(); if (!api || !selM) return; try { await api.post('/whatsapp/messages/' + selM.id + '/retry', {}); this.setState({ done: 'Queued again' }); await this.load(); } catch (e) { this.setState({ done: api.message(e) }); } },
-      hint: cfg.mode === 'cloud' ? 'Messages go out automatically through the official WhatsApp API as soon as a document is saved. Send on WhatsApp and Mark as sent are only for sending one by hand.' : 'Messages go out automatically while the WhatsApp Sender runs on the office PC. If it is not running, Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
+      hint: 'Every WhatsApp message YarnFlow sends — automatically when a document is saved, or from the WhatsApp button on a bill, note, order, receipt or the outstanding report. Send again re-sends a failed one.', hintOld: cfg.mode === 'cloud' ? 'Messages go out automatically through the official WhatsApp API as soon as a document is saved. Send on WhatsApp and Mark as sent are only for sending one by hand.' : 'Messages go out automatically while the WhatsApp Sender runs on the office PC. If it is not running, Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
       send: () => { if (!selM || !selM.mobile) { this.setState({ done: 'Add a mobile number on the party first' }); return; } try { window.open('https://wa.me/' + selM.mobile + '?text=' + encodeURIComponent(text(selM)), '_blank', 'noopener'); } catch (e) {} },
       openPdf: () => { if (selM && selM.attachment) try { window.open(pdfUrl(selM), '_blank', 'noopener'); } catch (e) {} },
       markSent: () => this.mark(selM, 'SENT'), skip: () => this.mark(selM, 'SKIPPED'),
@@ -108,7 +108,7 @@ class WhatsAppView extends Component {
           <header className="hdr">
             <div className="bc">
               <span>
-                WhatsApp messages
+                WhatsApp log
               </span>
               <span className="tag t-orange">
                 {v.pendingN}{" to send"}
@@ -118,14 +118,6 @@ class WhatsAppView extends Component {
               </span>
             </div>
             <input className="inp" type="search" placeholder="Bill no, mobile or text" aria-label="Search messages" style={{"width":"240px"}} value={v.q} onChange={v.setQ} />
-            {' '}
-            <button className={v.tplBtn} type="button" onClick={v.toggleTpl}>
-              Message templates
-            </button>
-            {' '}
-            <button className={v.setBtn} type="button" onClick={v.toggleSet}>
-              WhatsApp setup
-            </button>
           </header>
           {v.showList ? (
             <>
@@ -213,20 +205,8 @@ class WhatsAppView extends Component {
                       {v.sel?.body}
                     </pre>
                     <div style={{"display":"flex","gap":"8px","flexWrap":"wrap","alignItems":"center"}}>
-                      <button className="btn ok" type="button" onClick={v.send}>
-                        {v.sendLabel}
-                      </button>
-                      {' '}
                       <button className="btn" type="button" onClick={v.openPdf}>
                         {v.pdfLabel}
-                      </button>
-                      {' '}
-                      <button className="btn" type="button" onClick={v.markSent}>
-                        Mark as sent
-                      </button>
-                      {' '}
-                      <button className="btn no" type="button" onClick={v.skip}>
-                        Skip
                       </button>
                       {' '}
                       <button className="btn" type="button" onClick={v.retry}>

@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
 
@@ -110,8 +111,9 @@ class Component extends DCLogic {
     const paras = st.paras.map((x, i) => { const up = (k) => (e) => { const a = this.state.paras.slice(); a[i] = { ...a[i], [k]: e.target.value }; this.setState({ paras: a }); };
       return { ...x, setF: up('f'), setOp: up('op'), setA: up('a'), setB: up('b'), del: () => this.setState({ paras: this.state.paras.filter((_, j) => j !== i) }) }; });
     const exports = EXPORTS.map(([by, l]) => ({ l, go: () => { this.setState({ expOpen: false }); this.open({ by, pergroup: '1' }); } }));
+    let shareQs = ''; try { const p = this.query(); shareQs = Object.keys(p).filter((k) => p[k] !== undefined && p[k] !== '').map((k) => k + '=' + encodeURIComponent(p[k])).join('&'); } catch (e) {}
     return {
-      theme, f, set, tog, choices: segs('choice', [['all', 'All'], ['clear', 'Clear'], ['pending', 'Pending']]), modes: segs('mode', [['DETAIL', 'Detail'], ['SUMMARY', 'Summary']]),
+      shareQs, theme, f, set, tog, choices: segs('choice', [['all', 'All'], ['clear', 'Clear'], ['pending', 'Pending']]), modes: segs('mode', [['DETAIL', 'Detail'], ['SUMMARY', 'Summary']]),
       rtypes: segs('rtype', [['FIXED', 'Fixed'], ['DYNAMIC', 'Dynamic']]).map((o, i) => ({ ...o, go: () => this.setState({ f: { ...this.state.f, rtype: i ? 'DYNAMIC' : 'FIXED', format: i ? 'd' + ((st.designs || [])[0] || {}).regId : 'pw' } }) })),
       formats, ttypes, bys: BYS.map(([v, l]) => ({ v, l })), tabs, lists, paras, paraN: st.paras.length ? ' (' + st.paras.length + ')' : '', paraOpen: st.paraOpen,
       paraTog: () => this.setState({ paraOpen: !st.paraOpen, paras: !st.paraOpen && !st.paras.length ? [{ f: 'Outstanding', op: '>', a: '', b: '' }] : st.paras }),
@@ -214,6 +216,7 @@ class OutstandingReportView extends Component {
                 </>
               ) : null}
             </div>
+            <Share os={v.shareQs} />
             <button className="btn pr" type="button" onClick={v.preview}>
               Preview (F5)
             </button>

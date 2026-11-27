@@ -45,7 +45,7 @@ class Component extends DCLogic {
       setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
       modeTxt: !on ? 'Automatic email off' : paused ? 'Paused — sending limit' : '● Sending · ' + (info.sentToday || 0) + ' today',
       modeCls: 'tag ' + (!on ? 't-gray' : paused ? 't-orange' : 't-green'), modeTip: paused ? 'The mail server refused more mail for now; YarnFlow tries again in an hour' : 'Daily limit ' + (info.dailyLimit || 450),
-      setBtn: st.set ? 'btn pr' : 'btn', toggleSet: () => this.setState({ set: !st.set }), showList: !st.set, showSet: !!st.set,
+      setBtn: st.set ? 'btn pr' : 'btn', toggleSet: () => this.setState({ set: !st.set }), showList: true, showSet: false,
       filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['FAILED', 'Failed'], ['NO EMAIL', 'No email'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
       forms: FORMS.map(([v, l]) => ({ v, l })), form: st.form, setForm: (e) => this.load({ form: e.target.value, selId: null }),
       from: st.from, to: st.to, setFrom: (e) => this.load({ from: e.target.value }), setTo: (e) => this.load({ to: e.target.value }),
@@ -55,7 +55,7 @@ class Component extends DCLogic {
       pdfLabel: atts(selM).length ? 'Open PDF' : 'No PDF',
       openPdf: () => { const a = atts(selM)[0]; if (a && a.link) try { window.open(a.link, '_blank', 'noopener'); } catch (e) {} },
       retry: () => this.act(selM, 'retry'), skip: () => this.act(selM, 'skip'),
-      hint: on ? 'Emails go out automatically from ' + (cfg.username || 'the company email') + ' a few seconds after the document is saved.' : 'Automatic email is off — switch it on in Email setup.',
+      hint: 'Every email YarnFlow sends — automatically when a document is saved, or from the email button on a bill, note, order, receipt or the outstanding report. Send again re-sends a failed one.', hintOld: on ? 'Emails go out automatically from ' + (cfg.username || 'the company email') + ' a few seconds after the document is saved.' : 'Automatic email is off — switch it on in Email setup.',
       modes: [['off', 'Off'], ['auto', 'On — email each saved document']].map(([k, label]) => ({ label, cls: (cfg.mode || 'off') === k ? 'btn pr' : 'btn', pick: () => this.setState({ cfg: { ...cfg, mode: k }, sdone: 'Not saved yet' }) })),
       formChecks: [['SAL', 'Sale bill + PDF'], ['SALRTN', 'Sale return + PDF'], ['SalOrder', 'Sale order'], ['DBNT', 'Debit note PDF'], ['CRNT', 'Credit note PDF']].map(([k, label]) => ({ label, on: forms.indexOf(k) >= 0, toggle: () => this.setState({ cfg: { ...cfg, forms: forms.indexOf(k) >= 0 ? forms.filter((x) => x !== k) : forms.concat([k]) }, sdone: 'Not saved yet' }) })),
       fields: [['host', 'Mail server', 'text', 'smtp.gmail.com'], ['port', 'Port', 'text', '587'], ['username', 'Email address', 'text', 'umiyayarnllp@gmail.com'], ['password', 'App password', 'password', '16-letter app password'], ['fromName', 'Sender name', 'text', 'Company name'], ['dailyLimit', 'Daily limit', 'text', '450 (Gmail allows 500 a day)']].map(([k, label, type, ph]) => ({ k: 'em-' + k, label, type, ph, v: cfg[k] == null ? '' : String(cfg[k]), set: (e) => this.setState({ cfg: { ...cfg, [k]: e.target.value }, sdone: 'Not saved yet' }) })),
@@ -83,7 +83,7 @@ class EmailView extends Component {
           <header className="hdr">
             <div className="bc">
               <span>
-                Email
+                Email log
               </span>
               <span className="tag t-orange">
                 {v.pendingN}{" to send"}
@@ -93,10 +93,6 @@ class EmailView extends Component {
               </span>
             </div>
             <input className="inp" type="search" placeholder="Bill no, email or subject" aria-label="Search emails" style={{"width":"240px"}} value={v.q} onChange={v.setQ} />
-            {' '}
-            <button className={v.setBtn} type="button" onClick={v.toggleSet}>
-              Email setup
-            </button>
           </header>
           {v.showList ? (
             <>
@@ -200,10 +196,6 @@ class EmailView extends Component {
                       {' '}
                       <button className="btn" type="button" onClick={v.retry}>
                         Send again
-                      </button>
-                      {' '}
-                      <button className="btn no" type="button" onClick={v.skip}>
-                        Skip
                       </button>
                       <div style={{"flex":"1"}} />
                       <span className="muted" style={{"fontSize":"13px"}}>

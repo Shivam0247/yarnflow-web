@@ -180,6 +180,7 @@ select.pv{cursor:pointer}
 <sc-if value="{{optOpen}}" hint-placeholder-val="{{false}}"><div class="dd"><button type="button" onClick="{{setDefault}}">Set selected filters as default</button><button type="button" onClick="{{clearDefault}}">Clear default</button></div></sc-if></div>
 <div class="menu"><button class="btn" type="button" onClick="{{expTog}}">Export Outstanding Report ▾</button>
 <sc-if value="{{expOpen}}" hint-placeholder-val="{{false}}"><div class="dd"><div class="ddt">One group per page, save as PDF</div><sc-for list="{{exports}}" as="x" hint-placeholder-count="6"><button type="button" onClick="{{x.go}}">{{x.l}}</button></sc-for></div></sc-if></div>
+<dc-import name="Share" os="{{shareQs}}" hint-size="80px,34px"></dc-import>
 <button class="btn pr" type="button" onClick="{{preview}}">Preview (F5)</button>
 </header>
 <div class="rs">
@@ -328,8 +329,9 @@ class Component extends DCLogic {
     const paras = st.paras.map((x, i) => { const up = (k) => (e) => { const a = this.state.paras.slice(); a[i] = { ...a[i], [k]: e.target.value }; this.setState({ paras: a }); };
       return { ...x, setF: up('f'), setOp: up('op'), setA: up('a'), setB: up('b'), del: () => this.setState({ paras: this.state.paras.filter((_, j) => j !== i) }) }; });
     const exports = EXPORTS.map(([by, l]) => ({ l, go: () => { this.setState({ expOpen: false }); this.open({ by, pergroup: '1' }); } }));
+    let shareQs = ''; try { const p = this.query(); shareQs = Object.keys(p).filter((k) => p[k] !== undefined && p[k] !== '').map((k) => k + '=' + encodeURIComponent(p[k])).join('&'); } catch (e) {}
     return {
-      theme, f, set, tog, choices: segs('choice', [['all', 'All'], ['clear', 'Clear'], ['pending', 'Pending']]), modes: segs('mode', [['DETAIL', 'Detail'], ['SUMMARY', 'Summary']]),
+      shareQs, theme, f, set, tog, choices: segs('choice', [['all', 'All'], ['clear', 'Clear'], ['pending', 'Pending']]), modes: segs('mode', [['DETAIL', 'Detail'], ['SUMMARY', 'Summary']]),
       rtypes: segs('rtype', [['FIXED', 'Fixed'], ['DYNAMIC', 'Dynamic']]).map((o, i) => ({ ...o, go: () => this.setState({ f: { ...this.state.f, rtype: i ? 'DYNAMIC' : 'FIXED', format: i ? 'd' + ((st.designs || [])[0] || {}).regId : 'pw' } }) })),
       formats, ttypes, bys: BYS.map(([v, l]) => ({ v, l })), tabs, lists, paras, paraN: st.paras.length ? ' (' + st.paras.length + ')' : '', paraOpen: st.paraOpen,
       paraTog: () => this.setState({ paraOpen: !st.paraOpen, paras: !st.paraOpen && !st.paras.length ? [{ f: 'Outstanding', op: '>', a: '', b: '' }] : st.paras }),

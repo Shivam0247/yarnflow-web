@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
 import CSS from './Payments.css?raw';
@@ -126,7 +127,7 @@ class Component extends DCLogic {
       setR: () => (live ? this.setKind('r') : this.setState({ kind: 'r' })), setP: () => (live ? this.setKind('p') : this.setState({ kind: 'p' })), setC: () => (live ? this.setKind('c') : this.setState({ kind: 'c' })), setJ: () => (live ? this.setKind('j') : this.setState({ kind: 'j' })),
       kind: KN, kindLower: KN.toLowerCase(), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy, saveL: st.busy ? 'Saving…' : 'Save ' + KN.toLowerCase(), save: () => this.save(),
       send: () => window.print(), isNarr: k === 'c' || k === 'j', hasBills: k === 'r' || k === 'p' || k === 'rr', pendL: k === 'rr' ? 'Settled' : 'Pending', adjT: k === 'rr' ? 'Bills to open again (cheque returned)' : 'Adjust against bills',
-      editing: !!st.edit, newDoc: () => this.newDoc(), remove: () => this.remove(), tagL: st.edit ? 'Editing' : 'New', tagC: st.edit ? 'tag t-blue' : 'tag',
+      editing: !!st.edit, shareId: (k === 'r' || k === 'p') && (st.edit || st.last) ? String((st.edit || st.last).id) : '', newDoc: () => this.newDoc(), remove: () => this.remove(), tagL: st.edit ? 'Editing' : 'New', tagC: st.edit ? 'tag t-blue' : 'tag',
       regHref: (k === 'p' ? 'PaymentRegister' : k === 'rr' ? 'ReceiptReturnRegister' : 'ReceiptRegister') + (theme === 'light' ? 'Light' : '') + '.dc.html', regL: k === 'p' ? 'Payment register' : k === 'rr' ? 'Receipt return register' : k === 'r' ? 'Receipt register' : 'Payments & Receipts'
     };
     if (st.edit) base.saveL = st.busy ? 'Saving…' : 'Update ' + KN.toLowerCase();
@@ -226,12 +227,11 @@ class PaymentsView extends Component {
                 Contra
               </button>
             </div>
-            <button className="btn" type="button" onClick={v.send}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
-                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-              </svg>
-              Send
-            </button>
+            {v.shareId ? (
+              <>
+                <Share vid={v.shareId} />
+              </>
+            ) : null}
             {' '}
             {v.editing ? (
               <>
