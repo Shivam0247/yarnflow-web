@@ -1,0 +1,9 @@
+{
+  "apiUrl": "http://localhost:4000/api",
+  "webUrl": "http://localhost:5173",
+  "email": "whatsapp@yarnflow.in",
+  "password": "change-me",
+  "companyId": 1,
+  "everySeconds": 5,
+  "gapSeconds": 2
+}

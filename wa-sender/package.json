@@ -1,0 +1,9 @@
+{
+  "name": "yarnflow-wa-sender",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sends YarnFlow's queued WhatsApp messages from the office WhatsApp number (same job as the old WhatsApp Sender program)",
+  "type": "module",
+  "scripts": { "start": "node sender.mjs", "dry": "node sender.mjs --dry-run" },
+  "dependencies": { "qrcode-terminal": "^0.12.0", "whatsapp-web.js": "1.34.8" }
+}

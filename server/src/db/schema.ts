@@ -760,7 +760,10 @@ export const whatsappMessages = pgTable(
     body: text('body'),
     caption: text('caption'),
     attachment: text('attachment'), // print link for a PDF message
-    status: varchar('status', { length: 12 }).notNull().default('PENDING'), // PENDING | SENT | FAILED
+    status: varchar('status', { length: 12 }).notNull().default('PENDING'), // PENDING | SENDING | SENT | FAILED | SKIPPED | NO MOBILE
+    error: text('error'),
+    tries: integer('tries').notNull().default(0),
+    pickedAt: timestamp('picked_at', { withTimezone: true }),
     sentAt: timestamp('sent_at', { withTimezone: true }),
     userId: integer('user_id'),
     isManual: boolean('is_manual').notNull().default(false),

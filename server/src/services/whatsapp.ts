@@ -154,7 +154,7 @@ export async function listMessages(ctx: Ctx, q: { status?: string; form?: string
   const like = q.q ? '%' + q.q + '%' : null;
   const r = await ctx.db.execute<Row>(sql`
     select m.id, m.form_type as "formType", m.msg_type as "msgType", m.voucher_id as "voucherId", m.bill_no as "billNo", m.mobile, m.body, m.caption, m.attachment,
-      m.status, m.sent_at as "sentAt", m.created_at as "createdAt", m.legacy, u.name as "user", c.short_name as com
+      m.status, m.error, m.sent_at as "sentAt", m.created_at as "createdAt", m.legacy, u.name as "user", c.short_name as com
     from whatsapp_messages m left join users u on u.id = m.user_id left join companies c on c.id = m.company_id
     where m.company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})
       and m.legacy = ${q.legacy === '1'} ${q.status ? sql`and m.status = ${q.status}` : sql``} ${q.form ? sql`and m.form_type = ${q.form}` : sql``}
@@ -162,7 +162,7 @@ export async function listMessages(ctx: Ctx, q: { status?: string; form?: string
       ${like ? sql`and (m.bill_no ilike ${like} or m.mobile ilike ${like} or m.body ilike ${like} or m.caption ilike ${like})` : sql``}
     order by m.created_at desc, m.id desc limit ${Math.min(Number(q.limit) || 500, 5000)}`);
   const counts = await ctx.db.execute<Row>(sql`select status, count(*) as n from whatsapp_messages where not legacy and company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId}) group by 1`);
-  return { rows: r.rows, counts: Object.fromEntries(counts.rows.map((x) => [x.status, Number(x.n)])) };
+  return { rows: r.rows, counts: Object.fromEntries(counts.rows.map((x) => [x.status, Number(x.n)])), sender: senderStatus() };
 }
 
 export async function markSent(ctx: Ctx, id: number, status = 'SENT') {
@@ -181,3 +181,35 @@ export async function saveTemplate(ctx: Ctx, body: { formType?: string; body?: s
     on conflict (company_id, form_type) do update set body = excluded.body, attach_pdf = excluded.attach_pdf, is_active = excluded.is_active, updated_at = now()`);
   return { ok: true };
 }
+
+/* ---- automatic sender (the old "WhatsApp Sender" program): it picks up queued messages, sends them, reports back ---- */
+const SCOPE = (ctx: Ctx) => sql`company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})`;
+
+/** hand the next messages to the sender; a message picked but not reported in 10 minutes goes back in the queue */
+export async function claim(ctx: Ctx, limit = 10) {
+  await ctx.db.execute(sql`update whatsapp_messages set status = 'PENDING' where status = 'SENDING' and picked_at < now() - interval '10 minutes' and ${SCOPE(ctx)}`);
+  const r = await ctx.db.execute<Row>(sql`
+    update whatsapp_messages m set status = 'SENDING', picked_at = now(), tries = m.tries + 1
+    where m.id in (select id from whatsapp_messages where status = 'PENDING' and not legacy and mobile is not null and ${SCOPE(ctx)}
+                   order by id limit ${Math.min(Math.max(limit, 1), 50)} for update skip locked)
+    returning m.id, m.form_type as "formType", m.msg_type as "msgType", m.mobile, m.body, m.caption, m.attachment, m.bill_no as "billNo"`);
+  return r.rows.sort((a, b) => Number(a.id) - Number(b.id));
+}
+
+/** the sender reports each message: sent, or failed with the reason (failed ones are retried up to 3 times) */
+export async function report(ctx: Ctx, id: number, body: { ok?: boolean; error?: string }) {
+  if (body.ok) await ctx.db.execute(sql`update whatsapp_messages set status = 'SENT', sent_at = now(), error = null where id = ${id} and ${SCOPE(ctx)}`);
+  else await ctx.db.execute(sql`update whatsapp_messages set status = case when tries >= 3 then 'FAILED' else 'PENDING' end, error = ${String(body.error ?? 'failed').slice(0, 500)} where id = ${id} and ${SCOPE(ctx)}`);
+  return { ok: true };
+}
+
+/** put a failed or skipped message back in the queue */
+export async function retry(ctx: Ctx, id: number) {
+  await ctx.db.execute(sql`update whatsapp_messages set status = 'PENDING', tries = 0, error = null where id = ${id} and not legacy and mobile is not null and ${SCOPE(ctx)}`);
+  return { ok: true };
+}
+
+/** sender heartbeat, so the screen can show whether the sender is running */
+let lastBeat: { at: string; info: string } | null = null;
+export function beat(info: string) { lastBeat = { at: new Date().toISOString(), info: String(info ?? '').slice(0, 200) }; return { ok: true }; }
+export function senderStatus() { return lastBeat; }

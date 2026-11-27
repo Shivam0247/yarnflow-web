@@ -267,6 +267,9 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/reports/purchase-stock', read((ctx, req) => trading.purchaseStock(ctx, q(req))));
   app.get('/api/whatsapp/messages', read((ctx, req) => wa.listMessages(ctx, q(req))));
   app.post('/api/whatsapp/messages/:id/sent', write((ctx, req) => wa.markSent(ctx, idParam(req), String((req.body as { status?: string })?.status ?? 'SENT'))));
+  app.post('/api/whatsapp/claim', write((ctx, req) => { wa.beat(String((req.body as { info?: string })?.info ?? '')); return wa.claim(ctx, Number((req.body as { limit?: number })?.limit) || 10); }));
+  app.post('/api/whatsapp/messages/:id/result', write((ctx, req) => wa.report(ctx, idParam(req), (req.body ?? {}) as never)));
+  app.post('/api/whatsapp/messages/:id/retry', write((ctx, req) => wa.retry(ctx, idParam(req))));
   app.post('/api/whatsapp/queue/:id', write((ctx, req) => wa.enqueueFor(ctx, idParam(req)).then(() => ({ ok: true }))));
   app.get('/api/whatsapp/templates', read((ctx) => wa.templates(ctx)));
   app.put('/api/whatsapp/templates', write((ctx, req) => wa.saveTemplate(ctx, req.body as never)));

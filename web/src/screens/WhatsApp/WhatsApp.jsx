@@ -12,7 +12,8 @@ import CSS from './WhatsApp.css?raw';
 class Component extends DCLogic {
   constructor(p) { super(p); this.state = { filter: 'PENDING', form: '', q: '', from: '', to: '', selId: null, tpl: false, tsel: null, edit: {} }; this.tok = 0; }
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
-  componentDidMount() { this.load(); }
+  componentDidMount() { this.load(); this.iv = setInterval(() => { if (!this.state.tpl) this.load(); }, 15000); }
+  componentWillUnmount() { clearInterval(this.iv); }
   async load(patch) {
     const st = { ...this.state, ...(patch || {}) }; if (patch) this.setState(patch);
     const api = this.api(); if (!api) return;
@@ -20,7 +21,7 @@ class Component extends DCLogic {
     const qs = new URLSearchParams();
     if (st.filter === 'OLD') { qs.set('legacy', '1'); } else if (st.filter !== 'ALL') qs.set('status', st.filter);
     if (st.form) qs.set('form', st.form); if (st.q.trim()) qs.set('q', st.q.trim()); if (st.from) qs.set('from', st.from); if (st.to) qs.set('to', st.to);
-    try { const r = await api.get('/whatsapp/messages?' + qs.toString()); if (t !== this.tok) return; this.setState({ live: r.rows, counts: r.counts }); }
+    try { const r = await api.get('/whatsapp/messages?' + qs.toString()); if (t !== this.tok) return; this.setState({ live: r.rows, counts: r.counts, sender: r.sender }); }
     catch (e) { this.setState({ done: api.message(e) }); }
   }
   async loadTpl() { const api = this.api(); if (!api) return; try { this.setState({ tpls: await api.get('/whatsapp/templates') }); } catch (e) { this.setState({ tdone: api.message(e) }); } }
@@ -42,8 +43,8 @@ class Component extends DCLogic {
     const c = st.counts || {};
     const pdfUrl = (m) => (m && m.attachment ? (m.attachment.indexOf('http') === 0 ? m.attachment : window.location.origin + m.attachment) : '');
     const text = (m) => !m ? '' : m.msgType === 'PDF' ? (m.caption || '') + (m.attachment ? '\n' + pdfUrl(m) : '') : (m.body || '');
-    const sel = selM ? { type: (LBL[selM.formType] || selM.formType) + ' · ' + (selM.msgType === 'PDF' ? 'PDF' : 'Text') + (selM.legacy ? ' · old software' : '') + (selM.user ? ' · ' + selM.user : ''), no: selM.billNo || '—', to: selM.mobile ? '+' + selM.mobile : 'No WhatsApp number on the party', body: selM.msgType === 'PDF' ? (selM.caption || '') + '\n\n📎 ' + (selM.attachment || 'PDF') : (selM.body || ''), status: selM.status, tagCls: 'tag ' + tone(selM.status) }
-      : { type: '', no: st.live ? 'Nothing here' : 'Loading…', to: '', body: st.live ? 'No message matches this view.' : '', status: '', tagCls: '' };
+    const sel = selM ? { type: (LBL[selM.formType] || selM.formType) + ' · ' + (selM.msgType === 'PDF' ? 'PDF' : 'Text') + (selM.legacy ? ' · old software' : '') + (selM.user ? ' · ' + selM.user : ''), no: selM.billNo || '—', to: selM.mobile ? '+' + selM.mobile : 'No WhatsApp number on the party', body: selM.msgType === 'PDF' ? (selM.caption || '') + '\n\n📎 ' + (selM.attachment || 'PDF') : (selM.body || ''), status: selM.status, tagCls: 'tag ' + tone(selM.status), error: selM.error ? 'Last try failed: ' + selM.error : '' }
+      : { type: '', no: st.live ? 'Nothing here' : 'Loading…', to: '', body: st.live ? 'No message matches this view.' : '', status: '', tagCls: '', error: '' };
     const tpls = (st.tpls || []).map((t) => ({ ...t, ...(st.edit[t.formType] || {}) }));
     const tSel = tpls.find((t) => t.formType === st.tsel) || tpls[0] || null;
     const setT = (k, v) => tSel && this.setState({ edit: { ...st.edit, [tSel.formType]: { ...(st.edit[tSel.formType] || {}), [k]: v } }, tdone: '' });
@@ -52,7 +53,7 @@ class Component extends DCLogic {
       setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
       tplBtn: st.tpl ? 'btn pr' : 'btn', toggleTpl: () => { const on = !st.tpl; this.setState({ tpl: on }); if (on && !st.tpls) this.loadTpl(); },
       showList: !st.tpl, showTpl: !!st.tpl,
-      filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['NO MOBILE', 'No mobile'], ['SKIPPED', 'Skipped'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
+      filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['FAILED', 'Failed'], ['NO MOBILE', 'No mobile'], ['SKIPPED', 'Skipped'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
       forms: FORMS.map(([v, l]) => ({ v, l })), form: st.form, setForm: (e) => this.load({ form: e.target.value, selId: null }),
       from: st.from, to: st.to, setFrom: (e) => this.load({ from: e.target.value }), setTo: (e) => this.load({ to: e.target.value }),
       rows: rowsAll.map((m) => ({ short: SHORT[m.formType] || 'WA', no: (m.billNo || '—') + (m.msgType === 'PDF' ? ' · PDF' : ''), when: when(m.createdAt), line: (m.mobile ? '+' + m.mobile + ' · ' : '') + String(m.msgType === 'PDF' ? m.caption || '' : m.body || '').replace(/[*\n]+/g, ' ').slice(0, 80), status: m.status, tagCls: 'tag ' + tone(m.status), cls: selM && m.id === selM.id ? 'item on' : 'item', pick: () => this.setState({ selId: m.id, done: '' }) })),
@@ -60,7 +61,11 @@ class Component extends DCLogic {
       sel, done: st.done || '',
       sendLabel: selM && selM.msgType === 'PDF' ? 'Send PDF link on WhatsApp' : 'Send on WhatsApp',
       pdfLabel: selM && selM.attachment ? 'Open PDF' : 'No PDF',
-      hint: 'Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
+      senderTxt: (() => { const b = st.sender; if (!b) return 'Sender not running'; const age = (Date.now() - new Date(b.at).getTime()) / 1000; return age < 60 ? '● Sender running' : 'Sender stopped ' + Math.round(age / 60) + ' min ago'; })(),
+      senderCls: (() => { const b = st.sender; return 'tag ' + (b && (Date.now() - new Date(b.at).getTime()) < 60000 ? 't-green' : 't-red'); })(),
+      senderTip: st.sender ? 'Sending from WhatsApp ' + (st.sender.info || '') : 'Start the WhatsApp Sender on the office PC so messages go out automatically',
+      retry: async () => { const api = this.api(); if (!api || !selM) return; try { await api.post('/whatsapp/messages/' + selM.id + '/retry', {}); this.setState({ done: 'Queued again' }); await this.load(); } catch (e) { this.setState({ done: api.message(e) }); } },
+      hint: 'Messages go out automatically while the WhatsApp Sender runs on the office PC. If it is not running, Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
       send: () => { if (!selM || !selM.mobile) { this.setState({ done: 'Add a mobile number on the party first' }); return; } try { window.open('https://wa.me/' + selM.mobile + '?text=' + encodeURIComponent(text(selM)), '_blank', 'noopener'); } catch (e) {} },
       openPdf: () => { if (selM && selM.attachment) try { window.open(pdfUrl(selM), '_blank', 'noopener'); } catch (e) {} },
       markSent: () => this.mark(selM, 'SENT'), skip: () => this.mark(selM, 'SKIPPED'),
@@ -92,6 +97,9 @@ class WhatsAppView extends Component {
               </span>
               <span className="tag t-orange">
                 {v.pendingN}{" to send"}
+              </span>
+              <span className={v.senderCls} title={v.senderTip}>
+                {v.senderTxt}
               </span>
             </div>
             <input className="inp" type="search" placeholder="Bill no, mobile or text" aria-label="Search messages" style={{"width":"240px"}} value={v.q} onChange={v.setQ} />
@@ -201,11 +209,22 @@ class WhatsAppView extends Component {
                       <button className="btn no" type="button" onClick={v.skip}>
                         Skip
                       </button>
+                      {' '}
+                      <button className="btn" type="button" onClick={v.retry}>
+                        Send again
+                      </button>
                       <div style={{"flex":"1"}} />
                       <span className="muted" style={{"fontSize":"13px"}}>
                         {v.done}
                       </span>
                     </div>
+                    {v.sel?.error ? (
+                      <>
+                        <div className="t-red tag" style={{"height":"auto","padding":"6px 10px","whiteSpace":"normal"}}>
+                          {v.sel?.error}
+                        </div>
+                      </>
+                    ) : null}
                     <div className="muted" style={{"fontSize":"13px"}}>
                       {v.hint}
                     </div>
