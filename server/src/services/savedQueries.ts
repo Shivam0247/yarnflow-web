@@ -629,3 +629,52 @@ function receiptAdjustments(byEntryDate: boolean): Port {
 }
 PORTS[256] = receiptAdjustments(false);
 PORTS[260] = receiptAdjustments(true);
+
+/* ------------------------------------------------------------------ 266 Purchase VS Sale With Opening */
+/** purchases (PUR / AUTPUR, not stock-cleared) still open at From: opening qty, each sale in the period, and the balance left */
+PORTS[266] = async (ctx, f) => {
+  const co = ids(f.companies), cc = ids(f.costCenters);
+  const sc = sql.raw((co.length ? ` and pv.company_id in (${co.join(',')})` : ` and pv.company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})`) + (cc.length ? ` and pv.cost_center_id in (${cc.join(',')})` : ''));
+  const res = await ctx.db.execute<Row>(sql`
+    with p as materialized (
+      select pv.id as pid, pv.legacy_code as pc, pv.number, pv.date, pv.ref_no, pv.ref_date, pv.subtype, pv.total_qty as totw, pv.total_pcs as totp, pv.total_cops as totc,
+        pv.company_id, pv.cost_center_id, pl.id as lid, pl.line_no, pl.item_id, coalesce(pl.brand, '') as brand, coalesce(pl.grade, '') as grade,
+        btrim(coalesce(pl.challan_no, '')) as ch, pl.rate, coalesce((pl.extra->>'stockQty')::numeric, pl.qty) as lw, pl.pcs as lp, pl.cops as lc, pl.taxable_amount as ltax, pv.party_id
+      from vouchers pv join voucher_lines pl on pl.voucher_id = pv.id
+      where pv.type = 'PURCHASE_BILL' and pv.subtype in ('PUR', 'AUTPUR') and pv.status <> 'CANCELLED' and pv.date <= ${f.to} and round(pv.total_qty, 2) <> 0
+        and coalesce(pl.extra->>'stockClear', '') not in ('1', 'OLDYEAR') ${sc}
+    ), s as materialized (
+      select p.pid, p.lid, sv.number, sv.date, sv.party_id, sl.qty, sl.pcs, sl.cops, sl.rate, sl.basic_amount as amt, sl.taxable_amount as tax
+      from p join voucher_lines sl on sl.extra->>'purchaseCode' = p.pc and btrim(coalesce(sl.extra->>'purChallan', '')) = p.ch and sl.item_id = p.item_id
+          and coalesce(sl.grade, '') = p.grade and coalesce(sl.brand, '') = p.brand
+        join vouchers sv on sv.id = sl.voucher_id and sv.type = 'SALE_BILL' and sv.subtype = 'SAL' and sv.status <> 'CANCELLED' and sv.date <= ${f.to}
+    ), ls as (select lid, sum(qty) as q from s group by 1),
+    ps as (select pid, sum(qty) filter (where date < ${f.from}) as before, sum(pcs) as p, sum(cops) as c from s group by 1),
+    opn as (select p.pid, max(p.totw) - coalesce(max(ps.before), 0) as opn from p left join ps on ps.pid = p.pid group by p.pid)
+    select p.*, o.opn, it.name as item, sp.name as supplier, s.number as snum, s.date as sdate, s.qty as sw, s.pcs as sp_, s.cops as scops, s.rate as srate, s.amt as samt, s.tax as stax,
+      cp.name as sparty, coalesce(ls.q, 0) as lsold, coalesce(ps.p, 0) as psoldp, coalesce(ps.c, 0) as psoldc
+    from p join opn o on o.pid = p.pid and o.opn > 0
+      left join ls on ls.lid = p.lid left join ps on ps.pid = p.pid
+      left join s on s.lid = p.lid and s.date between ${f.from} and ${f.to}
+      left join items it on it.id = p.item_id left join accounts sp on sp.id = p.party_id left join accounts cp on cp.id = s.party_id
+    order by p.date, p.ref_no, p.number, p.line_no, s.number`);
+  const out: Row[] = [];
+  let lastPid: unknown = null, lastLid: unknown = null;
+  for (const r of res.rows) {
+    const firstOfPur = r.pid !== lastPid, firstOfLine = r.lid !== lastLid;
+    lastPid = r.pid; lastLid = r.lid;
+    const opnPur = N(r.date) && String(r.date) < f.from;
+    const rate = Math.round(N(r.rate) * 1000) / 1000;
+    const balQ = firstOfLine ? Math.round((N(r.lw) - N(r.lsold)) * 1000) / 1000 : 0;
+    out.push({
+      Pur_Code: r.pc, Pur_Id: r.number, Pur_Date: r.date, Pur_invNo: r.ref_no || r.number, Pur_InvDt: r.ref_date, SupplierName: r.supplier, I_NAME: r.item, BrandName: r.brand, GradeName: r.grade,
+      PurS_Rate: rate, Ftype: (opnPur ? 'OPN' : r.subtype === 'AUTPUR' ? 'SALRTN' : 'PUR') + ' + ' + (r.snum ? 'SAL' : ''),
+      PurS_Weight: firstOfPur ? Math.round(N(r.opn) * 1000) / 1000 : 0, PurS_SqMt_Ft: firstOfPur ? r2(N(r.totp) - (opnPur ? 0 : 0)) : 0, PurS_Cops: firstOfPur ? N(r.totc) : 0,
+      PurS_TaxableAmt: firstOfPur ? r2(N(r.opn) * rate) : 0, ComCode: r.company_id, CostcenterCode: r.cost_center_id,
+      Dspt_SalId: r.snum ?? '', Sal_Date: r.sdate ?? null, SalesPartyName: r.sparty ?? null, SalS_Rate: r.snum ? r2(N(r.srate)) : 0, SalS_Amt: r.snum ? r2(N(r.samt)) : 0,
+      SalS_Weight: r.snum ? N(r.sw) : 0, SalS_SqMt_Ft: r.snum ? N(r.sp_) : 0, Sals_Cops: r.snum ? N(r.scops) : 0, Sals_TaxableAmt: r.snum ? N(r.stax) : 0,
+      BalQty: balQ, BalQtyBox: firstOfPur ? Math.round(N(r.totp) - N(r.psoldp)) : 0, BalQtyCops: firstOfPur ? Math.round(N(r.totc) - N(r.psoldc)) : 0, BalQtyAmt: r2(balQ * N(r.rate))
+    });
+  }
+  return out;
+};
