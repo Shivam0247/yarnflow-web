@@ -57,6 +57,7 @@
 </label>
 
 <a href="{{h.dash}}" style="{{n.dash}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a>
+<a href="{{h.desk}}" style="{{n.desk}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M3 3h18v4H3z"/><path d="M3 11h18"/><path d="M3 15h18"/><path d="M3 19h18"/><path d="M9 7v14"/></svg>Manage Desk</a>
 
 <div style="font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--t3, #8F8F8F); padding: 14px 10px 4px">TRANSACTIONS</div>
 
@@ -141,10 +142,10 @@ class Component extends DCLogic {
       };
     });
     const n = {
-      dash: top + (active === 'dash' ? on : ''), appr: top + (active === 'appr' ? on : ''),
+      dash: top + (active === 'dash' ? on : ''), desk: top + (active === 'desk' ? on : ''), appr: top + (active === 'appr' ? on : ''),
       mast: top + (masterKeys.indexOf(active) >= 0 ? on : ''), set: top, help: top
     };
-    const h = { dash: L('Main'), appr: L('Approvals'), mast: L('Masters') };
+    const h = { dash: L('Main'), desk: L('ManageDesk'), appr: L('Approvals'), mast: L('Masters') };
     const col = !!this.state.col;
     const cb = 'width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; border: 0; padding: 0; background: transparent; color: var(--t2, #B5B5B5); cursor: pointer; text-decoration: none;';
     const cOn = ' background: var(--s3, #2C2C2C); color: var(--t1, #EDEDED);';

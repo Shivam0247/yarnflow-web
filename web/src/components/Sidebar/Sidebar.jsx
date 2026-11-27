@@ -54,10 +54,10 @@ class Component extends DCLogic {
       };
     });
     const n = {
-      dash: top + (active === 'dash' ? on : ''), appr: top + (active === 'appr' ? on : ''),
+      dash: top + (active === 'dash' ? on : ''), desk: top + (active === 'desk' ? on : ''), appr: top + (active === 'appr' ? on : ''),
       mast: top + (masterKeys.indexOf(active) >= 0 ? on : ''), set: top, help: top
     };
-    const h = { dash: L('Main'), appr: L('Approvals'), mast: L('Masters') };
+    const h = { dash: L('Main'), desk: L('ManageDesk'), appr: L('Approvals'), mast: L('Masters') };
     const col = !!this.state.col;
     const cb = 'width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; border: 0; padding: 0; background: transparent; color: var(--t2, #B5B5B5); cursor: pointer; text-decoration: none;';
     const cOn = ' background: var(--s3, #2C2C2C); color: var(--t1, #EDEDED);';
@@ -334,6 +334,17 @@ class SidebarView extends Component {
                 <rect width="7" height="5" x="3" y="16" rx="1" />
               </svg>
               Dashboard
+            </DcLink>
+            {' '}
+            <DcLink href={v.h?.desk} style={sx(v.n?.desk)}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{"flex":"none","color":"var(--t2, #B5B5B5)"}}>
+                <path d="M3 3h18v4H3z" />
+                <path d="M3 11h18" />
+                <path d="M3 15h18" />
+                <path d="M3 19h18" />
+                <path d="M9 7v14" />
+              </svg>
+              Manage Desk
             </DcLink>
             <div style={{"fontSize":"11px","fontWeight":"600","letterSpacing":".06em","color":"var(--t3, #8F8F8F)","padding":"14px 10px 4px"}}>
               TRANSACTIONS

@@ -51,6 +51,7 @@ export const ROUTES = {
   OutstandingReport: '/accounts/outstanding-report',
   FinalReports: '/reports/final-reports',
   PurchaseStock: '/inventory/purchase-stock',
+  ManageDesk: '/manage-desk',
   DebitNoteList: '/accounts/debit-notes',
   DebitNoteEntry: '/accounts/debit-notes/new',
   DebitNoteView: '/accounts/debit-notes/view',

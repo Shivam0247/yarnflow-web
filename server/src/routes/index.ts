@@ -17,6 +17,7 @@ import * as eway from '../services/eway.js';
 import { printData } from '../services/print.js';
 import * as oldrep from '../services/oldreports.js';
 import { outstandingFilters, outstandingPrint } from '../services/outstandingPrint.js';
+import * as savedq from '../services/savedQueries.js';
 import * as trading from '../services/trading.js';
 import { MASTERS, createMaster, deleteMaster, getMaster, listMaster, updateMaster } from '../services/masters.js';
 import * as rep from '../services/reports.js';
@@ -263,6 +264,8 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/outstanding-print', read((ctx, req) => outstandingPrint(ctx, q(req))));
   app.get('/api/reports/sold-unsold', read((ctx, req) => trading.soldUnsold(ctx, q(req))));
   app.get('/api/reports/purchase-stock', read((ctx, req) => trading.purchaseStock(ctx, q(req))));
+  app.get('/api/saved-queries', read(async (_ctx, req) => { const x = q(req); return savedq.listSaved(x.type || undefined, x.bookLists ? x.bookLists.split(',').map(Number) : undefined); }));
+  app.get('/api/saved-queries/:id/data', read((ctx, req) => { const x = q(req); return savedq.runSaved(ctx, Number((req.params as { id: string }).id), { from: x.from || '2000-04-01', to: x.to || new Date().toISOString().slice(0, 10), companies: x.companies, costCenters: x.costCenters, type: x.type, status: x.status }); }));
   app.get('/api/reports/purchase-stock-summary', read((ctx, req) => trading.purchaseStockSummary(ctx, q(req))));
   app.get('/api/reports/sold-unsold-brand', read((ctx, req) => trading.soldUnsoldByBrand(ctx, q(req))));
   app.put('/api/reports/purchase-stock/clear', write((ctx, req) => trading.setStockClear(ctx, req.body as { lineIds?: number[]; clear?: boolean })));

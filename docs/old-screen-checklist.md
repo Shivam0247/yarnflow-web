@@ -75,8 +75,8 @@ Status: **Same** = checked against the old screen/data · **Compare** = exists, 
 | Stock Ledger / Stock Ledger Item Wise | Stock & godowns | Compare |
 | Item Group Wise Summary / Stock Pivot | — | Missing |
 | MIS Report / MMS Report | — | Missing |
-| Reporting Dashboard / Dash Board (Trading dashboard) | Dashboard | Different |
-| Manage Desk (Order, Bill, Outstanding, Stock, Order History, Bank-Cash, Monthly, DN/CN tabs) | — | Missing |
+| Reporting Dashboard / Dash Board (Trading dashboard, FrmTrdDashboard) | Manage Desk | Orders, Bills, Bank-Cash, DN/CN tabs built from the old saved formats (12 of 17 checked against old totals); Outstanding, Stock, Order History, Monthly, Order Status tabs next |
+| Manage Desk (same screen as the trading dashboard) | Manage Desk | In progress |
 
 ## Utilities
 
