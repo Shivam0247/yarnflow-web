@@ -44,6 +44,7 @@ export const ROUTES: Record<string, string> = {
   "FinalReports": "/reports/final-reports",
   "PurchaseStock": "/inventory/purchase-stock",
   "ManageDesk": "/manage-desk",
+  "WhatsApp": "/whatsapp",
   "OrderReport": "/reports/order-report",
   "DebitNoteList": "/accounts/debit-notes",
   "DebitNoteEntry": "/accounts/debit-notes/new",
@@ -126,5 +127,6 @@ export const PAGES: { path: string; Component: React.LazyExoticComponent<React.C
   { path: ROUTES.SalesOrderView, Component: lazy(() => import('@/screens/SalesOrderView/SalesOrderView')) },
   { path: ROUTES.Stock, Component: lazy(() => import('@/screens/Stock/Stock')) },
   { path: ROUTES.TransporterMaster, Component: lazy(() => import('@/screens/TransporterMaster/TransporterMaster')) },
+  { path: ROUTES.WhatsApp, Component: lazy(() => import('@/screens/WhatsApp/WhatsApp')) },
   { path: ROUTES.YarnMaster, Component: lazy(() => import('@/screens/YarnMaster/YarnMaster')) }
 ];

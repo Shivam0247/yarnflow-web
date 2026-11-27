@@ -24,6 +24,7 @@ import * as rep from '../services/reports.js';
 import * as assistant from '../services/assistant.js';
 import * as tables from '../services/tables.js';
 import * as an from '../services/analysis.js';
+import * as wa from '../services/whatsapp.js';
 import { BILL_TYPES, BY_SLUG, TYPES, type VoucherType } from '../services/types.js';
 
 type Q = Record<string, string | undefined>;
@@ -264,6 +265,11 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/outstanding-print', read((ctx, req) => outstandingPrint(ctx, q(req))));
   app.get('/api/reports/sold-unsold', read((ctx, req) => trading.soldUnsold(ctx, q(req))));
   app.get('/api/reports/purchase-stock', read((ctx, req) => trading.purchaseStock(ctx, q(req))));
+  app.get('/api/whatsapp/messages', read((ctx, req) => wa.listMessages(ctx, q(req))));
+  app.post('/api/whatsapp/messages/:id/sent', write((ctx, req) => wa.markSent(ctx, idParam(req), String((req.body as { status?: string })?.status ?? 'SENT'))));
+  app.post('/api/whatsapp/queue/:id', write((ctx, req) => wa.enqueueFor(ctx, idParam(req)).then(() => ({ ok: true }))));
+  app.get('/api/whatsapp/templates', read((ctx) => wa.templates(ctx)));
+  app.put('/api/whatsapp/templates', write((ctx, req) => wa.saveTemplate(ctx, req.body as never)));
   app.get('/api/saved-queries', read(async (_ctx, req) => { const x = q(req); return savedq.listSaved(x.type || undefined, x.bookLists ? x.bookLists.split(',').map(Number) : undefined); }));
   app.get('/api/manage-desk/stock', read((ctx, req) => { const x = q(req); return savedq.deskStock(ctx, { from: x.from || '2000-04-01', to: x.to || new Date().toISOString().slice(0, 10), companies: x.companies, costCenters: x.costCenters, days: x.days }); }));
   app.get('/api/manage-desk/monthly', read((ctx, req) => { const x = q(req); const to = x.to || new Date().toISOString().slice(0, 10); return savedq.deskMonthly(ctx, { from: x.from || to.slice(0, 8) + '01', to, companies: x.companies, costCenters: x.costCenters }); }));

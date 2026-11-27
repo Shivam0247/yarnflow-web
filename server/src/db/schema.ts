@@ -729,6 +729,47 @@ export const approvalLogs = pgTable('approval_logs', {
   at: timestamp('at', { withTimezone: true }).notNull().defaultNow()
 });
 
+/** Message templates (old SmsTemplate): text with {#Field#} placeholders and a ---ITEMDETAIL--- block per item */
+export const messageTemplates = pgTable(
+  'message_templates',
+  {
+    id: id(),
+    companyId: integer('company_id').notNull(),
+    formType: varchar('form_type', { length: 20 }).notNull(), // SAL | SALRTN | SalOrder | BANKREC | BANKPAY | DBNT | CRNT | PARTY_MASTER
+    body: text('body').notNull().default(''),
+    attachPdf: boolean('attach_pdf').notNull().default(false),
+    /** extra reports sent with the message, e.g. [{ report: 'Party Wise Outstanding', to: 'Party Group' }] */
+    extraReports: jsonb('extra_reports'),
+    isActive: boolean('is_active').notNull().default(true),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => [uniqueIndex('message_template_type').on(t.companyId, t.formType)]
+);
+
+/** WhatsApp outbox and sent log (old WhatsUpMst) */
+export const whatsappMessages = pgTable(
+  'whatsapp_messages',
+  {
+    id: id(),
+    companyId: integer('company_id').notNull(),
+    formType: varchar('form_type', { length: 20 }).notNull(),
+    msgType: varchar('msg_type', { length: 8 }).notNull(), // TEXT | PDF
+    voucherId: integer('voucher_id'),
+    billNo: varchar('bill_no', { length: 60 }),
+    mobile: varchar('mobile', { length: 20 }),
+    body: text('body'),
+    caption: text('caption'),
+    attachment: text('attachment'), // print link for a PDF message
+    status: varchar('status', { length: 12 }).notNull().default('PENDING'), // PENDING | SENT | FAILED
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+    userId: integer('user_id'),
+    isManual: boolean('is_manual').notNull().default(false),
+    legacy: boolean('legacy').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => [index('whatsapp_status').on(t.companyId, t.status, t.createdAt), index('whatsapp_voucher').on(t.voucherId)]
+);
+
 export const auditLogs = pgTable(
   'audit_logs',
   {

@@ -71,6 +71,13 @@
       "when": 1795458049069,
       "tag": "0009_ledger_period_index",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795781788043,
+      "tag": "0010_brief_wolverine",
+      "breakpoints": true
     }
   ]
 }

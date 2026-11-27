@@ -21,6 +21,7 @@ import { calcDocument } from './calc.js';
 import { requireRole, type Ctx } from './context.js';
 import { defaultBook, SYS, sysAccount } from './setup.js';
 import { BILL_SQL, BILL_TYPES, isBill, ORDER_TYPES, TYPES, type TypeDef, type VoucherType } from './types.js';
+import { enqueueFor } from './whatsapp.js';
 
 /** over-delivery allowed against an order / schedule (yarn weights vary) */
 export const TOLERANCE = 0.1;
@@ -862,6 +863,7 @@ export async function createDoc(ctx: Ctx, def: TypeDef, raw: unknown) {
   if (p.approvalReasons.length) await ctx.db.insert(approvalLogs).values({ voucherId: v.id, action: 'SUBMITTED', reason: p.approvalReasons.join('; '), userId: ctx.userId });
   await refreshStatuses(ctx.db, p.touchedOrders);
   await audit(ctx, def.slug, v.id, 'CREATE', `${def.label} ${number} created`);
+  await enqueueFor(ctx, v.id);
   return getDoc(ctx, def, v.id);
 }
 

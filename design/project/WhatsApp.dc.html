@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · WhatsApp</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+textarea.inp{height:84px;padding:8px 10px;width:100%;resize:vertical}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-blue{background:rgba(59,130,246,.15);color:#60A5FA}.t-violet{background:rgba(168,85,247,.15);color:#C084FC}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-red,.light .btn.no{color:#B91C1C}.light .t-orange{color:#C2410C}.light .t-blue{color:#1D4ED8}.light .t-violet{color:#7E22CE}
+.av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:600;flex:none;color:#fff}
+.split{display:flex;flex-wrap:wrap;flex:1}
+.lp{flex:1 1 420px;min-width:0;border-right:1px solid var(--bd);display:flex;flex-direction:column}
+.rp{flex:999 1 480px;min-width:0;display:flex;flex-direction:column}
+.tabs{display:flex;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;min-height:52px}
+.tab{display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2)}
+.item{display:flex;gap:12px;padding:14px 20px;border:0;border-bottom:1px solid var(--bd);background:none;text-align:left;width:100%;cursor:pointer;color:var(--t1)}
+.item:hover{background:var(--s1)}
+.item.on{background:var(--s2)}
+.ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--s2);color:var(--t2)}
+.kv{display:flex;align-items:center;gap:12px;min-height:38px}
+.kv .k{width:140px;flex:none;color:var(--t3)}
+.kv .v{flex:1;min-width:0;font-variant-numeric:tabular-nums}
+.box{border:1px solid var(--bd);border-radius:12px;padding:16px}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.msg{white-space:pre-wrap;font-family:inherit;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin:0;max-height:52vh;overflow:auto;font-size:13.5px;line-height:20px}
+.t-green{background:rgba(22,163,74,.15);color:#4ADE80}.light .t-green{color:#15803D}
+.bar{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.list{overflow:auto;max-height:calc(100vh - 170px)}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="wa" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span>WhatsApp messages</span><span class="tag t-orange">{{pendingN}} to send</span></div>
+<input class="inp" type="search" placeholder="Bill no, mobile or text" aria-label="Search messages" style="width: 240px" value="{{q}}" onChange="{{setQ}}">
+<button class="{{tplBtn}}" type="button" onClick="{{toggleTpl}}">Message templates</button>
+</header>
+<sc-if value="{{showList}}">
+<div class="split">
+<div class="lp">
+<div class="tabs" role="tablist">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="4"><button class="{{f.cls}}" type="button" role="tab" onClick="{{f.pick}}">{{f.label}} <span class="n">{{f.n}}</span></button></sc-for>
+</div>
+<div class="bar"><select class="inp" aria-label="Message type" value="{{form}}" onChange="{{setForm}}"><sc-for list="{{forms}}" as="o" hint-placeholder-count="5"><option value="{{o.v}}">{{o.l}}</option></sc-for></select><input class="inp" type="date" aria-label="From" value="{{from}}" onChange="{{setFrom}}"><input class="inp" type="date" aria-label="To" value="{{to}}" onChange="{{setTo}}"></div>
+<div class="list">
+<sc-for list="{{rows}}" as="it" hint-placeholder-count="8">
+<button class="{{it.cls}}" type="button" onClick="{{it.pick}}">
+<span class="ico">{{it.short}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span style="display: flex; gap: 8px; align-items: baseline"><b style="font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{it.no}}</b><span class="muted" style="font-size: 12px">{{it.when}}</span></span>
+<span style="display: flex; gap: 8px; align-items: center; justify-content: space-between"><span class="t2" style="font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0">{{it.line}}</span><span class="{{it.tagCls}}">{{it.status}}</span></span>
+</span>
+</button>
+</sc-for>
+<div class="muted" style="padding: 16px 20px">{{listNote}}</div>
+</div>
+</div>
+<div class="rp">
+<div style="display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--bd); flex-wrap: wrap">
+<div style="flex: 1; min-width: 220px"><div class="muted" style="font-size: 13px">{{sel.type}}</div><div style="font-size: 20px; line-height: 28px; font-weight: 600">{{sel.no}}</div><div class="t2">{{sel.to}}</div></div>
+<span class="{{sel.tagCls}}">{{sel.status}}</span>
+</div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+<pre class="msg">{{sel.body}}</pre>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+<button class="btn ok" type="button" onClick="{{send}}">{{sendLabel}}</button>
+<button class="btn" type="button" onClick="{{openPdf}}">{{pdfLabel}}</button>
+<button class="btn" type="button" onClick="{{markSent}}">Mark as sent</button>
+<button class="btn no" type="button" onClick="{{skip}}">Skip</button>
+<div style="flex: 1"></div><span class="muted" style="font-size: 13px">{{done}}</span>
+</div>
+<div class="muted" style="font-size: 13px">{{hint}}</div>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showTpl}}">
+<div class="split">
+<div class="lp">
+<sc-for list="{{tpls}}" as="t" hint-placeholder-count="7">
+<button class="{{t.cls}}" type="button" onClick="{{t.pick}}"><span class="ico">{{t.short}}</span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><b style="font-weight: 500">{{t.label}}</b><span class="muted" style="font-size: 13px">{{t.note}}</span></span></button>
+</sc-for>
+</div>
+<div class="rp" style="padding: 20px 24px; gap: 12px">
+<div style="font-size: 20px; line-height: 28px; font-weight: 600">{{tsel.label}}</div>
+<div class="muted" style="font-size: 13px">Fields in {#…#} are filled from the document. The part between the two ---ITEMDETAIL--- lines repeats for every item.</div>
+<textarea class="inp" aria-label="Template text" style="height: 420px; font-family: ui-monospace, Menlo, monospace; font-size: 13px" value="{{tsel.body}}" onChange="{{setBody}}"></textarea>
+<label style="display: flex; gap: 8px; align-items: center"><input type="checkbox" checked="{{tsel.pdf}}" onChange="{{togglePdf}}"> Also send the document PDF</label>
+<label style="display: flex; gap: 8px; align-items: center"><input type="checkbox" checked="{{tsel.active}}" onChange="{{toggleActive}}"> Send this message automatically when the document is saved</label>
+<div style="display: flex; gap: 8px; align-items: center"><button class="btn pr" type="button" onClick="{{saveTpl}}">Save template</button><span class="muted" style="font-size: 13px">{{tdone}}</span></div>
+</div>
+</div>
+</sc-if>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="wa" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { filter: 'PENDING', form: '', q: '', from: '', to: '', selId: null, tpl: false, tsel: null, edit: {} }; this.tok = 0; }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  componentDidMount() { this.load(); }
+  async load(patch) {
+    const st = { ...this.state, ...(patch || {}) }; if (patch) this.setState(patch);
+    const api = this.api(); if (!api) return;
+    const t = ++this.tok;
+    const qs = new URLSearchParams();
+    if (st.filter === 'OLD') { qs.set('legacy', '1'); } else if (st.filter !== 'ALL') qs.set('status', st.filter);
+    if (st.form) qs.set('form', st.form); if (st.q.trim()) qs.set('q', st.q.trim()); if (st.from) qs.set('from', st.from); if (st.to) qs.set('to', st.to);
+    try { const r = await api.get('/whatsapp/messages?' + qs.toString()); if (t !== this.tok) return; this.setState({ live: r.rows, counts: r.counts }); }
+    catch (e) { this.setState({ done: api.message(e) }); }
+  }
+  async loadTpl() { const api = this.api(); if (!api) return; try { this.setState({ tpls: await api.get('/whatsapp/templates') }); } catch (e) { this.setState({ tdone: api.message(e) }); } }
+  async mark(m, status) {
+    const api = this.api(); if (!api || !m) return;
+    try { await api.post('/whatsapp/messages/' + m.id + '/sent', { status }); const rows = this.state.live || []; const i = rows.findIndex((r) => r.id === m.id); const next = rows[i + 1] || rows[i - 1];
+      this.setState({ done: (status === 'SENT' ? '✓ Marked sent ' : 'Skipped ') + (m.billNo || ''), selId: next ? next.id : null }); await this.load(); }
+    catch (e) { this.setState({ done: api.message(e) }); }
+  }
+  renderVals() {
+    const st = this.state; const theme = this.props.theme ?? 'dark';
+    const FORMS = [['', 'All messages'], ['SAL', 'Sale bill'], ['SalOrder', 'Sale order'], ['BANKREC', 'Bank receipt'], ['BANKPAY', 'Bank payment'], ['DBNT', 'Debit note'], ['CRNT', 'Credit note'], ['SALRTN', 'Sale return'], ['PARTY_MASTER', 'New party']];
+    const LBL = Object.fromEntries(FORMS); const SHORT = { SAL: 'SB', SalOrder: 'SO', BANKREC: 'BR', BANKPAY: 'BP', DBNT: 'DN', CRNT: 'CN', SALRTN: 'SR' };
+    const tone = (s) => s === 'SENT' ? 't-green' : s === 'PENDING' ? 't-orange' : s === 'NO MOBILE' || s === 'FAILED' ? 't-red' : 't-gray';
+    const pad = (n) => String(n).padStart(2, '0');
+    const when = (t) => { if (!t) return ''; const d = new Date(t); return pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+    const rowsAll = st.live || [];
+    const selM = rowsAll.find((r) => r.id === st.selId) || rowsAll[0] || null;
+    const c = st.counts || {};
+    const pdfUrl = (m) => (m && m.attachment ? (m.attachment.indexOf('http') === 0 ? m.attachment : window.location.origin + m.attachment) : '');
+    const text = (m) => !m ? '' : m.msgType === 'PDF' ? (m.caption || '') + (m.attachment ? '\n' + pdfUrl(m) : '') : (m.body || '');
+    const sel = selM ? { type: (LBL[selM.formType] || selM.formType) + ' · ' + (selM.msgType === 'PDF' ? 'PDF' : 'Text') + (selM.legacy ? ' · old software' : '') + (selM.user ? ' · ' + selM.user : ''), no: selM.billNo || '—', to: selM.mobile ? '+' + selM.mobile : 'No WhatsApp number on the party', body: selM.msgType === 'PDF' ? (selM.caption || '') + '\n\n📎 ' + (selM.attachment || 'PDF') : (selM.body || ''), status: selM.status, tagCls: 'tag ' + tone(selM.status) }
+      : { type: '', no: st.live ? 'Nothing here' : 'Loading…', to: '', body: st.live ? 'No message matches this view.' : '', status: '', tagCls: '' };
+    const tpls = (st.tpls || []).map((t) => ({ ...t, ...(st.edit[t.formType] || {}) }));
+    const tSel = tpls.find((t) => t.formType === st.tsel) || tpls[0] || null;
+    const setT = (k, v) => tSel && this.setState({ edit: { ...st.edit, [tSel.formType]: { ...(st.edit[tSel.formType] || {}), [k]: v } }, tdone: '' });
+    return {
+      theme, pendingN: c.PENDING || 0, q: st.q,
+      setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
+      tplBtn: st.tpl ? 'btn pr' : 'btn', toggleTpl: () => { const on = !st.tpl; this.setState({ tpl: on }); if (on && !st.tpls) this.loadTpl(); },
+      showList: !st.tpl, showTpl: !!st.tpl,
+      filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['NO MOBILE', 'No mobile'], ['SKIPPED', 'Skipped'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
+      forms: FORMS.map(([v, l]) => ({ v, l })), form: st.form, setForm: (e) => this.load({ form: e.target.value, selId: null }),
+      from: st.from, to: st.to, setFrom: (e) => this.load({ from: e.target.value }), setTo: (e) => this.load({ to: e.target.value }),
+      rows: rowsAll.map((m) => ({ short: SHORT[m.formType] || 'WA', no: (m.billNo || '—') + (m.msgType === 'PDF' ? ' · PDF' : ''), when: when(m.createdAt), line: (m.mobile ? '+' + m.mobile + ' · ' : '') + String(m.msgType === 'PDF' ? m.caption || '' : m.body || '').replace(/[*\n]+/g, ' ').slice(0, 80), status: m.status, tagCls: 'tag ' + tone(m.status), cls: selM && m.id === selM.id ? 'item on' : 'item', pick: () => this.setState({ selId: m.id, done: '' }) })),
+      listNote: st.live ? (rowsAll.length >= 500 ? 'Showing the latest 500 — narrow by date or search.' : rowsAll.length ? '' : 'No messages.') : 'Loading…',
+      sel, done: st.done || '',
+      sendLabel: selM && selM.msgType === 'PDF' ? 'Send PDF link on WhatsApp' : 'Send on WhatsApp',
+      pdfLabel: selM && selM.attachment ? 'Open PDF' : 'No PDF',
+      hint: 'Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
+      send: () => { if (!selM || !selM.mobile) { this.setState({ done: 'Add a mobile number on the party first' }); return; } try { window.open('https://wa.me/' + selM.mobile + '?text=' + encodeURIComponent(text(selM)), '_blank', 'noopener'); } catch (e) {} },
+      openPdf: () => { if (selM && selM.attachment) try { window.open(pdfUrl(selM), '_blank', 'noopener'); } catch (e) {} },
+      markSent: () => this.mark(selM, 'SENT'), skip: () => this.mark(selM, 'SKIPPED'),
+      tpls: tpls.map((t) => ({ short: SHORT[t.formType] || 'WA', label: LBL[t.formType] || t.formType, note: (t.isActive ? 'Automatic' : 'Off') + (t.attachPdf ? ' · with PDF' : '') + ((t.extraReports || []).length ? ' · + ' + t.extraReports.map((x) => (x.report || x.name || x) + (x.to ? ' PDF to ' + x.to : '')).join(', ') : ''), cls: tSel && t.formType === tSel.formType ? 'item on' : 'item', pick: () => this.setState({ tsel: t.formType, tdone: '' }) })),
+      tsel: tSel ? { label: LBL[tSel.formType] || tSel.formType, body: tSel.body || '', pdf: !!tSel.attachPdf, active: !!tSel.isActive } : { label: st.tpls ? 'No templates' : 'Loading…', body: '', pdf: false, active: false },
+      setBody: (e) => setT('body', e.target.value), togglePdf: (e) => setT('attachPdf', e.target.checked), toggleActive: (e) => setT('isActive', e.target.checked),
+      tdone: st.tdone || '',
+      saveTpl: async () => { const api = this.api(); if (!api || !tSel) return; try { await api.put('/whatsapp/templates', { formType: tSel.formType, body: tSel.body, attachPdf: tSel.attachPdf, isActive: tSel.isActive }); const ed = { ...st.edit }; delete ed[tSel.formType]; this.setState({ edit: ed, tdone: '✓ Saved' }); await this.loadTpl(); } catch (e) { this.setState({ tdone: api.message(e) }); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

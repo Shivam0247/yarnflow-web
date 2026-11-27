@@ -1,0 +1,283 @@
+/* eslint-disable */
+// WhatsApp — converted 1:1 from the YarnFlow design (WhatsApp.dc.html).
+// Markup, styles, sample data and behaviour are identical to the design.
+import { Fragment } from 'react';
+import { DCLogic, useTheme } from '@/dc/runtime';
+import Assistant from '@/components/Assistant/Assistant';
+import Sidebar from '@/components/Sidebar/Sidebar';
+
+import CSS from './WhatsApp.css?raw';
+
+/* ----- screen logic (same as the design) ----- */
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { filter: 'PENDING', form: '', q: '', from: '', to: '', selId: null, tpl: false, tsel: null, edit: {} }; this.tok = 0; }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  componentDidMount() { this.load(); }
+  async load(patch) {
+    const st = { ...this.state, ...(patch || {}) }; if (patch) this.setState(patch);
+    const api = this.api(); if (!api) return;
+    const t = ++this.tok;
+    const qs = new URLSearchParams();
+    if (st.filter === 'OLD') { qs.set('legacy', '1'); } else if (st.filter !== 'ALL') qs.set('status', st.filter);
+    if (st.form) qs.set('form', st.form); if (st.q.trim()) qs.set('q', st.q.trim()); if (st.from) qs.set('from', st.from); if (st.to) qs.set('to', st.to);
+    try { const r = await api.get('/whatsapp/messages?' + qs.toString()); if (t !== this.tok) return; this.setState({ live: r.rows, counts: r.counts }); }
+    catch (e) { this.setState({ done: api.message(e) }); }
+  }
+  async loadTpl() { const api = this.api(); if (!api) return; try { this.setState({ tpls: await api.get('/whatsapp/templates') }); } catch (e) { this.setState({ tdone: api.message(e) }); } }
+  async mark(m, status) {
+    const api = this.api(); if (!api || !m) return;
+    try { await api.post('/whatsapp/messages/' + m.id + '/sent', { status }); const rows = this.state.live || []; const i = rows.findIndex((r) => r.id === m.id); const next = rows[i + 1] || rows[i - 1];
+      this.setState({ done: (status === 'SENT' ? '✓ Marked sent ' : 'Skipped ') + (m.billNo || ''), selId: next ? next.id : null }); await this.load(); }
+    catch (e) { this.setState({ done: api.message(e) }); }
+  }
+  renderVals() {
+    const st = this.state; const theme = this.props.theme ?? 'dark';
+    const FORMS = [['', 'All messages'], ['SAL', 'Sale bill'], ['SalOrder', 'Sale order'], ['BANKREC', 'Bank receipt'], ['BANKPAY', 'Bank payment'], ['DBNT', 'Debit note'], ['CRNT', 'Credit note'], ['SALRTN', 'Sale return'], ['PARTY_MASTER', 'New party']];
+    const LBL = Object.fromEntries(FORMS); const SHORT = { SAL: 'SB', SalOrder: 'SO', BANKREC: 'BR', BANKPAY: 'BP', DBNT: 'DN', CRNT: 'CN', SALRTN: 'SR' };
+    const tone = (s) => s === 'SENT' ? 't-green' : s === 'PENDING' ? 't-orange' : s === 'NO MOBILE' || s === 'FAILED' ? 't-red' : 't-gray';
+    const pad = (n) => String(n).padStart(2, '0');
+    const when = (t) => { if (!t) return ''; const d = new Date(t); return pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+    const rowsAll = st.live || [];
+    const selM = rowsAll.find((r) => r.id === st.selId) || rowsAll[0] || null;
+    const c = st.counts || {};
+    const pdfUrl = (m) => (m && m.attachment ? (m.attachment.indexOf('http') === 0 ? m.attachment : window.location.origin + m.attachment) : '');
+    const text = (m) => !m ? '' : m.msgType === 'PDF' ? (m.caption || '') + (m.attachment ? '\n' + pdfUrl(m) : '') : (m.body || '');
+    const sel = selM ? { type: (LBL[selM.formType] || selM.formType) + ' · ' + (selM.msgType === 'PDF' ? 'PDF' : 'Text') + (selM.legacy ? ' · old software' : '') + (selM.user ? ' · ' + selM.user : ''), no: selM.billNo || '—', to: selM.mobile ? '+' + selM.mobile : 'No WhatsApp number on the party', body: selM.msgType === 'PDF' ? (selM.caption || '') + '\n\n📎 ' + (selM.attachment || 'PDF') : (selM.body || ''), status: selM.status, tagCls: 'tag ' + tone(selM.status) }
+      : { type: '', no: st.live ? 'Nothing here' : 'Loading…', to: '', body: st.live ? 'No message matches this view.' : '', status: '', tagCls: '' };
+    const tpls = (st.tpls || []).map((t) => ({ ...t, ...(st.edit[t.formType] || {}) }));
+    const tSel = tpls.find((t) => t.formType === st.tsel) || tpls[0] || null;
+    const setT = (k, v) => tSel && this.setState({ edit: { ...st.edit, [tSel.formType]: { ...(st.edit[tSel.formType] || {}), [k]: v } }, tdone: '' });
+    return {
+      theme, pendingN: c.PENDING || 0, q: st.q,
+      setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
+      tplBtn: st.tpl ? 'btn pr' : 'btn', toggleTpl: () => { const on = !st.tpl; this.setState({ tpl: on }); if (on && !st.tpls) this.loadTpl(); },
+      showList: !st.tpl, showTpl: !!st.tpl,
+      filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['NO MOBILE', 'No mobile'], ['SKIPPED', 'Skipped'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
+      forms: FORMS.map(([v, l]) => ({ v, l })), form: st.form, setForm: (e) => this.load({ form: e.target.value, selId: null }),
+      from: st.from, to: st.to, setFrom: (e) => this.load({ from: e.target.value }), setTo: (e) => this.load({ to: e.target.value }),
+      rows: rowsAll.map((m) => ({ short: SHORT[m.formType] || 'WA', no: (m.billNo || '—') + (m.msgType === 'PDF' ? ' · PDF' : ''), when: when(m.createdAt), line: (m.mobile ? '+' + m.mobile + ' · ' : '') + String(m.msgType === 'PDF' ? m.caption || '' : m.body || '').replace(/[*\n]+/g, ' ').slice(0, 80), status: m.status, tagCls: 'tag ' + tone(m.status), cls: selM && m.id === selM.id ? 'item on' : 'item', pick: () => this.setState({ selId: m.id, done: '' }) })),
+      listNote: st.live ? (rowsAll.length >= 500 ? 'Showing the latest 500 — narrow by date or search.' : rowsAll.length ? '' : 'No messages.') : 'Loading…',
+      sel, done: st.done || '',
+      sendLabel: selM && selM.msgType === 'PDF' ? 'Send PDF link on WhatsApp' : 'Send on WhatsApp',
+      pdfLabel: selM && selM.attachment ? 'Open PDF' : 'No PDF',
+      hint: 'Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
+      send: () => { if (!selM || !selM.mobile) { this.setState({ done: 'Add a mobile number on the party first' }); return; } try { window.open('https://wa.me/' + selM.mobile + '?text=' + encodeURIComponent(text(selM)), '_blank', 'noopener'); } catch (e) {} },
+      openPdf: () => { if (selM && selM.attachment) try { window.open(pdfUrl(selM), '_blank', 'noopener'); } catch (e) {} },
+      markSent: () => this.mark(selM, 'SENT'), skip: () => this.mark(selM, 'SKIPPED'),
+      tpls: tpls.map((t) => ({ short: SHORT[t.formType] || 'WA', label: LBL[t.formType] || t.formType, note: (t.isActive ? 'Automatic' : 'Off') + (t.attachPdf ? ' · with PDF' : '') + ((t.extraReports || []).length ? ' · + ' + t.extraReports.map((x) => (x.report || x.name || x) + (x.to ? ' PDF to ' + x.to : '')).join(', ') : ''), cls: tSel && t.formType === tSel.formType ? 'item on' : 'item', pick: () => this.setState({ tsel: t.formType, tdone: '' }) })),
+      tsel: tSel ? { label: LBL[tSel.formType] || tSel.formType, body: tSel.body || '', pdf: !!tSel.attachPdf, active: !!tSel.isActive } : { label: st.tpls ? 'No templates' : 'Loading…', body: '', pdf: false, active: false },
+      setBody: (e) => setT('body', e.target.value), togglePdf: (e) => setT('attachPdf', e.target.checked), toggleActive: (e) => setT('isActive', e.target.checked),
+      tdone: st.tdone || '',
+      saveTpl: async () => { const api = this.api(); if (!api || !tSel) return; try { await api.put('/whatsapp/templates', { formType: tSel.formType, body: tSel.body, attachPdf: tSel.attachPdf, isActive: tSel.isActive }); const ed = { ...st.edit }; delete ed[tSel.formType]; this.setState({ edit: ed, tdone: '✓ Saved' }); await this.loadTpl(); } catch (e) { this.setState({ tdone: api.message(e) }); } }
+    };
+  }
+}
+
+/* ----- view ----- */
+class WhatsAppView extends Component {
+  render() {
+    const v = this.renderVals() || {};
+    return (
+      <>
+        <style>{CSS}</style>
+      <div className={`app ${v.theme ?? ""}`}>
+        <div className="sbw">
+          <Sidebar active="wa" />
+        </div>
+        <div className="main">
+          <header className="hdr">
+            <div className="bc">
+              <span>
+                WhatsApp messages
+              </span>
+              <span className="tag t-orange">
+                {v.pendingN}{" to send"}
+              </span>
+            </div>
+            <input className="inp" type="search" placeholder="Bill no, mobile or text" aria-label="Search messages" style={{"width":"240px"}} value={v.q} onChange={v.setQ} />
+            {' '}
+            <button className={v.tplBtn} type="button" onClick={v.toggleTpl}>
+              Message templates
+            </button>
+          </header>
+          {v.showList ? (
+            <>
+              <div className="split">
+                <div className="lp">
+                  <div className="tabs" role="tablist">
+                    {(v.filters || []).map((f, $index) => (
+                      <Fragment key={$index}>
+                        <button className={f?.cls} type="button" role="tab" onClick={f?.pick}>
+                          {f?.label}{" "}
+                          <span className="n">
+                            {f?.n}
+                          </span>
+                        </button>
+                      </Fragment>
+                    ))}
+                  </div>
+                  <div className="bar">
+                    <select className="inp" aria-label="Message type" value={v.form} onChange={v.setForm}>
+                      {(v.forms || []).map((o, $index) => (
+                        <Fragment key={$index}>
+                          <option value={o?.v}>
+                            {o?.l}
+                          </option>
+                        </Fragment>
+                      ))}
+                    </select>
+                    <input className="inp" type="date" aria-label="From" value={v.from} onChange={v.setFrom} />
+                    <input className="inp" type="date" aria-label="To" value={v.to} onChange={v.setTo} />
+                  </div>
+                  <div className="list">
+                    {(v.rows || []).map((it, $index) => (
+                      <Fragment key={$index}>
+                        <button className={it?.cls} type="button" onClick={it?.pick}>
+                          <span className="ico">
+                            {it?.short}
+                          </span>
+                          {' '}
+                          <span style={{"flex":"1","minWidth":"0","display":"flex","flexDirection":"column","gap":"4px"}}>
+                            <span style={{"display":"flex","gap":"8px","alignItems":"baseline"}}>
+                              <b style={{"fontWeight":"500","flex":"1","minWidth":"0","overflow":"hidden","textOverflow":"ellipsis","whiteSpace":"nowrap"}}>
+                                {it?.no}
+                              </b>
+                              <span className="muted" style={{"fontSize":"12px"}}>
+                                {it?.when}
+                              </span>
+                            </span>
+                            {' '}
+                            <span style={{"display":"flex","gap":"8px","alignItems":"center","justifyContent":"space-between"}}>
+                              <span className="t2" style={{"fontSize":"13px","overflow":"hidden","textOverflow":"ellipsis","whiteSpace":"nowrap","minWidth":"0"}}>
+                                {it?.line}
+                              </span>
+                              <span className={it?.tagCls}>
+                                {it?.status}
+                              </span>
+                            </span>
+                          </span>
+                        </button>
+                      </Fragment>
+                    ))}
+                    <div className="muted" style={{"padding":"16px 20px"}}>
+                      {v.listNote}
+                    </div>
+                  </div>
+                </div>
+                <div className="rp">
+                  <div style={{"display":"flex","alignItems":"center","gap":"12px","padding":"20px 24px","borderBottom":"1px solid var(--bd)","flexWrap":"wrap"}}>
+                    <div style={{"flex":"1","minWidth":"220px"}}>
+                      <div className="muted" style={{"fontSize":"13px"}}>
+                        {v.sel?.type}
+                      </div>
+                      <div style={{"fontSize":"20px","lineHeight":"28px","fontWeight":"600"}}>
+                        {v.sel?.no}
+                      </div>
+                      <div className="t2">
+                        {v.sel?.to}
+                      </div>
+                    </div>
+                    <span className={v.sel?.tagCls}>
+                      {v.sel?.status}
+                    </span>
+                  </div>
+                  <div style={{"padding":"20px 24px","display":"flex","flexDirection":"column","gap":"14px"}}>
+                    <pre className="msg">
+                      {v.sel?.body}
+                    </pre>
+                    <div style={{"display":"flex","gap":"8px","flexWrap":"wrap","alignItems":"center"}}>
+                      <button className="btn ok" type="button" onClick={v.send}>
+                        {v.sendLabel}
+                      </button>
+                      {' '}
+                      <button className="btn" type="button" onClick={v.openPdf}>
+                        {v.pdfLabel}
+                      </button>
+                      {' '}
+                      <button className="btn" type="button" onClick={v.markSent}>
+                        Mark as sent
+                      </button>
+                      {' '}
+                      <button className="btn no" type="button" onClick={v.skip}>
+                        Skip
+                      </button>
+                      <div style={{"flex":"1"}} />
+                      <span className="muted" style={{"fontSize":"13px"}}>
+                        {v.done}
+                      </span>
+                    </div>
+                    <div className="muted" style={{"fontSize":"13px"}}>
+                      {v.hint}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {' '}
+          {v.showTpl ? (
+            <>
+              <div className="split">
+                <div className="lp">
+                  {(v.tpls || []).map((t, $index) => (
+                    <Fragment key={$index}>
+                      <button className={t?.cls} type="button" onClick={t?.pick}>
+                        <span className="ico">
+                          {t?.short}
+                        </span>
+                        <span style={{"flex":"1","minWidth":"0","display":"flex","flexDirection":"column","gap":"4px"}}>
+                          <b style={{"fontWeight":"500"}}>
+                            {t?.label}
+                          </b>
+                          <span className="muted" style={{"fontSize":"13px"}}>
+                            {t?.note}
+                          </span>
+                        </span>
+                      </button>
+                    </Fragment>
+                  ))}
+                </div>
+                <div className="rp" style={{"padding":"20px 24px","gap":"12px"}}>
+                  <div style={{"fontSize":"20px","lineHeight":"28px","fontWeight":"600"}}>
+                    {v.tsel?.label}
+                  </div>
+                  <div className="muted" style={{"fontSize":"13px"}}>
+                    {"Fields in {#…#} are filled from the document. The part between the two ---ITEMDETAIL--- lines repeats for every item."}
+                  </div>
+                  <textarea className="inp" aria-label="Template text" style={{"height":"420px","fontFamily":"ui-monospace, Menlo, monospace","fontSize":"13px"}} value={v.tsel?.body} onChange={v.setBody} />
+                  {' '}
+                  <label style={{"display":"flex","gap":"8px","alignItems":"center"}}>
+                    <input type="checkbox" checked={v.tsel?.pdf} onChange={v.togglePdf} />
+                    {" Also send the document PDF"}
+                  </label>
+                  {' '}
+                  <label style={{"display":"flex","gap":"8px","alignItems":"center"}}>
+                    <input type="checkbox" checked={v.tsel?.active} onChange={v.toggleActive} />
+                    {" Send this message automatically when the document is saved"}
+                  </label>
+                  <div style={{"display":"flex","gap":"8px","alignItems":"center"}}>
+                    <button className="btn pr" type="button" onClick={v.saveTpl}>
+                      Save template
+                    </button>
+                    <span className="muted" style={{"fontSize":"13px"}}>
+                      {v.tdone}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
+        <div className="aiw">
+          <Assistant page="wa" />
+        </div>
+      </div>
+      </>
+    );
+  }
+}
+
+export default function WhatsApp(props) {
+  const theme = useTheme();
+  return <WhatsAppView {...props} theme={theme} />;
+}
