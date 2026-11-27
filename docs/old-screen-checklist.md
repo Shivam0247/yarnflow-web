@@ -90,8 +90,9 @@ Status: **Same** = checked against the old screen/data · **Compare** = exists, 
 | E-Invoice / Digital Signature / Download Bill | E-way bills | Compare |
 | Purchase Bill Import (Excel) | — | Missing |
 | Item+Brand+Grade Wise Rate Master | — | Missing |
-| WhatsApp (automatic: Sale Order text + party outstanding PDF, Sale Bill text + PDF, Bank Receipt thank-you, Bank Payment cheque note, DN / CN / interest DN PDFs, scheduled report PDFs; 1,48,368 messages in the old data) | — | Building (message queue with the old texts; sending service to be chosen) |
-| SMS Template / File Upload (777 documents) | — | Missing |
+| WhatsApp (automatic: Sale Order text + party outstanding PDF, Sale Bill text + PDF, Bank Receipt thank-you, Bank Payment cheque note, DN / CN / interest DN PDFs, scheduled report PDFs; 1,48,368 messages in the old data) | Reports → WhatsApp messages | Built: queued on save with the old wording (sale bill and receipt texts identical to old sent ones); one-click send through WhatsApp; templates editable; old messages kept as history. Automatic sending waits on the sending service choice |
+| SMS Template | WhatsApp messages → Message templates | Same (old templates imported) |
+| File Upload (777 documents) | — | Missing |
 | Year End Process / Closing Transfer Utility | — | Missing |
 | Update Data To Selected Party | — | Missing |
 | User Managment / User Roll Admin / Sepcial Permision / Bank CC Permission | Users | Compare |
