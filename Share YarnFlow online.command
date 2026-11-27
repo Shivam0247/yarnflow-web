@@ -19,10 +19,14 @@ fi
 command -v cloudflared >/dev/null || { echo "✗ cloudflared could not be installed"; read; exit 1; }
 
 # 2. YarnFlow itself (unless it is already running)
-[ -d node_modules/@embedded-postgres ] || { say "Installing YarnFlow (first run, a few minutes)…"; npm install --no-audit --no-fund || { read; exit 1; }; }
+# install / update packages when the code changed (first run, or after "Update YarnFlow")
+if [ ! -d node_modules/@embedded-postgres ] || [ package-lock.json -nt node_modules/.package-lock.json ]; then
+  say "Installing YarnFlow packages (a few minutes)…"; npm install --no-audit --no-fund || { read; exit 1; }
+fi
+BUILD=""; [ -z "$(find web/dist/index.html -newer package.json 2>/dev/null)" ] || [ -n "$(find web/src design -newer web/dist/index.html -type f 2>/dev/null | head -1)" ] && BUILD="--build"
 YF=""
 if ! curl -s -o /dev/null http://localhost:4000/api/health; then
-  say "Starting YarnFlow…"; npm run local > .yarnflow.log 2>&1 & YF=$!
+  say "Starting YarnFlow${BUILD:+ (building the screens first, about 2 minutes)}…"; npm run local -- $BUILD > .yarnflow.log 2>&1 & YF=$!
   for i in {1..300}; do curl -s -o /dev/null http://localhost:4000/api/health && break; sleep 2; done
 fi
 curl -s -o /dev/null http://localhost:4000/api/health || { echo "✗ YarnFlow did not start — see .yarnflow.log"; read; exit 1; }
