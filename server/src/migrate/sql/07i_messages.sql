@@ -15,13 +15,13 @@ SELECT coalesce(c.id, 1), coalesce(nullif(w."Wh_FType", ''), '-'), coalesce(null
   CASE WHEN w."Wh_Type" = 'TEXT' THEN replace(w."Wh_Description", E'\r\n', E'\n') END, w."Wh_Caption",
   CASE WHEN w."Wh_Type" = 'PDF' THEN w."Wh_Description" END,
   CASE WHEN lower(w."Wh_Status") = 'sent' THEN 'SENT' WHEN coalesce(w."Wh_Status", '') IN ('', '{}') THEN 'FAILED' ELSE upper(left(w."Wh_Status", 12)) END,
-  mig.ts(w."Wh_DateTime"), coalesce(w."Wh_IsManual", '') IN ('1', 'True'), true, coalesce(mig.ts(w."Wh_DateTime"), now())
+  timezone('Asia/Kolkata', mig.ts(w."Wh_DateTime")), coalesce(w."Wh_IsManual", '') IN ('1', 'True'), true, coalesce(timezone('Asia/Kolkata', mig.ts(w."Wh_DateTime")), now())
 FROM legacy_umiya24."WhatsUpMst" w LEFT JOIN public.companies c ON c.legacy_code = w."Wh_CompCode";
 INSERT INTO public.whatsapp_messages (company_id, form_type, msg_type, bill_no, mobile, body, caption, attachment, status, sent_at, is_manual, legacy, created_at)
 SELECT coalesce(c.id, 1), coalesce(nullif(w."Wh_FType", ''), '-'), coalesce(nullif(w."Wh_Type", ''), 'TEXT'), left(w."Wh_BillId", 60), left(w."Wh_MobileNo", 20),
   CASE WHEN w."Wh_Type" = 'TEXT' THEN replace(w."Wh_Description", E'\r\n', E'\n') END, w."Wh_Caption",
   CASE WHEN w."Wh_Type" = 'PDF' THEN w."Wh_Description" END,
   CASE WHEN lower(w."Wh_Status") = 'sent' THEN 'SENT' WHEN coalesce(w."Wh_Status", '') IN ('', '{}') THEN 'FAILED' ELSE upper(left(w."Wh_Status", 12)) END,
-  mig.ts(w."Wh_DateTime"), coalesce(w."Wh_IsManual", '') IN ('1', 'True'), true, coalesce(mig.ts(w."Wh_DateTime"), now())
+  timezone('Asia/Kolkata', mig.ts(w."Wh_DateTime")), coalesce(w."Wh_IsManual", '') IN ('1', 'True'), true, coalesce(timezone('Asia/Kolkata', mig.ts(w."Wh_DateTime")), now())
 FROM legacy_umiya20."WhatsUpMst" w LEFT JOIN public.companies c ON c.legacy_code = w."Wh_CompCode";
 SELECT mig.note('whatsapp: old sent log');

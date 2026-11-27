@@ -12,7 +12,9 @@ import CSS from './WhatsApp.css?raw';
 class Component extends DCLogic {
   constructor(p) { super(p); this.state = { filter: 'PENDING', form: '', q: '', from: '', to: '', selId: null, tpl: false, tsel: null, edit: {} }; this.tok = 0; }
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
-  componentDidMount() { this.load(); this.iv = setInterval(() => { if (!this.state.tpl) this.load(); }, 15000); }
+  componentDidMount() { this.load(); this.loadSet(); this.iv = setInterval(() => { if (!this.state.tpl && !this.state.set) this.load(); }, 15000); }
+  async loadSet() { const api = this.api(); if (!api) return; try { const s = await api.get('/whatsapp/settings'); this.setState({ cfg: s, form0: s }); } catch (e) {} }
+  async loadCloud() { const api = this.api(); if (!api) return; this.setState({ ctNote: 'Checking with Meta…' }); try { const r = await api.get('/whatsapp/cloud/templates'); this.setState({ ct: r, ctNote: r.error ? 'Meta: ' + r.error : '' }); } catch (e) { this.setState({ ctNote: api.message(e) }); } }
   componentWillUnmount() { clearInterval(this.iv); }
   async load(patch) {
     const st = { ...this.state, ...(patch || {}) }; if (patch) this.setState(patch);
@@ -32,10 +34,10 @@ class Component extends DCLogic {
     catch (e) { this.setState({ done: api.message(e) }); }
   }
   renderVals() {
-    const st = this.state; const theme = this.props.theme ?? 'dark';
+    const st = this.state; const theme = this.props.theme ?? 'dark'; const cfg = st.cfg || {};
     const FORMS = [['', 'All messages'], ['SAL', 'Sale bill'], ['SalOrder', 'Sale order'], ['BANKREC', 'Bank receipt'], ['BANKPAY', 'Bank payment'], ['DBNT', 'Debit note'], ['CRNT', 'Credit note'], ['SALRTN', 'Sale return'], ['PARTY_MASTER', 'New party']];
     const LBL = Object.fromEntries(FORMS); const SHORT = { SAL: 'SB', SalOrder: 'SO', BANKREC: 'BR', BANKPAY: 'BP', DBNT: 'DN', CRNT: 'CN', SALRTN: 'SR' };
-    const tone = (s) => s === 'SENT' ? 't-green' : s === 'PENDING' ? 't-orange' : s === 'NO MOBILE' || s === 'FAILED' ? 't-red' : 't-gray';
+    const tone = (s) => s === 'SENT' || s === 'DELIVERED' || s === 'READ' ? 't-green' : s === 'PENDING' ? 't-orange' : s === 'NO MOBILE' || s === 'FAILED' ? 't-red' : 't-gray';
     const pad = (n) => String(n).padStart(2, '0');
     const when = (t) => { if (!t) return ''; const d = new Date(t); return pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
     const rowsAll = st.live || [];
@@ -43,7 +45,7 @@ class Component extends DCLogic {
     const c = st.counts || {};
     const pdfUrl = (m) => (m && m.attachment ? (m.attachment.indexOf('http') === 0 ? m.attachment : window.location.origin + m.attachment) : '');
     const text = (m) => !m ? '' : m.msgType === 'PDF' ? (m.caption || '') + (m.attachment ? '\n' + pdfUrl(m) : '') : (m.body || '');
-    const sel = selM ? { type: (LBL[selM.formType] || selM.formType) + ' · ' + (selM.msgType === 'PDF' ? 'PDF' : 'Text') + (selM.legacy ? ' · old software' : '') + (selM.user ? ' · ' + selM.user : ''), no: selM.billNo || '—', to: selM.mobile ? '+' + selM.mobile : 'No WhatsApp number on the party', body: selM.msgType === 'PDF' ? (selM.caption || '') + '\n\n📎 ' + (selM.attachment || 'PDF') : (selM.body || ''), status: selM.status, tagCls: 'tag ' + tone(selM.status), error: selM.error ? 'Last try failed: ' + selM.error : '' }
+    const sel = selM ? { type: (LBL[selM.formType] || selM.formType) + ' · ' + (selM.msgType === 'PDF' ? 'PDF' : selM.msgType === 'TEMPLATE' ? (selM.attachment ? 'Text + PDF · official API' : 'Text · official API') : 'Text') + (selM.legacy ? ' · old software' : '') + (selM.user ? ' · ' + selM.user : ''), no: selM.billNo || '—', to: (selM.mobile ? '+' + selM.mobile : 'No WhatsApp number on the party') + (selM.readAt ? ' · read ' + when(selM.readAt) : selM.deliveredAt ? ' · delivered ' + when(selM.deliveredAt) : ''), body: selM.msgType === 'PDF' ? (selM.caption || '') + '\n\n📎 ' + (selM.attachment || 'PDF') : (selM.attachment ? '📎 ' + (selM.caption || 'PDF') + '\n\n' : '') + (selM.body || ''), status: selM.status, tagCls: 'tag ' + tone(selM.status), error: selM.error ? 'Last try failed: ' + selM.error : '' }
       : { type: '', no: st.live ? 'Nothing here' : 'Loading…', to: '', body: st.live ? 'No message matches this view.' : '', status: '', tagCls: '', error: '' };
     const tpls = (st.tpls || []).map((t) => ({ ...t, ...(st.edit[t.formType] || {}) }));
     const tSel = tpls.find((t) => t.formType === st.tsel) || tpls[0] || null;
@@ -51,21 +53,34 @@ class Component extends DCLogic {
     return {
       theme, pendingN: c.PENDING || 0, q: st.q,
       setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
-      tplBtn: st.tpl ? 'btn pr' : 'btn', toggleTpl: () => { const on = !st.tpl; this.setState({ tpl: on }); if (on && !st.tpls) this.loadTpl(); },
-      showList: !st.tpl, showTpl: !!st.tpl,
-      filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['FAILED', 'Failed'], ['NO MOBILE', 'No mobile'], ['SKIPPED', 'Skipped'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
+      tplBtn: st.tpl ? 'btn pr' : 'btn', toggleTpl: () => { const on = !st.tpl; this.setState({ tpl: on, set: false }); if (on && !st.tpls) this.loadTpl(); },
+      setBtn: st.set ? 'btn pr' : 'btn', toggleSet: () => { const on = !st.set; this.setState({ set: on, tpl: false }); if (on && !st.ct) this.loadCloud(); },
+      showList: !st.tpl && !st.set, showTpl: !!st.tpl && !st.set, showSet: !!st.set,
+      modes: [['off', 'Off'], ['linked', 'Office PC sender (linked phone)'], ['cloud', 'Official WhatsApp API']].map(([k, label]) => ({ label, cls: (cfg.mode || 'linked') === k ? 'btn pr' : 'btn', pick: () => this.setState({ cfg: { ...cfg, mode: k }, sdone: 'Not saved yet' }) })),
+      modeNote: ({ off: 'Messages are still listed here, nothing is sent automatically.', linked: 'Messages are sent by the WhatsApp Sender program on an office PC, using a phone linked by QR code (as the old software did).', cloud: "Messages are sent by the YarnFlow server through Meta's official API using approved templates; a bill's text and PDF go as one message. Delivered / read ticks come back from Meta." })[cfg.mode || 'linked'],
+      fields: [['phoneNumberId', 'Phone number ID', 'text', '15 digits, from API Setup'], ['wabaId', 'Business account ID', 'text', 'WhatsApp Business Account ID'], ['appId', 'App ID', 'text', 'Meta app ID'], ['accessToken', 'Access token', 'password', 'permanent token'], ['appSecret', 'App secret', 'password', 'for checking webhook calls (recommended)'], ['displayNumber', 'WhatsApp number', 'text', 'for your reference']].map(([k, label, type, ph]) => ({ k: 'wa-' + k, label, type, ph, v: cfg[k] || '', set: (e) => this.setState({ cfg: { ...cfg, [k]: e.target.value }, sdone: 'Not saved yet' }) })),
+      hookUrl: (typeof window !== 'undefined' ? window.location.origin : '') + '/api/whatsapp/webhook', verifyToken: cfg.verifyToken || '(created when you save)',
+      sdone: st.sdone || '',
+      saveSet: async () => { const api = this.api(); if (!api) return; try { const s = await api.put('/whatsapp/settings', cfg); this.setState({ cfg: s, sdone: '✓ Saved' }); this.load(); } catch (e) { this.setState({ sdone: api.message(e) }); } },
+      refreshTpl: () => this.loadCloud(),
+      submitTpl: async () => { const api = this.api(); if (!api) return; this.setState({ ctNote: 'Sending to Meta…' }); try { const r = await api.post('/whatsapp/cloud/templates/submit', {}); const bad = r.filter((x) => /^error/.test(x.result)); this.setState({ ctNote: bad.length ? bad.map((x) => x.name + ': ' + x.result).join(' · ') : 'Sent. Meta usually approves utility templates within minutes to a day.' }); await this.loadCloud(); } catch (e) { this.setState({ ctNote: api.message(e) }); } },
+      tplNote: st.ctNote || 'Each message wording must be approved once by Meta before it can be sent.',
+      ctpls: ((st.ct || {}).texts || []).map((t) => { const s = ((st.ct || {}).status || []).find((x) => x.name === t.name) || {}; const stx = s.status || 'NOT SUBMITTED'; return { label: t.label, name: t.name, status: stx, reason: s.reason ? 'Rejected: ' + s.reason : '', cls: 'tag ' + (stx === 'APPROVED' ? 't-green' : /REJECT|PAUSED|DISABLED/.test(stx) ? 't-red' : stx === 'NOT SUBMITTED' ? 't-gray' : 't-orange'), example: (t.doc ? '📎 PDF\n' : '') + t.example }; }),
+      testTo: st.testTo || '', setTestTo: (e) => this.setState({ testTo: e.target.value }), tstDone: st.tstDone || '',
+      testSend: async () => { const api = this.api(); if (!api) return; this.setState({ tstDone: 'Sending…' }); try { await api.post('/whatsapp/cloud/test', { to: st.testTo || '' }); this.setState({ tstDone: '✓ Sent — check the phone' }); } catch (e) { this.setState({ tstDone: api.message(e) }); } },
+      filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['FAILED', 'Failed'], ['NO MOBILE', 'No mobile'], ['SKIPPED', 'Skipped'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : k === 'SENT' ? (c.SENT || 0) + (c.DELIVERED || 0) + (c.READ || 0) : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
       forms: FORMS.map(([v, l]) => ({ v, l })), form: st.form, setForm: (e) => this.load({ form: e.target.value, selId: null }),
       from: st.from, to: st.to, setFrom: (e) => this.load({ from: e.target.value }), setTo: (e) => this.load({ to: e.target.value }),
-      rows: rowsAll.map((m) => ({ short: SHORT[m.formType] || 'WA', no: (m.billNo || '—') + (m.msgType === 'PDF' ? ' · PDF' : ''), when: when(m.createdAt), line: (m.mobile ? '+' + m.mobile + ' · ' : '') + String(m.msgType === 'PDF' ? m.caption || '' : m.body || '').replace(/[*\n]+/g, ' ').slice(0, 80), status: m.status, tagCls: 'tag ' + tone(m.status), cls: selM && m.id === selM.id ? 'item on' : 'item', pick: () => this.setState({ selId: m.id, done: '' }) })),
+      rows: rowsAll.map((m) => ({ short: SHORT[m.formType] || 'WA', no: (m.billNo || '—') + (m.msgType === 'PDF' ? ' · PDF' : ''), when: when(m.createdAt), line: (m.mobile ? '+' + m.mobile + ' · ' : '') + String(m.msgType === 'PDF' ? m.caption || '' : m.body || '').replace(/[*\n]+/g, ' ').slice(0, 80), status: m.status === 'READ' ? 'READ ✓✓' : m.status === 'DELIVERED' ? 'DELIVERED ✓✓' : m.status, tagCls: 'tag ' + tone(m.status), cls: selM && m.id === selM.id ? 'item on' : 'item', pick: () => this.setState({ selId: m.id, done: '' }) })),
       listNote: st.live ? (rowsAll.length >= 500 ? 'Showing the latest 500 — narrow by date or search.' : rowsAll.length ? '' : 'No messages.') : 'Loading…',
       sel, done: st.done || '',
       sendLabel: selM && selM.msgType === 'PDF' ? 'Send PDF link on WhatsApp' : 'Send on WhatsApp',
       pdfLabel: selM && selM.attachment ? 'Open PDF' : 'No PDF',
-      senderTxt: (() => { const b = st.sender; if (!b) return 'Sender not running'; const age = (Date.now() - new Date(b.at).getTime()) / 1000; return age < 60 ? '● Sender running' : 'Sender stopped ' + Math.round(age / 60) + ' min ago'; })(),
-      senderCls: (() => { const b = st.sender; return 'tag ' + (b && (Date.now() - new Date(b.at).getTime()) < 60000 ? 't-green' : 't-red'); })(),
+      senderTxt: (() => { if (cfg.mode === 'cloud') return '● Official WhatsApp API'; if (cfg.mode === 'off') return 'Sending off'; const b = st.sender; if (!b) return 'Sender not running'; const age = (Date.now() - new Date(b.at).getTime()) / 1000; return age < 60 ? '● Sender running' : 'Sender stopped ' + Math.round(age / 60) + ' min ago'; })(),
+      senderCls: (() => { if (cfg.mode === 'cloud') return 'tag t-green'; const b = st.sender; return 'tag ' + (b && (Date.now() - new Date(b.at).getTime()) < 60000 ? 't-green' : 't-red'); })(),
       senderTip: st.sender ? 'Sending from WhatsApp ' + (st.sender.info || '') : 'Start the WhatsApp Sender on the office PC so messages go out automatically',
       retry: async () => { const api = this.api(); if (!api || !selM) return; try { await api.post('/whatsapp/messages/' + selM.id + '/retry', {}); this.setState({ done: 'Queued again' }); await this.load(); } catch (e) { this.setState({ done: api.message(e) }); } },
-      hint: 'Messages go out automatically while the WhatsApp Sender runs on the office PC. If it is not running, Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
+      hint: cfg.mode === 'cloud' ? 'Messages go out automatically through the official WhatsApp API as soon as a document is saved. Send on WhatsApp and Mark as sent are only for sending one by hand.' : 'Messages go out automatically while the WhatsApp Sender runs on the office PC. If it is not running, Send opens WhatsApp with the number and text filled in. Press send there, then come back and click Mark as sent. For a PDF, open it, save it, and attach it in the chat.',
       send: () => { if (!selM || !selM.mobile) { this.setState({ done: 'Add a mobile number on the party first' }); return; } try { window.open('https://wa.me/' + selM.mobile + '?text=' + encodeURIComponent(text(selM)), '_blank', 'noopener'); } catch (e) {} },
       openPdf: () => { if (selM && selM.attachment) try { window.open(pdfUrl(selM), '_blank', 'noopener'); } catch (e) {} },
       markSent: () => this.mark(selM, 'SENT'), skip: () => this.mark(selM, 'SKIPPED'),
@@ -106,6 +121,10 @@ class WhatsAppView extends Component {
             {' '}
             <button className={v.tplBtn} type="button" onClick={v.toggleTpl}>
               Message templates
+            </button>
+            {' '}
+            <button className={v.setBtn} type="button" onClick={v.toggleSet}>
+              WhatsApp setup
             </button>
           </header>
           {v.showList ? (
@@ -229,6 +248,124 @@ class WhatsAppView extends Component {
                       {v.hint}
                     </div>
                   </div>
+                </div>
+              </div>
+            </>
+          ) : null}
+          {' '}
+          {v.showSet ? (
+            <>
+              <div style={{"padding":"20px 24px","display":"flex","flexDirection":"column","gap":"18px","maxWidth":"1100px"}}>
+                <div className="box" style={{"display":"flex","flexDirection":"column","gap":"12px"}}>
+                  <div style={{"fontSize":"17px","fontWeight":"600"}}>
+                    How messages are sent
+                  </div>
+                  <div style={{"display":"flex","gap":"8px","flexWrap":"wrap"}}>
+                    {(v.modes || []).map((m, $index) => (
+                      <Fragment key={$index}>
+                        <button className={m?.cls} type="button" onClick={m?.pick}>
+                          {m?.label}
+                        </button>
+                      </Fragment>
+                    ))}
+                  </div>
+                  <div className="t2" style={{"fontSize":"13px"}}>
+                    {v.modeNote}
+                  </div>
+                </div>
+                <div className="box" style={{"display":"flex","flexDirection":"column","gap":"10px"}}>
+                  <div style={{"fontSize":"17px","fontWeight":"600"}}>
+                    Official WhatsApp API (Meta)
+                  </div>
+                  <div className="muted" style={{"fontSize":"13px"}}>
+                    From Meta → WhatsApp Manager / your app's WhatsApp → API Setup. The access token should be a permanent System User token.
+                  </div>
+                  {(v.fields || []).map((f, $index) => (
+                    <Fragment key={$index}>
+                      <div className="kv">
+                        <label className="k" htmlFor={f?.k}>
+                          {f?.label}
+                        </label>
+                        <input className="inp" id={f?.k} type={f?.type} style={{"flex":"1"}} placeholder={f?.ph} value={f?.v} onChange={f?.set} />
+                      </div>
+                    </Fragment>
+                  ))}
+                  <div className="kv">
+                    <span className="k">
+                      Webhook URL
+                    </span>
+                    <span className="v" style={{"userSelect":"all"}}>
+                      {v.hookUrl}
+                    </span>
+                  </div>
+                  <div className="kv">
+                    <span className="k">
+                      Verify token
+                    </span>
+                    <span className="v" style={{"userSelect":"all"}}>
+                      {v.verifyToken}
+                    </span>
+                  </div>
+                  <div style={{"display":"flex","gap":"8px","alignItems":"center"}}>
+                    <button className="btn pr" type="button" onClick={v.saveSet}>
+                      Save
+                    </button>
+                    <span className="muted" style={{"fontSize":"13px"}}>
+                      {v.sdone}
+                    </span>
+                  </div>
+                </div>
+                <div className="box" style={{"display":"flex","flexDirection":"column","gap":"10px"}}>
+                  <div style={{"display":"flex","alignItems":"center","gap":"8px","flexWrap":"wrap"}}>
+                    <div style={{"fontSize":"17px","fontWeight":"600","flex":"1"}}>
+                      Message templates at Meta
+                    </div>
+                    <button className="btn" type="button" onClick={v.refreshTpl}>
+                      Refresh status
+                    </button>
+                    <button className="btn pr" type="button" onClick={v.submitTpl}>
+                      Send templates for approval
+                    </button>
+                  </div>
+                  <div className="muted" style={{"fontSize":"13px"}}>
+                    {v.tplNote}
+                  </div>
+                  {(v.ctpls || []).map((t, $index) => (
+                    <Fragment key={$index}>
+                      <div style={{"borderTop":"1px solid var(--bd)","paddingTop":"10px","display":"flex","flexDirection":"column","gap":"6px"}}>
+                        <div style={{"display":"flex","gap":"8px","alignItems":"center"}}>
+                          <b style={{"fontWeight":"500","flex":"1"}}>
+                            {t?.label}{" "}
+                            <span className="muted" style={{"fontWeight":"400"}}>
+                              {"· "}{t?.name}
+                            </span>
+                          </b>
+                          <span className={t?.cls}>
+                            {t?.status}
+                          </span>
+                        </div>
+                        <div className="t-red" style={{"fontSize":"13px"}}>
+                          {t?.reason}
+                        </div>
+                        <pre className="msg" style={{"maxHeight":"220px"}}>
+                          {t?.example}
+                        </pre>
+                      </div>
+                    </Fragment>
+                  ))}
+                </div>
+                <div className="box" style={{"display":"flex","gap":"8px","alignItems":"center","flexWrap":"wrap"}}>
+                  <div style={{"fontSize":"17px","fontWeight":"600","flex":"1 1 100%"}}>
+                    Test
+                  </div>
+                  <input className="inp" placeholder="Mobile number" aria-label="Test mobile number" value={v.testTo} onChange={v.setTestTo} style={{"width":"200px"}} />
+                  {' '}
+                  <button className="btn" type="button" onClick={v.testSend}>
+                    Send a test receipt message
+                  </button>
+                  <span className="muted" style={{"fontSize":"13px"}}>
+                    {v.tstDone}
+                  </span>
                 </div>
               </div>
             </>

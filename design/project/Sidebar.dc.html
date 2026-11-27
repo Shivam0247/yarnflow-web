@@ -27,6 +27,9 @@
 <button type="button" onClick="{{c.accGo}}" title="Accounts" aria-label="Accounts" style="{{c.acc}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></button>
 <button type="button" onClick="{{c.invGo}}" title="Inventory" aria-label="Inventory" style="{{c.inv}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></button>
 <button type="button" onClick="{{c.repGo}}" title="Reports &amp; GST" aria-label="Reports &amp; GST" style="{{c.rep}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></button>
+<span style="width: 24px; height: 1px; background: var(--bd2, #383838); margin: 6px 0"></span>
+<a href="{{h.wa}}" title="WhatsApp" aria-label="WhatsApp" style="{{c.wa}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg></a>
+<a href="{{h.mail}}" title="Email" aria-label="Email" style="{{c.mail}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></a>
 <a href="{{h.mast}}" title="Masters" aria-label="Masters" style="{{c.mast}}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></a>
 <div style="flex: 1; min-height: 20px"></div>
 <button type="button" onClick="{{toggleTheme}}" title="{{themeLabel}}" aria-label="Switch between dark and light mode" style="{{c.btn}}"><sc-if value="{{isDark}}" hint-placeholder-val="{{true}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></sc-if><sc-if value="{{isLight}}" hint-placeholder-val="{{false}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></sc-if></button>
@@ -84,6 +87,9 @@
 <button type="button" style="{{g.rep.s}}" onClick="{{g.rep.t}}" aria-expanded="{{g.rep.o}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg><span style="flex: 1">Reports &amp; GST</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="{{g.rep.c}}"><path d="m9 18 6-6-6-6"/></svg></button>
 <sc-if value="{{g.rep.o}}" hint-placeholder-val="{{false}}"><div style="margin: 2px 0 6px 18px; padding-left: 10px; border-left: 1px solid var(--bd2, #383838); display: flex; flex-direction: column; gap: 1px"><sc-for list="{{g.rep.items}}" as="x" hint-placeholder-count="4"><a href="{{x.h}}" style="{{x.s}}"><span style="flex: 1">{{x.l}}</span><span style="font-size: 11px; color: var(--t3, #8F8F8F)">{{x.k}}</span></a></sc-for></div></sc-if>
 
+<div style="font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--t3, #8F8F8F); padding: 14px 10px 4px">MESSAGES</div>
+<a href="{{h.wa}}" style="{{n.wa}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg><span style="flex: 1">WhatsApp</span><span style="{{n.waBadge}}">{{waN}}</span></a>
+<a href="{{h.mail}}" style="{{n.mail}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span style="flex: 1">Email</span></a>
 <a href="{{h.mast}}" style="{{n.mast}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; color: var(--t2, #B5B5B5)"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>Masters<span style="margin-left: auto; font-size: 11px; color: var(--t3, #8F8F8F)">38</span></a>
 
 <div style="flex: 1; min-height: 20px"></div>
@@ -123,7 +129,7 @@ class Component extends DCLogic {
       jv: [['Debit note', 'DebitNoteList', 'Ctrl D', 'dn'], ['Credit note', 'CreditNoteList', 'Ctrl E', 'cn'], ['Journal voucher', 'JournalVoucherList', 'Ctrl J', 'jvo'], ['Interest debit notes', 'Outstanding', '', ''], ['Opening entries', 'Ledger', '', '']],
       acc: [['Ledgers', 'Ledger', '', 'led'], ['Outstanding & ageing', 'Outstanding', '', 'out'], ['Outstanding report (old format)', 'OutstandingReport', '', 'osr'], ['Bill adjustment', 'Payments', '', ''], ['Pending bill adjustment', 'Outstanding', '', ''], ['Opening balances', 'Ledger', '', '']],
       inv: [['Stock & godowns', 'Stock', '', 'stock'], ['Sold / Unsold', 'FinalReports', '', 'finr'], ['Purchase stock', 'PurchaseStock', '', 'pstk'], ['Order report', 'OrderReport', '', 'ordr'], ['Stock ledger', 'Stock', '', ''], ['Godown transfer', 'Stock', '', ''], ['Lot & grade changes', 'Stock', '', '']],
-      rep: [['Account reports', 'Reports', '', 'rep'], ['Inventory reports', 'Reports', '', ''], ['GST & e-invoice', 'Reports', '', ''], ['E-way bill closure', 'Reports', '', ''], ['WhatsApp messages', 'WhatsApp', '', 'wa']]
+      rep: [['Account reports', 'Reports', '', 'rep'], ['Inventory reports', 'Reports', '', ''], ['GST & e-invoice', 'Reports', '', ''], ['E-way bill closure', 'Reports', '', '']]
     };
     const owner = {};
     Object.keys(G).forEach((g) => G[g].forEach((it) => { if (it[3]) owner[it[3]] = g; }));
@@ -143,13 +149,14 @@ class Component extends DCLogic {
     });
     const n = {
       dash: top + (active === 'dash' ? on : ''), desk: top + (active === 'desk' ? on : ''), appr: top + (active === 'appr' ? on : ''),
-      mast: top + (masterKeys.indexOf(active) >= 0 ? on : ''), set: top, help: top
+      mast: top + (masterKeys.indexOf(active) >= 0 ? on : ''), set: top, help: top,
+      wa: top + (active === 'wa' ? on : ''), mail: top + (active === 'mail' ? on : ''), waBadge: 'font-size: 11px; color: var(--t3, #8F8F8F)'
     };
-    const h = { dash: L('Main'), desk: L('ManageDesk'), appr: L('Approvals'), mast: L('Masters') };
+    const h = { dash: L('Main'), desk: L('ManageDesk'), appr: L('Approvals'), mast: L('Masters'), wa: L('WhatsApp'), mail: L('Email') };
     const col = !!this.state.col;
     const cb = 'width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; border: 0; padding: 0; background: transparent; color: var(--t2, #B5B5B5); cursor: pointer; text-decoration: none;';
     const cOn = ' background: var(--s3, #2C2C2C); color: var(--t1, #EDEDED);';
-    const c = { btn: cb, dash: cb + (active === 'dash' ? cOn : ''), mast: cb + (masterKeys.indexOf(active) >= 0 ? cOn : '') };
+    const c = { btn: cb, dash: cb + (active === 'dash' ? cOn : ''), mast: cb + (masterKeys.indexOf(active) >= 0 ? cOn : ''), wa: cb + (active === 'wa' ? cOn : ''), mail: cb + (active === 'mail' ? cOn : '') };
     ['sales', 'pur', 'bank', 'jv', 'acc', 'inv', 'rep'].forEach((k) => { c[k] = cb + (owner[active] === k ? cOn : ''); c[k + 'Go'] = () => this.setCol(false, k); });
     const isLight = (this.props.theme ?? 'dark') === 'light';
     // company / FY / user — live from the session in the app, sample data on the design canvas
@@ -177,7 +184,7 @@ class Component extends DCLogic {
         pick: () => { if (api && ses) { api.switchCompany(comp.id, f.id); reload(); } else this.setState({ fid: f.id, orgOpen: false }); } })),
       signOut: () => { if (api && ses) api.logout(); else this.setState({ orgOpen: false }); }
     };
-    return { org, g, n, h, c, col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
+    return { org, g, n, h, c, waN: '', col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
   }
 }
 </script>

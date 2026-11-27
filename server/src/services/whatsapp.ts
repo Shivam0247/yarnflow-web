@@ -7,6 +7,7 @@
 import { sql } from 'drizzle-orm';
 import { notFound } from '../lib/errors.js';
 import type { Ctx } from './context.js';
+import { sendMode, toCloud } from './waCloud.js';
 
 type Row = Record<string, unknown>;
 const N = (v: unknown) => Number(v ?? 0) || 0;
@@ -64,7 +65,7 @@ async function groupOutstanding(ctx: Ctx, groupId: number | null, partyId: numbe
   return { os: Math.round(N(r.rows[0]?.os)), days: N(r.rows[0]?.days) };
 }
 
-interface Msg { formType: string; msgType: 'TEXT' | 'PDF'; voucherId: number; billNo: string; mobile: string | null; body?: string; caption?: string; attachment?: string }
+export interface Msg { formType: string; msgType: 'TEXT' | 'PDF'; voucherId: number; billNo: string; mobile: string | null; body?: string; caption?: string; attachment?: string; data?: { head: Row; items: Row[] } }
 
 /** the messages the old sender would queue for a saved document */
 export async function buildMessages(ctx: Ctx, voucherId: number): Promise<Msg[]> {
@@ -110,7 +111,8 @@ export async function buildMessages(ctx: Ctx, voucherId: number): Promise<Msg[]>
     };
     items = lines.map((l) => ({ Brand: l.brand ?? '', I_Name: l.item, LotNo: l.lot_no ?? '', Grade: l.grade ?? '', SalS_Qty: fx(l.qty, 3), SalS_Rate: fx(l.rate, 2) }));
   } else if (form === 'BANKREC' || form === 'BANKPAY') {
-    const bills = await ctx.db.execute<Row>(sql`select string_agg(b.number, ',' order by b.date, b.number) as n from bill_allocations a join vouchers b on b.id = a.bill_id where a.voucher_id = ${voucherId}`);
+    // receipts list our bill numbers; payments list the supplier's own bill numbers (as the old message did)
+    const bills = await ctx.db.execute<Row>(sql`select string_agg(${form === 'BANKPAY' ? sql`coalesce(nullif(b.ref_no, ''), b.number)` : sql`b.number`}, ',' order by ${form === 'BANKPAY' ? sql`coalesce(nullif(b.ref_no, ''), b.number)` : sql`b.date, b.number`}) as n from bill_allocations a join vouchers b on b.id = a.bill_id where a.voucher_id = ${voucherId}`);
     const mode = String((h.extra as Row | null)?.modeName ?? h.mode ?? '').toUpperCase();
     head = {
       ...head, RecS_BillNo: String(bills.rows[0]?.n ?? (h.extra as Row | null)?.billNo ?? ''), PCheckNo: h.instrument_no ?? '', Ch_Date: dmy(h.instrument_date ?? h.date),
@@ -130,6 +132,7 @@ export async function buildMessages(ctx: Ctx, voucherId: number): Promise<Msg[]>
       out.push({ ...base, msgType: 'PDF', mobile, caption: 'Party Wise Outstanding', attachment: `/print/outstanding?by=party&kind=all&${filter}` });
     }
   }
+  for (const m of out) m.data = { head, items };
   return out;
 }
 
@@ -140,10 +143,12 @@ export async function enqueueFor(ctx: Ctx, voucherId: number) {
       const c = { ...ctx, db: tx } as Ctx;
       const done = await tx.execute<Row>(sql`select 1 from whatsapp_messages where voucher_id = ${voucherId} and not legacy limit 1`);
       if (done.rows.length) return;
-      const msgs = await buildMessages(c, voucherId);
+      const raw = await buildMessages(c, voucherId);
+      // official WhatsApp API: one approved-template message per person (text + PDF together); otherwise the old text / PDF pair
+      const msgs: (Omit<Msg, 'msgType'> & { msgType: string; meta?: unknown })[] = (await sendMode(c)) === 'cloud' ? toCloud(raw) : raw;
       for (const m of msgs)
-        await tx.execute(sql`insert into whatsapp_messages (company_id, form_type, msg_type, voucher_id, bill_no, mobile, body, caption, attachment, status, user_id)
-          values (${ctx.companyId}, ${m.formType}, ${m.msgType}, ${m.voucherId}, ${m.billNo}, ${m.mobile}, ${m.body ?? null}, ${m.caption ?? null}, ${m.attachment ?? null}, ${m.mobile ? 'PENDING' : 'NO MOBILE'}, ${ctx.userId})`);
+        await tx.execute(sql`insert into whatsapp_messages (company_id, form_type, msg_type, voucher_id, bill_no, mobile, body, caption, attachment, status, user_id, meta)
+          values (${ctx.companyId}, ${m.formType}, ${m.msgType}, ${m.voucherId}, ${m.billNo}, ${m.mobile}, ${m.body ?? null}, ${m.caption ?? null}, ${m.attachment ?? null}, ${m.mobile ? 'PENDING' : 'NO MOBILE'}, ${ctx.userId}, ${m.meta ? JSON.stringify(m.meta) : null}::jsonb)`);
     });
   } catch {
     /* a message problem never blocks saving the document */
@@ -154,10 +159,10 @@ export async function listMessages(ctx: Ctx, q: { status?: string; form?: string
   const like = q.q ? '%' + q.q + '%' : null;
   const r = await ctx.db.execute<Row>(sql`
     select m.id, m.form_type as "formType", m.msg_type as "msgType", m.voucher_id as "voucherId", m.bill_no as "billNo", m.mobile, m.body, m.caption, m.attachment,
-      m.status, m.error, m.sent_at as "sentAt", m.created_at as "createdAt", m.legacy, u.name as "user", c.short_name as com
+      m.status, m.error, m.sent_at as "sentAt", m.delivered_at as "deliveredAt", m.read_at as "readAt", m.created_at as "createdAt", m.legacy, u.name as "user", c.short_name as com
     from whatsapp_messages m left join users u on u.id = m.user_id left join companies c on c.id = m.company_id
     where m.company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})
-      and m.legacy = ${q.legacy === '1'} ${q.status ? sql`and m.status = ${q.status}` : sql``} ${q.form ? sql`and m.form_type = ${q.form}` : sql``}
+      and m.legacy = ${q.legacy === '1'} ${q.status === 'SENT' ? sql`and m.status in ('SENT', 'DELIVERED', 'READ')` : q.status ? sql`and m.status = ${q.status}` : sql``} ${q.form ? sql`and m.form_type = ${q.form}` : sql``}
       ${q.from ? sql`and m.created_at >= ${q.from}::date` : sql``} ${q.to ? sql`and m.created_at < ${q.to}::date + 1` : sql``}
       ${like ? sql`and (m.bill_no ilike ${like} or m.mobile ilike ${like} or m.body ilike ${like} or m.caption ilike ${like})` : sql``}
     order by m.created_at desc, m.id desc limit ${Math.min(Number(q.limit) || 500, 5000)}`);
@@ -190,7 +195,7 @@ export async function claim(ctx: Ctx, limit = 10) {
   await ctx.db.execute(sql`update whatsapp_messages set status = 'PENDING' where status = 'SENDING' and picked_at < now() - interval '10 minutes' and ${SCOPE(ctx)}`);
   const r = await ctx.db.execute<Row>(sql`
     update whatsapp_messages m set status = 'SENDING', picked_at = now(), tries = m.tries + 1
-    where m.id in (select id from whatsapp_messages where status = 'PENDING' and not legacy and mobile is not null and ${SCOPE(ctx)}
+    where m.id in (select id from whatsapp_messages where status = 'PENDING' and not legacy and mobile is not null and msg_type in ('TEXT', 'PDF') and ${SCOPE(ctx)}
                    order by id limit ${Math.min(Math.max(limit, 1), 50)} for update skip locked)
     returning m.id, m.form_type as "formType", m.msg_type as "msgType", m.mobile, m.body, m.caption, m.attachment, m.bill_no as "billNo"`);
   return r.rows.sort((a, b) => Number(a.id) - Number(b.id));

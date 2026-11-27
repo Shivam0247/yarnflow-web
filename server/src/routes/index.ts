@@ -25,6 +25,8 @@ import * as assistant from '../services/assistant.js';
 import * as tables from '../services/tables.js';
 import * as an from '../services/analysis.js';
 import * as wa from '../services/whatsapp.js';
+import * as wac from '../services/waCloud.js';
+import * as mail from '../services/email.js';
 import { BILL_TYPES, BY_SLUG, TYPES, type VoucherType } from '../services/types.js';
 
 type Q = Record<string, string | undefined>;
@@ -267,6 +269,34 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.get('/api/reports/purchase-stock', read((ctx, req) => trading.purchaseStock(ctx, q(req))));
   app.get('/api/whatsapp/messages', read((ctx, req) => wa.listMessages(ctx, q(req))));
   app.post('/api/whatsapp/messages/:id/sent', write((ctx, req) => wa.markSent(ctx, idParam(req), String((req.body as { status?: string })?.status ?? 'SENT'))));
+  app.get('/api/email/messages', read((ctx, req) => mail.listEmails(ctx, q(req))));
+  app.post('/api/email/messages/:id/retry', write((ctx, req) => mail.setStatus(ctx, idParam(req), 'PENDING')));
+  app.post('/api/email/messages/:id/skip', write((ctx, req) => mail.setStatus(ctx, idParam(req), 'SKIPPED')));
+  app.post('/api/email/document/:id', write((ctx, req) => mail.queueDocumentEmail(ctx, idParam(req), (req.body ?? {}) as never)));
+  app.post('/api/email/queue/:id', write((ctx, req) => mail.enqueueEmailFor(ctx, idParam(req)).then(() => ({ ok: true }))));
+  app.get('/api/email/settings', read((ctx) => mail.getSettings(ctx)));
+  app.put('/api/email/settings', write((ctx, req) => mail.saveSettings(ctx, (req.body ?? {}) as never)));
+  app.post('/api/email/test', write((ctx, req) => mail.testEmail(ctx, String((req.body as { to?: string })?.to ?? ''))));
+  app.get('/api/whatsapp/settings', read((ctx) => wac.getSettings(ctx)));
+  app.put('/api/whatsapp/settings', write((ctx, req) => wac.saveSettings(ctx, (req.body ?? {}) as never)));
+  app.get('/api/whatsapp/cloud/templates', read(async (ctx) => {
+    const texts = wac.templateTexts();
+    try { return { texts, status: await wac.templateStatus(ctx) }; } catch (e) { return { texts, status: [], error: (e as Error).message }; }
+  }));
+  app.post('/api/whatsapp/cloud/templates/submit', write((ctx) => wac.submitTemplates(ctx)));
+  app.post('/api/whatsapp/cloud/test', write((ctx, req) => wac.testSend(ctx, String((req.body as { to?: string })?.to ?? ''))));
+  // Meta webhook: no login (Meta calls it); checked by the verify token / app secret signature
+  await app.register(async (r) => {
+    r.addContentTypeParser('application/json', { parseAs: 'buffer' }, (_req, body, done) => done(null, body));
+    r.get('/api/whatsapp/webhook', async (req, reply) => {
+      const ch = await wac.verifyWebhook(db, req.query as Record<string, unknown>);
+      return ch === null ? reply.status(403).send('forbidden') : reply.type('text/plain').send(ch);
+    });
+    r.post('/api/whatsapp/webhook', async (req, reply) => {
+      const res = await wac.receiveWebhook(db, req.body as Buffer, req.headers['x-hub-signature-256'] as string | undefined);
+      return res.ok ? { ok: true } : reply.status(401).send({ ok: false });
+    });
+  });
   app.post('/api/whatsapp/claim', write((ctx, req) => { wa.beat(String((req.body as { info?: string })?.info ?? '')); return wa.claim(ctx, Number((req.body as { limit?: number })?.limit) || 10); }));
   app.post('/api/whatsapp/messages/:id/result', write((ctx, req) => wa.report(ctx, idParam(req), (req.body ?? {}) as never)));
   app.post('/api/whatsapp/messages/:id/retry', write((ctx, req) => wa.retry(ctx, idParam(req))));

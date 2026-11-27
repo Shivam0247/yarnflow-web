@@ -764,14 +764,35 @@ export const whatsappMessages = pgTable(
     error: text('error'),
     tries: integer('tries').notNull().default(0),
     pickedAt: timestamp('picked_at', { withTimezone: true }),
+    meta: jsonb('meta'), // official API: { template, lang, params }
+    wamid: varchar('wamid', { length: 120 }), // WhatsApp message id, for delivered / read ticks
+    deliveredAt: timestamp('delivered_at', { withTimezone: true }),
+    readAt: timestamp('read_at', { withTimezone: true }),
     sentAt: timestamp('sent_at', { withTimezone: true }),
     userId: integer('user_id'),
     isManual: boolean('is_manual').notNull().default(false),
     legacy: boolean('legacy').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
   },
-  (t) => [index('whatsapp_status').on(t.companyId, t.status, t.createdAt), index('whatsapp_voucher').on(t.voucherId)]
+  (t) => [index('whatsapp_status').on(t.companyId, t.status, t.createdAt), index('whatsapp_voucher').on(t.voucherId), index('whatsapp_wamid').on(t.wamid)]
 );
+
+/** how WhatsApp messages are sent: off, the linked-phone sender, or the official WhatsApp Cloud API (one row per main company) */
+export const whatsappSettings = pgTable('whatsapp_settings', {
+  companyId: integer('company_id').primaryKey(),
+  mode: varchar('mode', { length: 10 }).notNull().default('linked'), // off | linked | cloud
+  phoneNumberId: varchar('phone_number_id', { length: 40 }),
+  wabaId: varchar('waba_id', { length: 40 }),
+  appId: varchar('app_id', { length: 40 }),
+  accessToken: text('access_token'),
+  appSecret: text('app_secret'),
+  verifyToken: varchar('verify_token', { length: 80 }),
+  apiVersion: varchar('api_version', { length: 10 }).notNull().default('v23.0'),
+  lang: varchar('lang', { length: 10 }).notNull().default('en'),
+  graphBase: varchar('graph_base', { length: 200 }), // only for testing; empty = https://graph.facebook.com
+  displayNumber: varchar('display_number', { length: 30 }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
 
 export const auditLogs = pgTable(
   'audit_logs',
@@ -798,3 +819,45 @@ export const voucherLineRelations = relations(voucherLines, ({ one }) => ({
   voucher: one(vouchers, { fields: [voucherLines.voucherId], references: [vouchers.id] }),
   item: one(items, { fields: [voucherLines.itemId], references: [items.id] })
 }));
+
+/** emails, as the old software sent them with each bill / order / note (EmailLogMst) */
+export const emailMessages = pgTable(
+  'email_messages',
+  {
+    id: id(),
+    companyId: integer('company_id').notNull(),
+    formType: varchar('form_type', { length: 20 }).notNull(),
+    voucherId: integer('voucher_id'),
+    billNo: varchar('bill_no', { length: 60 }),
+    toEmail: varchar('to_email', { length: 300 }),
+    subject: text('subject'),
+    body: text('body'),
+    isHtml: boolean('is_html').notNull().default(false),
+    attachments: jsonb('attachments'), // [{ link, filename }]
+    status: varchar('status', { length: 12 }).notNull().default('PENDING'), // PENDING | SENDING | SENT | FAILED | SKIPPED | NO EMAIL
+    error: text('error'),
+    tries: integer('tries').notNull().default(0),
+    pickedAt: timestamp('picked_at', { withTimezone: true }),
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+    userId: integer('user_id'),
+    legacy: boolean('legacy').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => [index('email_status').on(t.companyId, t.status, t.createdAt), index('email_voucher').on(t.voucherId)]
+);
+
+/** outgoing mail server (one row per main company) */
+export const emailSettings = pgTable('email_settings', {
+  companyId: integer('company_id').primaryKey(),
+  mode: varchar('mode', { length: 10 }).notNull().default('off'), // off | auto
+  host: varchar('host', { length: 120 }),
+  port: integer('port').notNull().default(587),
+  secure: boolean('secure').notNull().default(false), // true = SSL on 465; false = STARTTLS on 587
+  username: varchar('username', { length: 200 }),
+  password: text('password'),
+  fromName: varchar('from_name', { length: 120 }),
+  forms: jsonb('forms'), // which documents email automatically, e.g. ["SAL","SALRTN","SalOrder","DBNT","CRNT"]
+  dailyLimit: integer('daily_limit').notNull().default(450),
+  pausedUntil: timestamp('paused_until', { withTimezone: true }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});

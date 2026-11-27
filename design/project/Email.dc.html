@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YarnFlow · Email</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.dark{--bg:#141414;--sb:#1B1B1B;--s1:#1E1E1E;--s2:#262626;--s3:#2E2E2E;--bd:#262626;--bd2:#383838;--t1:#EDEDED;--t2:#B5B5B5;--t3:#8F8F8F;--ib:#F5F5F5;--it:#171717;color-scheme:dark}
+.light{--bg:#FFFFFF;--sb:#F8F8F8;--s1:#F7F7F7;--s2:#F1F1F1;--s3:#E9E9E9;--bd:#ECECEC;--bd2:#DDDDDD;--t1:#171717;--t2:#525252;--t3:#6B6B6B;--ib:#171717;--it:#FFFFFF;color-scheme:light}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:var(--bg);color:var(--t1)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.sbw{flex:1 1 236px;max-width:100%;background:var(--sb);border-right:1px solid var(--bd)}
+.main{flex:999 1 600px;min-width:0;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;gap:8px;min-height:56px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.bc{display:flex;align-items:center;gap:8px;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:8px;border:0;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--s2);color:var(--t1)}
+.btn:hover{background:var(--s3)}
+.btn.pr{background:var(--ib);color:var(--it)}
+.btn.ok{background:#16A34A;color:#fff}.btn.no{background:rgba(239,68,68,.14);color:#F87171}
+.inp{height:34px;border-radius:8px;border:1px solid transparent;background:var(--s2);padding:0 10px;font-size:14px;color:var(--t1);min-width:0}
+.inp::placeholder{color:var(--t3)}
+textarea.inp{height:84px;padding:8px 10px;width:100%;resize:vertical}
+.muted{color:var(--t3)}.t2{color:var(--t2)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.t-red{background:rgba(239,68,68,.15);color:#F87171}.t-orange{background:rgba(249,115,22,.15);color:#FB923C}.t-blue{background:rgba(59,130,246,.15);color:#60A5FA}.t-violet{background:rgba(168,85,247,.15);color:#C084FC}.t-gray{background:var(--s2);color:var(--t2)}
+.light .t-red,.light .btn.no{color:#B91C1C}.light .t-orange{color:#C2410C}.light .t-blue{color:#1D4ED8}.light .t-violet{color:#7E22CE}
+.av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:600;flex:none;color:#fff}
+.split{display:flex;flex-wrap:wrap;flex:1}
+.lp{flex:1 1 420px;min-width:0;border-right:1px solid var(--bd);display:flex;flex-direction:column}
+.rp{flex:999 1 480px;min-width:0;display:flex;flex-direction:column}
+.tabs{display:flex;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto;min-height:52px}
+.tab{display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--t3);border:0;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.tab .n{font-size:12px;background:var(--s2);border-radius:6px;padding:0 6px;color:var(--t2)}
+.item{display:flex;gap:12px;padding:14px 20px;border:0;border-bottom:1px solid var(--bd);background:none;text-align:left;width:100%;cursor:pointer;color:var(--t1)}
+.item:hover{background:var(--s1)}
+.item.on{background:var(--s2)}
+.ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--s2);color:var(--t2)}
+.kv{display:flex;align-items:center;gap:12px;min-height:38px}
+.kv .k{width:140px;flex:none;color:var(--t3)}
+.kv .v{flex:1;min-width:0;font-variant-numeric:tabular-nums}
+.box{border:1px solid var(--bd);border-radius:12px;padding:16px}
+
+.aiw{flex:none;position:sticky;top:0;height:100vh;align-self:flex-start;z-index:20}
+.fit .aiw{position:relative;height:100%}
+@media (max-width:760px){.aiw{display:none}}
+
+/* gen27: collapsible sidebar */
+.sbw{transition:flex-basis .18s ease,width .18s ease}
+.sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.msg{white-space:pre-wrap;font-family:inherit;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin:0;max-height:52vh;overflow:auto;font-size:13.5px;line-height:20px}
+.t-green{background:rgba(22,163,74,.15);color:#4ADE80}.light .t-green{color:#15803D}
+.bar{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.list{overflow:auto;max-height:calc(100vh - 170px)}
+</style>
+</helmet>
+<div class="app {{theme}}">
+<div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="mail" hint-size="236px,960px"></dc-import></div>
+<div class="main">
+<header class="hdr">
+<div class="bc"><span>Email</span><span class="tag t-orange">{{pendingN}} to send</span><span class="{{modeCls}}" title="{{modeTip}}">{{modeTxt}}</span></div>
+<input class="inp" type="search" placeholder="Bill no, email or subject" aria-label="Search emails" style="width: 240px" value="{{q}}" onChange="{{setQ}}">
+<button class="{{setBtn}}" type="button" onClick="{{toggleSet}}">Email setup</button>
+</header>
+<sc-if value="{{showList}}">
+<div class="split">
+<div class="lp">
+<div class="tabs" role="tablist">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="5"><button class="{{f.cls}}" type="button" role="tab" onClick="{{f.pick}}">{{f.label}} <span class="n">{{f.n}}</span></button></sc-for>
+</div>
+<div class="bar"><select class="inp" aria-label="Document type" value="{{form}}" onChange="{{setForm}}"><sc-for list="{{forms}}" as="o" hint-placeholder-count="5"><option value="{{o.v}}">{{o.l}}</option></sc-for></select><input class="inp" type="date" aria-label="From" value="{{from}}" onChange="{{setFrom}}"><input class="inp" type="date" aria-label="To" value="{{to}}" onChange="{{setTo}}"></div>
+<div class="list">
+<sc-for list="{{rows}}" as="it" hint-placeholder-count="8">
+<button class="{{it.cls}}" type="button" onClick="{{it.pick}}">
+<span class="ico">{{it.short}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span style="display: flex; gap: 8px; align-items: baseline"><b style="font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{it.subject}}</b><span class="muted" style="font-size: 12px">{{it.when}}</span></span>
+<span style="display: flex; gap: 8px; align-items: center; justify-content: space-between"><span class="t2" style="font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0">{{it.line}}</span><span class="{{it.tagCls}}">{{it.status}}</span></span>
+</span>
+</button>
+</sc-for>
+<div class="muted" style="padding: 16px 20px">{{listNote}}</div>
+</div>
+</div>
+<div class="rp">
+<div style="display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--bd); flex-wrap: wrap">
+<div style="flex: 1; min-width: 220px"><div class="muted" style="font-size: 13px">{{sel.type}}</div><div style="font-size: 18px; line-height: 26px; font-weight: 600">{{sel.subject}}</div><div class="t2">{{sel.to}}</div></div>
+<span class="{{sel.tagCls}}">{{sel.status}}</span>
+</div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+<div class="t2" style="font-size: 13px">{{sel.att}}</div>
+<pre class="msg">{{sel.body}}</pre>
+<sc-if value="{{sel.error}}"><div class="t-red tag" style="height: auto; padding: 6px 10px; white-space: normal">{{sel.error}}</div></sc-if>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+<button class="btn" type="button" onClick="{{openPdf}}">{{pdfLabel}}</button>
+<button class="btn" type="button" onClick="{{retry}}">Send again</button>
+<button class="btn no" type="button" onClick="{{skip}}">Skip</button>
+<div style="flex: 1"></div><span class="muted" style="font-size: 13px">{{done}}</span>
+</div>
+<div class="muted" style="font-size: 13px">{{hint}}</div>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showSet}}">
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; max-width: 1000px">
+<div class="box" style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 17px; font-weight: 600">Send emails automatically</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><sc-for list="{{modes}}" as="m" hint-placeholder-count="2"><button class="{{m.cls}}" type="button" onClick="{{m.pick}}">{{m.label}}</button></sc-for></div>
+<div class="muted" style="font-size: 13px">When on, each document below is emailed to the party's email address as soon as it is saved — the same subject, text and PDF the old software sent.</div>
+<div style="display: flex; gap: 16px; flex-wrap: wrap"><sc-for list="{{formChecks}}" as="f" hint-placeholder-count="5"><label style="display: flex; gap: 8px; align-items: center"><input type="checkbox" checked="{{f.on}}" onChange="{{f.toggle}}"> {{f.label}}</label></sc-for></div>
+</div>
+<div class="box" style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 17px; font-weight: 600">Mail server</div>
+<div class="muted" style="font-size: 13px">Gmail: smtp.gmail.com, port 587. Use a Gmail <b>app password</b> (Google Account → Security → 2-Step Verification → App passwords), not the normal password.</div>
+<sc-for list="{{fields}}" as="f" hint-placeholder-count="6"><div class="kv"><label class="k" for="{{f.k}}">{{f.label}}</label><input class="inp" id="{{f.k}}" type="{{f.type}}" style="flex: 1" placeholder="{{f.ph}}" value="{{f.v}}" onChange="{{f.set}}"></div></sc-for>
+<label style="display: flex; gap: 8px; align-items: center"><input type="checkbox" checked="{{secure}}" onChange="{{toggleSecure}}"> SSL (port 465) — leave off for port 587</label>
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"><button class="btn pr" type="button" onClick="{{saveSet}}">Save</button><span class="muted" style="font-size: 13px">{{sdone}}</span><div style="flex: 1"></div>
+<input class="inp" placeholder="Send a test to (email)" aria-label="Test email address" value="{{testTo}}" onChange="{{setTestTo}}" style="width: 240px"><button class="btn" type="button" onClick="{{testSend}}">Send test email</button></div>
+<div class="muted" style="font-size: 13px">{{tstDone}}</div>
+</div>
+</div>
+</sc-if>
+</div>
+<div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="mail" hint-size="52px,960px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { filter: 'PENDING', form: '', q: '', from: '', to: '', selId: null, set: false }; this.tok = 0; }
+  api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
+  componentDidMount() { this.load(); this.loadSet(); this.iv = setInterval(() => { if (!this.state.set) this.load(); }, 15000); }
+  componentWillUnmount() { clearInterval(this.iv); }
+  async loadSet() { const api = this.api(); if (!api) return; try { this.setState({ cfg: await api.get('/email/settings') }); } catch (e) {} }
+  async load(patch) {
+    const st = { ...this.state, ...(patch || {}) }; if (patch) this.setState(patch);
+    const api = this.api(); if (!api) return;
+    const t = ++this.tok; const qs = new URLSearchParams();
+    if (st.filter === 'OLD') qs.set('legacy', '1'); else if (st.filter !== 'ALL') qs.set('status', st.filter);
+    if (st.form) qs.set('form', st.form); if (st.q.trim()) qs.set('q', st.q.trim()); if (st.from) qs.set('from', st.from); if (st.to) qs.set('to', st.to);
+    try { const r = await api.get('/email/messages?' + qs.toString()); if (t !== this.tok) return; this.setState({ live: r.rows, info: r }); } catch (e) { this.setState({ done: api.message(e) }); }
+  }
+  async act(m, what) { const api = this.api(); if (!api || !m) return; try { await api.post('/email/messages/' + m.id + '/' + what, {}); this.setState({ done: what === 'retry' ? 'Queued again' : 'Skipped' }); await this.load(); } catch (e) { this.setState({ done: api.message(e) }); } }
+  renderVals() {
+    const st = this.state; const theme = this.props.theme ?? 'dark'; const cfg = st.cfg || {}; const info = st.info || {};
+    const FORMS = [['', 'All documents'], ['SAL', 'Sale bill'], ['SalOrder', 'Sale order'], ['SALRTN', 'Sale return'], ['DBNT', 'Debit note'], ['CRNT', 'Credit note'], ['NOTE', 'Debit / credit note (old)'], ['SALE_BILL', 'Sale bill (by hand)'], ['DEBIT_NOTE', 'Debit note (by hand)'], ['CREDIT_NOTE', 'Credit note (by hand)']];
+    const LBL = Object.fromEntries(FORMS); const SHORT = { SAL: 'SB', SalOrder: 'SO', SALRTN: 'SR', DBNT: 'DN', CRNT: 'CN', NOTE: 'NT', SALE_BILL: 'SB', SALE_RETURN: 'SR', DEBIT_NOTE: 'DN', CREDIT_NOTE: 'CN', SALES_ORDER: 'SO' };
+    const tone = (s) => s === 'SENT' ? 't-green' : s === 'PENDING' || s === 'SENDING' ? 't-orange' : s === 'FAILED' || s === 'NO EMAIL' ? 't-red' : 't-gray';
+    const pad = (n) => String(n).padStart(2, '0');
+    const when = (t) => { if (!t) return ''; const d = new Date(t); return pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+    const strip = (h) => String(h || '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<br\s*\/?>(\s*)/gi, '\n').replace(/<\/(p|div|tr|h\d)>/gi, '\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n\n').trim();
+    const rows = st.live || []; const selM = rows.find((r) => r.id === st.selId) || rows[0] || null; const c = info.counts || {};
+    const atts = (m) => (m && Array.isArray(m.attachments) ? m.attachments : []);
+    const sel = selM ? { type: (LBL[selM.formType] || selM.formType) + (selM.legacy ? ' · old software' : '') + (selM.user ? ' · ' + selM.user : ''), subject: selM.subject || '—', to: selM.to ? 'To: ' + selM.to : 'No email address on the party', body: selM.isHtml ? strip(selM.body) : (selM.body || '(no text — PDF only)'),
+        att: atts(selM).length ? '📎 ' + atts(selM).map((a) => a.filename).join(', ') : '', status: selM.status, tagCls: 'tag ' + tone(selM.status), error: selM.error ? (selM.status === 'FAILED' ? 'Failed: ' : 'Last try: ') + selM.error : '' }
+      : { type: '', subject: st.live ? 'Nothing here' : 'Loading…', to: '', body: st.live ? 'No email matches this view.' : '', att: '', status: '', tagCls: '', error: '' };
+    const on = cfg.mode === 'auto';
+    const forms = Array.isArray(cfg.forms) ? cfg.forms : [];
+    const paused = info.pausedUntil && new Date(info.pausedUntil) > new Date();
+    return {
+      theme, pendingN: c.PENDING || 0, q: st.q,
+      setQ: (e) => { const v = e.target.value; this.setState({ q: v }); clearTimeout(this.qt); this.qt = setTimeout(() => this.load(), 300); },
+      modeTxt: !on ? 'Automatic email off' : paused ? 'Paused — sending limit' : '● Sending · ' + (info.sentToday || 0) + ' today',
+      modeCls: 'tag ' + (!on ? 't-gray' : paused ? 't-orange' : 't-green'), modeTip: paused ? 'The mail server refused more mail for now; YarnFlow tries again in an hour' : 'Daily limit ' + (info.dailyLimit || 450),
+      setBtn: st.set ? 'btn pr' : 'btn', toggleSet: () => this.setState({ set: !st.set }), showList: !st.set, showSet: !!st.set,
+      filters: [['PENDING', 'To send'], ['SENT', 'Sent'], ['FAILED', 'Failed'], ['NO EMAIL', 'No email'], ['ALL', 'All'], ['OLD', 'Old software']].map(([k, label]) => ({ label, n: k === 'ALL' ? Object.values(c).reduce((a, b) => a + b, 0) : k === 'OLD' ? '' : c[k] || 0, cls: k === st.filter ? 'tab on' : 'tab', pick: () => this.load({ filter: k, selId: null }) })),
+      forms: FORMS.map(([v, l]) => ({ v, l })), form: st.form, setForm: (e) => this.load({ form: e.target.value, selId: null }),
+      from: st.from, to: st.to, setFrom: (e) => this.load({ from: e.target.value }), setTo: (e) => this.load({ to: e.target.value }),
+      rows: rows.map((m) => ({ short: SHORT[m.formType] || '@', subject: m.subject || m.billNo || '—', when: when(m.createdAt), line: (m.to || 'no email') + (atts(m).length ? ' · 📎 PDF' : ''), status: m.status, tagCls: 'tag ' + tone(m.status), cls: selM && m.id === selM.id ? 'item on' : 'item', pick: () => this.setState({ selId: m.id, done: '' }) })),
+      listNote: st.live ? (rows.length >= 500 ? 'Showing the latest 500 — narrow by date or search.' : rows.length ? '' : 'No emails.') : 'Loading…',
+      sel, done: st.done || '',
+      pdfLabel: atts(selM).length ? 'Open PDF' : 'No PDF',
+      openPdf: () => { const a = atts(selM)[0]; if (a && a.link) try { window.open(a.link, '_blank', 'noopener'); } catch (e) {} },
+      retry: () => this.act(selM, 'retry'), skip: () => this.act(selM, 'skip'),
+      hint: on ? 'Emails go out automatically from ' + (cfg.username || 'the company email') + ' a few seconds after the document is saved.' : 'Automatic email is off — switch it on in Email setup.',
+      modes: [['off', 'Off'], ['auto', 'On — email each saved document']].map(([k, label]) => ({ label, cls: (cfg.mode || 'off') === k ? 'btn pr' : 'btn', pick: () => this.setState({ cfg: { ...cfg, mode: k }, sdone: 'Not saved yet' }) })),
+      formChecks: [['SAL', 'Sale bill + PDF'], ['SALRTN', 'Sale return + PDF'], ['SalOrder', 'Sale order'], ['DBNT', 'Debit note PDF'], ['CRNT', 'Credit note PDF']].map(([k, label]) => ({ label, on: forms.indexOf(k) >= 0, toggle: () => this.setState({ cfg: { ...cfg, forms: forms.indexOf(k) >= 0 ? forms.filter((x) => x !== k) : forms.concat([k]) }, sdone: 'Not saved yet' }) })),
+      fields: [['host', 'Mail server', 'text', 'smtp.gmail.com'], ['port', 'Port', 'text', '587'], ['username', 'Email address', 'text', 'umiyayarnllp@gmail.com'], ['password', 'App password', 'password', '16-letter app password'], ['fromName', 'Sender name', 'text', 'Company name'], ['dailyLimit', 'Daily limit', 'text', '450 (Gmail allows 500 a day)']].map(([k, label, type, ph]) => ({ k: 'em-' + k, label, type, ph, v: cfg[k] == null ? '' : String(cfg[k]), set: (e) => this.setState({ cfg: { ...cfg, [k]: e.target.value }, sdone: 'Not saved yet' }) })),
+      secure: !!cfg.secure, toggleSecure: (e) => this.setState({ cfg: { ...cfg, secure: e.target.checked }, sdone: 'Not saved yet' }),
+      sdone: st.sdone || '',
+      saveSet: async () => { const api = this.api(); if (!api) return; try { const s = await api.put('/email/settings', cfg); this.setState({ cfg: s, sdone: '✓ Saved' }); this.load(); } catch (e) { this.setState({ sdone: api.message(e) }); } },
+      testTo: st.testTo || '', setTestTo: (e) => this.setState({ testTo: e.target.value }), tstDone: st.tstDone || '',
+      testSend: async () => { const api = this.api(); if (!api) return; this.setState({ tstDone: 'Sending…' }); try { const r = await api.post('/email/test', { to: st.testTo || '' }); this.setState({ tstDone: '✓ Test email sent to ' + r.to }); } catch (e) { this.setState({ tstDone: api.message(e) }); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

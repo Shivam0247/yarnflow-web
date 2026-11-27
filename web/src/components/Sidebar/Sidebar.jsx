@@ -35,7 +35,7 @@ class Component extends DCLogic {
       jv: [['Debit note', 'DebitNoteList', 'Ctrl D', 'dn'], ['Credit note', 'CreditNoteList', 'Ctrl E', 'cn'], ['Journal voucher', 'JournalVoucherList', 'Ctrl J', 'jvo'], ['Interest debit notes', 'Outstanding', '', ''], ['Opening entries', 'Ledger', '', '']],
       acc: [['Ledgers', 'Ledger', '', 'led'], ['Outstanding & ageing', 'Outstanding', '', 'out'], ['Outstanding report (old format)', 'OutstandingReport', '', 'osr'], ['Bill adjustment', 'Payments', '', ''], ['Pending bill adjustment', 'Outstanding', '', ''], ['Opening balances', 'Ledger', '', '']],
       inv: [['Stock & godowns', 'Stock', '', 'stock'], ['Sold / Unsold', 'FinalReports', '', 'finr'], ['Purchase stock', 'PurchaseStock', '', 'pstk'], ['Order report', 'OrderReport', '', 'ordr'], ['Stock ledger', 'Stock', '', ''], ['Godown transfer', 'Stock', '', ''], ['Lot & grade changes', 'Stock', '', '']],
-      rep: [['Account reports', 'Reports', '', 'rep'], ['Inventory reports', 'Reports', '', ''], ['GST & e-invoice', 'Reports', '', ''], ['E-way bill closure', 'Reports', '', ''], ['WhatsApp messages', 'WhatsApp', '', 'wa']]
+      rep: [['Account reports', 'Reports', '', 'rep'], ['Inventory reports', 'Reports', '', ''], ['GST & e-invoice', 'Reports', '', ''], ['E-way bill closure', 'Reports', '', '']]
     };
     const owner = {};
     Object.keys(G).forEach((g) => G[g].forEach((it) => { if (it[3]) owner[it[3]] = g; }));
@@ -55,13 +55,14 @@ class Component extends DCLogic {
     });
     const n = {
       dash: top + (active === 'dash' ? on : ''), desk: top + (active === 'desk' ? on : ''), appr: top + (active === 'appr' ? on : ''),
-      mast: top + (masterKeys.indexOf(active) >= 0 ? on : ''), set: top, help: top
+      mast: top + (masterKeys.indexOf(active) >= 0 ? on : ''), set: top, help: top,
+      wa: top + (active === 'wa' ? on : ''), mail: top + (active === 'mail' ? on : ''), waBadge: 'font-size: 11px; color: var(--t3, #8F8F8F)'
     };
-    const h = { dash: L('Main'), desk: L('ManageDesk'), appr: L('Approvals'), mast: L('Masters') };
+    const h = { dash: L('Main'), desk: L('ManageDesk'), appr: L('Approvals'), mast: L('Masters'), wa: L('WhatsApp'), mail: L('Email') };
     const col = !!this.state.col;
     const cb = 'width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; border: 0; padding: 0; background: transparent; color: var(--t2, #B5B5B5); cursor: pointer; text-decoration: none;';
     const cOn = ' background: var(--s3, #2C2C2C); color: var(--t1, #EDEDED);';
-    const c = { btn: cb, dash: cb + (active === 'dash' ? cOn : ''), mast: cb + (masterKeys.indexOf(active) >= 0 ? cOn : '') };
+    const c = { btn: cb, dash: cb + (active === 'dash' ? cOn : ''), mast: cb + (masterKeys.indexOf(active) >= 0 ? cOn : ''), wa: cb + (active === 'wa' ? cOn : ''), mail: cb + (active === 'mail' ? cOn : '') };
     ['sales', 'pur', 'bank', 'jv', 'acc', 'inv', 'rep'].forEach((k) => { c[k] = cb + (owner[active] === k ? cOn : ''); c[k + 'Go'] = () => this.setCol(false, k); });
     const isLight = (this.props.theme ?? 'dark') === 'light';
     // company / FY / user — live from the session in the app, sample data on the design canvas
@@ -89,7 +90,7 @@ class Component extends DCLogic {
         pick: () => { if (api && ses) { api.switchCompany(comp.id, f.id); reload(); } else this.setState({ fid: f.id, orgOpen: false }); } })),
       signOut: () => { if (api && ses) api.logout(); else this.setState({ orgOpen: false }); }
     };
-    return { org, g, n, h, c, col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
+    return { org, g, n, h, c, waN: '', col, exp: !col, collapse: () => this.setCol(true), expand: () => this.setCol(false), isLight, isDark: !isLight, themeLabel: isLight ? 'Dark mode' : 'Light mode', toggleTheme: () => this.toggleTheme() };
   }
 }
 
@@ -184,6 +185,22 @@ class SidebarView extends Component {
                 <path d="M8 17v-3" />
               </svg>
             </button>
+            {' '}
+            <span style={{"width":"24px","height":"1px","background":"var(--bd2, #383838)","margin":"6px 0"}} />
+            {' '}
+            <DcLink href={v.h?.wa} title="WhatsApp" aria-label="WhatsApp" style={sx(v.c?.wa)}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+              </svg>
+            </DcLink>
+            {' '}
+            <DcLink href={v.h?.mail} title="Email" aria-label="Email" style={sx(v.c?.mail)}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+            </DcLink>
             {' '}
             <DcLink href={v.h?.mast} title="Masters" aria-label="Masters" style={sx(v.c?.mast)}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -585,6 +602,31 @@ class SidebarView extends Component {
                 </div>
               </>
             ) : null}
+            <div style={{"fontSize":"11px","fontWeight":"600","letterSpacing":".06em","color":"var(--t3, #8F8F8F)","padding":"14px 10px 4px"}}>
+              MESSAGES
+            </div>
+            <DcLink href={v.h?.wa} style={sx(v.n?.wa)}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{"flex":"none","color":"var(--t2, #B5B5B5)"}}>
+                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+              </svg>
+              <span style={{"flex":"1"}}>
+                WhatsApp
+              </span>
+              <span style={sx(v.n?.waBadge)}>
+                {v.waN}
+              </span>
+            </DcLink>
+            {' '}
+            <DcLink href={v.h?.mail} style={sx(v.n?.mail)}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{"flex":"none","color":"var(--t2, #B5B5B5)"}}>
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              <span style={{"flex":"1"}}>
+                Email
+              </span>
+            </DcLink>
             {' '}
             <DcLink href={v.h?.mast} style={sx(v.n?.mast)}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{"flex":"none","color":"var(--t2, #B5B5B5)"}}>
