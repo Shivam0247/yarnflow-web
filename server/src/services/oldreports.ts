@@ -13,6 +13,7 @@ import type { Ctx } from './context.js';
 import { getCompany } from './admin.js';
 import { loadFy } from './documents.js';
 import * as rep from './reports.js';
+import * as trading from './trading.js';
 
 type Row = Record<string, unknown>;
 export interface DesignMeta { regId: number; title: string; type: string; mode: string; groups: string | null; fields: string; company: number; page: string | null }
@@ -48,7 +49,7 @@ export async function reportData(ctx: Ctx, regId: number, q: Q) {
   const company = await getCompany(ctx);
   const fy = await loadFy(ctx);
   const from = q.from || fy.startDate, to = q.to || q.asOn || new Date().toISOString().slice(0, 10);
-  const rows = await fn(ctx, { ...q, from, to });
+  const rows = await fn(ctx, { ...q, userFrom: q.from, from, to });
   const params = {
     Creative_CompanyName: company.name,
     Creative_CompanyNameAddress: [company.address1, company.address2].filter(Boolean).join(', '),
@@ -170,3 +171,127 @@ async function receiptBills(ctx: Ctx, q: Q): Promise<Row[]> {
 }
 DATASETS.R914 = receiptBills;
 DATASETS.R920 = receiptBills;
+
+/* ------------------------------------------------------------------ trading stock (Pending Order form prints) */
+const companiesOf = (q: Q) => q.companies || undefined;
+
+/** Brandwise Sold-UnSold (808 with LockQty, 865 without) */
+async function brandSoldUnsold(ctx: Ctx, q: Q): Promise<Row[]> {
+  const rows = await trading.soldUnsoldByBrand(ctx, { companies: companiesOf(q) });
+  return rows.map((r) => ({ I_Name: r.name, Brand: r.brand, SO_Qty: r.so, Stock: r.stock, LockQty: r.lock, PO_Qty: r.po, Bal_Qty: r.bal }));
+}
+DATASETS.R808 = brandSoldUnsold;
+DATASETS.R865 = brandSoldUnsold;
+
+const STATUS_OF = (mode: string, r: Row) =>
+  mode === 'all' ? (r.clear || Math.abs(N(r.pendingQty)) < 0.0005 ? 'CLEAR' : r.lock ? 'LOCK' : 'PENDING') : ({ pending: 'PENDING', clear: 'CLEAR', lock: 'LOCK' } as Record<string, string>)[mode] ?? 'PENDING';
+
+/** purchase stock lines (809 bank stock, 849 purchase stock, 888 item wise): status Pending / Clear / Lock / All */
+async function purchaseStockLines(ctx: Ctx, q: Q): Promise<Row[]> {
+  const mode = q.mode || 'pending';
+  const { rows } = await trading.purchaseStock(ctx, { mode, companies: companiesOf(q), from: q.userFrom || undefined, to: q.to, all: true });
+  return (rows as Row[]).map((r) => {
+    const rate = N(r.rate);
+    return {
+      Pur_Id: r.number, Pur_Date: r.date, P_Name: r.party ?? '', DeliveryParty: r.deliveryParty ?? '', SupplierName: r.supplier ?? '', Transpoter: r.transporter ?? '',
+      I_Name: String(r.itemName ?? '').trim(), Brand: r.brand ?? '', LOT_NMBR: r.lot ?? '', Grade: r.grade ?? '',
+      PurS_Challano: r.challanNo ?? '', Purs_ChDate: r.challanDate ?? '', Pur_Invno: r.invNo ?? '', Pur_LrNo: r.lrNo ?? '', Vehicel: r.vehicle ?? '',
+      Pur_Box: N(r.pcs), Purs_Weight: N(r.w), DispatchQty: N(r.dispatchQty), DispatchBox: r2(N(r.pcs) - N(r.pendingBox)), PendingBox: N(r.pendingBox), PendingQty: N(r.pendingQty),
+      Purs_Rate: rate, PurS_Rate: rate, Pur_AvgRate: r.avgRate != null ? N(r.avgRate) : rate,
+      StockValue: r2(N(r.pendingQty) * rate), BillAmt: r2(N(r.w) * rate), CompanyName: r.com ?? '', Pur_Status: STATUS_OF(mode, r)
+    };
+  });
+}
+for (const id of [809, 849, 888]) DATASETS['R' + id] = purchaseStockLines;
+
+/** Stock Summary (835 company wise, 839 all company): summed per brand + item + lot + grade (+ company for 835) */
+function stockSummary(byCompany: boolean) {
+  return async (ctx: Ctx, q: Q): Promise<Row[]> => {
+    const lines = await purchaseStockLines(ctx, q);
+    const m = new Map<string, Row>();
+    for (const r of lines) {
+      const k = [r.Brand, r.I_Name, r.LOT_NMBR, r.Grade, r.Pur_Status, byCompany ? r.CompanyName : ''].join('|');
+      const g = m.get(k) ?? { Brand: r.Brand, I_Name: r.I_Name, LOT_NMBR: r.LOT_NMBR, Grade: r.Grade, Pur_Status: r.Pur_Status, CompanyName: byCompany ? r.CompanyName : '', Purs_Weight: 0, DispatchQty: 0, PendingQty: 0 };
+      g.Purs_Weight = N(g.Purs_Weight) + N(r.Purs_Weight); g.DispatchQty = N(g.DispatchQty) + N(r.DispatchQty); g.PendingQty = N(g.PendingQty) + N(r.PendingQty);
+      m.set(k, g);
+    }
+    const c = (a: unknown, b: unknown) => String(a ?? '').localeCompare(String(b ?? ''));
+    return [...m.values()].sort((a, b) => c(a.Brand, b.Brand) || c(a.I_Name, b.I_Name) || c(a.LOT_NMBR, b.LOT_NMBR) || c(a.Grade, b.Grade));
+  };
+}
+DATASETS.R835 = stockSummary(true);
+DATASETS.R839 = stockSummary(false);
+
+/* ------------------------------------------------------------------ pending orders */
+/** Purchase Order Summary (841): pending purchase-order lines grouped by brand */
+DATASETS.R841 = async (ctx, q) => {
+  const res = await ctx.db.execute<Row>(sql`
+    select v.number, v.date, v.credit_days as "crDays", x."ordQty", x."purQty", x.pending, x.brand, l.rate, it.name as item, p.name as party
+    from (${trading.pendingPurchaseOrderLinesSql(ctx, { companies: companiesOf(q) })}) x
+      join vouchers v on v.id = x."voucherId" join voucher_lines l on l.id = x.id join items it on it.id = x."itemId" left join accounts p on p.id = v.party_id
+    where x.pending > 0.0005 order by x.brand, v.date, v.number`);
+  return res.rows.map((r) => ({ Sal_Id: r.number, Sal_Date: r.date, P_Name: r.party ?? '', I_Name: r.item, Brand: r.brand ?? '', Ord_Qty: N(r.ordQty), PurQty: N(r.purQty), SalS_Rate: N(r.rate), PendingQty: N(r.pending), Ord_CrDays: N(r.crDays) }));
+};
+
+/** Daily Sale Soda (887): pending sales-order lines by order date, with the party's outstanding */
+DATASETS.R887 = async (ctx, q) => {
+  const res = await ctx.db.execute<Row>(sql`
+    select v.number, v.date, v.credit_days as "crDays", v.party_id as "partyId", x."ordQty", x.pending, x.brand, l.rate, l.grade, l.lot_no as lot, it.name as item,
+      p.name as party, concat_ws(', ', p.address1, p.address2, p.city) as "partyAdd", concat_ws(', ', dp.name, dp.address1, dp.address2, dp.city) as "dlyAdd",
+      p.mobile, p.extra->>'P_Gradation' as gradation, pg.name as "partyGroup", br.name as broker, v.brokerage_rate as "brkKgs"
+    from (${trading.pendingSalesOrderLinesSql(ctx, { companies: companiesOf(q) })}) x
+      join vouchers v on v.id = x."voucherId" join voucher_lines l on l.id = x.id join items it on it.id = x."itemId"
+      left join accounts p on p.id = v.party_id left join accounts dp on dp.id = v.delivery_party_id left join persons pg on pg.id = p.party_group_id
+      left join persons br on br.id = coalesce(v.broker_id, p.broker_id)
+    where x.pending > 0.0005 and v.date between ${q.from} and ${q.to} order by v.date, v.number`);
+  const os = await rep.outstanding(ctx, 'receivable', { asOn: q.to });
+  const party = new Map<number, { amt: number; due: number }>();
+  for (const b of os.bills as unknown as { partyId: number; pending: number; overdueDays: number }[]) {
+    const t = party.get(b.partyId) ?? { amt: 0, due: 0 };
+    t.amt += N(b.pending); if (N(b.pending) > 0) t.due = Math.max(t.due, N(b.overdueDays));
+    party.set(b.partyId, t);
+  }
+  return res.rows.map((r) => {
+    const o = party.get(Number(r.partyId)) ?? { amt: 0, due: 0 };
+    return {
+      Ord_Id: r.number, Ord_Date: r.date, Mistry: r.partyGroup ?? r.party, P_Name: r.party, PARTY_ADD: [r.party, r.partyAdd].filter(Boolean).join(', '), DELPARTY_ADD: r.dlyAdd ?? '',
+      Sals_Status: 'PENDING', Brk_Name: r.broker ?? '', Architect: r.broker ?? '', Sal_BrkKgs: N(r.brkKgs), Brand: r.brand ?? '', Sals_LotNumber: r.lot ?? '', I_Name: r.item,
+      SalS_Rate: N(r.rate), Grade: r.grade ?? '', Ord_CrDays: N(r.crDays), Ord_Qty: N(r.ordQty), DispSchQty: r2(N(r.ordQty) - N(r.pending)), PendingQty: N(r.pending),
+      OsAmount: r2(o.amt), OsDueDays: o.due, PGQty: 0, P_OMobile: r.mobile ?? '', P_Gradation: r.gradation ?? ''
+    };
+  });
+};
+
+/** Sale Order Register detail (524): every sales-order line in the period, grouped by broker */
+DATASETS.R524 = async (ctx, q) => {
+  const res = await ctx.db.execute<Row>(sql`
+    select v.number, v.date, v.created_at as "createdAt", b.name as book, p.name as party, t.name as transporter, dp.name as dly, pg.name as "partyGroup",
+      it.name as item, l.remark1 as remark, l.qty, l.rate, l.lot_no as lot, l.grade, l.extra->>'st24' as st24, l.line_status as "lineStatus", br.name as broker
+    from vouchers v join voucher_lines l on l.voucher_id = v.id left join items it on it.id = l.item_id left join books b on b.id = v.book_id
+      left join accounts p on p.id = v.party_id left join accounts dp on dp.id = v.delivery_party_id left join persons pg on pg.id = p.party_group_id
+      left join transporters t on t.id = v.transporter_id left join persons br on br.id = coalesce(v.broker_id, p.broker_id)
+    where v.company_id = ${ctx.companyId} and v.type = 'SALES_ORDER' and v.status <> 'CANCELLED' and v.date between ${q.from} and ${q.to}
+    order by br.name, v.date, v.number, l.line_no`);
+  return res.rows.map((r) => ({
+    BROKER: r.broker ?? '', BOOK_NAME: r.book ?? '', PARTY_NAME: r.party ?? '', TRANSPORTER: r.transporter ?? '', DLY_PARTY: r.dly ?? '', MISTRY: r.partyGroup ?? '',
+    I_NAME: r.item ?? '', ITEM_REMARKS: r.remark ?? '', QTY: N(r.qty), RATE: N(r.rate), LOT_NMBR: r.lot ?? '', GRADE: r.grade ?? '', ORD_NO: r.number, ORD_DATE: r.date,
+    UCreatedt: r.createdAt, Sals_Status: r.st24 ?? (r.lineStatus === 'CLOSED' ? 'CLOSE' : 'PENDING')
+  }));
+};
+
+/* ------------------------------------------------------------------ purchase register summary (400) */
+DATASETS.R400 = async (ctx, q) => {
+  const res = await ctx.db.execute<Row>(sql`
+    select v.id, v.legacy_code as code, v.number, v.date, v.due_date as due, v.net_amount as net, v.vehicle_no as vehicle, p.name as party, t.name as transporter, br.name as broker,
+      it.name as item, it.legacy_code as "itemCode", l.challan_no as ch, l.remark1 as remark, l.qty, l.pcs, l.rate, l.taxable_amount as taxable, l.lot_no as lot, l.grade, l.amount,
+      count(*) over (partition by v.id) as "nLines"
+    from vouchers v join voucher_lines l on l.voucher_id = v.id left join items it on it.id = l.item_id left join accounts p on p.id = v.party_id
+      left join transporters t on t.id = v.transporter_id left join persons br on br.id = v.broker_id
+    where v.company_id = ${ctx.companyId} and v.type in ('PURCHASE_BILL', 'GENERAL_PURCHASE') and v.status <> 'CANCELLED' and v.date between ${q.from} and ${q.to}
+    order by p.name, it.name, v.date, v.number, l.line_no`);
+  return res.rows.map((r) => ({
+    Pur_Code: r.code ?? r.id, Billno: r.number, BillDATE: r.date, P_Name: r.party ?? '', I_Name: r.item ?? '', PurS_Icode: r.itemCode ?? '', PurS_Challano: r.ch ?? '', PurS_Rmk: r.remark ?? '',
+    ArchCode: r.broker ?? '', Purs_Weight: N(r.qty), LOT_NMBR: r.lot ?? '', Desc_Name1: r.grade ?? '', PurS_SqMt_Ft: N(r.pcs), PurS_Rate: N(r.rate), PurS_TaxableAmt: N(r.taxable),
+    DueDate: r.due ?? '', NETAMT: N(r.nLines) === 1 ? N(r.net) : N(r.amount), TRASPORT_NAME: r.transporter ?? '', Vehicle_Name: r.vehicle ?? ''
+  }));
+};

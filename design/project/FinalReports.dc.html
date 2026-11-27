@@ -146,6 +146,7 @@ select.pv{cursor:pointer}
 <span class="{{noteCls}}" style="font-size: 13px" role="status">{{note}}</span>
 <button class="btn" type="button" onClick="{{excel}}">Export To Excel</button>
 <button class="btn" type="button" onClick="{{print}}">Export To PDF</button>
+<button class="btn" type="button" onClick="{{printBrand}}">Brandwise Sold-UnSold</button>
 <button class="btn pr" type="button" onClick="{{refresh}}">Refresh (F5)</button>
 </header>
 <div class="ent">
@@ -224,7 +225,7 @@ class Component extends DCLogic {
       ccs: ((st.lk || {}).costCenters || []).map((c) => ({ v: String(c.id), l: c.name })), types: TYPES.map((t) => ({ v: t, l: t + (t === 'Sold Unsold' ? '' : '  (next)') })),
       tabL: f.type.toUpperCase(), ready, notReady: !ready, rows, empty: rows.length === 0, emptyL: st.busy ? 'Loading…' : 'Nothing pending', count: rows.length + ' items',
       tot: { stock: fmt(sum('stock')), so: fmt(sum('saleOrderPending')), su: fmt(sum('soldUnsold')), po: fmt(sum('purchasePending')), ua: fmt(sum('unsoldAfterPurchase')) },
-      refresh: () => this.load(), excel, print: () => { try { window.print(); } catch (e) {} }, note: st.note, noteCls: st.err ? 'tag t-red' : 'muted'
+      refresh: () => this.load(), excel, print: () => { try { window.print(); } catch (e) {} }, printBrand: () => { try { window.open('/print/grid/brand', '_blank'); } catch (e) {} }, note: st.note, noteCls: st.err ? 'tag t-red' : 'muted'
     };
   }
 }

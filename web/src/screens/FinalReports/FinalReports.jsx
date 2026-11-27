@@ -57,7 +57,7 @@ class Component extends DCLogic {
       ccs: ((st.lk || {}).costCenters || []).map((c) => ({ v: String(c.id), l: c.name })), types: TYPES.map((t) => ({ v: t, l: t + (t === 'Sold Unsold' ? '' : '  (next)') })),
       tabL: f.type.toUpperCase(), ready, notReady: !ready, rows, empty: rows.length === 0, emptyL: st.busy ? 'Loading…' : 'Nothing pending', count: rows.length + ' items',
       tot: { stock: fmt(sum('stock')), so: fmt(sum('saleOrderPending')), su: fmt(sum('soldUnsold')), po: fmt(sum('purchasePending')), ua: fmt(sum('unsoldAfterPurchase')) },
-      refresh: () => this.load(), excel, print: () => { try { window.print(); } catch (e) {} }, note: st.note, noteCls: st.err ? 'tag t-red' : 'muted'
+      refresh: () => this.load(), excel, print: () => { try { window.print(); } catch (e) {} }, printBrand: () => { try { window.open('/print/grid/brand', '_blank'); } catch (e) {} }, note: st.note, noteCls: st.err ? 'tag t-red' : 'muted'
     };
   }
 }
@@ -99,6 +99,10 @@ class FinalReportsView extends Component {
             {' '}
             <button className="btn" type="button" onClick={v.print}>
               Export To PDF
+            </button>
+            {' '}
+            <button className="btn" type="button" onClick={v.printBrand}>
+              Brandwise Sold-UnSold
             </button>
             {' '}
             <button className="btn pr" type="button" onClick={v.refresh}>

@@ -62,6 +62,8 @@ class Component extends DCLogic {
       rows, empty: rows.length === 0, emptyL: st.busy ? 'Loading…' : 'Nothing in this list', count: rows.length + ' lines' + (rows.length >= 5000 ? ' (first 5000 — narrow the dates)' : ''),
       tot: { qty: n3(tot.qty), dis: n3(tot.dispatched), pen: n3(tot.pending), box: n3(tot.box) },
       allOn: rows.length > 0 && ticked.length === rows.length, togAll: () => { const on = {}; if (ticked.length !== rows.length) src.forEach((r) => { on[r.id] = true; }); this.setState({ on }); },
+      print: () => { try { window.open('/print/grid/stock?mode=' + f.mode + (this.iso(f.from) ? '&from=' + this.iso(f.from) : '') + (this.iso(f.to) ? '&to=' + this.iso(f.to) : '') + (f.company ? '&companies=' + f.company : ''), '_blank'); } catch (e) {} },
+      printBrand: () => { try { window.open('/print/grid/brand' + (f.company ? '?companies=' + f.company : ''), '_blank'); } catch (e) {} },
       clear: () => this.setClear(true), reopen: () => this.setClear(false), excel, refresh: () => this.load(), busy: !!st.busy, note: st.note, noteCls: st.err ? 'tag t-red' : 'muted'
     };
   }
@@ -104,6 +106,14 @@ class PurchaseStockView extends Component {
             {' '}
             <button className="btn" type="button" onClick={v.reopen} disabled={v.busy}>
               ReOpen-F12
+            </button>
+            {' '}
+            <button className="btn" type="button" onClick={v.print}>
+              Print (brand wise)
+            </button>
+            {' '}
+            <button className="btn" type="button" onClick={v.printBrand}>
+              Brandwise Sold-UnSold
             </button>
             {' '}
             <button className="btn" type="button" onClick={v.excel}>

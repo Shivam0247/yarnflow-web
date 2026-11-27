@@ -64,11 +64,11 @@ export function pendingPurchaseSql(ctx: Ctx, f: Filters, mode: 'stock' | 'pendin
       left join dn on dn.pid = p.id left join rn on rn.pid = p.id`;
 }
 
-/** pending sales-order quantity per item (Tradding_AllPendingSalesOrder, status PENDING) */
-function pendingSalesOrderSql(ctx: Ctx, f: Filters) {
+/** pending sales-order lines (Tradding_AllPendingSalesOrder, status PENDING) */
+export function pendingSalesOrderLinesSql(ctx: Ctx, f: Filters) {
   return sql`
     with o as materialized (
-      select l.id, v.legacy_code as oc, coalesce(v.extra->>'orderTypeNo', '0') as ot, l.item_id, l.qty, l.pcs
+      select l.id, v.id as "voucherId", v.legacy_code as oc, coalesce(v.extra->>'orderTypeNo', '0') as ot, l.item_id, l.qty, l.pcs, l.brand
       from vouchers v join voucher_lines l on l.voucher_id = v.id
       where v.type = 'SALES_ORDER' and coalesce(v.extra->>'approvedQ', case when v.status = 'PENDING_APPROVAL' then '0' else '1' end) <> '0'
         and coalesce(l.extra->>'st24', case when l.line_status = 'CLOSED' then 'CLOSE' else 'PENDING' end) = 'PENDING'
@@ -83,18 +83,20 @@ function pendingSalesOrderSql(ctx: Ctx, f: Filters) {
       select l.source_line_id as oid, sum(l.qty) as q, sum(l.pcs) as b from voucher_lines l join vouchers v on v.id = l.voucher_id
       where v.type in ('DISPATCH_SCHEDULE', 'SALE_BILL') and v.status <> 'CANCELLED' and l.source_line_id is not null and not l.extra ? 'orderCode' group by 1
     )
-    select o.item_id as "itemId", sum(case when o.ot = '1'
-        then o.pcs - (coalesce(d.b, 0) * coalesce(s.n, 1) + coalesce(s.b, 0) * coalesce(d.n, 1) + coalesce(nw.b, 0))
-        else o.qty - (coalesce(d.q, 0) * coalesce(s.n, 1) + coalesce(s.w, 0) * coalesce(d.n, 1) + coalesce(nw.q, 0)) end) as pending
-    from o left join d on d.oc = o.oc left join s on s.oc = o.oc and s.item_id = o.item_id left join nw on nw.oid = o.id
-    group by o.item_id`;
+    select o.id, o."voucherId", o.item_id as "itemId", o.brand, o.qty as "ordQty", o.pcs as "ordPcs", o.ot,
+      case when o.ot = '1' then o.pcs - (coalesce(d.b, 0) * coalesce(s.n, 1) + coalesce(s.b, 0) * coalesce(d.n, 1) + coalesce(nw.b, 0))
+        else o.qty - (coalesce(d.q, 0) * coalesce(s.n, 1) + coalesce(s.w, 0) * coalesce(d.n, 1) + coalesce(nw.q, 0)) end as pending
+    from o left join d on d.oc = o.oc left join s on s.oc = o.oc and s.item_id = o.item_id left join nw on nw.oid = o.id`;
+}
+function pendingSalesOrderSql(ctx: Ctx, f: Filters, byBrand = false) {
+  return sql`select x."itemId", ${sql.raw(byBrand ? 'upper(btrim(coalesce(x.brand, \'\')))' : "''")} as brand, sum(x.pending) as pending from (${pendingSalesOrderLinesSql(ctx, f)}) x group by 1, 2`;
 }
 
-/** pending purchase-order quantity per item (Tradding_AllPendingView, status PENDING) */
-function pendingPurchaseOrderSql(ctx: Ctx, f: Filters) {
+/** pending purchase-order lines (Tradding_AllPendingView, status PENDING) */
+export function pendingPurchaseOrderLinesSql(ctx: Ctx, f: Filters) {
   return sql`
     with o as materialized (
-      select l.id, v.legacy_code as oc, coalesce(v.extra->>'orderTypeNo', '0') as ot, l.item_id, l.qty, l.pcs
+      select l.id, v.id as "voucherId", v.legacy_code as oc, coalesce(v.extra->>'orderTypeNo', '0') as ot, l.item_id, l.qty, l.pcs, l.brand
       from vouchers v join voucher_lines l on l.voucher_id = v.id
       where v.type = 'PURCHASE_ORDER' and coalesce(v.extra->>'approvedQ', case when v.status = 'PENDING_APPROVAL' then '0' else '1' end) <> '0'
         and coalesce(l.extra->>'st24', case when l.line_status = 'CLOSED' then 'CLOSE' else 'PENDING' end) = 'PENDING'
@@ -106,8 +108,13 @@ function pendingPurchaseOrderSql(ctx: Ctx, f: Filters) {
       select l.source_line_id as oid, sum(l.qty) as w, sum(l.pcs) as b from voucher_lines l join vouchers v on v.id = l.voucher_id
       where v.type = 'PURCHASE_BILL' and v.status <> 'CANCELLED' and l.source_line_id is not null and not l.extra ? 'poCode' group by 1
     )
-    select o.item_id as "itemId", sum(case when o.ot = '1' then o.pcs - coalesce(p.b, 0) - coalesce(nw.b, 0) else o.qty - coalesce(p.w, 0) - coalesce(nw.w, 0) end) as pending
-    from o left join p on p.oc = o.oc and p.item_id = o.item_id left join nw on nw.oid = o.id group by o.item_id`;
+    select o.id, o."voucherId", o.item_id as "itemId", o.brand, o.qty as "ordQty", o.pcs as "ordPcs", o.ot,
+      case when o.ot = '1' then coalesce(p.b, 0) + coalesce(nw.b, 0) else coalesce(p.w, 0) + coalesce(nw.w, 0) end as "purQty",
+      case when o.ot = '1' then o.pcs - coalesce(p.b, 0) - coalesce(nw.b, 0) else o.qty - coalesce(p.w, 0) - coalesce(nw.w, 0) end as pending
+    from o left join p on p.oc = o.oc and p.item_id = o.item_id left join nw on nw.oid = o.id`;
+}
+function pendingPurchaseOrderSql(ctx: Ctx, f: Filters, byBrand = false) {
+  return sql`select x."itemId", ${sql.raw(byBrand ? 'upper(btrim(coalesce(x.brand, \'\')))' : "''")} as brand, sum(x.pending) as pending from (${pendingPurchaseOrderLinesSql(ctx, f)}) x group by 1, 2`;
 }
 
 /** Final Reports → SOLD UNSOLD */
@@ -133,24 +140,45 @@ export async function soldUnsold(ctx: Ctx, f: Filters) {
   return { rows, totals: { stock: t('stock'), saleOrderPending: t('saleOrderPending'), soldUnsold: t('soldUnsold'), purchasePending: t('purchasePending'), unsoldAfterPurchase: t('unsoldAfterPurchase') } };
 }
 
+/** Sold / Unsold per item + brand with locked stock (saved report "Brandwise Sold-UnSold Report") */
+export async function soldUnsoldByBrand(ctx: Ctx, f: Filters) {
+  const B = sql.raw(`upper(btrim(coalesce(x.brand, '')))`);
+  const stock = await ctx.db.execute<Row>(sql`select x."itemId", ${B} as brand, sum(x."pendingQty") as q from (${pendingPurchaseSql(ctx, f)}) x group by 1, 2`);
+  const lock = await ctx.db.execute<Row>(sql`select x."itemId", ${B} as brand, sum(x."pendingQty") as q from (${pendingPurchaseSql(ctx, f, 'lock')}) x group by 1, 2`);
+  const so = await ctx.db.execute<Row>(pendingSalesOrderSql(ctx, f, true));
+  const po = await ctx.db.execute<Row>(pendingPurchaseOrderSql(ctx, { ...f, costCenters: undefined }, true));
+  const items = await ctx.db.execute<Row>(sql`select id, name from items where company_id = ${ctx.mcId}`);
+  const names = new Map(items.rows.map((r) => [Number(r.id), String(r.name ?? '').trim()]));
+  const m = new Map<string, { itemId: number; brand: string; stock: number; lock: number; so: number; po: number }>();
+  const at = (r: Row) => { const k = r.itemId + '|' + r.brand; if (!m.has(k)) m.set(k, { itemId: Number(r.itemId), brand: String(r.brand ?? ''), stock: 0, lock: 0, so: 0, po: 0 }); return m.get(k)!; };
+  for (const r of stock.rows) at(r).stock += N(r.q);
+  for (const r of lock.rows) at(r).lock += N(r.q);
+  for (const r of so.rows) at(r).so += N(r.pending);
+  for (const r of po.rows) at(r).po += N(r.pending);
+  return [...m.values()]
+    .map((v) => ({ itemId: v.itemId, name: names.get(v.itemId) ?? '', brand: v.brand, stock: r2(v.stock), lock: r2(v.lock), so: r2(v.so), po: r2(v.po), bal: r2(v.stock + v.po - v.so - v.lock) }))
+    .filter((r) => r.stock > 0 || r.po > 0 || r.so > 0 || r.lock > 0)
+    .sort((a, b) => a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name));
+}
+
 /** Purchase Stock Pending List (Pending Order Form → Stock-F9): Pending / Clear / Lock as the old screen */
-export async function purchaseStock(ctx: Ctx, f: Filters & { mode?: string; from?: string; to?: string; q?: string }) {
-  const mode = f.mode === 'clear' ? 'clear' : f.mode === 'lock' ? 'lock' : 'pending';
+export async function purchaseStock(ctx: Ctx, f: Filters & { mode?: string; from?: string; to?: string; q?: string; all?: boolean }) {
+  const mode = f.mode === 'clear' ? 'clear' : f.mode === 'lock' ? 'lock' : f.mode === 'all' ? 'all' : 'pending';
   const like = f.q ? '%' + f.q + '%' : null;
   const res = await ctx.db.execute<Row>(sql`
     select x.id, x.number, x.date, x.w, x.pcs, x.lot, x.brand, x.gr as grade, x.ch as "challanNo", x.rate, x.lock, x.clear,
       x."dispatchQty", x."pendingQty", x."pendingBox", it.name as "itemName", it.legacy_code as "itemCode", a.name as party,
-      c.short_name as com, v.ref_no as "invNo", v.ref_date as "invDate", v.extra->>'avgRate' as "avgRate", v.vehicle_no as vehicle,
-      t.name as transporter, dp.name as "deliveryParty", l.lr_no as "lrNo", l.challan_date as "challanDate", v.extra->>'supplier' as supplier
+      c.short_name as com, v.ref_no as "invNo", v.ref_date as "invDate", v.extra->>'avgRate' as "avgRate", v.vehicle_no as vehicle, v.amount as "billAmt", v.net_amount as "billNet",
+      t.name as transporter, dp.name as "deliveryParty", l.lr_no as "lrNo", l.challan_date as "challanDate", coalesce(l.extra->>'purType', 'PUR') as "purType", v.extra->>'supplier' as supplier
     from (${pendingPurchaseSql(ctx, f, mode === 'lock' ? 'lock' : 'all')}) x
       join items it on it.id = x."itemId" join vouchers v on v.id = x."voucherId" join voucher_lines l on l.id = x.id
       left join accounts a on a.id = x."partyId" left join companies c on c.id = x."companyId"
       left join transporters t on t.id = v.transporter_id left join accounts dp on dp.id = v.delivery_party_id
     where ${sql.raw(mode === 'pending' ? `x."pendingQty" > 0 and x.clear is null and x.lock is null`
-      : mode === 'clear' ? `(abs(x."pendingQty") < 0.0005 or x.clear is not null) and x.clear is distinct from 'OLDYEAR'` : 'true')}
+      : mode === 'clear' ? `(abs(x."pendingQty") < 0.0005 or x.clear is not null) and x.clear is distinct from 'OLDYEAR'` : mode === 'all' ? `x.clear is distinct from 'OLDYEAR'` : 'true')}
       ${f.from ? sql`and x.date >= ${f.from}` : sql``} ${f.to ? sql`and x.date <= ${f.to}` : sql``}
       ${like ? sql`and (it.name ilike ${like} or a.name ilike ${like} or x.number ilike ${like} or x.lot ilike ${like} or x.ch ilike ${like})` : sql``}
-    order by x.date desc, x.number limit 5000`);
+    order by x.date desc, x.number ${sql.raw(f.all ? '' : 'limit 5000')}`);
   const rows = res.rows.map((r) => ({ ...r, w: r3(N(r.w)), dispatchQty: r3(N(r.dispatchQty)), pendingQty: r3(N(r.pendingQty)), pendingBox: r3(N(r.pendingBox)) }));
   return { mode, rows, totals: { qty: r3(rows.reduce((s, r) => s + r.w, 0)), dispatched: r3(rows.reduce((s, r) => s + r.dispatchQty, 0)), pending: r3(rows.reduce((s, r) => s + r.pendingQty, 0)), box: r3(rows.reduce((s, r) => s + r.pendingBox, 0)) } };
 }
@@ -164,4 +192,23 @@ export async function setStockClear(ctx: Ctx, body: { lineIds?: number[]; clear?
     from vouchers v where v.id = l.voucher_id and v.type = 'PURCHASE_BILL' and v.company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})
       and l.id in ${sql.raw('(' + ids.join(',') + ')')} and coalesce(l.extra->>'stockClear', '') <> 'OLDYEAR'`);
   return { updated: res.rowCount ?? 0 };
+}
+
+const STATUS: Record<string, string> = { pending: 'PENDING', clear: 'CLEAR', lock: 'LOCK' };
+/** "Purchase Report" grid of the Pending Order form: purchase stock summed per brand + item + lot + grade + purchase type */
+export async function purchaseStockSummary(ctx: Ctx, f: Filters & { mode?: string; from?: string; to?: string }) {
+  const { mode, rows } = await purchaseStock(ctx, { ...f, all: true });
+  type G = { brand: string; item: string; lot: string; grade: string; purType: string; status: string; w: number; d: number; p: number; box: number };
+  const m = new Map<string, G>();
+  for (const r of rows as (Row & { w: number; dispatchQty: number; pendingQty: number; pendingBox: number })[]) {
+    const status = mode === 'all' ? (r.clear || Math.abs(r.pendingQty) < 0.0005 ? 'CLEAR' : r.lock ? 'LOCK' : 'PENDING') : STATUS[mode];
+    const brand = String(r.brand ?? '').trim(), item = String(r.itemName ?? '').trim(), lot = String(r.lot ?? '').trim(), grade = String(r.grade ?? '').trim();
+    const k = [brand, item, lot, grade, r.purType, status].join('|');
+    if (!m.has(k)) m.set(k, { brand, item, lot, grade, purType: String(r.purType ?? ''), status, w: 0, d: 0, p: 0, box: 0 });
+    const g = m.get(k)!; g.w += r.w; g.d += r.dispatchQty; g.p += r.pendingQty; g.box += r.pendingBox;
+  }
+  const cmp = (a: unknown, b: unknown) => String(a ?? '').localeCompare(String(b ?? ''));
+  const out = [...m.values()].map((g) => ({ ...g, w: r3(g.w), d: r3(g.d), p: r3(g.p), box: r3(g.box) }))
+    .sort((a, b) => cmp(a.brand, b.brand) || cmp(a.item, b.item) || cmp(a.lot, b.lot) || cmp(a.grade, b.grade) || cmp(a.purType, b.purType));
+  return { mode, rows: out };
 }
