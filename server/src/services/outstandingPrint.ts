@@ -89,7 +89,7 @@ export async function outstandingPrint(ctx: Ctx, q: Record<string, string | unde
       where a.bill_id in (select id from b) and a.ledger_period = ${ctx.period} and a.kind is distinct from 'PENDING' and a.date <= ${recTo ?? to}
       group by a.bill_id
     )
-    select v.id, v.company_id as "companyId", c.short_name as com, v.type, v.number, v.date, v.net_amount as net, v.total_qty as qty,
+    select v.id, v.company_id as "companyId", c.short_name as com, v.type, v.subtype, v.number, v.date, v.net_amount as net, v.total_qty as qty,
       v.credit_days as "crDays", v.extra->>'avgRate' as "avgRate", v.party_id as "partyId",
       coalesce(bk.name, 'DIRECT') as broker, coalesce(sp.name, psp.name, '') as "salesPerson", coalesce(cp.name, '') as collector,
       coalesce(pg.name, p.name) as "partyGroup",
@@ -118,7 +118,8 @@ export async function outstandingPrint(ctx: Ctx, q: Record<string, string | unde
       id: Number(r.id), com: r.com, companyId: Number(r.companyId), date: r.date, number: r.number, broker: r.broker, item, partyId: Number(r.partyId),
       rate: isDn ? 0 : r.avgRate != null ? N(r.avgRate) : qty ? r2(net / qty) : 0, qty: isDn ? 0 : qty,
       net, received: r2(net - pending), pending, crDays: N(r.crDays), days: daysBetween(String(r.date).slice(0, 10), to),
-      group: String(groupKey), partyGroup: String(r.partyGroup ?? ''), brokerName: String(r.broker ?? ''), lastRec: r.lastRec ?? null, dueDate: r.dueDate ?? null
+      group: String(groupKey), partyGroup: String(r.partyGroup ?? ''), brokerName: String(r.broker ?? ''), lastRec: r.lastRec ?? null, dueDate: r.dueDate ?? null,
+      subtype: String(r.subtype ?? ''), salesPerson: String(r.salesPerson ?? ''), collector: String(r.collector ?? ''), itemName: String(r.item ?? ''), brand: String(r.brand ?? '')
     };
   });
   // Outstanding Para: conditions on the bill, or on the party / party group / broker totals

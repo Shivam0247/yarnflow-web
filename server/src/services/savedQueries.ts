@@ -15,6 +15,7 @@ import { r2 } from '../lib/money.js';
 import type { Ctx } from './context.js';
 import * as rep from './reports.js';
 import * as trading from './trading.js';
+import { outstandingPrint } from './outstandingPrint.js';
 
 type Row = Record<string, unknown>;
 export interface SqCol { sel: string; cap: string; sum: string | null; filter: string | null; show: boolean; seq: number; dec: number | null; fmt: string | null }
@@ -248,3 +249,182 @@ function daily(kind: 'RECEIPT' | 'PAYMENT'): Port {
 }
 PORTS[249] = daily('RECEIPT');
 PORTS[248] = daily('PAYMENT');
+
+/* ------------------------------------------------------------------ purchase → dispatch → sale chain: 241, 247, 255, 254 */
+/** purchase lines (PUR / AUTPUR) with the sale lines billed from them (old link: purchase code + challan + item + brand + grade) */
+function purchaseSaleChain(ctx: Ctx, f: SqFilter, by: 'purchase' | 'sale') {
+  const dateOn = by === 'purchase' ? scope(ctx, f, 'pv') : scope(ctx, f, 'sv');
+  return sql`
+    select pv.legacy_code as "Pur_Code", pv.number as "Pur_Id", pv.date as "Pur_Date", it.name as "I_NAME", pv.total_pcs as "PurS_SqMt_Ft", pv.total_qty as "PurS_Weight",
+      sl.challan_no as "Dspt_ChallNo", sl.challan_date as "Dspt_ChallDate", sv.number as "Dspt_SalId", sv.legacy_code as "Sal_Code", sv.date as "Sal_Date",
+      sl.qty as "SalS_Weight", sl.pcs as "SalS_SqMt_Ft", pv.company_id as "ComCode", pv.cost_center_id as "CostcenterCode", pl.brand as "BrandName", pl.grade as "GradeName",
+      round(pl.rate, 2) as "PurS_Rate", round(sl.rate, 2) as "SalS_Rate", round(coalesce(sl.rate, 0) - coalesce(pl.rate, 0), 2) as "DiffRate", sl.basic_amount as "SalS_Amt", sl.taxable_amount as "Sals_TaxableAmt",
+      pv.net_amount as "PurS_TaxableAmt", pv.net_amount as "Pur_NetAmt", coalesce(nullif(pv.ref_no, ''), pv.number) as "Pur_invNo", pv.ref_date as "Pur_InvDt",
+      sv.date - pv.date as "DiffDays", pv.id as pid, coalesce(nullif(regexp_replace(sv.number, '\\D', '', 'g'), '')::numeric, 0) as snum
+    from vouchers pv join voucher_lines pl on pl.voucher_id = pv.id left join items it on it.id = pl.item_id
+      ${by === 'purchase' ? sql`left` : sql``} join voucher_lines sl on sl.extra->>'purchaseCode' = pv.legacy_code and btrim(coalesce(sl.extra->>'purChallan', '')) = btrim(coalesce(pl.challan_no, ''))
+        and sl.item_id = pl.item_id and coalesce(sl.grade, '') = coalesce(pl.grade, '') and coalesce(sl.brand, '') = coalesce(pl.brand, '')
+      ${by === 'purchase' ? sql`left` : sql``} join vouchers sv on sv.id = sl.voucher_id and sv.type = 'SALE_BILL' and sv.status <> 'CANCELLED'
+    where pv.type = 'PURCHASE_BILL' and pv.subtype in ('PUR', 'AUTPUR') and pv.status <> 'CANCELLED' ${dateOn}`;
+}
+/** add the running balance of the purchase as the old window did (Pur_TotWeight − sales so far, by sale number) */
+function withBalance(rows: Row[], profit: boolean) {
+  const byPur = new Map<unknown, Row[]>();
+  for (const r of rows) { const k = r.pid; if (!byPur.has(k)) byPur.set(k, []); byPur.get(k)!.push(r); }
+  const out: Row[] = [];
+  for (const list of byPur.values()) {
+    list.sort((a, b) => N(a.snum) - N(b.snum));
+    let w = 0, amt = 0;
+    for (const { pid, snum, ...r } of list) {
+      w += N(r.SalS_Weight); amt += N(r.SalS_Amt);
+      const bal = Math.round((Math.round(N(r.PurS_Weight) * 100) / 100 - Math.round(w * 100) / 100) * 100) / 100;
+      const extra: Row = { BalQty: r.Dspt_SalId ? bal : null };
+      if (profit) { extra.Profit = r2(amt); extra.NetProfit = Math.abs(Math.round(w * 100) / 100 - Math.round(N(r.PurS_Weight) * 100) / 100) < 0.005 ? r2(amt - N(r.Pur_NetAmt)) : r2(w * N(r.DiffRate)); }
+      out.push({ ...r, ...extra });
+    }
+  }
+  return out.sort((a, b) => String(a.Pur_Id).localeCompare(String(b.Pur_Id)) || String(a.Dspt_SalId ?? '').localeCompare(String(b.Dspt_SalId ?? '')));
+}
+PORTS[241] = async (ctx, f) => withBalance((await ctx.db.execute<Row>(purchaseSaleChain(ctx, f, 'purchase'))).rows, false);
+PORTS[247] = async (ctx, f) => withBalance((await ctx.db.execute<Row>(purchaseSaleChain(ctx, f, 'sale'))).rows, true);
+PORTS[255] = async (ctx, f) => withBalance((await ctx.db.execute<Row>(purchaseSaleChain(ctx, f, 'sale'))).rows, true);
+
+/** Sale VS Purchase Profit: each sale bill + item with the purchase line it was booked on */
+PORTS[254] = async (ctx, f) => {
+  const res = await ctx.db.execute<Row>(sql`
+    select sv.legacy_code as "Sal_Code", sv.number as "Sal_Id", sv.date as "Sal_Date", sp.name as "SaleParty", it.name as "I_Name", sl.brand as "Brand", sl.grade as "Grade",
+      sum(sl.pcs) as "SalS_SqMt_Ft", sum(sl.qty) as "SalS_Weight", max(sl.rate) as "SalS_Rate", round(sum(sl.taxable_amount), 2) as "SalS_TaxableAmt",
+      round(sum(sl.taxable_amount) / nullif(sum(sl.qty), 0), 2) as "ActSalRate", round(sum(sl.qty) * round(sum(sl.taxable_amount) / nullif(sum(sl.qty), 0), 2), 2) as "SalS_Amt",
+      pv.ref_date as "Pur_InvDt", pv.ref_no as "Pur_Invno", pv.number as "Pur_Id", pp.name as "PurParty", sum(sl.pcs) as "PurPcs", sum(sl.qty) as "PurQty",
+      pl.qty as "Pur_TotWeight", pl.taxable_amount as "PurS_TaxableAmt", round(pl.taxable_amount / nullif(pl.qty, 0), 3) as "ActPurRate",
+      round(round(pl.taxable_amount / nullif(pl.qty, 0), 3) * sum(sl.qty), 2) as "PurAmt",
+      round(round(sum(sl.qty) * round(sum(sl.taxable_amount) / nullif(sum(sl.qty), 0), 3), 2) - round(pl.taxable_amount / nullif(pl.qty, 0), 3) * sum(sl.qty), 2) as "DiffRate",
+      round((round(sum(sl.qty) * round(sum(sl.taxable_amount) / nullif(sum(sl.qty), 0), 3), 2) - round(pl.taxable_amount / nullif(pl.qty, 0), 3) * sum(sl.qty)) / nullif(sum(sl.qty), 0), 3) as "PerKgs",
+      sv.company_id as "ComCode", sv.cost_center_id as "CostcenterCode"
+    from vouchers sv join voucher_lines sl on sl.voucher_id = sv.id left join accounts sp on sp.id = sv.party_id left join items it on it.id = sl.item_id
+      left join vouchers pv on pv.legacy_code = sl.extra->>'purchaseCode' and pv.type = 'PURCHASE_BILL'
+      left join voucher_lines pl on pl.voucher_id = pv.id and btrim(coalesce(pl.challan_no, '')) = btrim(coalesce(sl.extra->>'purChallan', '')) and pl.item_id = sl.item_id and coalesce(pl.grade, '') = coalesce(sl.grade, '')
+      left join accounts pp on pp.id = pv.party_id
+    where sv.type = 'SALE_BILL' and sv.subtype = ${f.type || 'SAL'} and sv.status <> 'CANCELLED' ${scope(ctx, f, 'sv')}
+    group by sv.legacy_code, sv.number, sv.date, sp.name, it.name, sl.brand, sl.grade, pv.ref_date, pv.ref_no, pv.number, pp.name, sv.company_id, sv.cost_center_id, pl.taxable_amount, pl.qty
+    order by sv.date, sv.number, pv.number`);
+  return res.rows;
+};
+
+/* ------------------------------------------------------------------ Manage Desk → Outstanding tab (OutStandingYarn grid) */
+type DeskCol = { field: string; cap: string; sum?: 'Sum' | 'Count'; dec?: number };
+const OS_LAYOUTS: Record<string, DeskCol[]> = {
+  Datewise: [
+    { field: 'BillDt', cap: 'Bill Date' }, { field: 'BillNo', cap: 'Bill No.', sum: 'Count' }, { field: 'Mistry', cap: 'Party Group' }, { field: 'P_Name', cap: 'Account Name' },
+    { field: 'I_Name', cap: 'Item' }, { field: 'Brand', cap: 'Brand' }, { field: 'Qty', cap: 'Qty', sum: 'Sum' }, { field: 'PendingAmt', cap: 'Pending Amt', sum: 'Sum' },
+    { field: 'Ftype', cap: 'Type' }, { field: 'Architect', cap: 'Broker' }, { field: 'CollectionName', cap: 'Collection Name' }, { field: 'DiffDays', cap: 'Diff Days', dec: 0 },
+    { field: 'Sal_Crdays', cap: 'Cr days', dec: 0 }, { field: 'OverDueDays', cap: 'Over DueDays', dec: 0 }, { field: 'DueDt', cap: 'Due Date' }
+  ],
+  'PartyGroup+Party Wise Summary': [
+    { field: 'Mistry', cap: 'Party Group' }, { field: 'P_Name', cap: 'Account Name' }, { field: 'I_Name', cap: 'Item' }, { field: 'Brand', cap: 'Brand' },
+    { field: 'Qty', cap: 'Qty', sum: 'Sum' }, { field: 'PendingAmt', cap: 'Pending Amt', sum: 'Sum' }, { field: 'Ftype', cap: 'Type' }, { field: 'Architect', cap: 'Broker' }
+  ],
+  PartGroup_Broker_SalesPerone_Wise: [
+    { field: 'Mistry', cap: 'Party Group' }, { field: 'Architect', cap: 'Broker' }, { field: 'SalesPersonName', cap: 'Sales Person Name' }, { field: 'PendingAmt', cap: 'Pending Amt', sum: 'Sum' },
+    { field: 'DiffDays', cap: 'Diff Days', dec: 0 }, { field: 'Sal_Crdays', cap: 'Cr Days', dec: 0 }, { field: 'OverDueDays', cap: 'Over Due Days', dec: 0 }, { field: 'LockDays', cap: 'Lock Days', dec: 0 },
+    { field: 'LockDaysWiseOverDueDy', cap: 'Lock Days Wise OverDue Days', dec: 0 }, { field: 'OsInPer', cap: 'O.S. In Per(%)', dec: 2 }
+  ],
+  Sales_Person_Wise: [
+    { field: 'SalesPersonName', cap: 'Sales Person' }, { field: 'Mistry', cap: 'Party Group' }, { field: 'P_Name', cap: 'Account Name' }, { field: 'I_NAME', cap: 'Item' }, { field: 'Brand', cap: 'Brand' },
+    { field: 'Qty', cap: 'Qty', sum: 'Sum' }, { field: 'Sal_NetAmt', cap: 'Bill Amt', sum: 'Sum' }, { field: 'ReceivedAmt', cap: 'Recieved Amt', sum: 'Sum' }, { field: 'PendingAmt', cap: 'Pending Amt', sum: 'Sum' },
+    { field: 'Ftype', cap: 'Type' }, { field: 'Architect', cap: 'Broker' }
+  ]
+};
+export const OS_TYPES: Record<string, { kind: string; subtypes: string[] }> = {
+  SAL: { kind: 'sale', subtypes: ['SAL'] }, SALGEN: { kind: 'sale', subtypes: ['SAL', 'GENSAL', 'GENSALRTN'] }, DBNT: { kind: 'debit', subtypes: ['DBNT', 'AUTODBNT'] }
+};
+export async function deskOutstanding(ctx: Ctx, f: SqFilter & { layout?: string }) {
+  const layout = OS_LAYOUTS[f.layout ?? ''] ? f.layout! : 'Datewise';
+  const t = OS_TYPES[f.type ?? ''] ?? OS_TYPES.SAL;
+  const d = await outstandingPrint(ctx, { kind: t.kind, from: f.from, to: f.to, by: 'party', companies: f.companies, costCenters: f.costCenters });
+  const bills = (d.bills as unknown as Row[]).filter((b) => t.subtypes.includes(String(b.subtype)));
+  const pids = [...new Set(bills.map((b) => Number(b.partyId)))];
+  const lock = new Map<number, number>();
+  if (pids.length) {
+    const r = await ctx.db.execute<Row>(sql`select id, coalesce(nullif(extra->>'P_LockDays', '')::numeric, 0) as l from accounts where id in ${sql.raw('(' + pids.join(',') + ')')}`);
+    for (const x of r.rows) lock.set(Number(x.id), N(x.l));
+  }
+  const parties = d.parties as unknown as Record<string, { name: string }>;
+  const rows: Row[] = bills.map((b) => {
+    const diff = N(b.days), cr = N(b.crDays), lk = lock.get(Number(b.partyId)) ?? 0;
+    return {
+      BillDt: b.date, BillNo: b.number, Mistry: b.partyGroup, P_Name: parties[String(b.partyId)]?.name ?? '', I_Name: b.itemName, I_NAME: b.itemName, Brand: b.brand,
+      Qty: N(b.qty), Sal_NetAmt: N(b.net), ReceivedAmt: N(b.received), PendingAmt: N(b.pending), Ftype: b.subtype === 'AUTODBNT' ? 'DBNT' : b.subtype, Architect: b.brokerName,
+      CollectionName: b.collector, SalesPersonName: b.salesPerson, DiffDays: diff, Sal_Crdays: cr, OverDueDays: diff > cr ? diff - cr : 0, DueDt: b.dueDate,
+      LockDays: lk, LockDaysWiseOverDueDy: diff > lk ? diff - lk : 0
+    };
+  });
+  let out = rows;
+  if (layout === 'PartyGroup+Party Wise Summary' || layout === 'PartGroup_Broker_SalesPerone_Wise') {
+    const keyOf = (r: Row) => (layout === 'PartyGroup+Party Wise Summary' ? [r.Mistry, r.P_Name] : [r.Mistry, r.Architect, r.SalesPersonName]).join('|');
+    const m = new Map<string, Row>();
+    for (const r of rows) {
+      const k = keyOf(r); const g = m.get(k);
+      if (!g) { m.set(k, { ...r }); continue; }
+      g.Qty = N(g.Qty) + N(r.Qty); g.PendingAmt = r2(N(g.PendingAmt) + N(r.PendingAmt)); g.Sal_NetAmt = N(g.Sal_NetAmt) + N(r.Sal_NetAmt); g.ReceivedAmt = N(g.ReceivedAmt) + N(r.ReceivedAmt);
+      if (N(r.DiffDays) > N(g.DiffDays)) Object.assign(g, { DiffDays: r.DiffDays, Sal_Crdays: r.Sal_Crdays, OverDueDays: r.OverDueDays, LockDaysWiseOverDueDy: r.LockDaysWiseOverDueDy });
+    }
+    out = [...m.values()];
+    if (layout === 'PartGroup_Broker_SalesPerone_Wise') {
+      const grp = new Map<string, number>();
+      for (const r of out) grp.set(String(r.Mistry), (grp.get(String(r.Mistry)) ?? 0) + N(r.PendingAmt));
+      out = out.map((r) => ({ ...r, OsInPer: grp.get(String(r.Mistry)) ? r2((N(r.PendingAmt) / grp.get(String(r.Mistry))!) * 100) : 0 }));
+    }
+    out.sort((a, b) => String(a.Mistry).localeCompare(String(b.Mistry)) || String(a.P_Name ?? a.Architect).localeCompare(String(b.P_Name ?? b.Architect)));
+  }
+  const cols = OS_LAYOUTS[layout].map((c, i) => ({ sel: c.field, cap: c.cap, sum: c.sum ?? null, filter: null, show: true, seq: i, dec: c.dec ?? null, fmt: null, field: c.field }));
+  return { regId: 0, name: 'Outstanding - ' + layout, mode: 'DETAIL', cols, rows: out };
+}
+export const OS_LAYOUT_NAMES = Object.keys(OS_LAYOUTS);
+
+/* ------------------------------------------------------------------ Manage Desk → Stock tab (ItemLedgerList on Tradding_ItemLedger) */
+/** stock movements as the old item ledger counted them: purchases / general purchases / sale returns in; purchase returns,
+ *  sale bills and dispatches not yet billed out. Before 01-04-2024 only the purchases UMIYA24 carried as stock. KGS lines count the weight. */
+function itemLedgerSql(ctx: Ctx, f: SqFilter) {
+  const co = ids(f.companies), cc = ids(f.costCenters);
+  const scopeSql = sql.raw((co.length ? ` and v.company_id in (${co.join(',')})` : ` and v.company_id in (select id from companies where id = ${ctx.mcId} or master_company_id = ${ctx.mcId})`) + (cc.length ? ` and v.cost_center_id in (${cc.join(',')})` : ''));
+  return sql`
+    select l.item_id, coalesce(l.brand, '') as brand, coalesce(l.grade, '') as grade, v.date,
+      case when v.type in ('PURCHASE_BILL', 'GENERAL_PURCHASE', 'SALE_RETURN') then 1 else -1 end as dir, coalesce(l.pcs, 0) as box,
+      case when v.type = 'DISPATCH_SCHEDULE' then l.qty when coalesce(upper(l.unit), 'KGS') = 'KGS' then coalesce((l.extra->>'stockQty')::numeric, l.weight, l.qty) else l.qty end as q
+    from vouchers v join voucher_lines l on l.voucher_id = v.id join items it on it.id = l.item_id
+    where v.status <> 'CANCELLED' and coalesce(it.extra->>'I_ISTOCK', 'YES') <> 'NO' and v.date <= ${f.to} ${scopeSql} and (
+      (v.type in ('PURCHASE_BILL', 'GENERAL_PURCHASE', 'PURCHASE_RETURN') and (v.type <> 'PURCHASE_BILL' or v.subtype = 'PUR') and (v.date >= '2024-04-01' or l.extra->>'isStock24' = '1'))
+      or (v.type in ('SALE_BILL', 'SALE_RETURN') and (v.type <> 'SALE_BILL' or v.subtype = 'SAL') and v.date >= '2024-04-01')
+      or (v.type = 'DISPATCH_SCHEDULE' and v.date >= '2024-04-01' and coalesce(v.extra->>'saleBillNo', '') = '' and not exists (select 1 from voucher_lines s where s.source_line_id = l.id)))`;
+}
+const STOCK_COLS: DeskCol[] = [
+  { field: 'ICODE', cap: 'Item Code' }, { field: 'INAME', cap: 'Item Name' }, { field: 'Brand', cap: 'Brand' }, { field: 'Grade', cap: 'Grade' },
+  { field: 'OpnBox', cap: 'Opn Box', sum: 'Sum', dec: 0 }, { field: 'OpnQty', cap: 'Opn Qty', sum: 'Sum', dec: 3 }, { field: 'InBox', cap: 'In Box', sum: 'Sum', dec: 0 },
+  { field: 'InQty', cap: 'In Qty', sum: 'Sum', dec: 3 }, { field: 'OutBox', cap: 'Out Box', sum: 'Sum', dec: 0 }, { field: 'OutQty', cap: 'Out Qty', sum: 'Sum', dec: 3 },
+  { field: 'CloBox', cap: 'Clo Box', sum: 'Sum', dec: 0 }, { field: 'CloQty', cap: 'Clo Qty', sum: 'Sum', dec: 3 }, { field: 'BillDays', cap: 'Over Due Stock', dec: 0 }
+];
+export async function deskStock(ctx: Ctx, f: SqFilter & { days?: string }) {
+  const res = await ctx.db.execute<Row>(sql`
+    select it.legacy_code as "ICODE", it.name as "INAME", x.brand as "Brand", x.grade as "Grade",
+      sum(case when x.date < ${f.from} then x.dir * x.box else 0 end) as "OpnBox", round(sum(case when x.date < ${f.from} then x.dir * x.q else 0 end), 3) as "OpnQty",
+      sum(case when x.date >= ${f.from} and x.dir = 1 then x.box else 0 end) as "InBox", round(sum(case when x.date >= ${f.from} and x.dir = 1 then x.q else 0 end), 3) as "InQty",
+      sum(case when x.date >= ${f.from} and x.dir = -1 then x.box else 0 end) as "OutBox", round(sum(case when x.date >= ${f.from} and x.dir = -1 then x.q else 0 end), 3) as "OutQty",
+      sum(x.dir * x.box) as "CloBox", round(sum(x.dir * x.q), 3) as "CloQty", x.item_id as iid
+    from (${itemLedgerSql(ctx, f)}) x join items it on it.id = x.item_id
+    group by it.legacy_code, it.name, x.brand, x.grade, x.item_id having round(sum(x.dir * x.q), 3) <> 0
+    order by it.name, x.brand, x.grade`);
+  // Over Due Stock: days since the oldest purchase that still has stock (item + brand + grade)
+  const age = await ctx.db.execute<Row>(sql`select x."itemId" as iid, upper(btrim(coalesce(x.brand, ''))) as b, x.gr as g, min(x.date) as d
+    from (${trading.pendingPurchaseSql(ctx, { companies: f.companies })}) x where x."pendingQty" > 0.0005 group by 1, 2, 3`);
+  const oldest = new Map(age.rows.map((r) => [r.iid + '|' + r.b + '|' + r.g, String(r.d).slice(0, 10)]));
+  const toMs = Date.parse(f.to);
+  let rows = res.rows.map(({ iid, ...r }) => {
+    const d = oldest.get(iid + '|' + String(r.Brand).toUpperCase().trim() + '|' + r.Grade);
+    return { ...r, BillDays: d ? Math.round((toMs - Date.parse(d)) / 86400000) : null };
+  });
+  const minDays = Number(f.days) || 0;
+  if (minDays > 0) rows = rows.filter((r) => N(r.BillDays) >= minDays);
+  const cols = STOCK_COLS.map((c, i) => ({ sel: c.field, cap: c.cap, sum: c.sum ?? null, filter: null, show: true, seq: i, dec: c.dec ?? null, fmt: null, field: c.field }));
+  return { regId: 0, name: 'Stock Report', mode: 'DETAIL', cols, rows };
+}
