@@ -1,4 +1,4 @@
-import { bump } from './lib/cache.js';
+import { bump, mastersVersion } from './lib/cache.js';
 /**
  * Fastify application. `buildApp` is used by the server and by the tests
  * (which talk to it with app.inject — no network).
@@ -98,11 +98,18 @@ export async function buildApp({ db, logger = false }: AppDeps) {
 
   /** run a handler with a read context */
   const read = <T>(fn: (ctx: Ctx, req: FastifyRequest) => Promise<T>) => async (req: FastifyRequest) => fn({ ...(await scope(req)), db }, req);
+  // every answer says which version of the master lists is current, so the browser knows when to refresh them
+  app.addHook('onSend', async (req, reply, payload) => { if (req.url.startsWith('/api/')) reply.header('x-masters-version', mastersVersion()); return payload; });
+
+  /** writes that change documents or messages only, never a master list */
+  const DOC_ONLY = /^\/api\/(vouchers|eway-bills|bank-reco|email|whatsapp|share|assistant|auth)(\/|\?|$)/;
   /** run a handler inside one database transaction */
   const write = <T>(fn: (ctx: Ctx, req: FastifyRequest) => Promise<T>, status = 200) => async (req: FastifyRequest, reply: FastifyReply) => {
     const s = await scope(req);
     const out = await db.transaction(async (tx) => fn({ ...s, db: tx }, req));
-    bump(); // something changed: remembered lists and figures are worked out again
+    // something changed: remembered lists and figures are worked out again. Document-only writes leave the
+    // master lists (parties, items, brokers…) as they are, so entry screens do not re-download them after every save.
+    bump(!DOC_ONLY.test(req.url));
     reply.status(status);
     return out;
   };

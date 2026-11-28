@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Lookup from '@/components/Lookup/Lookup';
 import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
@@ -67,6 +68,25 @@ class Component extends DCLogic {
     catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
   }
   setKind(k) { if (k === this.state.kind) return; this.setState({ edit: null, kind: k, adj: {}, off: {}, bills: [], sm: null, note: '', err: false, f: { date: this.state.f.date || this.today(), mode: this.state.f.mode || 'NEFT', bankAccountId: (this.state.lk && this.state.lk.banks[0]) ? String(this.state.lk.banks[0].id) : '' } }); this.number(k); }
+  /** lists and columns for the dropdowns, built once per lookups and voucher kind (not on every keystroke) */
+  lkx(lk, k, ord) {
+    const c = this._lkx;
+    if (c && c.lk === lk && c.k === k) return c.v;
+    const api = this.api();
+    const v = {
+      // party list as the old software's BankCash / PartyList layout
+      partyCols: api ? api.partyCols('default') : [{ k: 'name', l: 'Party Name', w: 260 }],
+      accCols: [{ k: 'name', l: 'Account', w: 300 }, { k: 'code', l: 'Code', w: 100 }, { k: 'groupName', l: 'Group', w: 220 }, { k: 'balance', l: 'Balance', w: 130, a: 'r', f: 'bal' }],
+      personCols: [{ k: 'name', l: 'Name', w: 240 }, { k: 'code', l: 'Code', w: 96 }, { k: 'phone', l: 'Phone', w: 130 }, { k: 'city', l: 'City', w: 120 }],
+      parties: k === 'r' || k === 'rr' ? ord('CUSTOMER') : k === 'p' ? ord('SUPPLIER') : k === 'c' ? lk.banks : lk.ledgers,
+      banks: k === 'j' ? lk.ledgers : lk.banks,
+      collectors: lk.collectionPersons || [],
+      byId: new Map((lk.ledgers || []).map((a) => [String(a.id), a]))
+    };
+    this._lkx = { lk, k, v };
+    return v;
+  }
+
   async pickParty(id) {
     const api = this.api(); const k = this.state.kind;
     this.setState({ f: { ...this.state.f, partyId: id }, adj: {}, off: {}, bills: [], sm: null, note: '', err: false });
@@ -151,12 +171,11 @@ class Component extends DCLogic {
         recent: [{ a: '06-10-2026', b: '₹ 1,50,000 · Cheque', open: () => {} }, { a: '12-09-2026', b: '₹ 2,00,000 · NEFT', open: () => {} }, { a: '18-08-2026', b: '₹ 1,75,500 · RTGS', open: () => {} }], noRecent: false, footTag: 'WhatsApp receipt goes out automatically on save', openLedger: () => {} };
     }
     const f = st.f;
-    const notBank = lk.ledgers.filter((a) => a.kind !== 'BANK' && a.kind !== 'CASH');
-    const ord = (first) => notBank.filter((a) => a.kind === first).concat(notBank.filter((a) => a.kind !== first));
+    const ord = (first) => { const notBank = lk.ledgers.filter((a) => a.kind !== 'BANK' && a.kind !== 'CASH'); return notBank.filter((a) => a.kind === first).concat(notBank.filter((a) => a.kind !== first)); };
     const kindL = { CUSTOMER: 'Sundry Debtors', SUPPLIER: 'Sundry Creditors', BROKER: 'Broker', TRANSPORTER: 'Transporter', EXPENSE: 'Expense', INCOME: 'Income', BANK: 'Bank', CASH: 'Cash' };
-    const partyList = k === 'r' || k === 'rr' ? ord('CUSTOMER') : k === 'p' ? ord('SUPPLIER') : k === 'c' ? lk.banks : lk.ledgers;
-    const bankList = k === 'j' ? lk.ledgers : lk.banks;
-    const P = lk.ledgers.find((a) => String(a.id) === String(f.partyId));
+    const lkx = this.lkx(lk, k, ord);
+    const partyList = lkx.parties;
+    const P = lkx.byId.get(String(f.partyId));
     const set = {}; ['amount', 'date', 'mode', 'bankAccountId', 'instrumentNo', 'narration', 'instrumentDate', 'slipNo', 'collectionPersonId', 'partyBank'].forEach((key) => { set[key] = (e) => this.setState({ f: { ...this.state.f, [key]: e.target.value }, note: this.state.err ? '' : this.state.note, err: false }); });
     set.partyId = (e) => this.pickParty(e.target.value);
     set.bookId = (e) => this.setBook(e.target.value);
@@ -181,7 +200,8 @@ class Component extends DCLogic {
     return { ...base, docNo: st.nextNo || '…', partyLabel: { r: 'Received from', p: 'Paid to', rr: 'Cheque returned by', c: 'Deposit into', j: 'Debit account' }[k], bankLabel: { r: 'Bank account', p: 'Bank account', rr: 'Bank account', c: 'Withdraw from', j: 'Credit account' }[k],
       partyName: name, partySub: P ? (kindL[P.kind] || P.kind) + (P.city ? ' · ' + P.city : '') : '—', initial: P ? P.name.replace(/^(Shree|Shri|The)\s+/i, '').charAt(0) : '+', p: r ? 'GU' : 'PB', drcr: P && P.balance < 0 ? 'Cr' : 'Dr',
       f: { ...f, partyId: f.partyId || '', amount: f.amount ?? '', instrumentNo: f.instrumentNo ?? '', narration: f.narration ?? '', instrumentDate: f.instrumentDate ?? '', slipNo: f.slipNo ?? '', collectionPersonId: f.collectionPersonId ?? '', partyBank: f.partyBank ?? '' }, set,
-      opt: { books: (lk.books || []).filter((b) => b.voucherType === typ).map((b) => ({ v: String(b.id), l: b.name })), parties: [{ v: '', l: name === 'Select party' || name === 'Select account' ? name + '…' : 'Select…' }].concat(partyList.map((a) => ({ v: String(a.id), l: a.name + (a.city ? ' · ' + a.city : '') }))), banks: bankList.map((a) => ({ v: String(a.id), l: a.name })), collectors: [{ v: '', l: 'Select…' }].concat((lk.collectionPersons || []).map((a) => ({ v: String(a.id), l: a.name }))) },
+      lkx, pickP: (r) => this.pickParty(r ? String(r.id) : ''), pickBank: (r) => this.setState({ f: { ...this.state.f, bankAccountId: r ? String(r.id) : '' } }), pickColl: (r) => this.setState({ f: { ...this.state.f, collectionPersonId: r ? String(r.id) : '' } }),
+      opt: { books: (lk.books || []).filter((b) => b.voucherType === typ).map((b) => ({ v: String(b.id), l: b.name })), parties: [], banks: [], collectors: [{ v: '', l: 'Select…' }].concat((lk.collectionPersons || []).map((a) => ({ v: String(a.id), l: a.name }))) },
       bills, noBills: !!f.partyId && bills.length === 0, allOn: bills.length > 0 && bills.every((b) => b.on),
       togAll: () => { if (bills.length && bills.every((b) => b.on)) { const off = {}; (st.bills || []).forEach((b) => { off[b.id] = true; }); this.setState({ off }); } else this.auto(amt || (st.bills || []).reduce((a, b) => a + b.pending, 0)); },
       autoAdj: () => this.auto(amt),
@@ -200,7 +220,7 @@ class PaymentsView extends Component {
     return (
       <>
         <style>{CSS}</style>
-      <div className={`app ${v.theme ?? ""}`}>
+      <div className={`app ${v.theme ?? ""}`} data-entry="1">
         <div className="sbw">
           <Sidebar active="pay" />
         </div>
@@ -251,7 +271,7 @@ class PaymentsView extends Component {
               </>
             ) : null}
             {' '}
-            <button className="btn pr" type="button" onClick={v.save} disabled={v.busy}>
+            <button className="btn pr" type="button" onClick={v.save} disabled={v.busy} data-save="1">
               {v.saveL}
             </button>
           </header>
@@ -292,15 +312,7 @@ class PaymentsView extends Component {
                         *
                       </span>
                     </label>
-                    <select id="p1" className="inp" value={v.f?.partyId} onChange={v.set?.partyId}>
-                      {(v.opt?.parties || []).map((o, $index) => (
-                        <Fragment key={$index}>
-                          <option value={o?.v}>
-                            {o?.l}
-                          </option>
-                        </Fragment>
-                      ))}
-                    </select>
+                    <Lookup fid="p1" cls="inp" rows={v.lkx?.parties} cols={v.lkx?.partyCols} value={v.f?.partyId} onPick={v.pickP} ph="Type party name, code, group, GST…" noun="party" />
                   </div>
                   <div className="fld">
                     <label htmlFor="p2">
@@ -340,15 +352,7 @@ class PaymentsView extends Component {
                     <label htmlFor="p5">
                       {v.bankLabel}
                     </label>
-                    <select id="p5" className="inp" value={v.f?.bankAccountId} onChange={v.set?.bankAccountId}>
-                      {(v.opt?.banks || []).map((o, $index) => (
-                        <Fragment key={$index}>
-                          <option value={o?.v}>
-                            {o?.l}
-                          </option>
-                        </Fragment>
-                      ))}
-                    </select>
+                    <Lookup fid="p5" cls="inp" rows={v.lkx?.banks} cols={v.lkx?.accCols} value={v.f?.bankAccountId} onPick={v.pickBank} ph="Select account" noun="account" />
                   </div>
                   <div className="fld">
                     <label htmlFor="p6">
@@ -372,15 +376,7 @@ class PaymentsView extends Component {
                     <label htmlFor="p6c">
                       Collection person
                     </label>
-                    <select id="p6c" className="inp" value={v.f?.collectionPersonId} onChange={v.set?.collectionPersonId}>
-                      {(v.opt?.collectors || []).map((o, $index) => (
-                        <Fragment key={$index}>
-                          <option value={o?.v}>
-                            {o?.l}
-                          </option>
-                        </Fragment>
-                      ))}
-                    </select>
+                    <Lookup fid="p6c" cls="inp" rows={v.lkx?.collectors} cols={v.lkx?.personCols} value={v.f?.collectionPersonId} onPick={v.pickColl} ph="Select person" noun="person" />
                   </div>
                   <div className="fld">
                     <label htmlFor="p6b">

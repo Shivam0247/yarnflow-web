@@ -1,3 +1,4 @@
+import { bump } from '../lib/cache.js';
 /**
  * Creating a company sets up everything a yarn trader needs on day one:
  * financial year, chart of accounts (groups), the system ledgers used by
@@ -207,6 +208,7 @@ export async function sysAccount(db: Tx, companyId: number, code: string) {
     if (!g) throw notFound(`Group ${def.group}`);
     [row] = await db.insert(accounts).values({ companyId, groupId: g.id, code: def.code, name: def.name, kind: def.kind as never, isSystem: true }).onConflictDoNothing().returning({ id: accounts.id });
     if (!row) [row] = await db.select({ id: accounts.id }).from(accounts).where(and(eq(accounts.companyId, companyId), eq(accounts.code, code)));
+    else bump(); // a new ledger exists: the master lists must be rebuilt even though a document save added it
   }
   sysCache.set(key, row.id);
   return row.id;

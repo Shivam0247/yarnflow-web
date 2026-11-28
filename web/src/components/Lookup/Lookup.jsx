@@ -1,0 +1,315 @@
+/* eslint-disable */
+// Lookup — converted 1:1 from the YarnFlow design (Lookup.dc.html).
+// Markup, styles, sample data and behaviour are identical to the design.
+import { Fragment } from 'react';
+import { DCLogic, useTheme, DcLink, sx } from '@/dc/runtime';
+
+import CSS from './Lookup.css?raw';
+
+/* ----- screen logic (same as the design) ----- */
+/**
+ * Searchable dropdown used by every entry screen (parties, brokers, items, transporters…).
+ *  rows   : [{ id, ...fields }]            the full list (searched here, instantly, like the old software)
+ *  cols   : [{ k, l, w, a: 'r', f: 'bal' | 'amt' | 'int' }]   columns shown, in order (from the old layouts)
+ *  value  : selected id;  lk: field shown in the box once chosen (default 'name')
+ *  onPick : (row) => void
+ *  fid, cls, ph, aria, disabled, noun ('party'), addHref / addLabel (link in the footer), text (shown when
+ *  value is not in rows), exit: CSS selector — Enter on this box while it is empty leaves that container
+ *  (an empty new line of an item table jumps to the fields after the table)
+ * Deleting the text and moving on clears the field (onPick(null)).
+ * Typing filters on every column (all words must match, in any column); rows whose name or code start
+ * with what was typed come first. ↑ ↓ PgUp PgDn move, Enter picks (and the screen moves to the next
+ * field), Esc closes and keeps the old value, Tab picks only after something was typed.
+ */
+const ROWH = 30, HDR = 32, FOOT = 34, VIEWROWS = 11, MAXW = 2200;
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { open: false, q: null, hi: 0, top: 0, pos: null };
+    this.uid = 'lk' + Math.random().toString(36).slice(2, 9);
+    this.onWin = (e) => { if (e && e.target && e.target.closest && e.target.closest('.lkp')) return; if (this.state.open) this.place(); };
+  }
+  componentWillUnmount() { this.unlisten(); }
+  componentDidUpdate(pp, ps) { if (this.state.open && !ps.open) this.listen(); if (!this.state.open && ps.open) this.unlisten(); }
+  listen() { if (this.on) return; this.on = true; window.addEventListener('resize', this.onWin); window.addEventListener('scroll', this.onWin, true); }
+  unlisten() { if (!this.on) return; this.on = false; window.removeEventListener('resize', this.onWin); window.removeEventListener('scroll', this.onWin, true); }
+  id() { return this.props.fid || this.uid; }
+  rows() { return Array.isArray(this.props.rows) ? this.props.rows : []; }
+  cols() { const c = this.props.cols; return Array.isArray(c) && c.length ? c : [{ k: this.props.lk || 'name', l: 'Name', w: 320 }]; }
+  label(r) { if (!r) return ''; const v = r[this.props.lk || 'name']; return v == null ? '' : String(v); }
+  fmt(v, f) {
+    if (v == null || v === '') return '';
+    if (f === 'bal') { const n = Number(v); if (!n) return ''; return Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (n > 0 ? ' Dr' : ' Cr'); }
+    if (f === 'amt') { const n = Number(v); return n ? n.toLocaleString('en-IN', { maximumFractionDigits: 0 }) : ''; }
+    if (f === 'int') { const n = Number(v); return n ? String(n) : ''; }
+    return String(v).replace(/\s+/g, ' ').trim(); // old addresses carry line breaks
+  }
+  // display text of every cell, worked out once per list (25,000 parties × 20 columns)
+  index() {
+    const rows = this.rows(), cols = this.cols();
+    const ck = cols.map((c) => c.k + ':' + (c.f || '')).join('|');
+    if (this._ix && this._ix.rows === rows && this._ix.ck === ck) return this._ix;
+    const txt = rows.map((r) => cols.map((c) => this.fmt(r[c.k], c.f)));
+    const hay = txt.map((t) => t.join('\u0001').toLowerCase());
+    const lead = rows.map((r) => [this.label(r).toLowerCase(), String(r.code ?? '').toLowerCase()]);
+    const pos = new Map(rows.map((r, i) => [String(r.id), i]));
+    this._ix = { rows, ck, txt, hay, lead, pos };
+    this._res = null;
+    return this._ix;
+  }
+  terms() { return String(this.state.q || '').trim().toLowerCase().split(/\s+/).filter(Boolean); }
+  results() {
+    const ix = this.index(); const q = String(this.state.q || '').trim().toLowerCase();
+    if (this._res && this._res.ix === ix && this._res.q === q) return this._res.list;
+    let list;
+    if (!q) list = ix.rows.map((_, i) => i);
+    else {
+      const t = q.split(/\s+/); const first = [], rest = [];
+      for (let i = 0; i < ix.hay.length; i++) {
+        const h = ix.hay[i]; let ok = true;
+        for (let j = 0; j < t.length; j++) if (h.indexOf(t[j]) < 0) { ok = false; break; }
+        if (!ok) continue;
+        const [n, c] = ix.lead[i];
+        (n.startsWith(q) || (c && c.startsWith(q)) ? first : rest).push(i);
+      }
+      list = first.concat(rest);
+    }
+    this._res = { ix, q, list };
+    return list;
+  }
+  place() {
+    const el = document.getElementById(this.id()); if (!el) return;
+    const r = el.getBoundingClientRect(); const W = window.innerWidth, H = window.innerHeight;
+    const want = Math.min(MAXW, this.cols().reduce((s, c) => s + (c.w || 120), 0) + 2);
+    const width = Math.max(Math.min(want, W - 24), Math.min(r.width, W - 24));
+    const left = Math.max(12, Math.min(r.left, W - width - 12));
+    const full = HDR + ROWH * VIEWROWS + FOOT + 2;
+    const below = H - r.bottom - 12, above = r.top - 12;
+    const up = below < Math.min(full, 260) && above > below;
+    const h = Math.min(full, up ? above : below);
+    const top = up ? r.top - 4 - h : r.bottom + 4;
+    this.setState({ pos: { left, top, width, h } });
+  }
+  openList(q) {
+    const res0 = this.state.q === null && q === undefined;
+    this.place();
+    let hi = 0;
+    if (res0) { const ix = this.index(); const at = ix.pos.get(String(this.props.value)); if (at !== undefined) hi = at; }
+    this.setState({ open: true, hi, top: 0 }, () => this.reveal(hi, true));
+  }
+  close() { if (this.state.open || this.state.q !== null) this.setState({ open: false, q: null }); }
+  /** the user deleted the text: nothing chosen (e.g. no broker) */
+  clear() { const had = this.props.value !== undefined && this.props.value !== null && this.props.value !== ''; this.setState({ open: false, q: null }); if (had && this.props.onPick) this.props.onPick(null); }
+  pick(i) {
+    const row = this.index().rows[i]; this.setState({ open: false, q: null });
+    if (row && this.props.onPick) this.props.onPick(row);
+  }
+  reveal(hi, center) {
+    const el = document.getElementById(this.uid + '-l'); if (!el) return;
+    const y = hi * ROWH, view = el.clientHeight - HDR;
+    let t = el.scrollTop;
+    if (center) t = Math.max(0, y - Math.floor(view / 2));
+    else if (y < t) t = y;
+    else if (y + ROWH > t + view) t = y + ROWH - view;
+    if (t !== el.scrollTop) el.scrollTop = t;
+    if (t !== this.state.top) this.setState({ top: t });
+  }
+  move(step) {
+    const n = this.results().length; if (!n) return;
+    const hi = Math.max(0, Math.min(n - 1, this.state.hi + step));
+    this.setState({ hi }, () => this.reveal(hi));
+  }
+  key(e) {
+    const k = e.key; const st = this.state;
+    if (k === 'ArrowDown' || k === 'ArrowUp' || k === 'PageDown' || k === 'PageUp' || k === 'F4') {
+      e.preventDefault();
+      if (!st.open) { this.openList(); return; }
+      if (k === 'F4') { this.close(); return; }
+      this.move(k === 'ArrowDown' ? 1 : k === 'ArrowUp' ? -1 : k === 'PageDown' ? VIEWROWS - 1 : -(VIEWROWS - 1));
+      return;
+    }
+    if (k === 'Enter') {
+      if (st.q !== null && !st.q.trim()) { this.clear(); return; } // text deleted: field left empty, move on
+      if (!st.open) return; // the screen moves on to the next field
+      const res = this.results();
+      if (!res.length) { e.preventDefault(); return; } // nothing to pick: stay here
+      this.pick(res[Math.min(st.hi, res.length - 1)]); // picked; the screen then moves to the next field
+      return;
+    }
+    if (k === 'Escape') { if (st.open || st.q !== null) { e.preventDefault(); e.stopPropagation(); this.close(); } return; }
+    if (k === 'Tab') { const res = this.results(); if (st.q !== null && !st.q.trim()) this.clear(); else if (st.open && st.q && res.length) this.pick(res[Math.min(st.hi, res.length - 1)]); else this.close(); }
+  }
+  renderVals() {
+    const p = this.props, st = this.state;
+    const cols = this.cols(); const ix = this.index();
+    const cur = ix.pos.get(String(p.value ?? ''));
+    const curRow = cur === undefined ? null : ix.rows[cur];
+    const open = !!st.open && !p.disabled;
+    const noun = p.noun || 'party', nouns = p.nouns || (noun === 'party' ? 'parties' : noun + 's');
+    const grid = 'grid-template-columns: ' + cols.map((c) => (c.w || 120) + 'px').join(' ');
+    let vis = [], padTop = 'height: 0', padBot = 'height: 0', count = '', none = false;
+    if (open) {
+      const res = this.results(); const n = res.length; const terms = this.terms();
+      const start = Math.max(0, Math.floor(st.top / ROWH) - 4), end = Math.min(n, start + VIEWROWS + 10);
+      // every typed word is marked wherever it occurs in a cell
+      const seg = (t) => {
+        if (!terms.length || !t) return [{ t, p: true }];
+        const low = t.toLowerCase(); const hit = new Array(t.length).fill(false); let any = false;
+        for (const w of terms) { let a = low.indexOf(w); while (a >= 0) { for (let x = a; x < a + w.length; x++) hit[x] = true; any = true; a = low.indexOf(w, a + w.length); } }
+        if (!any) return [{ t, p: true }];
+        const out = []; let i0 = 0;
+        for (let x = 1; x <= t.length; x++) if (x === t.length || hit[x] !== hit[i0]) { out.push(hit[i0] ? { t: t.slice(i0, x), h: true } : { t: t.slice(i0, x), p: true }); i0 = x; }
+        return out;
+      };
+      for (let j = start; j < end; j++) {
+        const i = res[j]; const tx = ix.txt[i];
+        vis.push({
+          cls: 'lkr' + (j === st.hi ? ' on' : '') + (i === cur ? ' cur' : ''), on: j === st.hi,
+          pick: () => this.pick(i),
+          cells: cols.map((c, ci) => ({ c: (c.a === 'r' ? 'r' : '') + (c.f === 'bal' && Number(ix.rows[i][c.k]) > 0 ? ' dr' : ''), t: tx[ci], seg: seg(tx[ci]) }))
+        });
+      }
+      padTop = 'height: ' + start * ROWH + 'px'; padBot = 'height: ' + (n - end) * ROWH + 'px';
+      count = n.toLocaleString('en-IN'); none = n === 0;
+    }
+    const pos = st.pos || { left: 0, top: 0, width: 600, h: 400 };
+    return {
+      fid: this.id(), listId: this.uid + '-l', open, exitTo: p.exit || undefined,
+      inCls: (p.cls || 'inp') + ' lki', ph: p.ph || 'Type to search…', aria: p.aria || p.ph || 'Search', disabled: !!p.disabled,
+      shown: st.q !== null ? st.q : this.label(curRow) || (p.text || ''),
+      popStyle: 'left: ' + pos.left + 'px; top: ' + pos.top + 'px; width: ' + pos.width + 'px; height: ' + pos.h + 'px',
+      listStyle: '', gridStyle: grid,
+      head: cols.map((c) => ({ l: c.l, c: c.a === 'r' ? 'r' : '' })),
+      vis, padTop, padBot, none,
+      noneText: 'No ' + noun + ' matches “' + String(st.q || '').trim() + '”. Search works on every column: name, code, group, city, GST, mobile…',
+      count, countOf: (st.q ? 'of ' + ix.rows.length.toLocaleString('en-IN') + ' ' : '') + nouns,
+      addHref: p.addHref || '', addLabel: p.addLabel || '+ New ' + noun,
+      type: (e) => { const q = e.target.value; this._res = null; if (!this.state.open) this.place(); this.setState({ q, open: true, hi: 0, top: 0 }, () => { const el = document.getElementById(this.uid + '-l'); if (el) el.scrollTop = 0; }); },
+      key: (e) => this.key(e),
+      focus: (e) => { try { e.target.select(); } catch (x) {} },
+      blur: () => { if (this.state.q !== null && !this.state.q.trim()) this.clear(); else this.close(); },
+      click: () => { if (!this.state.open) this.openList(); },
+      toggle: (e) => { e.preventDefault(); if (this.state.open) this.close(); else { const el = document.getElementById(this.id()); if (el) el.focus(); this.openList(); } },
+      keep: (e) => { if (e.target && e.target.closest && e.target.closest('a')) return; e.preventDefault(); },
+      scroll: (e) => { const t = e.currentTarget.scrollTop; if (Math.abs(t - this.state.top) >= ROWH / 2) this.setState({ top: t }); }
+    };
+  }
+}
+
+/* ----- view ----- */
+class LookupView extends Component {
+  render() {
+    const v = this.renderVals() || {};
+    return (
+      <>
+        <style>{CSS}</style>
+      <span className="lkw">
+        <input id={v.fid} className={v.inCls} type="text" value={v.shown} placeholder={v.ph} autoComplete="off" spellCheck="false" role="combobox" aria-expanded={v.open} aria-controls={v.listId} aria-autocomplete="list" aria-label={v.aria} disabled={v.disabled} data-enter-exit={v.exitTo} onChange={v.type} onKeyDown={v.key} onFocus={v.focus} onBlur={v.blur} onClick={v.click} />
+        {' '}
+        <button className="lkc" type="button" tabIndex="-1" aria-label="Show list" onMouseDown={v.toggle} disabled={v.disabled}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        {' '}
+        {v.open ? (
+          <>
+            <div className="lkp" style={sx(v.popStyle)} onMouseDown={v.keep} role="presentation">
+              <div className="lkl" id={v.listId} role="listbox" style={sx(v.listStyle)} onScroll={v.scroll}>
+                <div className="lkh" style={sx(v.gridStyle)}>
+                  {(v.head || []).map((h, $index) => (
+                    <Fragment key={$index}>
+                      <span className={h?.c} title={h?.l}>
+                        {h?.l}
+                      </span>
+                    </Fragment>
+                  ))}
+                </div>
+                <div style={sx(v.padTop)} />
+                {(v.vis || []).map((r, $index) => (
+                  <Fragment key={$index}>
+                    <div className={r?.cls} style={sx(v.gridStyle)} role="option" aria-selected={r?.on} onClick={r?.pick}>
+                      {(r?.cells || []).map((c, $index) => (
+                        <Fragment key={$index}>
+                          <span className={c?.c} title={c?.t}>
+                            {(c?.seg || []).map((s, $index) => (
+                              <Fragment key={$index}>
+                                {s?.h ? (
+                                  <>
+                                    <mark>
+                                      {s?.t}
+                                    </mark>
+                                  </>
+                                ) : null}
+                                {s?.p ? (
+                                  <>
+                                    {s?.t}
+                                  </>
+                                ) : null}
+                              </Fragment>
+                            ))}
+                          </span>
+                        </Fragment>
+                      ))}
+                    </div>
+                  </Fragment>
+                ))}
+                <div style={sx(v.padBot)} />
+                {v.none ? (
+                  <>
+                    <div className="lke">
+                      {v.noneText}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+              <div className="lkf">
+                <span>
+                  <b>
+                    {v.count}
+                  </b>
+                  {" "}{v.countOf}
+                </span>
+                <span>
+                  <kbd>
+                    ↑
+                  </kbd>
+                  {' '}
+                  <kbd>
+                    ↓
+                  </kbd>
+                  {" move"}
+                </span>
+                <span>
+                  <kbd>
+                    Enter
+                  </kbd>
+                  {" select"}
+                </span>
+                <span>
+                  <kbd>
+                    Esc
+                  </kbd>
+                  {" close"}
+                </span>
+                {v.addHref ? (
+                  <>
+                    <DcLink href={v.addHref}>
+                      {v.addLabel}
+                    </DcLink>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </>
+        ) : null}
+      </span>
+      </>
+    );
+  }
+}
+
+export default function Lookup(props) {
+  const theme = useTheme();
+  return <LookupView {...props} theme={theme} />;
+}

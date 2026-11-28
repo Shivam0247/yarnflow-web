@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink, sx } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Lookup from '@/components/Lookup/Lookup';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
 import CSS from './PurchaseBill.css?raw';
@@ -139,6 +140,25 @@ class Component extends DCLogic {
     v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.lk && !st.err ? 'booting' : '';
     return v;
   }
+  /** lists and columns for the dropdowns, built once per lookups (not on every keystroke) */
+  lkx(live, lk) {
+    const k = this._lkx;
+    if (k && k.lk === lk && k.live === live) return k.v;
+    const api = this.api();
+    const led = live ? lk.ledgers || [] : [];
+    const v = {
+      partyCols: api ? api.partyCols('default') : [{ k: 'name', l: 'Party Name', w: 260 }],
+      personCols: [{ k: 'name', l: 'Name', w: 240 }, { k: 'code', l: 'Code', w: 96 }, { k: 'phone', l: 'Phone', w: 130 }, { k: 'city', l: 'City', w: 120 }],
+      transCols: [{ k: 'name', l: 'Transporter', w: 250 }, { k: 'transporterId', l: 'Transporter ID', w: 150 }, { k: 'gstin', l: 'GST No', w: 150 }, { k: 'mobile', l: 'Mobile', w: 120 }, { k: 'city', l: 'City', w: 110 }],
+      oneCol: [{ k: 'name', l: 'Name', w: 320 }],
+      transporters: live ? lk.transporters || [] : [{ id: 'n', name: 'Navkar Roadlines' }],
+      collectors: live ? lk.collectionPersons || [] : [{ id: 'r', name: 'Rajesh' }],
+      byId: new Map(led.map((a) => [String(a.id), a]))
+    };
+    this._lkx = { lk, live, v };
+    return v;
+  }
+
   renderVals0() {
     const st = this.state;
     const theme = this.props.theme ?? 'dark';
@@ -175,7 +195,7 @@ class Component extends DCLogic {
     const dParty = dRows.length ? dRows[0].p : null;
     const mq = (st.mq || '').toLowerCase();
     const pickable = PO.filter((r) => !String(r.key).startsWith('L'));
-    const poVis = pickable.filter((r) => (!mq || [r.no, r.p, r.it, r.lot, r.br].join(' ').toLowerCase().indexOf(mq) >= 0) && (!st.mp || r.p === st.mp) && (!st.mt || r.it === st.mt));
+    const poVis = pickable.filter((r) => (!mq || [r.no, r.p, r.it, r.lot, r.br].join(' ').toLowerCase().indexOf(mq) >= 0) && (!st.mpId || String(r.partyId) === st.mpId) && (!st.mt || r.it === st.mt));
     const po = poVis.map((r) => { const on = draft.indexOf(r.key) >= 0; const other = dParty && r.p !== dParty; const pend = r.oq - r.dq;
       return { no: r.no, dt: r.dt, p: r.p, g: r.g, it: r.it, br: r.br, lot: r.lot, age: r.age, rate: inr(r.rate, 2), oq: inr(r.oq, 3), dq: inr(r.dq, 3), pq: inr(pend, 3),
         bq: dqty[r.key] ?? inr(r.sq, 3), on, rc: on ? 'on' : (other ? 'off' : ''),
@@ -222,6 +242,19 @@ class Component extends DCLogic {
     const set = {}; ['bookId', 'date', 'addLess', 'remark', 'transporterId', 'lrNo', 'lrDate', 'vehicleNo', 'driverName', 'parcels', 'refNo', 'refDate', 'doNo', 'currency', 'collectionPersonId', 'godownId'].forEach((k) => { set[k] = (e) => this.setState({ f: { ...this.state.f, [k]: e.target.value }, note: this.state.err ? '' : this.state.note, err: false }); });
     const x = { ...(live ? {} : { transporterExpense: '0.00' }), ...st.x };
     const xset = {}; ['driverLicense', 'transporterExpense', 'ewbNo', 'irn', 'ackNo', 'ackDate', 'beDate', 'port', 'refInvNo', 'refInvDate', 'adjBillNo', 'adjBillDate', 'debitNoteNo', 'debitNoteDate', 'dcpiNo'].forEach((k) => { xset[k] = (e) => this.setState({ x: { ...x, [k]: e.target.value } }); });
+    // dropdown lists and columns (built once per lookups)
+    const lkx = this.lkx(live, lk);
+    // the picker's party filter: the parties that have something pending, with their full details
+    const pIds = [...new Set(pickable.map((r) => String(r.partyId ?? r.p)))];
+    const pKey = pIds.join(',');
+    if (!this._mp || this._mp.key !== pKey || this._mp.lk !== lk) {
+      const byName = new Map(pickable.map((r) => [String(r.partyId ?? r.p), r.p]));
+      this._mp = { key: pKey, lk, rows: pIds.map((id) => lkx.byId.get(id) || { id, name: byName.get(id) }).sort((a, b) => String(a.name).localeCompare(String(b.name))) };
+    }
+    const mtList = [...new Set(pickable.map((r) => r.it).filter((t) => t && t !== '—'))].sort();
+    const mtKey = mtList.join('|');
+    if (!this._mt || this._mt.key !== mtKey) this._mt = { key: mtKey, rows: mtList.map((n) => ({ id: n, name: n })) };
+    const pickTo = {}; ['transporterId', 'collectionPersonId'].forEach((k) => { pickTo[k] = (r) => this.setState({ f: { ...this.state.f, [k]: r ? String(r.id) : '' } }); });
     const opts = (list) => (list || []).map((o) => ({ v: String(o.id), l: o.name }));
     const opt = live ? { books: opts(lk.books.filter((b) => b.voucherType === 'PURCHASE_BILL')), transporters: opts(lk.transporters), collectors: opts(lk.collectionPersons), godowns: opts(lk.godowns) }
       : { books: [{ v: '', l: 'Yarn purchase A/c new' }, { v: 'i', l: 'Yarn purchase A/c · import' }, { v: 'g', l: 'General purchase A/c' }], transporters: [{ v: 'n', l: 'Navkar Roadlines' }, { v: 'j', l: 'Jay Ambe Roadlines' }], collectors: [{ v: 'p', l: 'Prakash' }], godowns: [{ v: '', l: 'Sachin GIDC' }] };
@@ -233,7 +266,7 @@ class Component extends DCLogic {
     return { ...billV, backHref: BK ? BK.href : 'PurchaseBillList' + sfx + '.dc.html', backLabel: BK ? BK.label : 'Purchase bill register',
       fitStyle: 'height: 100vh',
       theme, more: st.more, hist: st.hist, pick, po, poNone: live && po.length === 0, poEmpty: pickable.length ? 'No order matches the filters' : 'No approved purchase order is waiting for goods. Make a purchase order first.',
-      mq: st.mq, setMq: (e) => this.setState({ mq: e.target.value }), mp: st.mp, setMp: (e) => this.setState({ mp: e.target.value }), mt: st.mt, setMt: (e) => this.setState({ mt: e.target.value }), mParties: live ? parties : ['Bandhan Filaments', 'Daya Tex Industries'], mItems: live ? its : ['50/48 CREP', '75/72 Roto'],
+      mq: st.mq, setMq: (e) => this.setState({ mq: e.target.value }), mpId: st.mpId || '', pickMp: (r) => this.setState({ mpId: r ? String(r.id) : '' }), mpRows: this._mp.rows, mt: st.mt, pickMt: (r) => this.setState({ mt: r ? r.id : '' }), mtRows: this._mt.rows, lkx, pickTo, mParties: live ? parties : ['Bandhan Filaments', 'Daya Tex Industries'], mItems: live ? its : ['50/48 CREP', '75/72 Roto'],
       navNo: live ? (doc ? doc.number : (BL[0] ? BL[0].number : '—')) : 'PUR21329/26-27',
       prevBill: () => (live ? openId(bi >= 0 ? BL[bi + 1] : BL[0]) : null), nextBill: () => (live && bi > 0 ? openId(BL[bi - 1]) : null),
       colsLabel: st.more ? 'Fewer columns' : 'All columns',
@@ -273,7 +306,7 @@ class PurchaseBillView extends Component {
     return (
       <>
         <style>{CSS}</style>
-      <div className={`app ${v.theme ?? ""} fit`} style={sx(v.fitStyle)}>
+      <div className={`app ${v.theme ?? ""} fit`} style={sx(v.fitStyle)} data-entry="1">
         <div className="sbw">
           <Sidebar active="pb" />
         </div>
@@ -1075,18 +1108,7 @@ class PurchaseBillView extends Component {
                           <label htmlFor="pq1">
                             Collection person
                           </label>
-                          <select id="pq1" className="inp" value={v.f?.collectionPersonId} onChange={v.set?.collectionPersonId}>
-                            <option value="">
-                              Self
-                            </option>
-                            {(v.opt?.collectors || []).map((o, $index) => (
-                              <Fragment key={$index}>
-                                <option value={o?.v}>
-                                  {o?.l}
-                                </option>
-                              </Fragment>
-                            ))}
-                          </select>
+                          <Lookup fid="pq1" cls="inp" rows={v.lkx?.collectors} cols={v.lkx?.personCols} value={v.f?.collectionPersonId} onPick={v.pickTo?.collectionPersonId} ph="Select person" noun="person" />
                         </div>
                         <div className="fld">
                           <label htmlFor="pq2">
@@ -1114,18 +1136,7 @@ class PurchaseBillView extends Component {
                         <label htmlFor="q1">
                           Transporter
                         </label>
-                        <select id="q1" className="inp" value={v.f?.transporterId} onChange={v.set?.transporterId}>
-                          <option value="">
-                            —
-                          </option>
-                          {(v.opt?.transporters || []).map((o, $index) => (
-                            <Fragment key={$index}>
-                              <option value={o?.v}>
-                                {o?.l}
-                              </option>
-                            </Fragment>
-                          ))}
-                        </select>
+                        <Lookup fid="q1" cls="inp" rows={v.lkx?.transporters} cols={v.lkx?.transCols} value={v.f?.transporterId} onPick={v.pickTo?.transporterId} ph="Select transporter" noun="transporter" />
                       </div>
                       <div className="fld">
                         <label htmlFor="q2">
@@ -1295,7 +1306,7 @@ class PurchaseBillView extends Component {
                   </span>
                 </span>
                 {' '}
-                <select className="inp" aria-label="More actions">
+                <select className="inp" aria-label="More actions" data-enter="skip">
                   <option>
                     More…
                   </option>
@@ -1327,7 +1338,7 @@ class PurchaseBillView extends Component {
                   {"Save & print"}
                 </button>
                 {' '}
-                <button className="btn pr" type="button" onClick={v.doUpdate} disabled={v.busy}>
+                <button className="btn pr" type="button" onClick={v.doUpdate} disabled={v.busy} data-save="1">
                   {v.saveLabel}
                 </button>
               </div>
@@ -1484,30 +1495,12 @@ class PurchaseBillView extends Component {
                 </div>
                 <div className="mf">
                   <input className="inp" type="search" placeholder="Search order no., party or item" aria-label="Search orders" value={v.mq} onChange={v.setMq} />
-                  <select className="inp" aria-label="Party" value={v.mp} onChange={v.setMp}>
-                    <option value="">
-                      All parties
-                    </option>
-                    {(v.mParties || []).map((o, $index) => (
-                      <Fragment key={$index}>
-                        <option>
-                          {o}
-                        </option>
-                      </Fragment>
-                    ))}
-                  </select>
-                  <select className="inp" aria-label="Item" value={v.mt} onChange={v.setMt}>
-                    <option value="">
-                      All items
-                    </option>
-                    {(v.mItems || []).map((o, $index) => (
-                      <Fragment key={$index}>
-                        <option>
-                          {o}
-                        </option>
-                      </Fragment>
-                    ))}
-                  </select>
+                  <span style={{"flex":"1 1 260px","minWidth":"200px"}}>
+                    <Lookup cls="inp" rows={v.mpRows} cols={v.lkx?.partyCols} value={v.mpId} onPick={v.pickMp} ph="All parties" noun="party" aria="Filter by party" />
+                  </span>
+                  <span style={{"flex":"1 1 200px","minWidth":"160px"}}>
+                    <Lookup cls="inp" rows={v.mtRows} cols={v.lkx?.oneCol} value={v.mt} onPick={v.pickMt} ph="All items" noun="item" aria="Filter by item" />
+                  </span>
                   <span className="muted" style={{"alignSelf":"center","fontSize":"13px"}}>
                     Only approved orders with pending receipt are shown
                   </span>

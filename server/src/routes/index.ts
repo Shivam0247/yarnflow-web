@@ -28,7 +28,7 @@ import * as wa from '../services/whatsapp.js';
 import * as wac from '../services/waCloud.js';
 import * as mail from '../services/email.js';
 import * as share from '../services/share.js';
-import { memo } from '../lib/cache.js';
+import { mastersVersion, memo } from '../lib/cache.js';
 import type { Ctx } from '../services/context.js';
 import { BILL_TYPES, BY_SLUG, TYPES, type VoucherType } from '../services/types.js';
 
@@ -52,7 +52,7 @@ const masterOf = (req: FastifyRequest) => {
 };
 
 export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
-  const { db, authenticate, read, write } = kit;
+  const { db, authenticate, read, write, scope } = kit;
 
   /* ------------------------------------------------------------- auth */
   app.post('/api/auth/login', async (req) => {
@@ -97,12 +97,33 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.patch('/api/masters/:slug/:id', write((ctx, req) => updateMaster(ctx, masterOf(req), idParam(req), req.body)));
   app.delete('/api/masters/:slug/:id', write((ctx, req) => deleteMaster(ctx, masterOf(req), idParam(req))));
 
-  /** everything the entry forms need for their dropdowns, in one call */
-  app.get('/api/lookups', read(async (ctx, req) => {
-    const compact = (req.query as Record<string, string>).compact === '1';
-    // the same for every user of the company until something is saved (about 2 s to work out on the full data)
-    return memo(`lookups|${ctx.mcId}|${ctx.companyId}|${ctx.period}|${compact}`, 600_000, () => lookupsNow(ctx, compact));
-  }));
+  /**
+   * Everything the entry forms need for their dropdowns, in one call.
+   * compact=1 (what the app uses): masters only, built once per master version and sent with an ETag, so a
+   * browser that already has this version gets a 304 instead of ~1.4 MB again. Balances change with every
+   * document, so they come separately from /api/lookups/balances.
+   */
+  app.get('/api/lookups', async (req, reply) => {
+    const ctx: Ctx = { ...(await scope(req)), db };
+    if ((req.query as Record<string, string>).compact !== '1') {
+      return memo(`lookups|${ctx.mcId}|${ctx.companyId}|${ctx.period}|false`, 600_000, () => lookupsNow(ctx, false));
+    }
+    const ver = mastersVersion();
+    const tag = `"m${ver}-${ctx.mcId}-${ctx.companyId}"`;
+    reply.header('Cache-Control', 'private, no-cache');
+    reply.header('ETag', tag);
+    // proxies that compress may mark the tag weak or add a suffix, so compare on the version itself
+    if (String(req.headers['if-none-match'] ?? '').includes(tag.slice(1, -1))) return reply.status(304).send();
+    const out = await memo(`masters|${ctx.mcId}|${ctx.companyId}`, 24 * 3_600_000, () => lookupsNow(ctx, true), { masters: true });
+    return { ...out, ver };
+  });
+  /** closing balance (Dr +) of every account in the selected company and ledger period: { ids, b } */
+  app.get('/api/lookups/balances', read((ctx) => memo(`balances|${ctx.companyId}|${ctx.period}`, 600_000, async () => {
+    const r = await db.execute<{ id: number; b: string }>(sql`
+      select account_id as id, round(sum(debit - credit), 2) as b from ledger_entries
+      where company_id = ${ctx.companyId} and ledger_period = ${ctx.period} group by account_id having sum(debit - credit) <> 0`);
+    return { ids: r.rows.map((x) => Number(x.id)), b: r.rows.map((x) => Number(x.b)) };
+  })));
   async function lookupsNow(ctx: Ctx, compact: boolean) {
     const c = ctx.mcId; // masters are shared by the companies of one business
     const acc = await db
@@ -111,7 +132,8 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
       .where(and(eq(accounts.companyId, c), ne(accounts.status, 'INACTIVE')))
       .orderBy(asc(accounts.name));
     // closing balance (Dr +) of every account in the selected company and ledger period, in one query
-    const bal = await db.execute<{ id: number; b: string }>(sql`
+    // (the compact answer has no balances: they come from /api/lookups/balances)
+    const bal = compact ? { rows: [] as { id: number; b: string }[] } : await db.execute<{ id: number; b: string }>(sql`
       select account_id as id, sum(debit - credit) as b from ledger_entries
       where company_id = ${ctx.companyId} and ledger_period = ${ctx.period} group by account_id`);
     const bm = new Map(bal.rows.map((r) => [Number(r.id), Number(r.b)]));
@@ -119,11 +141,27 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
     const company = (await db.execute(sql`select state_code as "stateCode" from companies where id = ${ctx.companyId}`)).rows[0];
     const accR = acc.map((a) => ({ ...a, balance: Math.round(((bm.get(a.id) ?? 0) + 0) * 100) / 100, partyGroupName: a.partyGroupId ? pgNames.get(a.partyGroupId) ?? null : null }));
     const by = (...k: string[]) => accR.filter((a) => k.includes(a.kind));
-    const strip = <T extends Record<string, unknown>>(rows: T[]) => rows.map(({ createdAt, updatedAt, ...r }) => r);
+    // timestamps and the raw old-software fields (extra) are not used by any dropdown: leave them out
+    const strip = <T extends Record<string, unknown>>(rows: T[]) => rows.map(({ createdAt, updatedAt, extra, ...r }) => r);
     if (compact) {
-      // every account once (the app makes customers / suppliers / parties / banks from it): about a third of the size
+      // every account once, as columns + rows (each field name sent once). The extra columns are the ones the
+      // old software's party lists showed: office address, office no., email, PAN, state, group, company.
+      // the old data has placeholders ('0', ',', '-'): anything without a letter or digit is empty
+      const clean = (x: unknown) => sql`(case when trim(${x}) ~ '[[:alnum:]]' and trim(${x}) <> '0' then trim(${x}) end)`;
+      const more = await db.execute<Record<string, unknown>>(sql`
+        select a.id, nullif(${clean(sql`a.extra->'_contact'->>'P_OAdd'`)}, trim(a.address1)) as "oAddress", ${clean(sql`a.extra->'_contact'->>'P_OTel'`)} as "officeNo",
+               coalesce(${clean(sql`a.extra->'_contact'->>'P_OMobile'`)}, ${clean(sql`a.extra->>'P_OMobile'`)}) as "oMobile",
+               coalesce(${clean(sql`a.email`)}, ${clean(sql`a.extra->'_contact'->>'P_Email'`)}) as email, ${clean(sql`a.pan`)} as pan,
+               a.state, g.name as "groupName", co.name as "companyName"
+        from accounts a join account_groups g on g.id = a.group_id
+        left join companies co on co.legacy_code = a.extra->>'ComCode'
+        where a.company_id = ${c} and a.status <> 'INACTIVE'`);
+      const mm = new Map(more.rows.map((r) => [Number(r.id), r]));
+      // office address only where it differs from address1; party group name comes from partyGroups on the client
+      const rows = accR.map(({ balance, partyGroupName, ...a }) => ({ ...a, ...mm.get(a.id), id: a.id }));
+      const cols = Object.keys(rows[0] ?? {});
       return {
-        ledgers: accR,
+        ledgers: { cols, rows: rows.map((r) => cols.map((k) => (r as Record<string, unknown>)[k] ?? null)) },
         companyStateCode: company?.stateCode ?? '24',
         transporters: strip(await db.select().from(transporters).where(and(eq(transporters.companyId, c), ne(transporters.status, 'INACTIVE'))).orderBy(asc(transporters.name))),
         vehicles: strip(await db.select().from(vehicles).where(eq(vehicles.companyId, c)).orderBy(asc(vehicles.number))),

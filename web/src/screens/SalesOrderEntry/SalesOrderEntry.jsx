@@ -4,6 +4,7 @@
 import { Fragment } from 'react';
 import { DCLogic, useTheme, DcLink, sx } from '@/dc/runtime';
 import Assistant from '@/components/Assistant/Assistant';
+import Lookup from '@/components/Lookup/Lookup';
 import Share from '@/components/Share/Share';
 import Sidebar from '@/components/Sidebar/Sidebar';
 
@@ -82,6 +83,33 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  /** lists and columns for the dropdowns, built once per lookups (not on every keystroke) */
+  lkx(live, lk, SPTY) {
+    const k = this._lkx;
+    if (k && k.lk === lk && k.live === live) return k.v;
+    const api = this.api();
+    const smp = (a) => a.map((x) => ({ id: x.v, name: x.l }));
+    const S = this.sampleOpt || {};
+    const v = {
+      partyCols: api ? api.partyCols('order') : [{ k: 'partyGroupName', l: 'Party Group', w: 180 }, { k: 'name', l: 'Party Name', w: 240 }, { k: 'oAddress', l: 'Address', w: 280 }, { k: 'gstin', l: 'GST No', w: 150 }, { k: 'oMobile', l: 'Mobile', w: 120 }],
+      millCols: api ? api.partyCols('default') : [{ k: 'name', l: 'Party Name', w: 260 }],
+      personCols: [{ k: 'name', l: 'Name', w: 240 }, { k: 'code', l: 'Code', w: 96 }, { k: 'phone', l: 'Phone', w: 130 }, { k: 'city', l: 'City', w: 120 }],
+      transCols: [{ k: 'name', l: 'Transporter', w: 250 }, { k: 'transporterId', l: 'Transporter ID', w: 150 }, { k: 'gstin', l: 'GST No', w: 150 }, { k: 'mobile', l: 'Mobile', w: 120 }, { k: 'city', l: 'City', w: 110 }],
+      itemCols: [{ k: 'name', l: 'Item', w: 220 }, { k: 'code', l: 'Code', w: 120 }, { k: 'description', l: 'Description', w: 220 }, { k: 'hsn', l: 'HSN', w: 90 }, { k: 'gstRate', l: 'GST %', w: 70, a: 'r' }],
+      brandCols: [{ k: 'name', l: 'Brand', w: 240 }],
+      customers: live ? lk.customers || [] : SPTY.map((p) => ({ id: p.id, name: p.name, partyGroupName: p.grp, oAddress: p.addr, gstin: p.gst, oMobile: p.ph, contactPerson: p.cp, city: p.city })),
+      suppliers: live ? lk.suppliers || [] : smp(S.mills || []),
+      brokers: live ? lk.brokers || [] : smp(S.brokers || []),
+      salesPersons: live ? lk.salesPersons || [] : smp(S.salesPersons || []),
+      transporters: live ? lk.transporters || [] : smp(S.transporters || []),
+      items: live ? (lk.items || []).filter((i) => !i.isGeneral) : (S.items || []).map((x, i) => ({ id: 'i' + i, name: x.l, code: x.d })),
+      brands: live ? lk.brands || [] : (S.brands || []).map((x, i) => ({ id: 'b' + i, name: x.l }))
+    };
+    v.at = new Map(v.customers.map((c, i) => [String(c.id), i]));
+    this._lkx = { lk, live, v };
+    return v;
+  }
+
   pickParty(p) {
     const f = { ...this.state.f, partyId: String(p.id) };
     if (p.live) Object.assign(f, { creditDays: String(p.creditDays ?? ''), brokerId: p.brokerId ? String(p.brokerId) : f.brokerId, salesPersonId: p.salesPersonId ? String(p.salesPersonId) : f.salesPersonId, transporterId: p.transporterId ? String(p.transporterId) : f.transporterId,
@@ -90,12 +118,12 @@ class Component extends DCLogic {
     if (p.live) this.loadParty(p.id);
   }
 
-  setLine(i, k, v) {
+  setLine(i, k, v, id) {
     const lines = this.state.lines.slice();
     const l = { ...lines[i], [k]: v };
     if (k === 'itemName') {
       const its = (this.state.lk && this.state.lk.items) || [];
-      const it = its.find((x) => x.name.toLowerCase() === String(v).trim().toLowerCase() || x.code.toLowerCase() === String(v).trim().toLowerCase());
+      const it = id != null ? its.find((x) => x.id === id) : its.find((x) => x.name.toLowerCase() === String(v).trim().toLowerCase() || x.code.toLowerCase() === String(v).trim().toLowerCase());
       l.itemId = it ? it.id : null;
       if (it) { l.itemName = it.name; l.gstRate = String(it.gstRate); l.hsn = it.hsn; l.unit = it.unit === 'KG' ? 'Kg' : it.unit; if (!l.rate && it.rate) l.rate = String(it.rate); if (!l.brand && it.brandId) { const b = (this.state.lk.brands || []).find((x) => x.id === it.brandId); if (b) l.brand = b.name; } }
     }
@@ -170,11 +198,11 @@ class Component extends DCLogic {
     const num = (v) => Number(String(v ?? '').replace(/,/g, '')) || 0;
     const SAMPLE_PTY = [{"name": "Bhagwati Filaments", "grp": "Bhagwati Filaments", "addr": "Plot 12, Sachin GIDC, Surat 394230", "city": "Surat", "gst": "24AABCB4410K1Z3", "ph": "+91 98250 41120", "cp": "Ramesh Agarwal", "fig": "₹ 8,12,540", "sub": "4 days credit", "tag": "Overdue 6 d", "tc": "tag t-orange"}, {"name": "Bhagwati Filaments · Unit 2", "grp": "Bhagwati Filaments", "addr": "Plot 44, Pandesara GIDC, Surat 394221", "city": "Surat", "gst": "24AABCB4410K2Z2", "ph": "+91 98250 41121", "cp": "Suresh Agarwal", "fig": "₹ 1,20,400", "sub": "4 days credit", "tag": "Good payer", "tc": "tag t-green"}, {"name": "Shree Bhagwati Textiles", "grp": "Bhagwati Group", "addr": "14 Millennium Market, Ring Road, Surat 395002", "city": "Surat", "gst": "24AAKFB7712C1Z9", "ph": "+91 99099 22150", "cp": "Mahesh Patel", "fig": "₹ 2,10,400", "sub": "15 days credit", "tag": "Good payer", "tc": "tag t-green"}, {"name": "Bhagwati Synthetics LLP", "grp": "Bhagwati Synthetics", "addr": "Gala 7, Kamatghar, Bhiwandi 421302", "city": "Bhiwandi", "gst": "27AAJFB3301E1Z4", "ph": "+91 98201 77310", "cp": "Vinod Jain", "fig": "₹ 0", "sub": "30 days credit", "tag": "New party", "tc": "tag t-blue"}, {"name": "Shree Rudraksha Poly", "grp": "Shree Rudraksha Poly", "addr": "Block 3, Kadodara Char Rasta, Surat 394327", "city": "Surat", "gst": "24AAHFS3302P1Z1", "ph": "+91 97234 55102", "cp": "Kamal Shah", "fig": "₹ 6,40,210", "sub": "4 days credit", "tag": "Good payer", "tc": "tag t-green"}, {"name": "Jigita Fab LLP", "grp": "Jigita Fab LLP", "addr": "22 Udhna Udyog Nagar, Surat 394210", "city": "Surat", "gst": "24AAKFJ9910R1Z7", "ph": "+91 90990 31188", "cp": "Jignesh Desai", "fig": "₹ 2,10,000", "sub": "15 days credit", "tag": "Good payer", "tc": "tag t-green"}, {"name": "Rannade Textile", "grp": "Rannade Textile", "addr": "5 Laxmi Industrial Estate, Varachha, Surat 395006", "city": "Surat", "gst": "24AARFR5521K1Z4", "ph": "+91 98989 10022", "cp": "Nilkanthbhai", "fig": "₹ 2,87,050", "sub": "15 days credit", "tag": "Good payer", "tc": "tag t-green"}, {"name": "Bansam Fabrics", "grp": "Bansam Fabrics", "addr": "Plot 88, Sachin GIDC, Surat 394230", "city": "Surat", "gst": "24AADFB7781M1Z9", "ph": "+91 98240 66120", "cp": "Ramji Bhai", "fig": "₹ 18,60,000", "sub": "1 day credit", "tag": "Overdue 9 d", "tc": "tag t-red"}];
     const SAMPLE_DEL = [{"name": "Bhagwati Filaments · Unit 2", "grp": "Bhagwati Filaments", "addr": "Plot 44, Pandesara GIDC, Surat 394221", "city": "Surat", "gst": "24AABCB4410K2Z2", "ph": "+91 98250 41121", "cp": "Suresh Agarwal", "fig": "₹ 1,20,400", "sub": "4 days credit", "tag": "Good payer", "tc": "tag t-green"}, {"name": "Bhagwati Filaments", "grp": "Bhagwati Filaments", "addr": "Plot 12, Sachin GIDC, Surat 394230", "city": "Surat", "gst": "24AABCB4410K1Z3", "ph": "+91 98250 41120", "cp": "Ramesh Agarwal", "fig": "₹ 8,12,540", "sub": "4 days credit", "tag": "Overdue 6 d", "tc": "tag t-orange"}, {"name": "Shree Bhagwati Textiles", "grp": "Bhagwati Group", "addr": "14 Millennium Market, Ring Road, Surat 395002", "city": "Surat", "gst": "24AAKFB7712C1Z9", "ph": "+91 99099 22150", "cp": "Mahesh Patel", "fig": "₹ 2,10,400", "sub": "15 days credit", "tag": "Good payer", "tc": "tag t-green"}, {"name": "Om Sai Weaving (job work)", "grp": "Consignee", "addr": "Plot 9, Palsana Road, Surat 394315", "city": "Surat", "gst": "24AACFO1180H1Z6", "ph": "+91 97140 22091", "cp": "Sanjay Patil", "fig": "Job worker", "sub": "Twisting", "tag": "Consignee", "tc": "tag"}, {"name": "Kanvi Corporation", "grp": "Consignee", "addr": "Gujarat Hira Bourse Road, Ichchhapor, Surat 394510", "city": "Surat", "gst": "24AAGFK9902L1Z1", "ph": "+91 98795 11042", "cp": "Kanvi Shah", "fig": "Consignee", "sub": "—", "tag": "Consignee", "tc": "tag"}];
-    const PTY = live
-      ? lk.customers.map((c) => ({ id: c.id, live: true, ...c, name: c.name, grp: c.partyGroupName || c.name, addr: [c.address1, c.area, c.city].filter(Boolean).join(', ') || '—', city: c.city || '', gst: c.gstin || '—', ph: c.mobile || '—', cp: c.contactPerson || '—',
-          fig: '₹ ' + inr(Math.max(0, c.balance), 0), sub: (c.creditDays || 0) + ' days credit', tag: c.status === 'ON_HOLD' ? 'On hold' : c.status === 'BLOCKED' ? 'Blocked' : '', tc: c.status === 'ACTIVE' ? 'tag' : 'tag t-orange' }))
-      : SAMPLE_PTY.map((p, i) => ({ ...p, id: 'd' + i }));
-    const DEL = live ? PTY : SAMPLE_DEL.map((p, i) => ({ ...p, id: 'x' + i }));
+    // one party card at a time (the dropdown searches the full list itself)
+    const toP = (c) => ({ id: c.id, live: true, ...c, name: c.name, grp: c.partyGroupName || c.name, addr: [c.address1, c.area, c.city].filter(Boolean).join(', ') || '—', city: c.city || '', gst: c.gstin || '—', ph: c.mobile || '—', cp: c.contactPerson || '—',
+          fig: '₹ ' + inr(Math.max(0, c.balance), 0), sub: (c.creditDays || 0) + ' days credit', tag: c.status === 'ON_HOLD' ? 'On hold' : c.status === 'BLOCKED' ? 'Blocked' : '', tc: c.status === 'ACTIVE' ? 'tag' : 'tag t-orange' });
+    const SPTY = SAMPLE_PTY.map((p, i) => ({ ...p, id: 'd' + i }));
+    const SDEL = SAMPLE_DEL.map((p, i) => ({ ...p, id: 'x' + i }));
     const COL = ['#3B82F6, #6366F1', '#F59E0B, #EA580C', '#10B981, #059669', '#EC4899, #DB2777', '#8B5CF6, #6D28D9', '#14B8A6, #0D9488'];
     const deco = (p, i) => ({ ...p, ini: p.name.replace(/^(Shree|Shri|The)\s+/i, '').charAt(0), av: 'background: linear-gradient(135deg, ' + COL[i % COL.length] + ')' });
 
@@ -187,27 +215,21 @@ class Component extends DCLogic {
 
     // party
     const f = st.f;
-    const bi = PTY.findIndex((p) => String(p.id) === String(f.partyId));
+    const lkx = this.lkx(live, lk, SPTY);
+    const bi = live ? (lkx.at.get(String(f.partyId)) ?? -1) : SPTY.findIndex((p) => String(p.id) === String(f.partyId));
+    const P0 = bi >= 0 ? (live ? toP(lk.customers[bi]) : SP0) : null;
     const hasP = bi >= 0;
-    const bp = hasP ? deco(PTY[bi], bi) : { name: 'Select party…', grp: '', ini: '+', av: 'background: var(--s3); color: var(--t3)', fig: '₹ 0', sub: '', tag: '', tc: '', addr: '', city: '', gst: '', ph: '', cp: '' };
+    const bp = hasP ? deco(P0, bi) : { name: 'Select party…', grp: '', ini: '+', av: 'background: var(--s3); color: var(--t3)', fig: '₹ 0', sub: '', tag: '', tc: '', addr: '', city: '', gst: '', ph: '', cp: '' };
     const same = st.same ?? true;
-    const di = Math.max(0, DEL.findIndex((p) => String(p.id) === String(f.deliveryPartyId)));
-    const dp = DEL[di] ? deco(DEL[di], di + 2) : bp;
-    const pdOpen = st.pd ?? (this.props.startSearch ? 'bill' : null);
-    const q = (st.pq ?? this.props.startSearch ?? '').trim(); const ql = q.toLowerCase();
-    const SRC = pdOpen === 'del' ? DEL : PTY; const cur = pdOpen === 'del' ? di : bi;
-    const hits = SRC.map((p, i) => [p, i]).filter(([p]) => !ql || [p.name, p.gst, p.ph, p.cp, p.city, p.grp, p.addr].join(' ').toLowerCase().indexOf(ql) >= 0).slice(0, 60);
-    const pdRows = hits.map(([p, i]) => { const d = deco(p, pdOpen === 'del' ? i + 2 : i); const k = ql ? p.name.toLowerCase().indexOf(ql) : -1;
-      return { ...d, pre: k >= 0 ? p.name.slice(0, k) : p.name, hi: k >= 0 ? p.name.slice(k, k + q.length) : '', post: k >= 0 ? p.name.slice(k + q.length) : '',
-        cls: i === cur ? 'pdi on' : 'pdi', fig: p.fig, sub: p.sub, tag: p.tag, tc: p.tc,
-        pick: () => (pdOpen === 'del' ? this.setState({ f: { ...st.f, deliveryPartyId: String(p.id) }, pd: null, pq: '' }) : this.pickParty(p)) }; });
-
+    const di = live ? (lkx.at.get(String(f.deliveryPartyId)) ?? -1) : SDEL.findIndex((p) => String(p.id) === String(f.deliveryPartyId));
+    const D0 = di >= 0 ? (live ? toP(lk.customers[di]) : SDEL[di]) : null;
+    const dp = D0 ? deco(D0, di + 2) : bp;
     // credit position pills
-    const ps = hasP && live ? st.ps[PTY[bi].id] : null;
+    const ps = hasP && live ? st.ps[P0.id] : null;
     const fmt0 = (n) => '₹ ' + inr(n, 0);
     let cl, dueCls = 'kp ok', dueVal = 'None';
     if (live && hasP) {
-      const L = PTY[bi].creditLimit || 0; const o = Math.max(0, PTY[bi].balance || 0); const p = L ? Math.min(100, Math.round(o / L * 100)) : 0;
+      const L = P0.creditLimit || 0; const o = Math.max(0, P0.balance || 0); const p = L ? Math.min(100, Math.round(o / L * 100)) : 0;
       cl = { pct: L ? p + '% used' : 'No limit', lim: L ? fmt0(L) : '—', used: fmt0(o) + ' used', bar: 'width: ' + p + '%' + (p >= 80 ? '; background: #EF4444' : ''), avail: 'Available ' + fmt0(Math.max(0, L - o)) };
       if (ps && ps.overdue > 0) { dueCls = 'kp due'; dueVal = fmt0(ps.overdue) + ' · ' + ps.maxOverdueDays + ' d late'; }
     } else {
@@ -217,7 +239,7 @@ class Component extends DCLogic {
     }
 
     // lines & totals
-    const pState = hasP && live ? PTY[bi].stateCode : null;
+    const pState = hasP && live ? P0.stateCode : null;
     const inter = !!(pState && lk.companyStateCode && pState !== lk.companyStateCode);
     const stk = st.stk || {};
     let tPcs = 0, tQty = 0, tBasic = 0, tDisc = 0, tTax = 0, tGst = 0, tFr = 0, tA = 0, tB = 0; const rates = new Set();
@@ -227,11 +249,13 @@ class Component extends DCLogic {
       const blank = !l.itemName && !l.qty;
       const gv = tax * g / 100; const aa = inter ? gv : gv / 2; const ba = inter ? 0 : gv / 2;
       if (!blank) { tPcs += num(l.pcs); tQty += qty; tBasic += basic; tDisc += disc; tTax += tax; tGst += gv; tFr += fr; tA += aa; tB += ba; if (g) rates.add(g); }
+      const pickItem = (r) => this.setLine(i, 'itemName', r ? r.name : '', r ? r.id : null);
+      const pickBrand = (r) => this.setLine(i, 'brand', r ? r.name : '');
       const on = {}; ['itemName', 'brand', 'lotNo', 'unit', 'grade', 'pcs', 'qty', 'rate', 'discPct', 'freightPct', 'gstRate', 'remark1', 'remark2'].forEach((k) => { on[k] = (e) => this.setLine(i, k, e.target.value); });
       const have = l.itemId ? stk[l.itemId] : null;
       const stock = l.saved ? 'Dispatched ' + inr(l.doneQty || 0, 3) + ' kg' : blank ? '—' : have != null ? inr(have, 0) + ' kg in stock' : live && l.itemName && !l.itemId ? 'Pick from list' : '—';
       const stc = l.saved || (have != null && have >= qty) ? 'stockok' : blank ? 'muted' : 'tag t-orange';
-      return { ...l, n: i + 1, on, rc: blank ? '' : '', amt: blank ? '—' : inr(tax, 2), frA: blank ? '—' : inr(fr, 2),
+      return { ...l, n: i + 1, on, pickItem, pickBrand, rc: blank ? '' : '', amt: blank ? '—' : inr(tax, 2), frA: blank ? '—' : inr(fr, 2),
         ap: blank ? '—' : String(inter ? g : g / 2), aa: blank ? '—' : inr(aa, 2), bp: blank ? '—' : String(inter ? 0 : g / 2), ba: blank ? '—' : inr(ba, 2), stock, stc, avg: blank ? '—' : inr(rate * (1 + g / 100), 2),
         ppcs: l.saved ? String(Math.max(0, Math.round((l.pendingQty ?? qty) / Math.max(1, qty) * num(l.pcs)))) : blank ? '—' : l.pcs || '0', pq: blank ? '—' : inr(l.saved ? l.pendingQty ?? qty : qty, 3),
         st: l.saved ? (l.lineStatus === 'CLOSED' ? 'Closed' : (l.pendingQty ?? qty) <= 0.001 ? 'Clear' : (l.doneQty || 0) > 0 ? 'Partly dispatched' : 'Pending') : blank ? '—' : 'New', hsn: l.hsn || '—' };
@@ -256,14 +280,15 @@ class Component extends DCLogic {
           items: (lk.items || []).filter((i) => !i.isGeneral).map((i) => ({ l: i.name, d: i.code + ' · ' + (i.description || '') })), brands: (lk.brands || []).map((b) => ({ l: b.name })) }
       : { costCenters: [{ v: '', l: 'Trading division' }], books: [{ v: '', l: 'Sales order' }, { v: 'x', l: 'Sales order · export' }], brokers: [{ v: 'm', l: 'Manoj' }, { v: 'a', l: 'Avi M' }], mills: [{ v: 'r', l: 'Reliance Industries' }], salesPersons: [{ v: 'r', l: 'Rajesh Shah' }, { v: 'a', l: 'Avi M' }],
           transporters: [{ v: 'n', l: 'Navkar Roadlines' }, { v: 'j', l: 'Jay Ambe Roadlines' }], items: [{ l: '50/24 SD CAT', d: 'PFY-5024-SDC' }, { l: '75/36 FDY', d: 'PFY-7536-SD' }], brands: [{ l: 'Reliance' }, { l: 'Sanathan' }] };
+    const pickTo = {}; ['brokerId', 'millId', 'salesPersonId', 'transporterId'].forEach((k) => { pickTo[k] = (r) => this.setState({ f: { ...this.state.f, [k]: r ? String(r.id) : '' } }); });
     const set = {}; Object.keys(this.blank()).forEach((k) => { set[k] = (e) => this.setState({ f: { ...this.state.f, [k]: e.target.value }, note: this.state.err ? '' : this.state.note, err: false }); });
     const dsc = st.disc.map((d, i) => ({ l: d[0], v: d[1], on: (e) => { const disc = st.disc.slice(); disc[i] = [d[0], e.target.value]; this.setState({ disc }); } }));
 
     // party history
     let ph;
     if (live && hasP) {
-      const rows = (st.ph[PTY[bi].id] || []);
-      const sm = st.ps[PTY[bi].id];
+      const rows = (st.ph[P0.id] || []);
+      const sm = st.ps[P0.id];
       ph = { title: 'Last orders · ' + bp.name, rows: rows.slice(0, 5).map((r) => ({ a: (r.itemName || '') + ' · ' + inr(r.qty, 0) + ' kg', b: '₹ ' + inr(r.rate, 2), c: r.number.replace(/\/\d{2}-\d{2}$/, '') + ' · ' + r.date.split('-').reverse().join('-'), d: r.qty ? Math.round(r.doneQty / r.qty * 100) + '% dispatched' : '' })),
         lots: [...new Set(rows.filter((r) => r.lotNo).map((r) => r.lotNo + (r.grade ? ' · ' + r.grade : '')))].slice(0, 4),
         payL: 'Payment position', pay: sm ? (sm.overdue > 0 ? fmt0(sm.overdue) + ' overdue · ' + sm.maxOverdueDays + ' days' : sm.outstanding > 0 ? fmt0(sm.outstanding) + ' due, nothing overdue' : 'Nothing outstanding') : '…',
@@ -285,11 +310,11 @@ class Component extends DCLogic {
       updLabel: st.busy ? 'Saving…' : st.upd ? '✓ Updated' : 'Update order', updNote: st.note || ('Editing ' + recNo), note: st.note, noteCls: st.err ? 'tag t-red' : 'muted', busy: !!st.busy,
       doUpdate: () => this.save(false), save: () => this.save(false), savePrint: () => this.save(true), print: () => window.print(), remove: () => this.remove(), saveLabel,
       f, set, opt, lines, tt, am, dsc, dueDate: due, addDisc: () => this.setState({ disc: st.disc.concat([['Other discount', '']]) }),
-      hasP, dueCls, dueLbl: 'Due payment', dueVal, cl, bp, dp, same, diff: !same, pdBill: pdOpen === 'bill', pdDel: pdOpen === 'del',
-      dName: same ? bp.name : dp.name, dAd: same ? bp.addr : dp.addr, dMeta: same ? 'Same as bill to' : 'GSTIN ' + dp.gst + ' · Ph ' + dp.ph, pdOpen: !!pdOpen, pdRows, pdNone: pdRows.length === 0, pdQ: q, pdCount: hits.length + (hits.length === 1 ? ' party' : ' parties'),
-      pdCls: pdOpen === 'del' ? 'pdrop r' : 'pdrop', pdTitle: pdOpen === 'del' ? 'Choose delivery party' : 'Choose billing party',
-      openBill: () => this.setState({ pd: 'bill', pq: '' }), openDel: () => this.setState({ pd: 'del', pq: '' }), closeP: () => this.setState({ pd: null, pq: '' }),
-      setQ: (e) => this.setState({ pq: e.target.value, pd: pdOpen }), toggleSame: () => this.setState({ same: !same, pd: !same ? null : 'del', pq: '' }),
+      hasP, dueCls, dueLbl: 'Due payment', dueVal, cl, bp, dp, same, diff: !same, lkx,
+      dName: same ? bp.name : dp.name, dAd: same ? bp.addr : dp.addr, dMeta: same ? 'Same as bill to' : 'GSTIN ' + dp.gst + ' · Ph ' + dp.ph,
+      pickBill: (r) => (r ? this.pickParty(live ? { ...r, live: true } : r) : this.setState({ f: { ...this.state.f, partyId: '' } })),
+      pickDel: (r) => this.setState({ f: { ...this.state.f, deliveryPartyId: r ? String(r.id) : '' } }),
+      pickTo, toggleSame: () => { const ns = !same; this.setState({ same: ns }); if (!ns) setTimeout(() => { const el = document.getElementById('f7b'); if (el) el.focus(); }, 0); },
       newPartyHref: 'AccountMaster' + sfx + '.dc.html', ph,
       fitStyle: 'height: 100vh',
       moreF: st.moreF, moreFLabel: st.moreF ? 'Fewer fields' : '+ 8 more fields', toggleF: () => this.setState({ moreF: !st.moreF }),
@@ -307,7 +332,7 @@ class SalesOrderEntryView extends Component {
     return (
       <>
         <style>{CSS}</style>
-      <div className={`app ${v.theme ?? ""} fit`} style={sx(v.fitStyle)}>
+      <div className={`app ${v.theme ?? ""} fit`} style={sx(v.fitStyle)} data-entry="1">
         <div className="sbw">
           <Sidebar active={v.sideKey} />
         </div>
@@ -469,18 +494,7 @@ class SalesOrderEntryView extends Component {
                       <label htmlFor="f9">
                         Broker
                       </label>
-                      <select id="f9" className="pv" value={v.f?.brokerId} onChange={v.set?.brokerId}>
-                        <option value="">
-                          Direct
-                        </option>
-                        {(v.opt?.brokers || []).map((o, $index) => (
-                          <Fragment key={$index}>
-                            <option value={o?.v}>
-                              {o?.l}
-                            </option>
-                          </Fragment>
-                        ))}
-                      </select>
+                      <Lookup fid="f9" cls="pv" rows={v.lkx?.brokers} cols={v.lkx?.personCols} value={v.f?.brokerId} onPick={v.pickTo?.brokerId} ph="Direct (no broker)" noun="broker" />
                     </div>
                     <div className="pr">
                       <label htmlFor="f10">
@@ -513,17 +527,7 @@ class SalesOrderEntryView extends Component {
                           *
                         </i>
                       </label>
-                      <button id="f5" className="pv pkb" type="button" onClick={v.openBill} aria-haspopup="dialog">
-                        <span className="pav" style={sx(v.bp?.av)}>
-                          {v.bp?.ini}
-                        </span>
-                        <b>
-                          {v.bp?.name}
-                        </b>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                          <path d="m7 10 5 5 5-5" />
-                        </svg>
-                      </button>
+                      <Lookup fid="f5" cls="pv" rows={v.lkx?.customers} cols={v.lkx?.partyCols} value={v.f?.partyId} onPick={v.pickBill} ph="Type party name, code, group, GST, city…" noun="party" addHref={v.newPartyHref} />
                     </div>
                     <div className="pr">
                       <label htmlFor="f6">
@@ -552,17 +556,7 @@ class SalesOrderEntryView extends Component {
                         ) : null}
                         {v.diff ? (
                           <>
-                            <button className="pv pkb" type="button" onClick={v.openDel} aria-haspopup="dialog">
-                              <span className="pav" style={sx(v.dp?.av)}>
-                                {v.dp?.ini}
-                              </span>
-                              <b>
-                                {v.dp?.name}
-                              </b>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                                <path d="m7 10 5 5 5-5" />
-                              </svg>
-                            </button>
+                            <Lookup fid="f7b" cls="pv" rows={v.lkx?.customers} cols={v.lkx?.partyCols} value={v.f?.deliveryPartyId} onPick={v.pickDel} ph="Type delivery party…" noun="party" />
                           </>
                         ) : null}
                         {v.diff ? (
@@ -600,35 +594,13 @@ class SalesOrderEntryView extends Component {
                       <label htmlFor="f8">
                         Supplier (mill)
                       </label>
-                      <select id="f8" className="pv" value={v.f?.millId} onChange={v.set?.millId}>
-                        <option value="">
-                          Any mill
-                        </option>
-                        {(v.opt?.mills || []).map((o, $index) => (
-                          <Fragment key={$index}>
-                            <option value={o?.v}>
-                              {o?.l}
-                            </option>
-                          </Fragment>
-                        ))}
-                      </select>
+                      <Lookup fid="f8" cls="pv" rows={v.lkx?.suppliers} cols={v.lkx?.millCols} value={v.f?.millId} onPick={v.pickTo?.millId} ph="Any mill" noun="mill" />
                     </div>
                     <div className="pr">
                       <label htmlFor="f12">
                         Sales person
                       </label>
-                      <select id="f12" className="pv" value={v.f?.salesPersonId} onChange={v.set?.salesPersonId}>
-                        <option value="">
-                          Select sales person
-                        </option>
-                        {(v.opt?.salesPersons || []).map((o, $index) => (
-                          <Fragment key={$index}>
-                            <option value={o?.v}>
-                              {o?.l}
-                            </option>
-                          </Fragment>
-                        ))}
-                      </select>
+                      <Lookup fid="f12" cls="pv" rows={v.lkx?.salesPersons} cols={v.lkx?.personCols} value={v.f?.salesPersonId} onPick={v.pickTo?.salesPersonId} ph="Select sales person" noun="sales person" />
                     </div>
                     <div className="pr">
                       <label htmlFor="f22">
@@ -686,186 +658,6 @@ class SalesOrderEntryView extends Component {
                       </select>
                     </div>
                   </div>
-                  {v.pdBill ? (
-                    <>
-                      <div className={v.pdCls} role="dialog" aria-label={v.pdTitle}>
-                        <div className="pdh">
-                          <input className="pds" type="search" value={v.pdQ} onChange={v.setQ} placeholder="Search by name, GSTIN, phone, contact or city" aria-label="Search parties" autoFocus={true} />
-                          <span className="muted" style={{"fontSize":"12px","whiteSpace":"nowrap"}}>
-                            {v.pdCount}
-                          </span>
-                          <button className="btn sm gh" type="button" onClick={v.closeP} aria-label="Close">
-                            ✕
-                          </button>
-                        </div>
-                        <div className="pdl">
-                          {(v.pdRows || []).map((r, $index) => (
-                            <Fragment key={$index}>
-                              <button className={r?.cls} type="button" onClick={r?.pick}>
-                                <span className="pav" style={sx(r?.av)}>
-                                  {r?.ini}
-                                </span>
-                                <span className="pdm">
-                                  <span className="pdn">
-                                    <span>
-                                      {r?.pre}
-                                      <mark>
-                                        {r?.hi}
-                                      </mark>
-                                      {r?.post}
-                                    </span>
-                                    <span className="tag">
-                                      {r?.grp}
-                                    </span>
-                                  </span>
-                                  <span className="pda">
-                                    {r?.addr}
-                                  </span>
-                                  <span className="pdc">
-                                    <span>
-                                      {"GSTIN "}
-                                      <b>
-                                        {r?.gst}
-                                      </b>
-                                    </span>
-                                    <span>
-                                      {"Ph "}
-                                      <b>
-                                        {r?.ph}
-                                      </b>
-                                    </span>
-                                    <span>
-                                      {"Contact "}
-                                      <b>
-                                        {r?.cp}
-                                      </b>
-                                    </span>
-                                  </span>
-                                </span>
-                                <span className="pdr">
-                                  <b>
-                                    {r?.fig}
-                                  </b>
-                                  <span>
-                                    {r?.sub}
-                                  </span>
-                                  <span className={r?.tc}>
-                                    {r?.tag}
-                                  </span>
-                                </span>
-                              </button>
-                            </Fragment>
-                          ))}
-                          {' '}
-                          {v.pdNone ? (
-                            <>
-                              <div className="pde">
-                                No party matches "{v.pdQ}{"\". Check the spelling or add a new party."}
-                              </div>
-                            </>
-                          ) : null}
-                        </div>
-                        <div className="pdf">
-                          <span style={{"flex":"1"}}>
-                            Details come from the account master
-                          </span>
-                          <DcLink className="btn sm" href={v.newPartyHref}>
-                            + New party
-                          </DcLink>
-                        </div>
-                      </div>
-                    </>
-                  ) : null}
-                  {v.pdDel ? (
-                    <>
-                      <div className={v.pdCls} role="dialog" aria-label={v.pdTitle}>
-                        <div className="pdh">
-                          <input className="pds" type="search" value={v.pdQ} onChange={v.setQ} placeholder="Search by name, GSTIN, phone, contact or city" aria-label="Search parties" autoFocus={true} />
-                          <span className="muted" style={{"fontSize":"12px","whiteSpace":"nowrap"}}>
-                            {v.pdCount}
-                          </span>
-                          <button className="btn sm gh" type="button" onClick={v.closeP} aria-label="Close">
-                            ✕
-                          </button>
-                        </div>
-                        <div className="pdl">
-                          {(v.pdRows || []).map((r, $index) => (
-                            <Fragment key={$index}>
-                              <button className={r?.cls} type="button" onClick={r?.pick}>
-                                <span className="pav" style={sx(r?.av)}>
-                                  {r?.ini}
-                                </span>
-                                <span className="pdm">
-                                  <span className="pdn">
-                                    <span>
-                                      {r?.pre}
-                                      <mark>
-                                        {r?.hi}
-                                      </mark>
-                                      {r?.post}
-                                    </span>
-                                    <span className="tag">
-                                      {r?.grp}
-                                    </span>
-                                  </span>
-                                  <span className="pda">
-                                    {r?.addr}
-                                  </span>
-                                  <span className="pdc">
-                                    <span>
-                                      {"GSTIN "}
-                                      <b>
-                                        {r?.gst}
-                                      </b>
-                                    </span>
-                                    <span>
-                                      {"Ph "}
-                                      <b>
-                                        {r?.ph}
-                                      </b>
-                                    </span>
-                                    <span>
-                                      {"Contact "}
-                                      <b>
-                                        {r?.cp}
-                                      </b>
-                                    </span>
-                                  </span>
-                                </span>
-                                <span className="pdr">
-                                  <b>
-                                    {r?.fig}
-                                  </b>
-                                  <span>
-                                    {r?.sub}
-                                  </span>
-                                  <span className={r?.tc}>
-                                    {r?.tag}
-                                  </span>
-                                </span>
-                              </button>
-                            </Fragment>
-                          ))}
-                          {' '}
-                          {v.pdNone ? (
-                            <>
-                              <div className="pde">
-                                No party matches "{v.pdQ}{"\". Check the spelling or add a new party."}
-                              </div>
-                            </>
-                          ) : null}
-                        </div>
-                        <div className="pdf">
-                          <span style={{"flex":"1"}}>
-                            Details come from the account master
-                          </span>
-                          <DcLink className="btn sm" href={v.newPartyHref}>
-                            + New party
-                          </DcLink>
-                        </div>
-                      </div>
-                    </>
-                  ) : null}
                 </div>
               </section>
               <section className="sec items">
@@ -874,22 +666,6 @@ class SalesOrderEntryView extends Component {
                     Items
                   </h2>
                 </div>
-                <datalist id="soe-items">
-                  {(v.opt?.items || []).map((o, $index) => (
-                    <Fragment key={$index}>
-                      <option value={o?.l}>
-                        {o?.d}
-                      </option>
-                    </Fragment>
-                  ))}
-                </datalist>
-                <datalist id="soe-brands">
-                  {(v.opt?.brands || []).map((o, $index) => (
-                    <Fragment key={$index}>
-                      <option value={o?.l} />
-                    </Fragment>
-                  ))}
-                </datalist>
                 <div className="tw">
                   <table>
                     <thead>
@@ -986,10 +762,14 @@ class SalesOrderEntryView extends Component {
                               {l?.n}
                             </td>
                             <td>
-                              <input className="cin" type="text" aria-label="Item" placeholder="Search item" list="soe-items" value={l?.itemName} onChange={l?.on?.itemName} style={{"width":"150px"}} />
+                              <span style={{"display":"block","width":"170px"}}>
+                                <Lookup cls="cin" rows={v.lkx?.items} cols={v.lkx?.itemCols} value={l?.itemId} text={l?.itemName} onPick={l?.pickItem} ph="Search item" aria="Item" noun="item" exit="table" />
+                              </span>
                             </td>
                             <td>
-                              <input className="cin" type="text" aria-label="Brand" list="soe-brands" value={l?.brand} onChange={l?.on?.brand} style={{"width":"90px"}} />
+                              <span style={{"display":"block","width":"110px"}}>
+                                <Lookup cls="cin" rows={v.lkx?.brands} cols={v.lkx?.brandCols} value={l?.brandId} text={l?.brand} onPick={l?.pickBrand} ph="Brand" aria="Brand" noun="brand" />
+                              </span>
                             </td>
                             <td>
                               <input className="cin" type="text" aria-label="Lot no" value={l?.lotNo} onChange={l?.on?.lotNo} style={{"width":"90px"}} />
@@ -1156,18 +936,7 @@ class SalesOrderEntryView extends Component {
                       <label htmlFor="t1">
                         Transportation
                       </label>
-                      <select id="t1" className="inp" value={v.f?.transporterId} onChange={v.set?.transporterId}>
-                        <option value="">
-                          Select transporter
-                        </option>
-                        {(v.opt?.transporters || []).map((o, $index) => (
-                          <Fragment key={$index}>
-                            <option value={o?.v}>
-                              {o?.l}
-                            </option>
-                          </Fragment>
-                        ))}
-                      </select>
+                      <Lookup fid="t1" cls="inp" rows={v.lkx?.transporters} cols={v.lkx?.transCols} value={v.f?.transporterId} onPick={v.pickTo?.transporterId} ph="Select transporter" noun="transporter" />
                     </div>
                     <div className="fld">
                       <label htmlFor="f19">
@@ -1306,7 +1075,7 @@ class SalesOrderEntryView extends Component {
                   </span>
                 </span>
                 {' '}
-                <select className="inp" aria-label="More actions">
+                <select className="inp" aria-label="More actions" data-enter="skip">
                   <option>
                     More…
                   </option>
@@ -1335,7 +1104,7 @@ class SalesOrderEntryView extends Component {
                       {"Save & print"}
                     </button>
                     {' '}
-                    <button className="btn pr" type="button" onClick={v.save} disabled={v.busy}>
+                    <button className="btn pr" type="button" onClick={v.save} disabled={v.busy} data-save="1">
                       {v.saveLabel}
                     </button>
                   </>

@@ -52,6 +52,7 @@ export const loading = {
 };
 const setPending = (d: number) => { pending = Math.max(0, pending + d); pendingListeners.forEach((f) => f()); };
 
+let mastersVer = '';
 async function request<T = any>(method: string, path: string, body?: unknown, query?: Record<string, unknown>): Promise<T> {
   setPending(1);
   try { return await requestNow<T>(method, path, body, query); } finally { setPending(-1); }
@@ -66,6 +67,10 @@ async function requestNow<T = any>(method: string, path: string, body?: unknown,
     headers['x-fy-id'] = String(session.fyId);
   }
   const res = await fetch('/api' + path + (qs.length > 1 ? qs : ''), { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  // the server says which version of the master lists is current: drop ours as soon as it is out of date
+  // (a party / item / broker was added or changed, here or by another user)
+  const mv = res.headers.get('x-masters-version');
+  if (mv && mv !== mastersVer) { mastersVer = mv; for (const k of [...cache.keys()]) if (k.startsWith('masters:')) cache.delete(k); }
   const text = await res.text();
   const data = text ? JSON.parse(text) : null;
   if (res.status === 401 && session) {
@@ -80,22 +85,80 @@ const z = (n: number) => String(n).padStart(2, '0');
 
 /** the server sends every account once; rebuild the lists the screens use (same as the full /lookups) */
 function expandLookups(r: any) {
-  const acc: any[] = r.ledgers ?? [];
-  const by = (...k: string[]) => acc.filter((a) => k.includes(a.kind));
+  // ledgers come as { cols, rows } (each field name once); make them objects again
+  const L = r.ledgers;
+  const acc: any[] = Array.isArray(L) ? L : (L?.rows ?? []).map((row: unknown[]) => { const o: Record<string, unknown> = {}; L.cols.forEach((c: string, i: number) => { o[c] = row[i]; }); return o; });
+  // fields the server leaves out because they can be worked out here
+  const pgName = new Map<number, string>((r.partyGroups ?? []).map((g: any) => [g.id, g.name]));
+  for (const a of acc) {
+    if (a.partyGroupName === undefined) a.partyGroupName = a.partyGroupId ? pgName.get(a.partyGroupId) ?? null : null;
+    if (!a.oAddress) a.oAddress = a.address1 ?? null;
+  }
   const ps: any[] = r.persons ?? [];
+  // names the old party lists showed next to each party
+  const pn = new Map<number, string>(ps.map((p) => [p.id, p.name]));
+  for (const a of acc) {
+    a.brokerName = a.brokerId ? pn.get(a.brokerId) ?? null : null;
+    a.collectionName = a.collectionPersonId ? pn.get(a.collectionPersonId) ?? null : null;
+    a.salesPersonName = a.salesPersonId ? pn.get(a.salesPersonId) ?? null : null;
+  }
   const role = (...k: string[]) => ps.filter((p) => k.includes(p.role));
   return {
     ...r,
-    customers: by('CUSTOMER'),
-    suppliers: by('SUPPLIER'),
-    brokerAccounts: by('BROKER'),
-    parties: acc.filter((a) => !['BANK', 'CASH', 'TAX', 'SALES', 'PURCHASE'].includes(a.kind)),
-    banks: by('BANK', 'CASH'),
+    ...accountLists(acc),
     collectionPersons: role('COLLECTOR', 'SALES_PERSON'),
     salesPersons: role('SALES_PERSON', 'COLLECTOR'),
     brokers: role('BROKER').filter((p) => !p.isBlocked)
   };
 }
+
+/** the account lists the screens use (same as the full /lookups) */
+function accountLists(acc: any[]) {
+  const by = (...k: string[]) => acc.filter((a) => k.includes(a.kind));
+  return {
+    ledgers: acc,
+    customers: by('CUSTOMER'),
+    suppliers: by('SUPPLIER'),
+    brokerAccounts: by('BROKER'),
+    parties: acc.filter((a) => !['BANK', 'CASH', 'TAX', 'SALES', 'PURCHASE'].includes(a.kind)),
+    banks: by('BANK', 'CASH')
+  };
+}
+
+/**
+ * Party list columns, exactly as the old software's saved layouts (Creatives/Layout/<form>/PartyList):
+ *  order   — SaleOrder/PartyList (sales order and purchase order share that form)
+ *  default — SaleForm, DispatchSchedule, JounralForm and BankCash (all the same set; purchase forms had none
+ *            saved, so they use the program's default, which is this one)
+ * Widths follow the old ones, widened a little for today's larger font.
+ */
+const PC = {
+  group: { k: 'partyGroupName', l: 'Party Group', w: 190 },
+  name: { k: 'name', l: 'Party Name', w: 290 },
+  addr: { k: 'oAddress', l: 'Address', w: 300 },
+  gst: { k: 'gstin', l: 'GST No', w: 150 },
+  mob: { k: 'oMobile', l: 'Mobile', w: 112 },
+  tel: { k: 'officeNo', l: 'Office No', w: 112 },
+  mail: { k: 'email', l: 'Email', w: 200 },
+  cp: { k: 'contactPerson', l: 'Contact Person', w: 160 },
+  code: { k: 'code', l: 'Party Code', w: 92 },
+  bal: { k: 'balance', l: 'Balance', w: 130, a: 'r', f: 'bal' },
+  gname: { k: 'groupName', l: 'Group Name', w: 190 },
+  brk: { k: 'brokerName', l: 'Broker', w: 160 },
+  cd: { k: 'creditDays', l: 'Credit Days', w: 86, a: 'r', f: 'int' },
+  cl: { k: 'creditLimit', l: 'Credit Limit', w: 104, a: 'r', f: 'amt' },
+  coll: { k: 'collectionName', l: 'Collection Person', w: 150 },
+  pan: { k: 'pan', l: 'Pan No', w: 104 },
+  city: { k: 'city', l: 'City', w: 110 },
+  st: { k: 'state', l: 'State', w: 110 },
+  area: { k: 'area', l: 'Area', w: 120 },
+  co: { k: 'companyName', l: 'Company Name', w: 190 },
+  sp: { k: 'salesPersonName', l: 'Sales Person', w: 130 }
+};
+export const PARTY_COLS = {
+  order: [PC.group, PC.name, PC.addr, PC.gst, PC.mob, PC.tel, PC.mail, PC.cp, PC.code, PC.bal, PC.gname, PC.brk, PC.cd, PC.cl, PC.coll, PC.pan, PC.city, PC.st, PC.area, PC.co, PC.sp],
+  default: [PC.code, PC.name, PC.bal, PC.addr, PC.gst, PC.mob, PC.group, PC.mail, PC.cp, PC.gname, PC.brk, PC.cd, PC.cl, PC.coll, PC.pan, PC.city, PC.st, PC.area, PC.co, PC.sp]
+};
 
 /** the financial year that contains today, otherwise the latest one that has started */
 function currentFy(c: Company) {
@@ -182,14 +245,45 @@ export const YF_API = {
     return { data, total: res.total as number, counts: res.counts, totals: res.totals };
   },
 
-  /** dropdown data for entry forms (cached per company until a save) */
-  lookups(force = false) {
-    const k = 'lookups:' + session?.companyId;
-    if (force || !cache.has(k)) cache.set(k, request<any>('GET', '/lookups', undefined, { compact: '1' }).then(expandLookups));
-    return cache.get(k) as Promise<any>;
+  /**
+   * Dropdown data for entry forms. The master lists are kept until the server reports a new version
+   * (x-masters-version on any response) and the browser revalidates them with an ETag, so saving a
+   * document never re-downloads 25,000 accounts. Balances change with every document: they are
+   * fetched separately (small) and fresh after every save.
+   */
+  async lookups(force = false) {
+    const co = session?.companyId;
+    const mk = 'masters:' + co, bk = 'bal:' + co;
+    if (force) { cache.delete(mk); cache.delete(bk); }
+    if (!cache.has(mk)) {
+      const p = request<any>('GET', '/lookups', undefined, { compact: '1' }).then(expandLookups);
+      p.catch(() => cache.delete(mk));
+      cache.set(mk, p);
+    }
+    if (!cache.has(bk)) {
+      const p = request<{ ids: number[]; b: number[] }>('GET', '/lookups/balances');
+      p.catch(() => cache.delete(bk));
+      cache.set(bk, p);
+    }
+    const [lk, bal] = await Promise.all([cache.get(mk) as Promise<any>, cache.get(bk) as Promise<{ ids: number[]; b: number[] }>]);
+    // the masters with these balances in them; a new object (and new lists) whenever the balances change,
+    // so screens and dropdowns know their figures changed, the same object otherwise
+    if (lk._view && lk._view.bal === bal) return lk._view.v;
+    const bm = new Map<number, number>();
+    bal.ids.forEach((id, i) => bm.set(id, bal.b[i]));
+    const acc = lk.ledgers.map((a: any) => ({ ...a, balance: bm.get(a.id) ?? 0 }));
+    const v = { ...lk, ...accountLists(acc) };
+    delete v._view;
+    lk._view = { bal, v };
+    return v;
   },
+  /** columns of the party dropdown, from the old software's layouts: 'order' or 'default' */
+  partyCols(kind: 'order' | 'default' = 'default') {
+    return PARTY_COLS[kind] ?? PARTY_COLS.default;
+  },
+  /** after a save: figures (balances…) are fetched again; master lists stay unless their version moved */
   invalidate() {
-    cache.clear();
+    for (const k of [...cache.keys()]) if (!k.startsWith('masters:')) cache.delete(k);
   },
 
   /* formatting shared by screens */

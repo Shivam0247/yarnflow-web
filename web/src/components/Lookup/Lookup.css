@@ -1,0 +1,25 @@
+/* Lookup styles — identical to the design. Injected only while this screen is mounted. */
+.lkw{position:relative;display:flex;align-items:center;min-width:0;width:100%}
+.lkw .lki{width:100%;padding-right:30px;text-overflow:ellipsis}
+.lkw .lkc{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:var(--t3);display:grid;place-items:center;cursor:pointer;padding:0}
+.lkw .lkc:hover{background:var(--s3);color:var(--t1)}
+.lkp{position:fixed;z-index:1000;background:var(--bg);border:1px solid var(--bd2);border-radius:10px;box-shadow:0 18px 48px rgba(0,0,0,.38);display:flex;flex-direction:column;overflow:hidden;font-size:13px;line-height:18px}
+.light .lkp{box-shadow:0 18px 48px rgba(0,0,0,.16)}
+.lkl{overflow:auto;flex:1 1 auto;min-height:0;overscroll-behavior:contain}
+.lkh,.lkr{display:grid;align-items:center;min-width:100%}
+.lkh{position:sticky;top:0;z-index:1;height:32px;background:var(--s1);border-bottom:1px solid var(--bd2);font-size:12px;font-weight:600;color:var(--t2)}
+.lkh span,.lkr span{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lkh .r,.lkr .r{text-align:right;font-variant-numeric:tabular-nums}
+.lkr{height:30px;cursor:pointer;border-bottom:1px solid var(--bd);color:var(--t1)}
+.lkr:hover{background:var(--s1)}
+.lkr.on{background:rgba(59,130,246,.18)}
+.light .lkr.on{background:#E8F0FE}
+.lkr.cur span:first-child{font-weight:600}
+.lkr mark{background:rgba(250,204,21,.38);color:inherit;border-radius:3px;padding:0 1px}
+.lkr .dr{color:#F87171}.light .lkr .dr{color:#B91C1C}
+.lke{padding:28px 16px;text-align:center;color:var(--t3)}
+.lkf{display:flex;align-items:center;gap:12px;padding:7px 12px;border-top:1px solid var(--bd);font-size:12px;color:var(--t3);flex:none;flex-wrap:wrap}
+.lkf b{color:var(--t1);font-weight:600}
+.lkf kbd{font:inherit;font-size:11px;padding:0 5px;border:1px solid var(--bd2);border-radius:4px;color:var(--t2)}
+.lkf a{margin-left:auto;color:var(--t1);font-weight:500}
+.lkf a:hover{text-decoration:underline}

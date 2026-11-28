@@ -140,7 +140,7 @@ select.pv{cursor:pointer}
 @media (prefers-reduced-motion:reduce){.main.booting::before{animation-duration:2.4s}}
 </style>
 </helmet>
-<div class="app {{theme}}">
+<div class="app {{theme}}" data-entry="1">
 <div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="{{kind}}" hint-size="236px,1000px"></dc-import></div>
 <div class="main {{bootCls}}">
 <header class="hdr">
@@ -152,15 +152,15 @@ select.pv{cursor:pointer}
 <div class="ent">
 <section class="sec">
 <div class="sh"><h2>{{detailsT}}</h2></div>
-<div class="props"><sc-for list="{{groups}}" as="g" hint-placeholder-count="3"><div class="pg"><div class="pgt">{{g.t}}</div><sc-for list="{{g.rows}}" as="f" hint-placeholder-count="5"><div class="pr"><label>{{f.l}}</label><sc-if value="{{f.isSel}}" hint-placeholder-val="{{false}}"><select class="pv" aria-label="{{f.l}}" value="{{f.v}}" onChange="{{f.on}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="2"><option value="{{o.v}}">{{o.l}}</option></sc-for></select></sc-if><sc-if value="{{f.isIn}}" hint-placeholder-val="{{true}}"><input class="pv" type="text" value="{{f.v}}" placeholder="{{f.ph}}" aria-label="{{f.l}}" onChange="{{f.on}}"></sc-if><sc-if value="{{f.isRo}}" hint-placeholder-val="{{false}}"><input class="pv" type="text" value="{{f.v}}" readonly aria-label="{{f.l}}"></sc-if><span class="unit">{{f.u}}</span></div></sc-for></div></sc-for></div>
+<div class="props"><sc-for list="{{groups}}" as="g" hint-placeholder-count="3"><div class="pg"><div class="pgt">{{g.t}}</div><sc-for list="{{g.rows}}" as="f" hint-placeholder-count="5"><div class="pr"><label>{{f.l}}</label><sc-if value="{{f.isSel}}" hint-placeholder-val="{{false}}"><select class="pv" aria-label="{{f.l}}" value="{{f.v}}" onChange="{{f.on}}"><sc-for list="{{f.opts}}" as="o" hint-placeholder-count="2"><option value="{{o.v}}">{{o.l}}</option></sc-for></select></sc-if><sc-if value="{{f.isIn}}" hint-placeholder-val="{{true}}"><input class="pv" type="text" value="{{f.v}}" placeholder="{{f.ph}}" aria-label="{{f.l}}" onChange="{{f.on}}"></sc-if><sc-if value="{{f.isRo}}" hint-placeholder-val="{{false}}"><input class="pv" type="text" value="{{f.v}}" readonly aria-label="{{f.l}}"></sc-if><sc-if value="{{f.isLk}}" hint-placeholder-val="{{false}}"><dc-import name="Lookup" cls="pv" rows="{{f.rows}}" cols="{{f.cols}}" value="{{f.v}}" lk="{{f.lab}}" on-pick="{{f.pick}}" ph="{{f.ph}}" noun="{{f.noun}}" aria="{{f.l}}"></dc-import></sc-if><span class="unit">{{f.u}}</span></div></sc-for></div></sc-for></div>
 </section>
 <section class="sec items">
 <div class="sh"><h2>Items</h2></div>
-<datalist id="ve-items"><sc-for list="{{itemOpts}}" as="o" hint-placeholder-count="2"><option value="{{o.l}}">{{o.d}}</option></sc-for></datalist>
+
 <div class="tw"><table class="it">
 <thead><tr><th>#</th><sc-for list="{{cols}}" as="c" hint-placeholder-count="12"><th class="{{c.cls}}">{{c.l}}</th></sc-for></tr></thead>
 <tbody>
-<sc-for list="{{lines}}" as="r" hint-placeholder-count="2"><tr><td class="n">{{r.n}}</td><sc-for list="{{r.cells}}" as="x" hint-placeholder-count="12"><sc-if value="{{x.ro}}" hint-placeholder-val="{{true}}"><td class="{{x.cls}}">{{x.v}}</td></sc-if><sc-if value="{{x.ed}}" hint-placeholder-val="{{false}}"><td><input class="{{x.ic}}" type="text" value="{{x.v}}" placeholder="{{x.ph}}" style="{{x.w}}" list="{{x.dl}}" onChange="{{x.on}}"></td></sc-if></sc-for></tr></sc-for>
+<sc-for list="{{lines}}" as="r" hint-placeholder-count="2"><tr><td class="n">{{r.n}}</td><sc-for list="{{r.cells}}" as="x" hint-placeholder-count="12"><sc-if value="{{x.ro}}" hint-placeholder-val="{{true}}"><td class="{{x.cls}}">{{x.v}}</td></sc-if><sc-if value="{{x.isIn}}" hint-placeholder-val="{{false}}"><td><input class="{{x.ic}}" type="text" value="{{x.v}}" placeholder="{{x.ph}}" style="{{x.w}}" aria-label="{{x.al}}" onChange="{{x.on}}"></td></sc-if><sc-if value="{{x.isLk}}" hint-placeholder-val="{{false}}"><td><span style="{{x.sw}}"><dc-import name="Lookup" cls="cin" rows="{{x.rows}}" cols="{{x.cols}}" value="{{x.idv}}" text="{{x.v}}" on-pick="{{x.pick}}" ph="{{x.ph}}" aria="Item" noun="item" exit="table"></dc-import></span></td></sc-if></sc-for></tr></sc-for>
 </tbody>
 <tfoot><tr><td></td><sc-for list="{{foot}}" as="x" hint-placeholder-count="12"><td class="{{x.cls}}">{{x.v}}</td></sc-for></tr></tfoot>
 </table></div>
@@ -170,14 +170,14 @@ select.pv{cursor:pointer}
 </section>
 </div>
 <div class="actbar">
-<select class="inp" aria-label="More actions"><option>More…</option><option>Party details</option><option>Adjustment details</option></select>
+<select class="inp" aria-label="More actions" data-enter="skip"><option>More…</option><option>Party details</option><option>Adjustment details</option></select>
 <button class="btn no" type="button" onClick="{{remove}}" disabled="{{busy}}">Delete</button>
 <div style="flex: 1"></div>
 <span class="{{noteCls}}" style="font-size: 13px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" role="status" title="{{note}}">{{note}}</span>
 <a class="btn gh" href="{{listHref}}">{{closeL}}</a>
 <sc-if value="{{shareId}}"><dc-import name="Share" vid="{{shareId}}" hint-size="80px,34px"></dc-import></sc-if>
 <button class="btn" type="button" onClick="{{print}}" disabled="{{busy}}">{{printL}}</button>
-<button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}">{{saveL}}</button>
+<button class="btn pr" type="button" onClick="{{save}}" disabled="{{busy}}" data-save="1">{{saveL}}</button>
 </div>
 </div>
 <div class="aiw"><dc-import name="Assistant" theme="{{theme}}" page="{{aiPage}}" hint-size="52px,960px"></dc-import></div>
@@ -339,11 +339,11 @@ function makeRows(kind) {
     this.setState({ f, note: this.state.err ? '' : this.state.note, err: false });
     if (k === 'sourceId' && v && !this.meta().note) this.loadSource(v);
   }
-  setLine(i, k, v) {
+  setLine(i, k, v, id) {
     const lines = this.state.lines.slice(); const l = { ...lines[i], [k]: v };
     if (k === 'name' || k === 'code') {
       const its = (this.state.lk && this.state.lk.items) || []; const q = String(v).trim().toLowerCase();
-      const it = its.find((x) => x.name.toLowerCase() === q || x.code.toLowerCase() === q);
+      const it = id != null ? its.find((x) => x.id === id) : its.find((x) => x.name.toLowerCase() === q || x.code.toLowerCase() === q);
       l.itemId = it ? it.id : null;
       if (it) { l.name = it.name; l.code = it.code; l.hsn = it.hsn; l.gst = String(it.gstRate); l.unit = it.unit === 'KG' ? 'Kg' : it.unit; if (!l.rate && it.rate) l.rate = String(it.rate); if (!l.brand && it.brandId) { const b = (this.state.lk.brands || []).find((x) => x.id === it.brandId); if (b) l.brand = b.name; } }
     }
@@ -353,6 +353,29 @@ function makeRows(kind) {
     lines[i] = l;
     const last = lines[lines.length - 1]; if (last.name || last.qty || last.code) lines.push(this.blankLine());
     this.setState({ lines });
+  }
+
+  /** lists and columns for the dropdowns, built once per lookups (not on every keystroke) */
+  lkx(live, lk, kind) {
+    const k = this._lkx;
+    if (k && k.lk === lk && k.live === live && k.kind === kind) return k.v;
+    const api = this.api(); const M = this.meta(); const led = live ? lk.ledgers || [] : [];
+    const kinds = (...ks) => led.filter((a) => ks.indexOf(a.kind) >= 0);
+    const v = {
+      // party list columns as the old software (DispatchSchedule / SaleForm / JounralForm layouts: all the default set)
+      partyCols: api ? api.partyCols('default') : [{ k: 'name', l: 'Party Name', w: 260 }],
+      personCols: [{ k: 'name', l: 'Name', w: 240 }, { k: 'code', l: 'Code', w: 96 }, { k: 'phone', l: 'Phone', w: 130 }, { k: 'city', l: 'City', w: 120 }],
+      transCols: [{ k: 'name', l: 'Transporter', w: 250 }, { k: 'transporterId', l: 'Transporter ID', w: 150 }, { k: 'gstin', l: 'GST No', w: 150 }, { k: 'mobile', l: 'Mobile', w: 120 }, { k: 'city', l: 'City', w: 110 }],
+      accCols: [{ k: 'name', l: 'Account', w: 300 }, { k: 'code', l: 'Code', w: 96 }, { k: 'groupName', l: 'Group', w: 220 }, { k: 'balance', l: 'Balance', w: 130, a: 'r', f: 'bal' }],
+      billCols: [{ k: 'number', l: 'Bill no.', w: 170 }, { k: 'date', l: 'Date', w: 110 }, { k: 'netAmount', l: 'Amount', w: 130, a: 'r', f: 'amt' }],
+      itemCols: [{ k: 'name', l: 'Item', w: 220 }, { k: 'code', l: 'Code', w: 120 }, { k: 'description', l: 'Description', w: 220 }, { k: 'hsn', l: 'HSN', w: 90 }, { k: 'gstRate', l: 'GST %', w: 70, a: 'r' }],
+      parties: !live ? [] : M.side === 'customer' ? lk.customers : M.side === 'supplier' ? lk.suppliers : kinds('CUSTOMER', 'SUPPLIER', 'BROKER', 'TRANSPORTER', 'OTHER'),
+      creditAcc: M.note ? kinds('INCOME', 'SALES', 'EXPENSE', 'OTHER') : kinds('INCOME', 'SALES'),
+      debitAcc: M.note ? kinds('INCOME', 'SALES', 'EXPENSE', 'PURCHASE', 'OTHER') : kinds('EXPENSE', 'PURCHASE', 'ASSET'),
+      items: live ? (lk.items || []).filter((i) => (kind === 'gs' || kind === 'gp' || kind === 'dn' || kind === 'cn') ? true : !i.isGeneral) : []
+    };
+    this._lkx = { lk, live, kind, v };
+    return v;
   }
 
   body() {
@@ -431,8 +454,9 @@ function makeRows(kind) {
     const f = st.f; const x = st.x;
     // ---- option lists
     const O = (list, lab) => (list || []).map((o) => ({ v: String(o.id), l: lab ? lab(o) : o.name }));
+    const lkx = this.lkx(live, lk, kind);
     const bookOpts = O((lk.books || []).filter((b) => b.voucherType === this.meta().type));
-    const partyList = live ? (this.meta().side === 'customer' ? lk.customers : this.meta().side === 'supplier' ? lk.suppliers : lk.ledgers.filter((a) => ['CUSTOMER', 'SUPPLIER', 'BROKER', 'TRANSPORTER', 'OTHER'].indexOf(a.kind) >= 0)) : [];
+    const partyList = live ? lkx.parties : [];
     const P = live ? partyList.find((a) => String(a.id) === String(f.partyId)) : null;
     const none = (l) => [{ v: '', l }];
     const incomeAcc = live ? lk.ledgers.filter((a) => a.kind === 'INCOME' || a.kind === 'SALES') : [];
@@ -440,18 +464,20 @@ function makeRows(kind) {
     const billOpts = (st.bills || []).map((b) => ({ v: String(b.id), l: b.number + ' · ' + inr(b.netAmount, 0) }));
     const due = (() => { const m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(f.date || ''); if (!m) return ''; const t = new Date(Date.UTC(+m[3], +m[2] - 1, +m[1] + num(f.creditDays))); const z = (q) => String(q).padStart(2, '0'); return z(t.getUTCDate()) + '-' + z(t.getUTCMonth() + 1) + '-' + t.getUTCFullYear(); })();
     // live field map: label -> [key, options | 'ro' value]
+    // searchable dropdown for a master list: [key, spec]
+    const LKS = (rows, cols, ph, noun, lab) => ({ lk: true, rows: rows || [], cols, ph, noun, lab: lab || 'name' });
     const LV = {
-      'Book': ['bookId', bookOpts], 'Party': ['partyId', none('Select party…').concat(O(partyList))], 'Delivery party': ['deliveryPartyId', none('Same as party').concat(O(lk.customers))],
-      'Supplier': ['millId', none('—').concat(O(lk.suppliers))], 'Agent': ['brokerId', none('Direct').concat(O(lk.brokers))], 'Sales person': ['salesPersonId', none('Select sales person').concat(O(lk.salesPersons))],
-      'Transporter': ['transporterId', none('—').concat(O(lk.transporters))], 'Vehicle no.': ['vehicleNo'], 'Del. date': ['expDeliveryDate'], 'Credit days': ['creditDays'], 'Challan no. · date': ['x.challan'],
+      'Book': ['bookId', bookOpts], 'Party': ['partyId', LKS(lkx.parties, lkx.partyCols, 'Select party — type name, code, group, GST…', 'party')], 'Delivery party': ['deliveryPartyId', LKS(lk.customers, lkx.partyCols, 'Same as party', 'party')],
+      'Supplier': ['millId', LKS(lk.suppliers, lkx.partyCols, 'Select supplier', 'party')], 'Agent': ['brokerId', LKS(lk.brokers, lkx.personCols, 'Direct', 'agent')], 'Sales person': ['salesPersonId', LKS(lk.salesPersons, lkx.personCols, 'Select sales person', 'person')],
+      'Transporter': ['transporterId', LKS(lk.transporters, lkx.transCols, 'Select transporter', 'transporter')], 'Vehicle no.': ['vehicleNo'], 'Del. date': ['expDeliveryDate'], 'Credit days': ['creditDays'], 'Challan no. · date': ['x.challan'],
       'Order no.': kind === 'ds' ? ['refNo'] : ['x.orderNo'], 'Order date': ['refDate'], 'Inv. no.': ['refNo'], 'Inv. date': ['refDate'], 'Sch. date': ['date'], 'Sale date': ['date'], 'Rec. date': ['date'], 'Bill date': ['date'],
       'Advance settings': ['reverseCharge', [{ v: '', l: 'None' }, { v: '1', l: 'Reverse charge' }]], 'TCS applicability': ['isTcs', [{ v: '', l: 'Not applicable' }, { v: '1', l: 'Applicable 0.1%' }]], 'Is TCS?': ['isTcs', [{ v: '', l: 'No' }, { v: '1', l: 'Yes' }]],
-      'D.O. no.': ['doNo'], 'Credit account': ['accountId', none(this.meta().note ? 'Interest / other income' : 'Sales (general)').concat(O(this.meta().note ? (lk.ledgers || []).filter((x) => ['INCOME', 'SALES', 'EXPENSE', 'OTHER'].indexOf(x.kind) >= 0) : incomeAcc))], 'Debit account': ['accountId', none(this.meta().note ? 'Rate difference / discount' : 'Purchase (general)').concat(O(this.meta().note ? (lk.ledgers || []).filter((x) => ['INCOME', 'SALES', 'EXPENSE', 'PURCHASE', 'OTHER'].indexOf(x.kind) >= 0) : expenseAcc))],
-      'Collection person': ['collectionPersonId', none('—').concat(O(lk.collectionPersons))], 'Currency': ['currency', [{ v: 'INR', l: 'INR' }, { v: 'USD', l: 'USD' }]],
+      'D.O. no.': ['doNo'], 'Credit account': ['accountId', LKS(lkx.creditAcc, lkx.accCols, this.meta().note ? 'Interest / other income' : 'Sales (general)', 'account')], 'Debit account': ['accountId', LKS(lkx.debitAcc, lkx.accCols, this.meta().note ? 'Rate difference / discount' : 'Purchase (general)', 'account')],
+      'Collection person': ['collectionPersonId', LKS(lk.collectionPersons, lkx.personCols, 'Select person', 'person')], 'Currency': ['currency', [{ v: 'INR', l: 'INR' }, { v: 'USD', l: 'USD' }]],
       'T.D.S.': ['tdsRate', [{ v: '', l: 'None' }, { v: '1', l: '194C · 1%' }, { v: '2', l: '194C · 2%' }, { v: '10', l: '194J · 10%' }, { v: '0.1', l: '194Q · 0.1%' }]],
-      'Against sale bill': ['sourceId', none('Select bill…').concat(billOpts)], 'Against pur. bill': ['sourceId', none('Select bill…').concat(billOpts)], 'L.R. no.': ['lrNo'], 'Debit note no.': ['x.debitNoteNo'], 'Remark': ['remark'],
+      'Against sale bill': ['sourceId', LKS(st.bills || [], lkx.billCols, 'Select bill…', 'bill', 'number')], 'Against pur. bill': ['sourceId', LKS(st.bills || [], lkx.billCols, 'Select bill…', 'bill', 'number')], 'L.R. no.': ['lrNo'], 'Debit note no.': ['x.debitNoteNo'], 'Remark': ['remark'],
       'Note date': ['date'], 'Reason': ['reason', (this.kind() === 'dn' ? ['Interest on late payment', 'Rate difference', 'Short weight claim', 'Quality claim', 'Freight recovery', 'Other'] : ['Rate difference', 'Quality claim', 'Cash discount', 'Turnover discount', 'Short weight', 'Other']).map((x) => ({ v: x, l: x }))],
-      'Against bill': ['sourceId', none(this.kind() === 'dn' ? 'None (new receivable)' : 'None (on account)').concat(billOpts)], 'Ref. no.': ['refNo'], 'Ref. date': ['refDate'], 'Narration': ['narration'], 'Note no.': ['ro', REC ? REC.no : st.nextNo || K.no],
+      'Against bill': ['sourceId', LKS(st.bills || [], lkx.billCols, this.kind() === 'dn' ? 'None (new receivable)' : 'None (on account)', 'bill', 'number')], 'Ref. no.': ['refNo'], 'Ref. date': ['refDate'], 'Narration': ['narration'], 'Note no.': ['ro', REC ? REC.no : st.nextNo || K.no],
       'Party group': ['ro', P ? P.partyGroupName || P.name : ''], 'Due date': ['ro', due], 'Sch. no.': ['ro', REC ? REC.no : st.nextNo || K.no], 'Entry no.': ['ro', REC ? REC.no : st.nextNo || K.no], 'Bill no.': ['ro', REC ? REC.no : st.nextNo || K.no]
     };
     // ---- header fields  [label, value, type, unit / alternative, role]
@@ -487,10 +513,12 @@ function makeRows(kind) {
         if (key === 'ro' || fd.t === 'ro') return { l: fd.l, v: key === 'ro' ? m[1] : '', alt: '', isSel: false, isIn: false, isRo: true, ph: '', u: unit, opts: [], on: () => {} };
         const isX = key.indexOf('x.') === 0; const k2 = isX ? key.slice(2) : key; const val = isX ? x[k2] ?? '' : f[k2] ?? '';
         const on = (e) => (isX ? this.setState({ x: { ...this.state.x, [k2]: e.target.value } }) : this.setF(k2, e.target.value));
-        return { l: fd.l, v: val, alt: '', isSel: !!m[1], isIn: !m[1], isRo: false, ph: fd.t === 'in' && fd.x !== 'days' ? fd.x : /date/i.test(fd.l) ? 'dd-mm-yyyy' : '', u: unit, opts: m[1] || [], on };
+        if (m[1] && m[1].lk) { const L = m[1]; return { l: fd.l, v: val, alt: '', isSel: false, isIn: false, isRo: false, isLk: true, rows: L.rows, cols: L.cols, lab: L.lab, ph: L.ph, noun: L.noun, u: unit, opts: [],
+          pick: (r) => this.setF(k2, r ? String(r.id) : ''), on }; }
+        return { l: fd.l, v: val, alt: '', isSel: !!m[1], isIn: !m[1], isLk: false, isRo: false, ph: fd.t === 'in' && fd.x !== 'days' ? fd.x : /date/i.test(fd.l) ? 'dd-mm-yyyy' : '', u: unit, opts: m[1] || [], on };
       }
       const v = (!REC && gi === 1 && fd.t !== 'sel') ? '' : (!REC && gi === 1 && fd.t === 'sel' && /Sales person/.test(fd.l)) ? 'Select sales person' : recVal(fd);
-      return { l: fd.l, v, alt: fd.x, isSel: fd.t === 'sel', isIn: fd.t === 'in', isRo: fd.t === 'ro', ph: fd.t === 'in' && fd.x !== 'days' ? fd.x : '', u: unit, opts: [{ v: v, l: v }, { v: fd.x, l: fd.x }], on: () => {} }; }) }));
+      return { l: fd.l, v, alt: fd.x, isSel: fd.t === 'sel', isIn: fd.t === 'in', isRo: fd.t === 'ro', isLk: false, ph: fd.t === 'in' && fd.x !== 'days' ? fd.x : '', u: unit, opts: [{ v: v, l: v }, { v: fd.x, l: fd.x }], on: () => {} }; }) }));
     // ---- item columns  [key, label, right, total, decimals, input width]
     const C = (k, l, o) => Object.assign({ k, l, r: 0, t: 0, d: 2, w: 0 }, o || {});
     const RT = (d) => ({ r: 1, t: 1, d }), RN = (d) => ({ r: 1, d });
@@ -536,10 +564,13 @@ function makeRows(kind) {
       lines = st.lines.map((l, i) => { const blank = !l.name && !l.qty && !l.code; const o = blank ? {} : calc({ ...l, ordq: num(l.ordq), salq: num(l.salq), schq: num(l.qty), qty: num(l.qty), rate: num(l.rate), disp: num(l.disp), frp: num(l.frp), gst: num(l.gst), carton: num(l.carton), cops: num(l.cops) });
         return { n: String(i + 1), cells: cols.map((c, ci) => { const ed = !!ED[c.k] && !(c.k === 'igp' && !inter) && !((c.k === 'cgp' || c.k === 'sgp') && inter);
           const raw = c.k === 'schq' ? l.qty : c.k === 'cgp' || c.k === 'sgp' ? (blank ? '' : String(num(l.gst) / 2)) : c.k === 'igp' ? (blank ? '' : l.gst) : l[c.k];
-          return { ed, ro: !ed, v: ed ? (raw ?? '') : blank ? '' : fmt(c, o[c.k]), cls: cellCls(c), ic: c.r ? 'cin r' : 'cin', w: colW(c), ph: blank ? (ci === 0 ? (kind === 'ds' ? 'Search item' : 'Code') : (ci === 1 && kind !== 'ds' ? 'Search item' : '')) : '', dl: c.k === 'name' || c.k === 'code' ? 've-items' : '', on: (e) => this.setLine(i, c.k, e.target.value) }; }) }; });
+          const isLk = ed && c.k === 'name';
+          return { ed, ro: !ed, isIn: ed && !isLk, isLk, v: ed ? (raw ?? '') : blank ? '' : fmt(c, o[c.k]), cls: cellCls(c), ic: c.r ? 'cin r' : 'cin', w: colW(c), sw: 'display: block; min-width: 170px; ' + colW(c), al: c.l,
+            ph: blank ? (ci === 0 ? (kind === 'ds' ? 'Search item' : 'Code') : (ci === 1 && kind !== 'ds' ? 'Search item' : '')) : '', rows: lkx.items, cols: lkx.itemCols, idv: l.itemId,
+            pick: (r) => this.setLine(i, 'name', r ? r.name : '', r ? r.id : null), on: (e) => this.setLine(i, c.k, e.target.value) }; }) }; });
     } else {
-      lines = L.map((o, i) => ({ n: String(i + 1), cells: cols.map((c) => ({ ed: false, ro: true, v: fmt(c, o[c.k]), cls: cellCls(c), ic: 'cin', w: '', ph: '', dl: '', on: () => {} })) }))
-        .concat([{ n: String(L.length + 1), cells: cols.map((c, i) => ({ ed: true, ro: false, v: c.k === 'unit' ? (kind === 'gs' ? 'Nos' : 'Kg') : '', cls: '', ic: 'cin', w: colW(c), ph: i === 0 ? (kind === 'ds' ? 'Search item' : 'Code') : (i === 1 && kind !== 'ds' ? 'Search item' : ''), dl: '', on: () => {} })) }]);
+      lines = L.map((o, i) => ({ n: String(i + 1), cells: cols.map((c) => ({ ed: false, ro: true, isIn: false, isLk: false, v: fmt(c, o[c.k]), cls: cellCls(c), ic: 'cin', w: '', ph: '', dl: '', on: () => {} })) }))
+        .concat([{ n: String(L.length + 1), cells: cols.map((c, i) => ({ ed: true, ro: false, isIn: true, isLk: false, al: c.l, v: c.k === 'unit' ? (kind === 'gs' ? 'Nos' : 'Kg') : '', cls: '', ic: 'cin', w: colW(c), ph: i === 0 ? (kind === 'ds' ? 'Search item' : 'Code') : (i === 1 && kind !== 'ds' ? 'Search item' : ''), dl: '', on: () => {} })) }]);
     }
     const tot = (k) => L.reduce((a, o) => a + (Number(o[k]) || 0), 0);
     const foot = cols.map((c, i) => ({ cls: c.r ? 'r' : '', v: i === 0 ? 'Total · ' + L.length + ' lines' : c.t ? inr(tot(c.k), c.d) : '' }));
@@ -575,7 +606,7 @@ function makeRows(kind) {
     const saved = st.saved;
     const STL = { POSTED: 'Saved', OPEN: 'Open', PARTIAL: 'Part billed', COMPLETED: 'Closed', PENDING_APPROVAL: 'Hold · approval', CANCELLED: 'Cancelled', LOCKED: 'Locked', REJECTED: 'Rejected' };
     const tagL = view ? (live ? (doc ? STL[doc.status] || doc.status : '…') : (REC.st || REC.sign || 'Saved')) : 'New';
-    const itemOpts = live ? (lk.items || []).filter((i) => (kind === 'gs' || kind === 'gp' || kind === 'dn' || kind === 'cn') ? true : !i.isGeneral).map((i) => ({ l: i.name, d: i.code })) : [];
+    const itemOpts = [];
     return {
       theme, kind, listHref: K.list + sfx + '.dc.html', aiPage: { ds: 'so', gs: 'disp', sr: 'disp', gp: 'pb', pr: 'pb', dn: 'led', cn: 'led' }[kind],
       crumb: view ? K.reg : K.mod + ' · ' + K.title, title: view ? REC.no : 'New ' + K.title.charAt(0).toLowerCase() + K.title.slice(1),
