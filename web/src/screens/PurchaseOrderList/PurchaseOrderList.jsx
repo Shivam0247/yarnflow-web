@@ -10,13 +10,13 @@ import CSS from './PurchaseOrderList.css?raw';
 
 /* ----- screen logic (same as the design) ----- */
 class Component extends DCLogic {
-  constructor(p) { super(p); this.state = { tab: null, sel: [], focus: 'PUR0080', bill: null, top: 690, bot: 300, over: {} }; }
+  constructor(p) { super(p); this.state = { tab: null, sel: [], focus: typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? null : 'PUR0080', bill: null, top: 690, bot: 300, over: {} }; }
   /* live data (app) — on the design canvas window.YF_API is absent and the sample data below is used */
   api() { return typeof window !== 'undefined' ? window.YF_API : null; }
   async load() {
     const api = this.api(); if (!api || !api.session) return;
     try {
-      const first = await api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 300 }); if (!this.state.live) this.setState({ live: first.data });
+      const first = await api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 300 }); if (!this.state.live) { const st0 = (n) => String(n || '').replace(/\/\d{2}-\d{2}$/, ''); const keep = first.data.some((r) => st0(r.number) === this.state.focus); this.setState({ live: first.data, focus: keep ? this.state.focus : (first.data[0] ? st0(first.data[0].number) : null) }); }
       const [reg, stock] = await Promise.all([first.total > first.data.length ? api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 100000 }) : first, api.get('/reports/stock')]);
       const stk = {}; stock.rows.forEach((r) => { stk[r.itemName] = (stk[r.itemName] || 0) + r.qty; });
       this.setState({ live: reg.data, liveStock: stk, err: null });
@@ -199,7 +199,7 @@ class Component extends DCLogic {
       const bs = LIVE ? liveBills(fr) : mkBills(fr, fr.rq, 'GRN-', 6, 8).map((b) => (LIVE ? b : { ...b, inv: 'GRN-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 100) + ' · PB-0' + (b.i * 29 + parseInt(fr.no.slice(3), 10) % 400 + 120), gd: GD[b.i % 3] }));
       const ds = bs.map((b) => { const open = this.state.bill === b.key; return { ...b, open, rc: open ? 'on' : '', act: open ? 'Hide' : 'View', pick: () => this.setState({ bill: open ? null : b.key }) }; });
       const val = bs.reduce((a, b) => a + b.totN, 0); const pd2 = LIVE ? ((this.state.rel || {})[fr.id] || []).reduce((a, b) => a + (b.net - b.tds - b.pending), 0) : bs.filter((b) => b.paid).reduce((a, b) => a + b.totN, 0); const tx = bs.reduce((a, b) => a + b.txN, 0);
-      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, br: fr.br, ag: fr.ag, ref: fr.ref, gstin: LIVE ? '' : gstOf(fr.p), ds, none: ds.length === 0, some: ds.length > 0, n: ds.length,
+      f = { no: fr.no, odt: fr.dt, p: fr.p, it: fr.it, lot: fr.lot, gr: fr.gr, br: fr.br, ag: fr.ag, ref: fr.ref, gstin: LIVE ? '' : gstOf(fr.p), ds, loading: !!LIVE && !(this.state.rel || {})[fr.id], none: !(LIVE && !(this.state.rel || {})[fr.id]) && ds.length === 0, some: ds.length > 0, n: ds.length,
         oq: inr(fr.oq, 3), rq: inr(fr.rq, 3), pq: inr(Math.max(fr.oq - fr.rq, 0), 3), val: '₹ ' + inr(val, 2), tx: '₹ ' + inr(tx, 2), gst: '₹ ' + inr(val - tx, 2), recv: '₹ ' + inr(pd2, 2), bal: '₹ ' + inr(val - pd2, 2) };
     }
     const bulk = {};
@@ -226,7 +226,7 @@ class Component extends DCLogic {
         const mv = (ev) => { const top = Math.round(Math.max(120, Math.min(tot - 100, t0 + (ev.clientY - y0)))); this.setState({ top, bot: tot - top }); };
         const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
         window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); },
-      hasFocus: !!fr && tab !== 'Hold',
+      hasFocus: !!fr && tab !== 'Hold', noFocus: !fr && tab !== 'Hold',
       unfocus: () => this.setState({ focus: null }),
       countLabel: vis.length + ' of ' + (td ? td[2] : 0) + ' orders',
       markBack: () => { try { window.localStorage.setItem('yf-back', JSON.stringify({ href: 'PurchaseOrderList' + sfx + '.dc.html', label: 'Purchase order register' })); } catch (err) {} },
@@ -966,6 +966,16 @@ class PurchaseOrderListView extends Component {
                               ) : null}
                             </Fragment>
                           ))}
+                          {v.f?.loading ? (
+                            <>
+                              <tr>
+                                <td colSpan="11" className="muted" style={{"textAlign":"center","padding":"22px 0"}}>
+                                  <span className="yf-spin" style={{"verticalAlign":"-2px","marginRight":"8px"}} />
+                                  Loading bills of this order…
+                                </td>
+                              </tr>
+                            </>
+                          ) : null}
                           {v.f?.none ? (
                             <>
                               <tr>
@@ -1007,6 +1017,21 @@ class PurchaseOrderListView extends Component {
                         ) : null}
                       </table>
                     </div>
+                  </div>
+                </section>
+              </>
+            ) : null}
+            {' '}
+            {v.noFocus ? (
+              <>
+                <section className="dock" style={sx(v.botH)} aria-label="Bills of selected order">
+                  <div className="dempty">
+                    <b>
+                      No order selected
+                    </b>
+                    <span>
+                      Click an order number above to see its purchase bills here.
+                    </span>
                   </div>
                 </section>
               </>

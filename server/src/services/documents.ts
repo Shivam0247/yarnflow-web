@@ -824,8 +824,8 @@ export async function dependents(db: Tx, voucherId: number) {
   const res = await db.execute<{ id: number; type: VoucherType; number: string; date: string }>(sql`
     select distinct c.id, c.type, c.number, c.date from voucher_lines cl
     join vouchers c on c.id = cl.voucher_id
-    where cl.source_line_id in (select id from voucher_lines where voucher_id = ${voucherId})
-       or cl.order_line_id in (select id from voucher_lines where voucher_id = ${voucherId})
+    where cl.id in (select x.id from voucher_lines x where x.source_line_id in (select id from voucher_lines where voucher_id = ${voucherId})
+                    union select x.id from voucher_lines x where x.order_line_id in (select id from voucher_lines where voucher_id = ${voucherId}))
     union
     select distinct c.id, c.type, c.number, c.date from bill_allocations a join vouchers c on c.id = a.voucher_id
     where a.bill_id = ${voucherId} and a.voucher_id <> a.bill_id
@@ -1270,8 +1270,9 @@ export async function related(ctx: Ctx, def: TypeDef, id: number) {
       ${pendingSql(ctx, 'c')} as pending
     from voucher_lines cl join vouchers c on c.id = cl.voucher_id left join transporters t on t.id = c.transporter_id left join godowns g on g.id = coalesce(c.godown_id, (select gl.godown_id from voucher_lines gl where gl.voucher_id = c.id and gl.godown_id is not null limit 1))
     where c.company_id = ${ctx.companyId} and c.status <> 'CANCELLED'
-      and (cl.order_line_id in (select id from voucher_lines where voucher_id = ${id})
-        or cl.source_line_id in (select id from voucher_lines where voucher_id = ${id}))
+      -- two index lookups joined (an "or" across the two columns scanned every line: ~37 s → under 1 s)
+      and cl.id in (select x.id from voucher_lines x where x.order_line_id in (select id from voucher_lines where voucher_id = ${id})
+                    union select x.id from voucher_lines x where x.source_line_id in (select id from voucher_lines where voucher_id = ${id}))
     group by c.id, t.name, g.name order by c.date, c.id`);
   return res.rows.map((r: Record<string, unknown>) => {
     const num = (k: string) => Number(r[k] ?? 0);
