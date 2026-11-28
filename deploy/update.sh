@@ -7,5 +7,12 @@ old=$(git rev-parse HEAD)
 git fetch -q origin main && git reset -q --hard origin/main
 new=$(git rev-parse HEAD)
 if [ "$old" = "$new" ] && [ "${1:-}" != "--force" ]; then echo "$(date) up to date ($new)"; exit 0; fi
-cd deploy && docker compose up -d --build && docker image prune -f >/dev/null
-echo "$(date) updated $old → $new"
+cd deploy
+# old build layers are not needed: free the space before building (data volumes are never touched)
+docker builder prune -af >/dev/null 2>&1 || true
+if ! docker compose up -d --build; then
+  echo "$(date) ✗ update to $new FAILED — the previous version keeps running. Free space: $(df -h / --output=avail | tail -1)"
+  exit 1
+fi
+docker image prune -f >/dev/null
+echo "$(date) ✓ updated $old → $new"

@@ -10,3 +10,9 @@ deploy/.env
 deploy/backups
 deploy/reports
 *.log
+# the old software's export (7 GB of CSV) and other data never go into the program image
+deploy/export
+wa-sender/.wa-login
+wa-sender/node_modules
+.tools
+*.dump
