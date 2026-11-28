@@ -23,6 +23,7 @@ import { defaultBook, SYS, sysAccount } from './setup.js';
 import { BILL_SQL, BILL_TYPES, isBill, ORDER_TYPES, TYPES, type TypeDef, type VoucherType } from './types.js';
 import { enqueueFor } from './whatsapp.js';
 import { enqueueEmailFor } from './email.js';
+import { clearDashboardCache } from './reports.js';
 
 /** over-delivery allowed against an order / schedule (yarn weights vary) */
 export const TOLERANCE = 0.1;
@@ -866,6 +867,7 @@ export async function createDoc(ctx: Ctx, def: TypeDef, raw: unknown) {
   await audit(ctx, def.slug, v.id, 'CREATE', `${def.label} ${number} created`);
   await enqueueFor(ctx, v.id);
   await enqueueEmailFor(ctx, v.id);
+  clearDashboardCache();
   return getDoc(ctx, def, v.id);
 }
 
@@ -1203,7 +1205,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
            (select string_agg(distinct l.brand, ', ') from voucher_lines l where l.voucher_id = v.id) as "brands",
            (select string_agg(distinct l.grade, ', ') from voucher_lines l where l.voucher_id = v.id) as "grades",
            (select string_agg(distinct ov.number, ', ') from voucher_lines l join voucher_lines ol on ol.id = l.order_line_id join vouchers ov on ov.id = ol.voucher_id where l.voucher_id = v.id) as "orderNumbers",
-           pg.name as "partyGroupName", ag.name as "agentName", v.irn, v.extra, p.area as "partyArea", p.state as "partyState",
+           pg.name as "partyGroupName", ag.name as "agentName", v.irn, v.extra - 'einvQr' as extra, p.area as "partyArea", p.state as "partyState",
            br.name as "brokerName", sp.name as "salesPersonName", cp.name as "collectionPersonName", dp.name as "deliveryPartyName", ml.name as "millName",
            v.reason, v.reverse_charge as "reverseCharge", v.source_id as "sourceId", src.date as "sourceDate", v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote",
            bk.name as "bookName",

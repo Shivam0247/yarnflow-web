@@ -86,13 +86,14 @@ class Component extends DCLogic {
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
   async loadIns() { const api = this.api(); if (!api) return; try { this.setState({ liveIns: await api.get('/assistant/insights') }); } catch (e) {} }
   componentDidMount() {
-    this.loadIns();
+    // after the page's own data has started loading
+    this._insT = setTimeout(() => this.loadIns(), 3000);
     this._ev = (e) => { if (e && e.detail) this.ask(e.detail); }; try { window.addEventListener('yf-ask', this._ev); } catch (e) {}
     try { const v = window.localStorage.getItem('yf-ai-open'); if (v !== null && !this.props.startOpen) this.setState({ open: v === '1' }); const w = parseInt(window.localStorage.getItem('yf-ai-w') || '', 10); if (w >= 320 && w <= 640) this.setState({ w }); } catch (e) {}
     this._key = (e) => { if ((e.ctrlKey || e.metaKey) && (e.key === 'j' || e.key === 'J')) { e.preventDefault(); this.setOpen(!this.isOpen()); } };
     try { window.addEventListener('keydown', this._key); } catch (e) {}
   }
-  componentWillUnmount() { try { window.removeEventListener('keydown', this._key); window.removeEventListener('yf-ask', this._ev); } catch (e) {} }
+  componentWillUnmount() { clearTimeout(this._insT); try { window.removeEventListener('keydown', this._key); window.removeEventListener('yf-ask', this._ev); } catch (e) {} }
   componentDidUpdate() { if (!this._scroll) return; this._scroll = false; try { const el = document.getElementById('ai-body'); if (el) el.scrollTop = el.scrollHeight; } catch (e) {} }
   isOpen() { return this.state.open ?? !!this.props.startOpen; }
   setOpen(o, view) { try { window.localStorage.setItem('yf-ai-open', o ? '1' : '0'); } catch (e) {} const s = { open: o }; if (view) s.view = view; this.setState(s); }

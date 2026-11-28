@@ -15,7 +15,7 @@ class Component extends DCLogic {
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
   async load() {
     const api = this.api(); if (!api) return;
-    try { const r = await api.get('/vouchers/sale-bills', { pageSize: 100000 }); this.setState({ live: r.data }); } catch (e) { this.setState({ toast: api.message(e) }); }
+    try { const r0 = await api.get('/vouchers/sale-bills', { pageSize: 300 }); if (!this.state.live || this.state.live.length <= r0.data.length) this.setState({ live: r0.data }); const r = r0.total > r0.data.length ? await api.get('/vouchers/sale-bills', { pageSize: 100000 }) : r0; this.setState({ live: r.data }); } catch (e) { this.setState({ toast: api.message(e) }); }
   }
   async genLive(ids) {
     const api = this.api(); if (!api || !ids.length) return;

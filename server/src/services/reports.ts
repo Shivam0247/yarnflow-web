@@ -407,7 +407,20 @@ export async function gstr3b(ctx: Ctx, from: string, to: string) {
 }
 
 /* --------------------------------------------------------------- dashboard */
-export async function dashboard(ctx: Ctx, from?: string, to?: string) {
+/** the dashboard takes several seconds on the full data: computed once per company / year / dates and reused for
+ *  2 minutes (several screens and the assistant ask for it); cleared as soon as a document is saved */
+const dashCache = new Map<string, { at: number; p: Promise<unknown> }>();
+export function clearDashboardCache() { dashCache.clear(); }
+export async function dashboard(ctx: Ctx, from?: string, to?: string): Promise<Awaited<ReturnType<typeof dashboardNow>>> {
+  const k = [ctx.companyId, ctx.fyId, ctx.period, from ?? '', to ?? ''].join('|');
+  const hit = dashCache.get(k);
+  if (hit && Date.now() - hit.at < 120_000) return hit.p as never;
+  const p = dashboardNow(ctx, from, to);
+  dashCache.set(k, { at: Date.now(), p });
+  p.catch(() => dashCache.delete(k));
+  return p;
+}
+async function dashboardNow(ctx: Ctx, from?: string, to?: string) {
   const fy = await loadFy(ctx);
   to ??= today() > fy.endDate ? fy.endDate : today();
   from ??= to;
