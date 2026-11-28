@@ -361,11 +361,12 @@ class Component extends DCLogic {
   async load() {
     const api = this.api(); if (!api || !api.session) return;
     try {
-      const first = await api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 300 }); if (!this.state.live) { const st0 = (n) => String(n || '').replace(/\/\d{2}-\d{2}$/, ''); const keep = first.data.some((r) => st0(r.number) === this.state.focus); this.setState({ live: first.data, focus: keep ? this.state.focus : (first.data[0] ? st0(first.data[0].number) : null) }); }
-      const [reg, stock] = await Promise.all([first.total > first.data.length ? api.get('/vouchers/purchase-orders', { view: 'lines', pageSize: 100000 }) : first, api.get('/reports/stock')]);
+      const [reg, stock] = await Promise.all([api.register('/vouchers/purchase-orders', ['id','lineId','number','date','status','creditDays','partyName','agentName','brokerName','refNo','approvalNote','itemName','brand','lotNo','grade','rate','qty','doneQty','doneCount'], { view: 'lines' }), api.get('/reports/stock')]);
       const stk = {}; stock.rows.forEach((r) => { stk[r.itemName] = (stk[r.itemName] || 0) + r.qty; });
       this.setState({ live: reg.data, liveStock: stk, err: null });
-      if (this.state.focus && !reg.data.some((r) => r.number.replace(/\/\d{2}-\d{2}$/, '') === this.state.focus)) this.setState({ focus: reg.data[0] ? reg.data[0].number.replace(/\/\d{2}-\d{2}$/, '') : null });
+      // keep the order the user was on; otherwise open on the newest one so the bills panel is never empty
+      const st0 = (n) => String(n || '').replace(/\/\d{2}-\d{2}$/, '');
+      if (!this.state.focus || !reg.data.some((r) => st0(r.number) === this.state.focus)) this.setState({ focus: reg.data[0] ? st0(reg.data[0].number) : null });
     } catch (e) { this.setState({ err: api.message(e) }); }
   }
   async loadBills(id) {
@@ -431,6 +432,8 @@ class Component extends DCLogic {
     const v = this.renderVals0();
     const st = this.state || {};
     v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.live && !st.err ? 'booting' : '';
+    // until the whole register has arrived, no counts at all: never a 0 or a part-count that then changes
+    if (v.bootCls && Array.isArray(v.tabs)) { v.tabs = v.tabs.map((t) => ({ ...t, n: '' })); if ('countLabel' in v) v.countLabel = ''; }
     return v;
   }
   renderVals0() {

@@ -366,6 +366,8 @@ class Component extends DCLogic {
     const v = this.renderVals0();
     const st = this.state || {};
     v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.live && !st.toast ? 'booting' : '';
+    // until the whole register has arrived, no counts at all: never a 0 or a part-count that then changes
+    if (v.bootCls && Array.isArray(v.tabs)) { v.tabs = v.tabs.map((t) => ({ ...t, n: '' })); if ('countLabel' in v) v.countLabel = ''; }
     return v;
   }
   renderVals0() {

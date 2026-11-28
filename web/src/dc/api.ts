@@ -164,6 +164,24 @@ export const YF_API = {
   patch: <T = any>(path: string, body: unknown) => request<T>('PATCH', path, body),
   del: <T = any>(path: string) => request<T>('DELETE', path),
 
+  /**
+   * A whole register (every row of the year) in one request, with only the fields the screen shows.
+   * Sent as columns + rows so each field name travels once; expanded back to objects here
+   * (`extra.key` fields become r.extra.key). Counts and totals are exact from the first paint.
+   */
+  async register(path: string, fields: string[], query?: Record<string, unknown>) {
+    const res = await request<any>('GET', path, undefined, { ...query, pageSize: 100000, fields: fields.join(','), format: 'columns' });
+    const cols: string[] = res.cols;
+    const data = (res.rows as unknown[][]).map((row) => {
+      const o: Record<string, any> = {};
+      cols.forEach((c, i) => {
+        if (c.startsWith('extra.')) { if (row[i] != null) (o.extra ??= {})[c.slice(6)] = row[i]; } else o[c] = row[i];
+      });
+      return o;
+    });
+    return { data, total: res.total as number, counts: res.counts, totals: res.totals };
+  },
+
   /** dropdown data for entry forms (cached per company until a save) */
   lookups(force = false) {
     const k = 'lookups:' + session?.companyId;

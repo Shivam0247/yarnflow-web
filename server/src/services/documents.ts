@@ -1114,6 +1114,29 @@ export interface ListQuery {
   pageSize?: number;
   view?: 'header' | 'lines' | 'nav';
   ewbStatus?: string;
+  /** comma list of the fields the screen shows (`extra.key` for one key of extra); omitted → every field */
+  fields?: string;
+  /** columns → { cols, rows: [[…]] }: each field name sent once instead of once per row */
+  format?: 'columns';
+}
+
+/** The register sends what the screen shows and nothing more: a year of sale bills is ~38 MB with every field, ~3 MB without. */
+function fieldSet(qy: ListQuery) {
+  const list = String(qy.fields || '').split(',').map((f) => f.trim()).filter(Boolean);
+  if (!list.length) return null;
+  return { list, has: (k: string) => list.includes(k), extraKeys: list.filter((f) => f.startsWith('extra.')).map((f) => f.slice(6)) };
+}
+
+function shapeRows(rows: Record<string, unknown>[], qy: ListQuery) {
+  const fs = fieldSet(qy);
+  if (!fs) return qy.format === 'columns' ? { cols: Object.keys(rows[0] ?? {}), rows: rows.map((r) => Object.values(r)) } : { data: rows };
+  const pick = (r: Record<string, unknown>) => fs.list.map((f) => {
+    if (!f.startsWith('extra.')) return r[f] ?? null;
+    const ex = r.extra as Record<string, unknown> | null;
+    return ex ? ex[f.slice(6)] ?? null : null;
+  });
+  if (qy.format === 'columns') return { cols: fs.list, rows: rows.map(pick) };
+  return { data: rows.map((r) => Object.fromEntries(fs.list.map((f, i) => [f, pick(r)[i]]))) };
 }
 
 /** Register data. view=lines → one row per item line with pending quantities (order registers). */
@@ -1189,9 +1212,12 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
       const closed = r.lineStatus === 'CLOSED' || ['CANCELLED', 'COMPLETED'].includes(r.status as string);
       return { ...r, qty, rate: Number(r.rate), pcs: Number(r.pcs), amount: Number(r.amount), taxableAmount: Number(r.taxableAmount), netAmount: Number(r.netAmount), doneQty: r3(done), doneCount: Number(r.doneCount), pendingQty: closed ? 0 : r3(Math.max(0, qty - done)) };
     });
-    return { data, total: Number(total.rows[0].n), page, pageSize, counts: byStatus, ewbCounts: byEwb };
+    return { ...shapeRows(data, qy), total: Number(total.rows[0].n), page, pageSize, counts: byStatus, ewbCounts: byEwb };
   }
 
+  // per-row sub-queries cost time on 25,000 rows: run each only when the screen shows that field
+  const fs = fieldSet(qy);
+  const want = (k: string) => !fs || fs.has(k);
   const rows = await db.execute(sql`
     select v.id, v.number, v.date, v.status, v.party_id as "partyId", p.name as "partyName", p.city as "partyCity", p.gstin as "partyGstin",
            v.ref_no as "refNo", v.due_date as "dueDate", v.total_qty as "totalQty", v.total_pcs as "totalPcs",
@@ -1200,21 +1226,21 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
            v.ewb_status as "ewbStatus", v.ewb_no as "ewbNo", v.ewb_valid_till as "ewbValidTill", v.vehicle_no as "vehicleNo", v.lr_no as "lrNo",
            v.distance_km as "distanceKm", t.name as "transporterName", t.transporter_id as "transporterGstin",
            ba.name as "bankAccountName", src.number as "sourceNumber", v.remark, v.narration, v.created_at as "createdAt",
-           (select string_agg(distinct coalesce(i.name, l.description), ', ') from voucher_lines l left join items i on i.id = l.item_id where l.voucher_id = v.id) as "itemNames",
-           (select string_agg(distinct l.lot_no, ', ') from voucher_lines l where l.voucher_id = v.id) as "lots",
-           (select string_agg(distinct l.brand, ', ') from voucher_lines l where l.voucher_id = v.id) as "brands",
-           (select string_agg(distinct l.grade, ', ') from voucher_lines l where l.voucher_id = v.id) as "grades",
-           (select string_agg(distinct ov.number, ', ') from voucher_lines l join voucher_lines ol on ol.id = l.order_line_id join vouchers ov on ov.id = ol.voucher_id where l.voucher_id = v.id) as "orderNumbers",
-           pg.name as "partyGroupName", ag.name as "agentName", v.irn, v.extra - 'einvQr' as extra, p.area as "partyArea", p.state as "partyState",
+           ${want('itemNames') ? sql`(select string_agg(distinct coalesce(i.name, l.description), ', ') from voucher_lines l left join items i on i.id = l.item_id where l.voucher_id = v.id)` : sql`null`} as "itemNames",
+           ${want('lots') ? sql`(select string_agg(distinct l.lot_no, ', ') from voucher_lines l where l.voucher_id = v.id)` : sql`null`} as "lots",
+           ${want('brands') ? sql`(select string_agg(distinct l.brand, ', ') from voucher_lines l where l.voucher_id = v.id)` : sql`null`} as "brands",
+           ${want('grades') ? sql`(select string_agg(distinct l.grade, ', ') from voucher_lines l where l.voucher_id = v.id)` : sql`null`} as "grades",
+           ${want('orderNumbers') ? sql`(select string_agg(distinct ov.number, ', ') from voucher_lines l join voucher_lines ol on ol.id = l.order_line_id join vouchers ov on ov.id = ol.voucher_id where l.voucher_id = v.id)` : sql`null`} as "orderNumbers",
+           pg.name as "partyGroupName", ag.name as "agentName", v.irn, (v.irn is not null) as "hasIrn", v.extra - 'einvQr' as extra, p.area as "partyArea", p.state as "partyState",
            br.name as "brokerName", sp.name as "salesPersonName", cp.name as "collectionPersonName", dp.name as "deliveryPartyName", ml.name as "millName",
            v.reason, v.reverse_charge as "reverseCharge", v.source_id as "sourceId", src.date as "sourceDate", v.ewb_date as "ewbDate", v.credit_days as "creditDays", v.approval_note as "approvalNote",
            bk.name as "bookName",
-           ${def.lines === 'journal' || def.posting === 'note'
+           ${(def.lines === 'journal' || def.posting === 'note') && want('partyDc')
              ? sql`(select case when l.debit > 0 then 'Dr' else 'Cr' end from voucher_lines l where l.voucher_id = v.id and l.account_id = v.party_id order by l.line_no limit 1)`
              : sql`null`} as "partyDc",
-           ${def.posting === 'receipt' || def.posting === 'payment'
+           ${(def.posting === 'receipt' || def.posting === 'payment') && want('billNos')
              ? sql`p.mobile as "partyMobile", (select string_agg(b.number, ', ' order by b.date) from bill_allocations a join vouchers b on b.id = a.bill_id where a.voucher_id = v.id and a.bill_id <> v.id) as "billNos"`
-             : sql`null as "partyMobile", null as "billNos"`}
+             : def.posting === 'receipt' || def.posting === 'payment' ? sql`p.mobile as "partyMobile", null as "billNos"` : sql`null as "partyMobile", null as "billNos"`}
     from vouchers v
     left join books bk on bk.id = v.book_id
     left join accounts p on p.id = v.party_id
@@ -1240,13 +1266,13 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     for (const k of nums) if (r[k] !== null && r[k] !== undefined) r[k] = Number(r[k]);
     return r;
   });
-  if (def.bill || def.posting === 'note') {
+  if ((def.bill || def.posting === 'note') && want('pending')) {
     const pend = await billPending(ctx, data.map((r) => Number(r.id)));
     data = data.map((r) => ({ ...r, pending: pend.get(Number(r.id)) ?? 0 }));
   }
   const a = agg.rows[0];
   return {
-    data,
+    ...shapeRows(data, qy),
     total: Number(a.n),
     page,
     pageSize,

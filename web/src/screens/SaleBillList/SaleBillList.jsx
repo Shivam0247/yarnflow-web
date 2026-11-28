@@ -15,7 +15,7 @@ class Component extends DCLogic {
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
   async load() {
     const api = this.api(); if (!api) return;
-    try { const r0 = await api.get('/vouchers/sale-bills', { pageSize: 300 }); if (!this.state.live || this.state.live.length <= r0.data.length) this.setState({ live: r0.data }); const r = r0.total > r0.data.length ? await api.get('/vouchers/sale-bills', { pageSize: 100000 }) : r0; this.setState({ live: r.data }); } catch (e) { this.setState({ toast: api.message(e) }); }
+    try { const r = await api.register('/vouchers/sale-bills', ['id','status','number','date','refNo','dueDate','partyName','partyGroupName','orderNumbers','itemNames','brands','lots','grades','totalQty','taxableAmount','netAmount','pending','hasIrn','ewbNo','ewbStatus','ewbValidTill','vehicleNo']); this.setState({ live: r.data }); } catch (e) { this.setState({ toast: api.message(e) }); }
   }
   async genLive(ids) {
     const api = this.api(); if (!api || !ids.length) return;
@@ -75,6 +75,8 @@ class Component extends DCLogic {
     const v = this.renderVals0();
     const st = this.state || {};
     v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.live && !st.toast ? 'booting' : '';
+    // until the whole register has arrived, no counts at all: never a 0 or a part-count that then changes
+    if (v.bootCls && Array.isArray(v.tabs)) { v.tabs = v.tabs.map((t) => ({ ...t, n: '' })); if ('countLabel' in v) v.countLabel = ''; }
     return v;
   }
   renderVals0() {
@@ -88,8 +90,8 @@ class Component extends DCLogic {
     const nowT = Date.now(); const fmtE = (n) => String(n).replace(/(\d{4})(?=\d)/g, '$1 ');
     const fromLive = (b) => { const cancel = b.status === 'CANCELLED'; const rc = cancel ? 0 : Math.max(0, b.netAmount - (b.pending || 0)); const due = b.dueDate ? new Date(String(b.dueDate).slice(0, 10) + 'T00:00:00').getTime() : nowT;
       const od = !cancel && b.pending > 0.5 ? Math.max(0, Math.floor((nowT - due) / 864e5)) : 0;
-      const e = cancel ? (b.irn ? 'IRN cancelled' : 'Cancelled') : b.irn && b.ewbNo ? 'IRN · EWB' : b.ewbNo ? 'EWB' : b.irn ? 'IRN' : b.ewbStatus === 'PENDING' ? 'EWB pending' : 'Not needed';
-      const ec = cancel ? 'tag t-gray' : b.irn || b.ewbNo ? 'tag t-green' : b.ewbStatus === 'PENDING' ? 'tag t-orange' : 'tag';
+      const e = cancel ? (b.hasIrn ? 'IRN cancelled' : 'Cancelled') : b.hasIrn && b.ewbNo ? 'IRN · EWB' : b.ewbNo ? 'EWB' : b.hasIrn ? 'IRN' : b.ewbStatus === 'PENDING' ? 'EWB pending' : 'Not needed';
+      const ec = cancel ? 'tag t-gray' : b.hasIrn || b.ewbNo ? 'tag t-green' : b.ewbStatus === 'PENDING' ? 'tag t-orange' : 'tag';
       return { id: b.id, ewbStatus: b.ewbStatus, veh: b.ewbStatus === 'GENERATED' ? b.vehicleNo : null, ewb: b.ewbNo && b.ewbStatus !== 'CANCELLED' ? fmtE(b.ewbNo) : null, ewbValid: dmy(b.ewbValidTill), no: b.number, dt: dmy(b.date), inv: b.refNo || '', p: b.partyName, g: b.partyGroupName || b.partyName,
         ord: b.orderNumbers ? b.orderNumbers.split(', ').map((x) => x.replace(/\/\d{2}-\d{2}$/, '')).join(', ') : '—', it: b.itemNames || '—', br: b.brands || '—', lot: b.lots || '—', gr: b.grades || '—', q: b.totalQty, tx: b.taxableAmount, amt: b.netAmount, rc, od, e, ec, cancel }; };
     const D = LIVE ? LIVE.map(fromLive) : DEMO;

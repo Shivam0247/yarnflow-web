@@ -15,7 +15,7 @@ class Component extends DCLogic {
   api() { return typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? window.YF_API : null; }
   async load() {
     const api = this.api(); if (!api) return;
-    try { const r0 = await api.get('/vouchers/purchase-bills', { pageSize: 300 }); if (!this.state.live || this.state.live.length <= r0.data.length) this.setState({ live: r0.data }); const r = r0.total > r0.data.length ? await api.get('/vouchers/purchase-bills', { pageSize: 100000 }) : r0; this.setState({ live: r.data }); } catch (e) { this.setState({ toast: api.message(e) }); }
+    try { const r = await api.register('/vouchers/purchase-bills', ['id','status','number','date','refNo','dueDate','partyName','agentName','orderNumbers','itemNames','brands','lots','grades','totalQty','taxableAmount','netAmount','pending','ewbNo','ewbStatus','ewbValidTill','vehicleNo']); this.setState({ live: r.data }); } catch (e) { this.setState({ toast: api.message(e) }); }
   }
   async genLive(ids) {
     const api = this.api(); if (!api || !ids.length) return;
@@ -75,6 +75,8 @@ class Component extends DCLogic {
     const v = this.renderVals0();
     const st = this.state || {};
     v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.live && !st.toast ? 'booting' : '';
+    // until the whole register has arrived, no counts at all: never a 0 or a part-count that then changes
+    if (v.bootCls && Array.isArray(v.tabs)) { v.tabs = v.tabs.map((t) => ({ ...t, n: '' })); if ('countLabel' in v) v.countLabel = ''; }
     return v;
   }
   renderVals0() {

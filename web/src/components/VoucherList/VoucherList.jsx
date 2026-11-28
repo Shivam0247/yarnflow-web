@@ -16,7 +16,18 @@ class Component extends DCLogic {
   slug() { return { ds: 'dispatch-schedules', gs: 'general-sales', sr: 'sale-returns', gp: 'general-purchases', pr: 'purchase-returns', dn: 'debit-notes', cn: 'credit-notes', jv: 'journals', rc: 'receipts', py: 'payments', rr: 'receipt-returns' }[this.props.kind || 'ds']; }
   async load() {
     const api = this.api(); if (!api) return;
-    try { const q = (this.props.kind || 'ds') === 'ds' ? { view: 'lines' } : {}; const r0 = await api.get('/vouchers/' + this.slug(), { ...q, pageSize: 300 }); if (!this.state.live || this.state.live.length <= r0.data.length) this.setState({ live: r0.data }); const r = r0.total > r0.data.length ? await api.get('/vouchers/' + this.slug(), { ...q, pageSize: 100000 }) : r0; this.setState({ live: r.data }); }
+    try { const kind = this.props.kind || 'ds';
+      // exactly the fields fromLive() below reads, per register
+      const F = {
+        ds: ['id', 'number', 'date', 'status', 'partyName', 'partyCity', 'deliveryPartyName', 'deliveryAddress', 'millName', 'itemName', 'brand', 'grade', 'lotNo', 'pcs', 'qty', 'rate', 'lrNo'],
+        gs: ['id', 'number', 'date', 'status', 'refNo', 'partyName', 'partyGstin', 'totalPcs', 'totalQty', 'netAmount', 'tdsAmount', 'pending', 'reverseCharge', 'extra.orderNo', 'extra.adjBillNo'],
+        sr: ['id', 'number', 'date', 'status', 'partyName', 'partyCity', 'partyArea', 'partyState', 'itemNames', 'totalPcs', 'totalQty', 'taxableAmount', 'netAmount', 'reason', 'remark', 'collectionPersonName', 'sourceNumber', 'sourceDate', 'lrNo', 'vehicleNo', 'brokerName', 'salesPersonName', 'transporterName', 'irn', 'extra.signCopy'],
+        rc: ['id', 'number', 'date', 'status', 'partyName', 'partyMobile', 'instrumentNo', 'billNos', 'amount', 'netAmount', 'narration', 'mode', 'bookName', 'extra.billNo', 'extra.lineRemark', 'extra.modeName', 'extra.smsSent'],
+        dn: ['id', 'number', 'date', 'status', 'partyName', 'partyGstin', 'partyGroupName', 'partyDc', 'refNo', 'amount', 'netAmount', 'narration', 'remark', 'bookName', 'collectionPersonName', 'extra.secondAccount', 'extra.billNo', 'extra.einvCancelled'],
+        pr: ['id', 'number', 'date', 'status', 'refNo', 'partyName', 'partyGstin', 'itemNames', 'totalPcs', 'totalQty', 'netAmount', 'sourceNumber', 'sourceDate', 'transporterName', 'extra.debitNoteNo', 'extra.adjusted']
+      };
+      const fields = F[{ gp: 'gs', py: 'rc', rr: 'rc', cn: 'dn', jv: 'dn' }[kind] || kind] || F.pr;
+      const r = await api.register('/vouchers/' + this.slug(), fields, kind === 'ds' ? { view: 'lines' } : {}); this.setState({ live: r.data }); }
     catch (e) { this.setState({ toast: api.message(e) }); }
   }
   async liveBulk(ids, l, fn) {
@@ -154,6 +165,8 @@ function makeRows(kind) {
     const v = this.renderVals0();
     const st = this.state || {};
     v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.live ? 'booting' : '';
+    // until the whole register has arrived, no counts at all: never a 0 or a part-count that then changes
+    if (v.bootCls && Array.isArray(v.tabs)) { v.tabs = v.tabs.map((t) => ({ ...t, n: '' })); if ('countLabel' in v) v.countLabel = ''; }
     return v;
   }
   renderVals0() {
