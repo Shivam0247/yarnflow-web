@@ -9,7 +9,7 @@
 export interface Fy { id: number; label: string; startDate: string; endDate: string; isLocked: boolean }
 export interface Company { masterCompanyId?: number | null; id: number; name: string; shortName: string | null; gstin: string | null; city: string | null; stateCode: string; financialYears: Fy[] }
 export interface User { id: number; name: string; email: string; role: string; companies: Company[] }
-interface Session { token: string; user: User; companyId: number; fyId: number }
+interface Session { token: string; user: User; companyId: number; fyId: number; choosing?: boolean }
 
 const KEY = 'yf-session';
 const listeners = new Set<() => void>();
@@ -123,7 +123,9 @@ export const YF_API = {
     // the company used last on this browser, otherwise the main company (not a branch)
     const c = r.user.companies.find((x) => x.id === last) ?? r.user.companies.find((x) => !x.masterCompanyId) ?? r.user.companies[0];
     if (!c) throw new ApiError(403, 'No company is assigned to this user yet');
-    save({ token: r.token, user: r.user, companyId: c.id, fyId: currentFy(c) });
+    // more than one company or year: the sign-in page asks which one to open before anything else
+    const choosing = r.user.companies.length > 1 || (c.financialYears?.length ?? 0) > 1;
+    save({ token: r.token, user: r.user, companyId: c.id, fyId: currentFy(c), choosing });
     return session;
   },
   logout() {
@@ -140,7 +142,7 @@ export const YF_API = {
     const c = session.user.companies.find((x) => x.id === companyId);
     if (!c) return;
     try { localStorage.setItem('yf-last-company', String(companyId)); } catch {}
-    save({ ...session, companyId, fyId: fyId ?? currentFy(c) });
+    save({ ...session, companyId, fyId: fyId ?? currentFy(c), choosing: false });
   },
 
   get: <T = any>(path: string, query?: Record<string, unknown>) => request<T>('GET', path, undefined, query),

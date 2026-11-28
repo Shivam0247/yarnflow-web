@@ -52,6 +52,13 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:
 .lg-demo button{border:0;background:none;color:var(--t2);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.lg-co{display:flex;flex-direction:column;gap:4px;margin-top:14px;max-height:340px;overflow:auto;padding-right:2px}
+.lg-co button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--bd2);background:var(--bg);color:var(--t1);border-radius:8px;padding:9px 12px;font:inherit;cursor:pointer}
+.lg-co button:hover{background:var(--s1)}
+.lg-co button.on{border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+.lg-co .nm{flex:1;min-width:0;font-weight:500}
+.lg-co .tg{font-size:11.5px;color:var(--t3);white-space:nowrap}
+.lg-back{border:0;background:none;color:var(--t2);font:inherit;font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;margin-top:14px}
 @media (max-width:760px){.lg-side{display:none}}
 </style>
 </helmet>
@@ -68,6 +75,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:
 <div class="lg-foot">© Shree Umiya Yarn Pvt Ltd · Surat</div>
 </aside>
 <main class="lg-main">
+<sc-if value="{{step1}}" hint-placeholder-val="{{true}}">
 <form class="lg-card" onSubmit="{{submit}}">
 <h2>Sign in</h2>
 <div class="muted">Use your YarnFlow account to continue.</div>
@@ -76,26 +84,67 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:
 <div class="lg-row"><label><input type="checkbox" checked="{{remember}}" onChange="{{toggleRemember}}" style="accent-color: #3B82F6">Keep me signed in</label><a href="#" onClick="{{forgot}}">Forgot password?</a></div>
 <sc-if value="{{hasErr}}" hint-placeholder-val="{{false}}"><div class="lg-err" role="alert">{{err}}</div></sc-if>
 <button class="btn pr" type="submit" disabled="{{busy}}"><sc-if value="{{busy}}" hint-placeholder-val="{{false}}"><span class="spin"></span></sc-if>{{btnLabel}}</button>
-<div class="lg-demo"><b>Demo logins</b> — admin@yarnflow.in / Admin@123 · sales@yarnflow.in / Sales@123 · accounts@yarnflow.in / Accounts@123 · <button type="button" onClick="{{fillDemo}}">fill admin</button></div>
+<sc-if value="{{showDemo}}" hint-placeholder-val="{{true}}"><div class="lg-demo"><b>Demo logins</b> (only shown on a developer's own computer) — admin@yarnflow.in / Admin@123 · <button type="button" onClick="{{fillDemo}}">fill admin</button></div></sc-if>
 </form>
+</sc-if>
+<sc-if value="{{step2}}" hint-placeholder-val="{{false}}">
+<form class="lg-card" onSubmit="{{open}}">
+<h2>Open company</h2>
+<div class="muted">Welcome, {{userName}}. Choose the company and financial year to work in.</div>
+<div class="lg-f" style="margin-top: 16px"><label for="lg-cq">Company</label><input id="lg-cq" class="inp" type="search" placeholder="Search company" value="{{cq}}" onChange="{{setCq}}"></div>
+<div class="lg-co" role="listbox" aria-label="Companies">
+<sc-for list="{{companies}}" as="c" hint-placeholder-count="6"><button type="button" class="{{c.cls}}" role="option" aria-selected="{{c.on}}" onClick="{{c.pick}}" onDoubleClick="{{c.openNow}}"><span class="nm">{{c.name}}</span><span class="tg">{{c.tag}}</span></button></sc-for>
+</div>
+<div class="lg-f"><label for="lg-fy">Financial year</label><select id="lg-fy" class="inp" value="{{fy}}" onChange="{{setFy}}"><sc-for list="{{fys}}" as="f" hint-placeholder-count="4"><option value="{{f.v}}">{{f.l}}</option></sc-for></select></div>
+<button class="btn pr" type="submit">Open {{openLabel}}</button>
+<button class="lg-back" type="button" onClick="{{signOut}}">Sign in as someone else</button>
+</form>
+</sc-if>
 </main>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"dark","options":["dark","light"]},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
-  constructor(p) { super(p); this.state = { email: '', password: '', show: false, remember: true, busy: false, err: '' }; }
+  constructor(p) { super(p); this.state = { email: '', password: '', show: false, remember: true, busy: false, err: '', step: 1, cq: '', cid: null, fy: null };
+    // signed in but no company chosen yet (e.g. the page was reloaded): straight to the choice
+    try { const ss = window.YF_API && window.YF_API.session; if (ss && ss.choosing) Object.assign(this.state, { step: 2, cid: ss.companyId, fy: ss.fyId }); } catch (e) {} }
   async submit(e) {
     if (e && e.preventDefault) e.preventDefault();
     const api = typeof window !== 'undefined' ? window.YF_API : null;
     if (!this.state.email || !this.state.password) { this.setState({ err: 'Enter your email and password' }); return; }
     if (!api) { this.setState({ err: '' }); return; } // design canvas: nothing to sign in to
     this.setState({ busy: true, err: '' });
-    try { await api.login(this.state.email.trim(), this.state.password); api.go('/'); }
+    try {
+      const s = await api.login(this.state.email.trim(), this.state.password);
+      // one company and one year: open it; otherwise ask which (as the old software did)
+      const cs = (s && s.user && s.user.companies) || [];
+      if (!s.choosing) { api.go('/'); return; }
+      this.setState({ busy: false, step: 2, cid: s.companyId, fy: s.fyId });
+    }
     catch (x) { this.setState({ busy: false, err: api.message(x) }); }
   }
   renderVals() {
     const st = this.state;
+    const api = typeof window !== 'undefined' ? window.YF_API : null;
+    const sess = api && api.session;
+    const cs = (sess && sess.user && sess.user.companies) || [];
+    const sel = cs.find((c) => c.id === st.cid) || cs[0] || null;
+    const dmy = (d) => (d ? String(d).slice(0, 10).split('-').reverse().join('-') : '');
+    const today = new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
+    const fyOf = (c) => { const f = (c.financialYears || []); return (f.find((x) => x.startDate <= today && today <= x.endDate) || f.find((x) => x.startDate <= today) || f[0] || {}).id; };
+    const q = st.cq.trim().toLowerCase();
+    const openIt = (cid, fy) => { if (!api) return; api.switchCompany(cid, fy); api.go('/'); };
+    let host = ''; try { host = window.location.hostname; } catch (e) {}
     return {
+      step1: st.step === 1, step2: st.step === 2, showDemo: !api || host === 'localhost' || host === '127.0.0.1',
+      userName: sess && sess.user ? sess.user.name : '', cq: st.cq, setCq: (e) => this.setState({ cq: e.target.value }),
+      companies: cs.filter((c) => !q || c.name.toLowerCase().includes(q)).map((c) => ({ name: c.name, tag: c.masterCompanyId ? 'branch' : 'main company', on: !!sel && c.id === sel.id, cls: sel && c.id === sel.id ? 'on' : '',
+        pick: () => this.setState({ cid: c.id, fy: fyOf(c) }), openNow: () => openIt(c.id, fyOf(c)) })),
+      fys: sel ? (sel.financialYears || []).map((f) => ({ v: String(f.id), l: f.label + '  (' + dmy(f.startDate) + ' to ' + dmy(f.endDate) + ')' + (f.startDate <= today && today <= f.endDate ? ' — current' : '') })) : [],
+      fy: String(st.fy || (sel ? fyOf(sel) : '')), setFy: (e) => this.setState({ fy: Number(e.target.value) }),
+      openLabel: sel ? sel.name : '',
+      open: (e) => { if (e && e.preventDefault) e.preventDefault(); if (sel) openIt(sel.id, Number(st.fy) || fyOf(sel)); },
+      signOut: () => { try { api.logout(); } catch (e) {} this.setState({ step: 1, password: '', cid: null, fy: null }); },
       theme: this.props.theme ?? 'dark',
       email: st.email, password: st.password, remember: st.remember, busy: st.busy, hasErr: !!st.err, err: st.err,
       pwType: st.show ? 'text' : 'password', pwLabel: st.show ? 'Hide' : 'Show', btnLabel: st.busy ? 'Signing in…' : 'Sign in',

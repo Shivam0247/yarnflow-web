@@ -34,7 +34,8 @@ function Root() {
   }, [nav]);
   // signed-out users only see the sign-in screen
   if (!session && pathname !== '/login') return <Navigate to="/login" replace />;
-  if (session && pathname === '/login') return <Navigate to="/" replace />;
+  if (session?.choosing && pathname !== '/login') return <Navigate to="/login" replace />;
+  if (session && !session.choosing && pathname === '/login') return <Navigate to="/" replace />;
   return (
     <Suspense fallback={null}>
       <Outlet />
