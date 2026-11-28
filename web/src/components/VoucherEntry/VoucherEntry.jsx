@@ -238,7 +238,14 @@ function makeRows(kind) {
   }
   vd() { return this.VD(); }
 
+  /* in the app nothing is shown until the real lists have loaded (the design's sample content never appears) */
   renderVals() {
+    const v = this.renderVals0();
+    const st = this.state || {};
+    v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.lk && !st.err ? 'booting' : '';
+    return v;
+  }
+  renderVals0() {
     const theme = this.props.theme ?? 'dark'; const sfx = theme === 'light' ? 'Light' : '';
     const kind = this.kind(); const view = this.props.mode === 'view';
     const { KINDS, makeRows } = this.VD(); const K = KINDS[kind];
@@ -421,7 +428,7 @@ class VoucherEntryView extends Component {
         <div className="sbw">
           <Sidebar active={v.kind} />
         </div>
-        <div className="main">
+        <div className={`main ${v.bootCls ?? ""}`}>
           <header className="hdr">
             <div className="bc">
               <DcLink className="m" href={v.listHref}>

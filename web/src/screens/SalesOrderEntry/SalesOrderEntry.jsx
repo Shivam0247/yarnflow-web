@@ -153,7 +153,14 @@ class Component extends DCLogic {
     catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
   }
 
+  /* in the app nothing is shown until the real lists have loaded (the design's sample content never appears) */
   renderVals() {
+    const v = this.renderVals0();
+    const st = this.state || {};
+    v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.lk && !st.err ? 'booting' : '';
+    return v;
+  }
+  renderVals0() {
     const st = this.state;
     const theme = this.props.theme ?? 'dark';
     const sfx = theme === 'light' ? 'Light' : '';
@@ -304,7 +311,7 @@ class SalesOrderEntryView extends Component {
         <div className="sbw">
           <Sidebar active={v.sideKey} />
         </div>
-        <div className="main">
+        <div className={`main ${v.bootCls ?? ""}`}>
           <header className="hdr">
             <div className="bc">
               <DcLink className="m" href={v.regHref}>

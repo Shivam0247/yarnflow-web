@@ -115,7 +115,14 @@ class Component extends DCLogic {
     } catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
   }
 
+  /* in the app nothing is shown until the real lists have loaded (the design's sample content never appears) */
   renderVals() {
+    const v = this.renderVals0();
+    const st = this.state || {};
+    v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.lk && !st.err ? 'booting' : '';
+    return v;
+  }
+  renderVals0() {
     const st = this.state; const k = st.kind; const r = k === 'r'; const theme = this.props.theme ?? 'dark';
     const live = !!this.api() && !!st.lk; const lk = st.lk || {};
     const inr = (n, d) => { const v = Number(n) || 0; const s = Math.abs(v).toFixed(d); let [i, f] = s.split('.'); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (v < 0 ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
@@ -197,7 +204,7 @@ class PaymentsView extends Component {
         <div className="sbw">
           <Sidebar active="pay" />
         </div>
-        <div className="main">
+        <div className={`main ${v.bootCls ?? ""}`}>
           <header className="hdr">
             <div className="bc">
               <DcLink className="m" href={v.regHref}>

@@ -37,7 +37,7 @@ class Component extends DCLogic {
   async init() {
     const api = this.api(); if (!api) return;
     try {
-      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/dispatch-schedules/pending-lines', { for: 'sale-bills' }), api.get('/company'), api.get('/vouchers/sale-bills', { pageSize: 100000 })]);
+      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/dispatch-schedules/pending-lines', { for: 'sale-bills' }), api.get('/company'), api.get('/vouchers/sale-bills', { view: 'nav', pageSize: 100000 })]);
       const book = lk.books.find((b) => b.voucherType === 'SALE_BILL' && b.isDefault) || lk.books.find((b) => b.voucherType === 'SALE_BILL');
       this.setState({ lk, pl, co, bills: list.data, f: { ...this.state.f, bookId: this.state.f.bookId || (book ? String(book.id) : '') } });
       if (!this.state.doc) { const nx = await api.get('/vouchers/sale-bills/next-number', book ? { bookId: book.id } : undefined); this.setState({ nextNo: nx.number }); }
@@ -143,7 +143,14 @@ class Component extends DCLogic {
     catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
   }
 
+  /* in the app nothing is shown until the real lists have loaded (the design's sample content never appears) */
   renderVals() {
+    const v = this.renderVals0();
+    const st = this.state || {};
+    v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.lk && !st.err ? 'booting' : '';
+    return v;
+  }
+  renderVals0() {
     const st = this.state;
     const theme = this.props.theme ?? 'dark';
     const sfx = theme === 'light' ? 'Light' : '';
@@ -312,7 +319,7 @@ class DispatchView extends Component {
         <div className="sbw">
           <Sidebar active="disp" />
         </div>
-        <div className="main">
+        <div className={`main ${v.bootCls ?? ""}`}>
           <header className="hdr">
             <div className="bc">
               <DcLink className="m" href={v.listHref}>

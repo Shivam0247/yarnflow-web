@@ -317,3 +317,6 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 /* gen27: collapsible sidebar */
 .sbw{transition:flex-basis .18s ease,width .18s ease}
 .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.main.booting{position:relative}
+.main.booting > *{visibility:hidden}
+.main.booting::after{content:'Loading…';position:absolute;top:96px;left:0;right:0;text-align:center;color:var(--t3,#8F8F8F);font-size:14px}

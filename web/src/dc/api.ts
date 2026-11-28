@@ -65,6 +65,25 @@ async function request<T = any>(method: string, path: string, body?: unknown, qu
 
 const z = (n: number) => String(n).padStart(2, '0');
 
+/** the server sends every account once; rebuild the lists the screens use (same as the full /lookups) */
+function expandLookups(r: any) {
+  const acc: any[] = r.ledgers ?? [];
+  const by = (...k: string[]) => acc.filter((a) => k.includes(a.kind));
+  const ps: any[] = r.persons ?? [];
+  const role = (...k: string[]) => ps.filter((p) => k.includes(p.role));
+  return {
+    ...r,
+    customers: by('CUSTOMER'),
+    suppliers: by('SUPPLIER'),
+    brokerAccounts: by('BROKER'),
+    parties: acc.filter((a) => !['BANK', 'CASH', 'TAX', 'SALES', 'PURCHASE'].includes(a.kind)),
+    banks: by('BANK', 'CASH'),
+    collectionPersons: role('COLLECTOR', 'SALES_PERSON'),
+    salesPersons: role('SALES_PERSON', 'COLLECTOR'),
+    brokers: role('BROKER').filter((p) => !p.isBlocked)
+  };
+}
+
 /** the financial year that contains today, otherwise the latest one that has started */
 function currentFy(c: Company) {
   const today = new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
@@ -133,7 +152,7 @@ export const YF_API = {
   /** dropdown data for entry forms (cached per company until a save) */
   lookups(force = false) {
     const k = 'lookups:' + session?.companyId;
-    if (force || !cache.has(k)) cache.set(k, request('GET', '/lookups'));
+    if (force || !cache.has(k)) cache.set(k, request<any>('GET', '/lookups', undefined, { compact: '1' }).then(expandLookups));
     return cache.get(k) as Promise<any>;
   },
   invalidate() {

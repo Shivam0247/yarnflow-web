@@ -133,11 +133,14 @@ select.pv{cursor:pointer}
 /* gen27: collapsible sidebar */
 .sbw{transition:flex-basis .18s ease,width .18s ease}
 .sbw:has(.sbc){flex:0 0 64px!important;width:64px!important;max-width:64px!important;min-width:64px!important}
+.main.booting{position:relative}
+.main.booting > *{visibility:hidden}
+.main.booting::after{content:'Loading…';position:absolute;top:96px;left:0;right:0;text-align:center;color:var(--t3,#8F8F8F);font-size:14px}
 </style>
 </helmet>
 <div class="app {{theme}}">
 <div class="sbw"><dc-import name="Sidebar" theme="{{theme}}" active="{{kind}}" hint-size="236px,1000px"></dc-import></div>
-<div class="main">
+<div class="main {{bootCls}}">
 <header class="hdr">
 <div class="bc"><a class="m" href="{{listHref}}">{{crumb}}</a><span class="m">/</span><span>{{title}}</span><span class="{{tagC}}">{{tagL}}</span></div>
 <a class="btn" href="{{listHref}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>Show record</a>
@@ -407,7 +410,14 @@ function makeRows(kind) {
   }
   vd() { return this.VD(); }
 
+  /* in the app nothing is shown until the real lists have loaded (the design's sample content never appears) */
   renderVals() {
+    const v = this.renderVals0();
+    const st = this.state || {};
+    v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.lk && !st.err ? 'booting' : '';
+    return v;
+  }
+  renderVals0() {
     const theme = this.props.theme ?? 'dark'; const sfx = theme === 'light' ? 'Light' : '';
     const kind = this.kind(); const view = this.props.mode === 'view';
     const { KINDS, makeRows } = this.VD(); const K = KINDS[kind];

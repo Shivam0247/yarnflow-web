@@ -1110,7 +1110,7 @@ export interface ListQuery {
   q?: string;
   page?: number;
   pageSize?: number;
-  view?: 'header' | 'lines';
+  view?: 'header' | 'lines' | 'nav';
   ewbStatus?: string;
 }
 
@@ -1146,6 +1146,12 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     byEwb[r.ewb] = (byEwb[r.ewb] ?? 0) + Number(r.n);
   }
 
+  // previous / next on an entry screen: only id, number and date (the full register is tens of MB)
+  if (qy.view === 'nav') {
+    const rows = await db.execute(sql`select v.id, v.number, v.date from vouchers v left join accounts p on p.id = v.party_id
+      where ${where} order by v.date desc, v.id desc limit ${pageSize}`);
+    return { data: rows.rows, total: rows.rows.length, page: 1, pageSize, counts: byStatus, ewbCounts: byEwb };
+  }
   const cons = CONSUMERS[def.type];
   if (qy.view === 'lines') {
     const consumers = cons ? sql.raw(`('${cons.types.join("','")}')`) : sql.raw(`('__none__')`);

@@ -36,7 +36,7 @@ class Component extends DCLogic {
   async init() {
     const api = this.api(); if (!api) return;
     try {
-      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/purchase-orders/pending-lines', { for: 'purchase-bills' }), api.get('/company'), api.get('/vouchers/purchase-bills', { pageSize: 100000 })]);
+      const [lk, pl, co, list] = await Promise.all([api.lookups(), api.get('/vouchers/purchase-orders/pending-lines', { for: 'purchase-bills' }), api.get('/company'), api.get('/vouchers/purchase-bills', { view: 'nav', pageSize: 100000 })]);
       const book = lk.books.find((b) => b.voucherType === 'PURCHASE_BILL' && b.isDefault) || lk.books.find((b) => b.voucherType === 'PURCHASE_BILL');
       const gd = lk.godowns.find((g) => g.isDefault) || lk.godowns[0];
       this.setState({ lk, pl, co, bills: list.data, f: { ...this.state.f, bookId: this.state.f.bookId || (book ? String(book.id) : ''), godownId: this.state.f.godownId || (gd ? String(gd.id) : '') } });
@@ -132,7 +132,14 @@ class Component extends DCLogic {
     try { await api.del('/vouchers/purchase-bills/' + doc.id); api.invalidate(); this.go('PurchaseBillList' + this.sfx() + '.dc.html'); }
     catch (e) { this.setState({ busy: false, note: api.message(e), err: true }); }
   }
+  /* in the app nothing is shown until the real lists have loaded (the design's sample content never appears) */
   renderVals() {
+    const v = this.renderVals0();
+    const st = this.state || {};
+    v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.lk && !st.err ? 'booting' : '';
+    return v;
+  }
+  renderVals0() {
     const st = this.state;
     const theme = this.props.theme ?? 'dark';
     const sfx = theme === 'light' ? 'Light' : '';
@@ -270,7 +277,7 @@ class PurchaseBillView extends Component {
         <div className="sbw">
           <Sidebar active="pb" />
         </div>
-        <div className="main">
+        <div className={`main ${v.bootCls ?? ""}`}>
           <header className="hdr">
             <div className="bc">
               <DcLink className="m" href={v.listHref}>

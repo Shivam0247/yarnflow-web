@@ -96,7 +96,8 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   app.delete('/api/masters/:slug/:id', write((ctx, req) => deleteMaster(ctx, masterOf(req), idParam(req))));
 
   /** everything the entry forms need for their dropdowns, in one call */
-  app.get('/api/lookups', read(async (ctx) => {
+  app.get('/api/lookups', read(async (ctx, req) => {
+    const compact = (req.query as Record<string, string>).compact === '1';
     const c = ctx.mcId; // masters are shared by the companies of one business
     const acc = await db
       .select({ id: accounts.id, code: sql<string>`coalesce(${accounts.extra}->>'P_Id', ${accounts.code})`, name: accounts.name, kind: accounts.kind, city: accounts.city, area: accounts.area, address1: accounts.address1, mobile: accounts.mobile, contactPerson: accounts.contactPerson, gstin: accounts.gstin, stateCode: accounts.stateCode, creditDays: accounts.creditDays, creditLimit: accounts.creditLimit, brokerId: accounts.brokerId, brokerageRate: accounts.brokerageRate, brokerageType: accounts.brokerageType, transporterId: accounts.transporterId, salesPersonId: accounts.salesPersonId, collectionPersonId: accounts.collectionPersonId, partyGroupId: accounts.partyGroupId, status: accounts.status, groupId: accounts.groupId, tdsApplicable: accounts.tdsApplicable, tdsRate: accounts.tdsRate, tcsApplicable: accounts.tcsApplicable })
@@ -112,6 +113,23 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
     const company = (await db.execute(sql`select state_code as "stateCode" from companies where id = ${ctx.companyId}`)).rows[0];
     const accR = acc.map((a) => ({ ...a, balance: Math.round(((bm.get(a.id) ?? 0) + 0) * 100) / 100, partyGroupName: a.partyGroupId ? pgNames.get(a.partyGroupId) ?? null : null }));
     const by = (...k: string[]) => accR.filter((a) => k.includes(a.kind));
+    const strip = <T extends Record<string, unknown>>(rows: T[]) => rows.map(({ createdAt, updatedAt, ...r }) => r);
+    if (compact) {
+      // every account once (the app makes customers / suppliers / parties / banks from it): about a third of the size
+      return {
+        ledgers: accR,
+        companyStateCode: company?.stateCode ?? '24',
+        transporters: strip(await db.select().from(transporters).where(and(eq(transporters.companyId, c), ne(transporters.status, 'INACTIVE'))).orderBy(asc(transporters.name))),
+        vehicles: strip(await db.select().from(vehicles).where(eq(vehicles.companyId, c)).orderBy(asc(vehicles.number))),
+        items: strip(await db.select().from(items).where(and(eq(items.companyId, c), eq(items.isActive, true))).orderBy(asc(items.name))),
+        brands: strip(await db.select().from(brands).where(eq(brands.companyId, c)).orderBy(asc(brands.name))),
+        godowns: strip(await db.select().from(godowns).where(and(eq(godowns.companyId, c), eq(godowns.isActive, true))).orderBy(asc(godowns.name))),
+        persons: strip(await db.select().from(persons).where(and(eq(persons.companyId, c), inArray(persons.role, ['COLLECTOR', 'SALES_PERSON', 'BROKER']))).orderBy(asc(persons.name))),
+        partyGroups: await db.select({ id: persons.id, name: persons.name, code: persons.code }).from(persons).where(and(eq(persons.companyId, c), eq(persons.role, 'PARTY_GROUP'))).orderBy(asc(persons.name)),
+        costCenters: strip(await db.select().from(costCenters).where(eq(costCenters.companyId, c)).orderBy(asc(costCenters.name))),
+        books: strip(await db.select().from(books).where(and(eq(books.companyId, c), eq(books.isActive, true))).orderBy(asc(books.name)))
+      };
+    }
     return {
       customers: by('CUSTOMER'),
       suppliers: by('SUPPLIER'),
