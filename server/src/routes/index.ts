@@ -28,6 +28,8 @@ import * as wa from '../services/whatsapp.js';
 import * as wac from '../services/waCloud.js';
 import * as mail from '../services/email.js';
 import * as share from '../services/share.js';
+import { memo } from '../lib/cache.js';
+import type { Ctx } from '../services/context.js';
 import { BILL_TYPES, BY_SLUG, TYPES, type VoucherType } from '../services/types.js';
 
 type Q = Record<string, string | undefined>;
@@ -98,6 +100,10 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
   /** everything the entry forms need for their dropdowns, in one call */
   app.get('/api/lookups', read(async (ctx, req) => {
     const compact = (req.query as Record<string, string>).compact === '1';
+    // the same for every user of the company until something is saved (about 2 s to work out on the full data)
+    return memo(`lookups|${ctx.mcId}|${ctx.companyId}|${ctx.period}|${compact}`, 600_000, () => lookupsNow(ctx, compact));
+  }));
+  async function lookupsNow(ctx: Ctx, compact: boolean) {
     const c = ctx.mcId; // masters are shared by the companies of one business
     const acc = await db
       .select({ id: accounts.id, code: sql<string>`coalesce(${accounts.extra}->>'P_Id', ${accounts.code})`, name: accounts.name, kind: accounts.kind, city: accounts.city, area: accounts.area, address1: accounts.address1, mobile: accounts.mobile, contactPerson: accounts.contactPerson, gstin: accounts.gstin, stateCode: accounts.stateCode, creditDays: accounts.creditDays, creditLimit: accounts.creditLimit, brokerId: accounts.brokerId, brokerageRate: accounts.brokerageRate, brokerageType: accounts.brokerageType, transporterId: accounts.transporterId, salesPersonId: accounts.salesPersonId, collectionPersonId: accounts.collectionPersonId, partyGroupId: accounts.partyGroupId, status: accounts.status, groupId: accounts.groupId, tdsApplicable: accounts.tdsApplicable, tdsRate: accounts.tdsRate, tcsApplicable: accounts.tcsApplicable })
@@ -151,7 +157,7 @@ export async function registerRoutes(app: FastifyInstance, kit: RouteKit) {
       costCenters: await db.select().from(costCenters).where(eq(costCenters.companyId, c)).orderBy(asc(costCenters.name)),
       books: await db.select().from(books).where(and(eq(books.companyId, c), eq(books.isActive, true))).orderBy(asc(books.name))
     };
-  }));
+  }
 
   /* ---------------------------------------------------------- vouchers */
   app.get('/api/vouchers/:slug', read((ctx, req) => docs.listDocs(ctx, typeOf(req), q(req) as never)));

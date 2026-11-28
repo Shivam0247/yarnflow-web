@@ -1,3 +1,4 @@
+import { bump } from './lib/cache.js';
 /**
  * Fastify application. `buildApp` is used by the server and by the tests
  * (which talk to it with app.inject — no network).
@@ -101,6 +102,7 @@ export async function buildApp({ db, logger = false }: AppDeps) {
   const write = <T>(fn: (ctx: Ctx, req: FastifyRequest) => Promise<T>, status = 200) => async (req: FastifyRequest, reply: FastifyReply) => {
     const s = await scope(req);
     const out = await db.transaction(async (tx) => fn({ ...s, db: tx }, req));
+    bump(); // something changed: remembered lists and figures are worked out again
     reply.status(status);
     return out;
   };

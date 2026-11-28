@@ -1160,7 +1160,8 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
     const col = sql.raw(cons?.by === 'order' ? 'order_line_id' : 'source_line_id');
     // what later documents already took from each line, totalled once for all lines (one sub-query per line took over a minute)
     const rows = await db.execute(sql`
-      with base as (select l.id from vouchers v join voucher_lines l on l.voucher_id = v.id left join accounts p on p.id = v.party_id where ${where}),
+      with base as (select l.id from vouchers v join voucher_lines l on l.voucher_id = v.id left join accounts p on p.id = v.party_id where ${where}
+                    order by v.date desc, v.id desc, l.line_no limit ${pageSize} offset ${(page - 1) * pageSize}),
       done as (select c.${col} as lid, sum(c.qty) as q, count(distinct cv.id) as n from voucher_lines c join vouchers cv on cv.id = c.voucher_id
                where c.${col} in (select id from base) and cv.type in ${consumers} and cv.status <> 'CANCELLED' group by 1)
       select v.id, v.number, v.date, v.status, v.due_date as "dueDate", v.credit_days as "creditDays", v.party_id as "partyId",
@@ -1169,8 +1170,9 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
              l.id as "lineId", l.line_no as "lineNo", l.item_id as "itemId", i.name as "itemName", i.denier, i.code as "itemCode",
              l.brand, l.lot_no as "lotNo", l.grade, l.unit, l.pcs, l.qty, l.rate, l.amount, l.taxable_amount as "taxableAmount", l.line_status as "lineStatus",
              coalesce(dn.q, 0) as "doneQty", coalesce(dn.n, 0) as "doneCount"
-      from vouchers v
-      join voucher_lines l on l.voucher_id = v.id
+      from base
+      join voucher_lines l on l.id = base.id
+      join vouchers v on v.id = l.voucher_id
       left join done dn on dn.lid = l.id
       left join items i on i.id = l.item_id
       left join accounts p on p.id = v.party_id
@@ -1180,9 +1182,7 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
       left join accounts ag on ag.id = v.agent_id
       left join accounts dpl on dpl.id = v.delivery_party_id
       left join persons sp on sp.id = v.sales_person_id
-      where ${where}
-      order by v.date desc, v.id desc, l.line_no
-      limit ${pageSize} offset ${(page - 1) * pageSize}`);
+      order by v.date desc, v.id desc, l.line_no`);
     const total = await db.execute<{ n: string }>(sql`select count(*) as n from vouchers v join voucher_lines l on l.voucher_id = v.id left join accounts p on p.id = v.party_id where ${where}`);
     const data = rows.rows.map((r: Record<string, unknown>) => {
       const qty = Number(r.qty), done = Number(r.doneQty);
