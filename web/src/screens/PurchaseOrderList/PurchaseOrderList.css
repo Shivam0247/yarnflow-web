@@ -238,3 +238,8 @@ table .cin,table .inp{height:28px;font-size:13.5px}
 .light .dock .bt tbody tr.on>td,.light .dock .bt tbody tr.on:hover>td{background:#DBEAFE}
 .dock .bt tbody tr.on>td:first-child{box-shadow:inset 3px 0 0 #3B82F6}
 .dock .bt tfoot td{background:var(--s2);border-top:1px solid var(--bd2);height:38px}
+.main.booting{position:relative;min-height:70vh;--boot-top:150px}
+.main.booting::after{content:'Loading your data…';position:absolute;left:0;right:0;top:var(--boot-top,0);bottom:0;background:var(--bg);z-index:20;display:flex;justify-content:center;padding-top:84px;color:var(--t3,#8F8F8F);font-size:14px}
+.main.booting::before{content:'';position:absolute;top:calc(var(--boot-top,0px) + 40px);left:50%;width:30px;height:30px;margin-left:-15px;border:3px solid var(--bd2,#383838);border-top-color:#3B82F6;border-radius:50%;animation:yfspin .8s linear infinite;z-index:21}
+@keyframes yfspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.main.booting::before{animation-duration:2.4s}}

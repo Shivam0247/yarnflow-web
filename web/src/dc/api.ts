@@ -43,7 +43,20 @@ export class ApiError extends Error {
   }
 }
 
+/** how many server requests are waiting — drives the loading bar at the top of every screen */
+let pending = 0;
+const pendingListeners = new Set<() => void>();
+export const loading = {
+  subscribe(fn: () => void) { pendingListeners.add(fn); return () => pendingListeners.delete(fn); },
+  get: () => pending
+};
+const setPending = (d: number) => { pending = Math.max(0, pending + d); pendingListeners.forEach((f) => f()); };
+
 async function request<T = any>(method: string, path: string, body?: unknown, query?: Record<string, unknown>): Promise<T> {
+  setPending(1);
+  try { return await requestNow<T>(method, path, body, query); } finally { setPending(-1); }
+}
+async function requestNow<T = any>(method: string, path: string, body?: unknown, query?: Record<string, unknown>): Promise<T> {
   const qs = query ? '?' + new URLSearchParams(Object.entries(query).filter(([, v]) => v !== undefined && v !== null && v !== '').map(([k, v]) => [k, String(v)])).toString() : '';
   const headers: Record<string, string> = {};
   if (body !== undefined) headers['content-type'] = 'application/json';

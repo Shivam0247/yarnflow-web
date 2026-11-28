@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation, useNavigate } from 'react-router-dom';
-import { YF_API } from '@/dc/api';
+import { YF_API, loading } from '@/dc/api';
+import './loading.css';
 import { PAGES } from '@/app/routes';
 import { resolveHref } from '@/dc/runtime';
 
@@ -37,9 +38,39 @@ function Root() {
   if (session?.choosing && pathname !== '/login') return <Navigate to="/login" replace />;
   if (session && !session.choosing && pathname === '/login') return <Navigate to="/" replace />;
   return (
-    <Suspense fallback={null}>
-      <Outlet />
-    </Suspense>
+    <>
+      <LoadingBar />
+      <Suspense fallback={<ScreenSpinner />}>
+        <Outlet />
+      </Suspense>
+    </>
+  );
+}
+
+/** thin moving bar at the top + a small label while YarnFlow waits for the server (shown after 200 ms, so quick answers don't flicker) */
+function LoadingBar() {
+  const n = useSyncExternalStore(loading.subscribe, loading.get);
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (!n) { setShow(false); return; }
+    const t = setTimeout(() => setShow(true), 200);
+    return () => clearTimeout(t);
+  }, [n > 0]);
+  if (!show) return null;
+  return (
+    <div role="status" aria-live="polite" className="yf-loadbar">
+      <div className="yf-loadbar-track"><div className="yf-loadbar-run" /></div>
+      <div className="yf-loadbar-label"><span className="yf-loadbar-dot" />Loading…</div>
+    </div>
+  );
+}
+/** while a screen's code is being opened */
+function ScreenSpinner() {
+  return (
+    <div className="yf-screen-spin" role="status" aria-live="polite">
+      <span className="yf-spin" />
+      <span>Opening…</span>
+    </div>
   );
 }
 

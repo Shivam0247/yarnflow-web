@@ -149,7 +149,14 @@ function makeRows(kind) {
     const active = Object.keys(flt).length > 0 || !!sc;
     return { list, sorter, heads, chips, hasChips: chips.length > 0, active, filtered: Object.keys(flt).length > 0, clearAll: () => set({ flt: {}, sk: null, sd: 1, pop: null }) };
   }
+  /* in the app: a loader over the table until the first rows arrive */
   renderVals() {
+    const v = this.renderVals0();
+    const st = this.state || {};
+    v.bootCls = typeof window !== 'undefined' && window.YF_API && window.YF_API.session && !st.live ? 'booting' : '';
+    return v;
+  }
+  renderVals0() {
     const theme = this.props.theme ?? 'dark'; const sfx = theme === 'light' ? 'Light' : '';
     const kind = this.props.kind || 'ds';
     const { KINDS, makeRows } = this.VD(); const K = KINDS[kind];
@@ -269,7 +276,7 @@ class VoucherListView extends Component {
         <div className="sbw">
           <Sidebar active={v.kind} />
         </div>
-        <div className="main">
+        <div className={`main ${v.bootCls ?? ""}`}>
           <header className="hdr">
             <div className="bc">
               <span className="m">
