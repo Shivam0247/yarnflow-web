@@ -30,8 +30,10 @@ export async function accessibleCompanies(db: Tx, userId: number) {
   const links = await db.select().from(userCompanies).where(eq(userCompanies.userId, userId));
   if (!links.length) return [];
   const cs = await db.select().from(companies).where(inArray(companies.id, links.map((l) => l.companyId))).orderBy(asc(companies.name));
+  // main companies first, then their branches (each group by name)
+  cs.sort((a, b) => Number(a.masterCompanyId != null) - Number(b.masterCompanyId != null));
   const fys = await db.select().from(financialYears).where(inArray(financialYears.companyId, cs.map((c) => c.id))).orderBy(desc(financialYears.startDate));
-  return cs.map((c) => ({ id: c.id, name: c.name, shortName: c.shortName, gstin: c.gstin, city: c.city, stateCode: c.stateCode, financialYears: fys.filter((f) => f.companyId === c.id).map((f) => ({ id: f.id, label: f.label, startDate: f.startDate, endDate: f.endDate, isLocked: f.isLocked })) }));
+  return cs.map((c) => ({ id: c.id, name: c.name, masterCompanyId: c.masterCompanyId, shortName: c.shortName, gstin: c.gstin, city: c.city, stateCode: c.stateCode, financialYears: fys.filter((f) => f.companyId === c.id).map((f) => ({ id: f.id, label: f.label, startDate: f.startDate, endDate: f.endDate, isLocked: f.isLocked })) }));
 }
 
 /* ------------------------------------------------------------------ users */

@@ -445,7 +445,8 @@ class Component extends DCLogic {
       return out;
     };
     const SC = { Pending: '#3B82F6', Hold: '#F97316', Clear: '#22C55E', Cancelled: '#EF4444' };
-    const LIVE = this.state.live;
+    // in the app the design's sample rows are never shown: an empty list until the real data arrives
+    const LIVE = this.state.live || (typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? [] : null);
     const LST = { PENDING_APPROVAL: 'Hold', DRAFT: 'Hold', OPEN: 'Pending', PARTIAL: 'Pending', COMPLETED: 'Clear', CANCELLED: 'Cancelled', REJECTED: 'Cancelled', LOCKED: 'Clear' };
     const fromLive = (r) => ({ id: r.id, lineId: r.lineId, no: r.number.replace(/\/\d{2}-\d{2}$/, ''), dt: r.date.split('-').reverse().join('-'), cr: r.creditDays, p: r.partyName, ag: r.agentName || r.brokerName || 'Direct', it: r.itemName || '', br: r.brand || '—', lot: r.lotNo || '—', gr: r.grade || '—', rate: r.rate, oq: r.qty, rq: r.doneQty, ref: r.refNo || '—', st: LST[r.status] || 'Pending', why: r.approvalNote || '', bc: r.doneCount });
     const DEMO = [

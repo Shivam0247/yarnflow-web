@@ -7,7 +7,7 @@
  * so the same screen code runs in the design and in the app.
  */
 export interface Fy { id: number; label: string; startDate: string; endDate: string; isLocked: boolean }
-export interface Company { id: number; name: string; shortName: string | null; gstin: string | null; city: string | null; stateCode: string; financialYears: Fy[] }
+export interface Company { masterCompanyId?: number | null; id: number; name: string; shortName: string | null; gstin: string | null; city: string | null; stateCode: string; financialYears: Fy[] }
 export interface User { id: number; name: string; email: string; role: string; companies: Company[] }
 interface Session { token: string; user: User; companyId: number; fyId: number }
 
@@ -65,6 +65,13 @@ async function request<T = any>(method: string, path: string, body?: unknown, qu
 
 const z = (n: number) => String(n).padStart(2, '0');
 
+/** the financial year that contains today, otherwise the latest one that has started */
+function currentFy(c: Company) {
+  const today = new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
+  const fys = (c.financialYears ?? []) as { id: number; startDate?: string; endDate?: string }[];
+  return (fys.find((f) => (f.startDate ?? '') <= today && today <= (f.endDate ?? '9999')) ?? fys.find((f) => (f.startDate ?? '') <= today) ?? fys[0])?.id;
+}
+
 export const YF_API = {
   isLive: true as const,
   get session() {
@@ -92,9 +99,12 @@ export const YF_API = {
 
   async login(email: string, password: string) {
     const r = await request<{ token: string; user: User }>('POST', '/auth/login', { email, password });
-    const c = r.user.companies[0];
+    let last = 0;
+    try { last = Number(localStorage.getItem('yf-last-company')) || 0; } catch {}
+    // the company used last on this browser, otherwise the main company (not a branch)
+    const c = r.user.companies.find((x) => x.id === last) ?? r.user.companies.find((x) => !x.masterCompanyId) ?? r.user.companies[0];
     if (!c) throw new ApiError(403, 'No company is assigned to this user yet');
-    save({ token: r.token, user: r.user, companyId: c.id, fyId: c.financialYears[0]?.id });
+    save({ token: r.token, user: r.user, companyId: c.id, fyId: currentFy(c) });
     return session;
   },
   logout() {
@@ -110,7 +120,8 @@ export const YF_API = {
     if (!session) return;
     const c = session.user.companies.find((x) => x.id === companyId);
     if (!c) return;
-    save({ ...session, companyId, fyId: fyId ?? c.financialYears[0]?.id });
+    try { localStorage.setItem('yf-last-company', String(companyId)); } catch {}
+    save({ ...session, companyId, fyId: fyId ?? currentFy(c) });
   },
 
   get: <T = any>(path: string, query?: Record<string, unknown>) => request<T>('GET', path, undefined, query),

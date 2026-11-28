@@ -114,7 +114,8 @@ class Component extends DCLogic {
     };
     const SC = { Pending: '#3B82F6', Hold: '#F97316', Clear: '#22C55E', Cancelled: '#EF4444', Locked: '#A855F7' };
     const SN = { Pending: 'Pending dispatch', Hold: 'On hold · approval', Clear: 'Closed', Cancelled: 'Cancelled', Locked: 'Locked' };
-    const LIVE = this.state.live;
+    // in the app the design's sample rows are never shown: an empty list until the real data arrives
+    const LIVE = this.state.live || (typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? [] : null);
     const LST = { PENDING_APPROVAL: 'Hold', OPEN: 'Pending', PARTIAL: 'Pending', COMPLETED: 'Clear', CANCELLED: 'Cancelled', REJECTED: 'Cancelled', LOCKED: 'Locked', DRAFT: 'Hold' };
     const fromLive = (r) => ({ id: r.id, lineId: r.lineId, no: r.number.replace(/\/\d{2}-\d{2}$/, ''), dt: r.date.split('-').reverse().join('-'), cr: r.creditDays, p: r.partyName, g: r.partyGroupName || r.partyName,
       it: r.itemName || '', br: r.brand || '—', lot: r.lotNo || '—', gr: r.grade || '—', rate: r.rate, oq: r.qty, dq: r.doneQty, bk: r.brokerName || 'Direct', st: LST[r.status] || 'Pending', bc: r.doneCount });

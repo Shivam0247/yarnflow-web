@@ -156,7 +156,8 @@ function makeRows(kind) {
     const inr = (n, d) => { const s = Number(n || 0).toFixed(d); let [i, f] = s.split('.'); let neg = i[0] === '-'; if (neg) i = i.slice(1); let l3 = i.slice(-3), rest = i.slice(0, -3); if (rest) l3 = ',' + l3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); return (neg ? '-' : '') + rest + l3 + (f ? '.' + f : ''); };
     if (!this._rows || this._rk !== kind) { this._rows = makeRows(kind); this._rk = kind; }
     const over = this.state.over;
-    const LIVE = this.state.live;
+    // in the app the design's sample rows are never shown: an empty list until the real data arrives
+    const LIVE = this.state.live || (typeof window !== 'undefined' && window.YF_API && window.YF_API.session ? [] : null);
     const dmy = (x) => (x ? String(x).slice(0, 10).split('-').reverse().join('-') : '');
     const DS = { OPEN: 'Open', PARTIAL: 'Open', PENDING_APPROVAL: 'Hold', LOCKED: 'Hold', COMPLETED: 'Close', CANCELLED: 'Cancel', REJECTED: 'Cancel' };
     const fromLive = (b) => { const ex = b.extra || {};

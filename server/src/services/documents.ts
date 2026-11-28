@@ -1150,18 +1150,20 @@ export async function listDocs(ctx: Ctx, def: TypeDef, qy: ListQuery) {
   if (qy.view === 'lines') {
     const consumers = cons ? sql.raw(`('${cons.types.join("','")}')`) : sql.raw(`('__none__')`);
     const col = sql.raw(cons?.by === 'order' ? 'order_line_id' : 'source_line_id');
+    // what later documents already took from each line, totalled once for all lines (one sub-query per line took over a minute)
     const rows = await db.execute(sql`
+      with base as (select l.id from vouchers v join voucher_lines l on l.voucher_id = v.id left join accounts p on p.id = v.party_id where ${where}),
+      done as (select c.${col} as lid, sum(c.qty) as q, count(distinct cv.id) as n from voucher_lines c join vouchers cv on cv.id = c.voucher_id
+               where c.${col} in (select id from base) and cv.type in ${consumers} and cv.status <> 'CANCELLED' group by 1)
       select v.id, v.number, v.date, v.status, v.due_date as "dueDate", v.credit_days as "creditDays", v.party_id as "partyId",
              p.name as "partyName", p.city as "partyCity", pg.name as "partyGroupName", b.name as "brokerName", sp.name as "salesPersonName",
              m.name as "millName", ag.name as "agentName", dpl.name as "deliveryPartyName", v.delivery_address as "deliveryAddress", v.lr_no as "lrNo", v.ref_no as "refNo", v.ref_name as "refName", v.approval_note as "approvalNote", v.net_amount as "netAmount", v.priority, v.exp_delivery_date as "expDeliveryDate",
              l.id as "lineId", l.line_no as "lineNo", l.item_id as "itemId", i.name as "itemName", i.denier, i.code as "itemCode",
              l.brand, l.lot_no as "lotNo", l.grade, l.unit, l.pcs, l.qty, l.rate, l.amount, l.taxable_amount as "taxableAmount", l.line_status as "lineStatus",
-             coalesce((select sum(c.qty) from voucher_lines c join vouchers cv on cv.id = c.voucher_id
-                       where c.${col} = l.id and cv.type in ${consumers} and cv.status <> 'CANCELLED'), 0) as "doneQty",
-             (select count(distinct cv.id) from voucher_lines c join vouchers cv on cv.id = c.voucher_id
-                       where c.${col} = l.id and cv.type in ${consumers} and cv.status <> 'CANCELLED') as "doneCount"
+             coalesce(dn.q, 0) as "doneQty", coalesce(dn.n, 0) as "doneCount"
       from vouchers v
       join voucher_lines l on l.voucher_id = v.id
+      left join done dn on dn.lid = l.id
       left join items i on i.id = l.item_id
       left join accounts p on p.id = v.party_id
       left join persons pg on pg.id = p.party_group_id
