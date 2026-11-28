@@ -25,7 +25,7 @@ const ROWH = 30, HDR = 32, FOOT = 34, VIEWROWS = 11, MAXW = 2200;
 class Component extends DCLogic {
   constructor(p) {
     super(p);
-    this.state = { open: false, q: null, hi: 0, top: 0, pos: null };
+    this.state = { open: false, q: null, hi: 0, top: 0, pos: null, ws: null };
     this.uid = 'lk' + Math.random().toString(36).slice(2, 9);
     this.onWin = (e) => { if (e && e.target && e.target.closest && e.target.closest('.lkp')) return; if (this.state.open) this.place(); };
   }
@@ -77,10 +77,41 @@ class Component extends DCLogic {
     this._res = { ix, q, list };
     return list;
   }
+  // ---- column widths: as the old layout, then as the user drags them (remembered per list, in this browser)
+  wkey() { return 'yf-lkcols:' + this.cols().map((c) => c.k).join(','); }
+  widths() {
+    const cols = this.cols();
+    if (this.state.ws && this.state.ws.length === cols.length) return this.state.ws;
+    if (!this._wsv || this._wsv.key !== this.wkey()) {
+      let w = null; try { w = JSON.parse(localStorage.getItem(this.wkey()) || 'null'); } catch (e) {}
+      this._wsv = { key: this.wkey(), w: Array.isArray(w) && w.length === cols.length ? w : null };
+    }
+    return this._wsv.w || cols.map((c) => c.w || 120);
+  }
+  saveW(ws) { try { localStorage.setItem(this.wkey(), JSON.stringify(ws)); } catch (e) {} this._wsv = { key: this.wkey(), w: ws }; }
+  rzStart(e, i) {
+    e.preventDefault(); e.stopPropagation();
+    const x0 = e.clientX, w0 = this.widths()[i];
+    const mv = (ev) => { const ws = this.widths().slice(); ws[i] = Math.max(36, Math.round(w0 + ev.clientX - x0)); this.setState({ ws }); };
+    const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); document.body.classList.remove('yf-rz-drag'); this.saveW(this.widths()); this.place(); };
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+    document.body.classList.add('yf-rz-drag');
+  }
+  /** double-click a column edge: as wide as its widest value */
+  fit(e, i) {
+    e.preventDefault(); e.stopPropagation();
+    const c = this.cols()[i]; const ix = this.index(); const res = this.results();
+    const cv = this._cv || (this._cv = document.createElement('canvas')); const g = cv.getContext('2d');
+    const el = document.querySelector('.lkp .lkr') || document.getElementById(this.id());
+    g.font = el ? getComputedStyle(el).font : '13px Inter, system-ui, sans-serif';
+    let m = g.measureText(c.l).width + 8;
+    for (let j = 0; j < Math.min(res.length, 4000); j++) m = Math.max(m, g.measureText(ix.txt[res[j]][i] || '').width);
+    const ws = this.widths().slice(); ws[i] = Math.ceil(m + 20); this.setState({ ws }); this.saveW(ws); setTimeout(() => this.place(), 0);
+  }
   place() {
     const el = document.getElementById(this.id()); if (!el) return;
     const r = el.getBoundingClientRect(); const W = window.innerWidth, H = window.innerHeight;
-    const want = Math.min(MAXW, this.cols().reduce((s, c) => s + (c.w || 120), 0) + 2);
+    const want = Math.min(MAXW, this.widths().reduce((s, w) => s + w, 0) + 2);
     const width = Math.max(Math.min(want, W - 24), Math.min(r.width, W - 24));
     const left = Math.max(12, Math.min(r.left, W - width - 12));
     const full = HDR + ROWH * VIEWROWS + FOOT + 2;
@@ -146,7 +177,7 @@ class Component extends DCLogic {
     const curRow = cur === undefined ? null : ix.rows[cur];
     const open = !!st.open && !p.disabled;
     const noun = p.noun || 'party', nouns = p.nouns || (noun === 'party' ? 'parties' : noun + 's');
-    const grid = 'grid-template-columns: ' + cols.map((c) => (c.w || 120) + 'px').join(' ');
+    const grid = 'grid-template-columns: ' + this.widths().map((w) => w + 'px').join(' ');
     let vis = [], padTop = 'height: 0', padBot = 'height: 0', count = '', none = false;
     if (open) {
       const res = this.results(); const n = res.length; const terms = this.terms();
@@ -179,7 +210,7 @@ class Component extends DCLogic {
       shown: st.q !== null ? st.q : this.label(curRow) || (p.text || ''),
       popStyle: 'left: ' + pos.left + 'px; top: ' + pos.top + 'px; width: ' + pos.width + 'px; height: ' + pos.h + 'px',
       listStyle: '', gridStyle: grid,
-      head: cols.map((c) => ({ l: c.l, c: c.a === 'r' ? 'r' : '' })),
+      head: cols.map((c, ci) => ({ l: c.l, c: c.a === 'r' ? 'r' : '', rz: (e) => this.rzStart(e, ci), fit: (e) => this.fit(e, ci) })),
       vis, padTop, padBot, none,
       noneText: 'No ' + noun + ' matches “' + String(st.q || '').trim() + '”. Search works on every column: name, code, group, city, GST, mobile…',
       count, countOf: (st.q ? 'of ' + ix.rows.length.toLocaleString('en-IN') + ' ' : '') + nouns,
@@ -221,6 +252,7 @@ class LookupView extends Component {
                     <Fragment key={$index}>
                       <span className={h?.c} title={h?.l}>
                         {h?.l}
+                        <i className="lkrz" title="Drag to resize · double-click to fit" onPointerDown={h?.rz} onDoubleClick={h?.fit} />
                       </span>
                     </Fragment>
                   ))}

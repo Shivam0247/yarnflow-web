@@ -6,6 +6,7 @@ import './loading.css';
 import { PAGES } from '@/app/routes';
 import { resolveHref } from '@/dc/runtime';
 import { installEnterNav } from '@/dc/enterNav';
+import { installColResize } from '@/dc/colResize';
 
 const PrintPage = lazy(() => import('@/print/PrintPage'));
 const ReportPage = lazy(() => import('@/print/ReportPage'));
@@ -78,4 +79,5 @@ try {
 }
 
 installEnterNav(); // Enter → next field on every entry screen
+installColResize(); // table columns: minimum width, drag to resize, remembered
 createRoot(document.getElementById('root')!).render(<RouterProvider router={router} />);

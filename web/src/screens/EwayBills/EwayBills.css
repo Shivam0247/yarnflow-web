@@ -108,7 +108,6 @@ tr.sel td{background:var(--s2)}
 .scr .tw td,.scr .tw th{padding-left:7px;padding-right:7px}
 .scr .tw .bar{display:block;width:72px;margin:5px 0 0 auto}
 .scr{overflow-x:hidden}
-.scr .tw tbody td:nth-child(3) div,.scr .tw tbody td:nth-child(4) div{max-width:168px;overflow:hidden;text-overflow:ellipsis}
 .scr .tw{overflow:visible}
 .scr .tw tfoot td{position:sticky;bottom:0;z-index:2;background:var(--s2);font-weight:600;height:44px;border-top:1px solid var(--bd2);border-bottom:0;font-variant-numeric:tabular-nums}
 .sumbar{flex:none;display:flex;align-items:center;gap:6px;padding:8px 20px;border-top:1px solid var(--bd);background:var(--bg);overflow-x:auto}
@@ -131,8 +130,6 @@ tr.sel td{background:var(--s2)}
 .light .reg tbody tr:nth-child(even)>td{background:#F3F4F6}
 .reg tbody tr:hover>td{background:var(--s2)}
 .reg td{height:54px}
-.reg tbody td:nth-child(3) div{max-width:170px;overflow:hidden;text-overflow:ellipsis}
-.reg tbody td:nth-child(3) div+div,.reg tbody td:nth-child(4) div{max-width:150px;overflow:hidden;text-overflow:ellipsis}
 .cbx{width:16px;height:16px;margin:0;accent-color:#3B82F6;vertical-align:middle;cursor:pointer}
 .reg tbody tr.sel>td{background:rgba(59,130,246,.18)!important}
 .light .reg tbody tr.sel>td{background:#DBEAFE!important}

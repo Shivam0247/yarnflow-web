@@ -10,6 +10,9 @@
 .lkh{position:sticky;top:0;z-index:1;height:32px;background:var(--s1);border-bottom:1px solid var(--bd2);font-size:12px;font-weight:600;color:var(--t2)}
 .lkh span,.lkr span{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lkh .r,.lkr .r{text-align:right;font-variant-numeric:tabular-nums}
+.lkh span{position:relative}
+.lkh .lkrz{position:absolute;top:0;right:0;width:7px;height:100%;cursor:col-resize;border-right:1px solid var(--bd2)}
+.lkh .lkrz:hover,.lkh .lkrz.on{background:rgba(59,130,246,.55)}
 .lkr{height:30px;cursor:pointer;border-bottom:1px solid var(--bd);color:var(--t1)}
 .lkr:hover{background:var(--s1)}
 .lkr.on{background:rgba(59,130,246,.18)}
